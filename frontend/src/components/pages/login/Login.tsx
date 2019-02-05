@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Container, Row, Col, Form, Button, Input, Label, FormGroup, ButtonGroup } from 'reactstrap'
-import { Formik, Field } from 'formik';
+import { Formik, Field, FieldProps } from 'formik';
 
 import { LoginForm } from '../../../state/auth/types';
 import { isLoggedIn } from '../../../state/auth/selectors';
 import { ApplicationState } from '../../../state/state';
 import { loginAction } from '../../../state/auth/actions';
+import FormFeedback from 'reactstrap/lib/FormFeedback';
 
 export interface LoginProps {
     logIn: (form: LoginForm) => {
@@ -48,7 +49,7 @@ class Login extends Component<LoginProps, LoginState> {
                     Horus - Log in
                 </h2>
                 <Formik
-                    initialValues={{ username: 's1234567', password: 'password'}}
+                    initialValues={{ username: '', password: ''}}
                     validate={this.validate}
                     onSubmit={this.onSubmit}
                 >
@@ -58,10 +59,11 @@ class Login extends Component<LoginProps, LoginState> {
                                 <Col>
                                     <FormGroup>
                                         <Label>Username</Label>
-                                        <Field
+                                        <Input
+                                            tag={Field}
+                                            id="username"
                                             name="username"
-                                            component={Input}
-                                            placeholder="s1234567/m1234567"
+                                            placeholder="s1234567/m1234567"   
                                         />
                                     </FormGroup>
                                 </Col>
@@ -70,9 +72,10 @@ class Login extends Component<LoginProps, LoginState> {
                                 <Col>
                                     <FormGroup>
                                         <Label>Password</Label>
-                                        <Field
+                                        <Input
+                                            tag={Field}
+                                            id="password"
                                             name="password"
-                                            component={Input}
                                             placeholder="*********"
                                             type="password"
                                         />
