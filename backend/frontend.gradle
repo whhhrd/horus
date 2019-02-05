@@ -1,0 +1,19 @@
+task buildFrontEnd(dependsOn: ['buildYarn', 'copyYarn'])
+
+def distDir = rootProject.file('../frontend/dist/')
+def springDir = rootProject.file('src/main/resources')
+
+task buildYarn(type:Exec) {
+    workingDir '../frontend'
+    
+    inputs.dir(rootProject.file('../frontend/src'))
+    outputs.dir(distDir)
+    
+    commandLine 'yarn'
+}
+
+task copyYarn(type: Copy) {
+    includeEmptyDirs = true
+    from distDir
+    into springDir
+}

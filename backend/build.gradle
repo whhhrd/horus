@@ -14,12 +14,16 @@ buildscript {
     }
 }
 
+apply from: 'frontend.gradle'
 apply plugin: 'kotlin'
 apply plugin: 'kotlin-spring'
 apply plugin: 'kotlin-jpa'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'war'
+
+// Force copying of the front-end into correct folders before processing resources
+processResources.dependsOn buildFrontEnd
 
 group = 'nl.utwente'
 version = '0.0.1-SNAPSHOT'

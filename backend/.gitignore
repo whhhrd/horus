@@ -2,6 +2,11 @@
 /build/
 !gradle/wrapper/gradle-wrapper.jar
 
+# Resources copied via yarn/Gradle
+/src/main/resources
+# Except for some exceptions...
+!src/main/resources/application.properties
+
 ### STS ###
 .apt_generated
 .classpath
