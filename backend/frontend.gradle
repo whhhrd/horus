@@ -8,8 +8,12 @@ task buildYarn(type:Exec) {
     
     inputs.dir(rootProject.file('../frontend/src'))
     outputs.dir(distDir)
-    
-    commandLine 'yarn'
+
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'yarn build'
+    } else {
+        commandLine 'yarn build'
+    }
 }
 
 task copyYarn(type: Copy) {
