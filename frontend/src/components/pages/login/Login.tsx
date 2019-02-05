@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Container, Row, Col, Form, Button, Input, Label, FormGroup, ButtonGroup } from 'reactstrap'
-import { Formik, Field, FieldProps } from 'formik';
+import { Formik, Field } from 'formik';
 
 import { LoginForm } from '../../../state/auth/types';
 import { isLoggedIn } from '../../../state/auth/selectors';
 import { ApplicationState } from '../../../state/state';
 import { loginAction } from '../../../state/auth/actions';
-import FormFeedback from 'reactstrap/lib/FormFeedback';
 
 export interface LoginProps {
     logIn: (form: LoginForm) => {
