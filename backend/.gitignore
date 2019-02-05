@@ -3,9 +3,7 @@
 !gradle/wrapper/gradle-wrapper.jar
 
 # Resources copied via yarn/Gradle
-/src/main/resources
-# Except for some exceptions...
-!src/main/resources/application.properties
+/src/main/resources/WEB
 
 ### STS ###
 .apt_generated

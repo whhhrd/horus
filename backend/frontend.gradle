@@ -1,7 +1,7 @@
 task buildFrontEnd(dependsOn: ['buildYarn', 'copyYarn'])
 
 def distDir = rootProject.file('../frontend/dist/')
-def springDir = rootProject.file('src/main/resources')
+def springDir = rootProject.file('src/main/resources/WEB')
 
 task buildYarn(type:Exec) {
     workingDir '../frontend'
