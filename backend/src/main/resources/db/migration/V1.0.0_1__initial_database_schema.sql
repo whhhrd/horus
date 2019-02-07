@@ -14,11 +14,13 @@ CREATE TABLE course (
   name VARCHAR NOT NULL,
   archived BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  disabled_at TIMESTAMP WITH TIME ZONE NOT NULL
+  archived_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
+CREATE TYPE RoleName AS ENUM ('TEACHER', 'TEACHING_ASSISTANT', 'STUDENT');
+
 CREATE TABLE role (
-  name VARCHAR NOT NULL PRIMARY KEY
+  name RoleName NOT NULL PRIMARY KEY
 );
 
 CREATE TABLE permission (
@@ -26,8 +28,10 @@ CREATE TABLE permission (
 );
 
 CREATE TABLE role_permission (
-  role_name VARCHAR NOT NULL REFERENCES role(name),
-  permission_name VARCHAR NOT NULL REFERENCES permission(name)
+  role_name RoleName NOT NULL REFERENCES role(name),
+  permission_name VARCHAR NOT NULL REFERENCES permission(name),
+
+  CONSTRAINT role_permission_pkey PRIMARY KEY (role_name, permission_name)
 );
 
 CREATE INDEX role_permission_role_idx ON role_permission(role_name);
@@ -37,8 +41,8 @@ CREATE TABLE participant (
   id BIGSERIAL NOT NULL PRIMARY KEY,
   person_id BIGINT NOT NULL REFERENCES person(id),
   course_id BIGINT NOT NULL REFERENCES course(id),
-  role_name VARCHAR NOT NULL REFERENCES role(name),
-  comment_thread_id VARCHAR NULL,
+  role_name RoleName NOT NULL REFERENCES role(name),
+  comment_thread_id BIGINT NOT NULL,
   enabled BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
 
@@ -55,7 +59,9 @@ CREATE TABLE group_set (
   external_id VARCHAR NULL,
   name VARCHAR NOT NULL,
   created_by BIGINT NOT NULL REFERENCES participant(id),
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+
+  CONSTRAINT group_set_course_external_id_unique UNIQUE (course_id, external_id)
 );
 
 CREATE INDEX group_set_course_idx ON group_set(course_id);
@@ -63,12 +69,15 @@ CREATE INDEX group_set_course_idx ON group_set(course_id);
 CREATE TABLE "group" (
   id BIGSERIAL NOT NULL PRIMARY KEY,
   group_set_id BIGSERIAL NOT NULL REFERENCES group_set(id),
-  comment_thread_id VARCHAR NULL,
+  external_id VARCHAR NULL,
+  comment_thread_id BIGINT NOT NULL,
   archived BOOLEAN NOT NULL DEFAULT FALSE,
   created_by BIGINT NOT NULL REFERENCES participant(id),
   archived_by BIGINT NULL REFERENCES participant(id),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  archived_at TIMESTAMP WITH TIME ZONE NULL
+  archived_at TIMESTAMP WITH TIME ZONE NULL,
+
+  CONSTRAINT group_group_set_external_id_unique UNIQUE (group_set_id, external_id)
 );
 
 CREATE INDEX group_group_set_idx ON "group"(group_set_id);
@@ -99,7 +108,8 @@ CREATE TABLE assignment (
   id BIGSERIAL NOT NULL PRIMARY KEY,
   assignment_set_id BIGINT NOT NULL REFERENCES assignment_set(id),
   name VARCHAR NOT NULL,
-  comment_thread_id VARCHAR NULL,
+  comment_thread_id BIGINT NOT NULL,
+  orderKey VARCHAR NOT NULL,
   created_by BIGINT NOT NULL REFERENCES participant(id),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
@@ -112,10 +122,10 @@ CREATE TYPE SignOffResult AS ENUM ('COMPLETE', 'INCOMPLETE');
 CREATE TABLE assignment_sign_off_result (
   participant_id BIGINT NOT NULL REFERENCES participant(id),
   assignment_id BIGINT NOT NULL REFERENCES assignment(id),
-  comment_thread_id VARCHAR NULL,
+  comment_thread_id BIGINT NOT NULL,
   result SignOffResult NOT NULL,
   signer_id BIGINT NOT NULL REFERENCES participant(id),
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  signed_at TIMESTAMP WITH TIME ZONE NOT NULL,
   CONSTRAINT assignment_sign_off_result_unique UNIQUE (participant_id, assignment_id)
 );
 
@@ -128,11 +138,14 @@ CREATE TYPE CommentType AS ENUM ('REMARK', 'FEEDBACK');
 CREATE TABLE comment (
   id BIGSERIAL NOT NULL,
   person_id BIGINT NOT NULL REFERENCES person(id),
-  thread_id VARCHAR NOT NULL,
+  thread_id BIGINT NOT NULL,
   "type" CommentType NOT NULL,
   content VARCHAR NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  last_edited_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
 CREATE INDEX comment_person_idx ON comment(person_id);
 CREATE INDEX comment_thread_idx ON comment(thread_id);
+
+CREATE SEQUENCE comment_thread_id_seq;
