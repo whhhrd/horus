@@ -18,8 +18,6 @@ data class Course (
 
         var name: String,
 
-        var archived: Boolean,
-
         val createdAt: ZonedDateTime,
 
         var archivedAt: ZonedDateTime?
@@ -34,5 +32,8 @@ data class Course (
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "course", cascade = [CascadeType.ALL], orphanRemoval = true)
     val groupSets: MutableSet<GroupSet> = HashSet()
 
-    constructor(courseCode: String?, externalId: String?, name: String): this(0, courseCode, externalId, name, false, ZonedDateTime.now(), null)
+    val archived
+        get() = archivedAt != null
+
+    constructor(courseCode: String?, externalId: String?, name: String): this(0, courseCode, externalId, name, ZonedDateTime.now(), null)
 }

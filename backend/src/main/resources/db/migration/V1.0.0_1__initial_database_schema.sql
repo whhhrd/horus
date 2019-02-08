@@ -7,15 +7,42 @@ CREATE TABLE person (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
+------ Comment-related commands -----------------------------
+
+CREATE TYPE CommentType AS ENUM ('STAFF_ONLY', 'PUBLIC');
+
+CREATE TABLE comment_thread (
+  id BIGINT NOT NULL PRIMARY KEY,
+  "type" CommentType NOT NULL
+);
+
+
+CREATE TABLE comment (
+  id BIGSERIAL NOT NULL,
+  person_id BIGINT NOT NULL REFERENCES person(id),
+  thread_id BIGINT NOT NULL REFERENCES comment_thread(id) ON DELETE CASCADE,
+  content VARCHAR NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  last_edited_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE INDEX comment_person_idx ON comment(person_id);
+CREATE INDEX comment_thread_idx ON comment(thread_id);
+
+CREATE SEQUENCE comment_thread_id_seq;
+
+------ Course-related commands ------------
+
 CREATE TABLE course (
   id BIGSERIAL NOT NULL PRIMARY KEY,
   course_code VARCHAR NOT NULL,
   external_id VARCHAR NULL,
   name VARCHAR NOT NULL,
-  archived BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
   archived_at TIMESTAMP WITH TIME ZONE NULL
 );
+
+------ Auth-related commands ------------
 
 CREATE TYPE RoleName AS ENUM ('TEACHER', 'TEACHING_ASSISTANT', 'STUDENT');
 
@@ -37,12 +64,14 @@ CREATE TABLE role_permission (
 CREATE INDEX role_permission_role_idx ON role_permission(role_name);
 CREATE INDEX role_permission_permission_idx ON role_permission(permission_name);
 
+------ Course participation commands ------------
+
 CREATE TABLE participant (
   id BIGSERIAL NOT NULL PRIMARY KEY,
   person_id BIGINT NOT NULL REFERENCES person(id),
   course_id BIGINT NOT NULL REFERENCES course(id),
   role_name RoleName NOT NULL REFERENCES role(name),
-  comment_thread_id BIGINT NOT NULL,
+  comment_thread_id BIGINT NULL REFERENCES comment_thread(id) ON DELETE SET NULL,
   enabled BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
 
@@ -52,6 +81,8 @@ CREATE TABLE participant (
 CREATE INDEX participant_person_idx ON participant(person_id);
 CREATE INDEX participant_course_idx ON participant(course_id);
 CREATE INDEX participant_role_idx ON participant(role_name);
+
+------ Group-related commands ------------
 
 CREATE TABLE group_set (
   id BIGSERIAL NOT NULL PRIMARY KEY,
@@ -70,8 +101,7 @@ CREATE TABLE "group" (
   id BIGSERIAL NOT NULL PRIMARY KEY,
   group_set_id BIGSERIAL NOT NULL REFERENCES group_set(id),
   external_id VARCHAR NULL,
-  comment_thread_id BIGINT NOT NULL,
-  archived BOOLEAN NOT NULL DEFAULT FALSE,
+  comment_thread_id BIGINT NULL REFERENCES comment_thread(id) ON DELETE SET NULL,
   created_by BIGINT NOT NULL REFERENCES participant(id),
   archived_by BIGINT NULL REFERENCES participant(id),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -92,6 +122,8 @@ CREATE TABLE group_member (
 
 CREATE INDEX group_member_group_idx ON group_member(group_id);
 CREATE INDEX group_member_participant_idx ON group_member(participant_id);
+
+------ Assignment and sign-off related commands ------------
 
 CREATE TABLE assignment_set (
   id BIGSERIAL NOT NULL PRIMARY KEY,
@@ -122,7 +154,7 @@ CREATE TYPE SignOffResult AS ENUM ('COMPLETE', 'INCOMPLETE');
 CREATE TABLE assignment_sign_off_result (
   participant_id BIGINT NOT NULL REFERENCES participant(id),
   assignment_id BIGINT NOT NULL REFERENCES assignment(id),
-  comment_thread_id BIGINT NOT NULL,
+  comment_thread_id BIGINT NULL REFERENCES comment_thread(id) ON DELETE SET NULL,
   result SignOffResult NOT NULL,
   signer_id BIGINT NOT NULL REFERENCES participant(id),
   signed_at TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -132,20 +164,3 @@ CREATE TABLE assignment_sign_off_result (
 CREATE INDEX assignment_sign_off_result_assignment_idx ON assignment_sign_off_result(assignment_id);
 CREATE INDEX assignment_sign_off_result_participant_idx ON assignment_sign_off_result(participant_id);
 CREATE INDEX assignment_sign_off_result_signer_idx ON assignment_sign_off_result(signer_id);
-
-CREATE TYPE CommentType AS ENUM ('REMARK', 'FEEDBACK');
-
-CREATE TABLE comment (
-  id BIGSERIAL NOT NULL,
-  person_id BIGINT NOT NULL REFERENCES person(id),
-  thread_id BIGINT NOT NULL,
-  "type" CommentType NOT NULL,
-  content VARCHAR NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  last_edited_at TIMESTAMP WITH TIME ZONE NOT NULL
-);
-
-CREATE INDEX comment_person_idx ON comment(person_id);
-CREATE INDEX comment_thread_idx ON comment(thread_id);
-
-CREATE SEQUENCE comment_thread_id_seq;
