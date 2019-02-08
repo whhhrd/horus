@@ -40,7 +40,7 @@ data class Group (
         get() = this.members.map { member -> member.participant }
 
     val archived
-        get() = this.archivedAt == null
+        get() = this.archivedAt != null
 
     constructor(groupSet: GroupSet, externalId: String?, name: String, createdBy: Participant): this(0, groupSet, externalId, 0, name, createdBy, ZonedDateTime.now(), null)
 }

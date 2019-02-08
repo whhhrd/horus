@@ -12,7 +12,6 @@ CREATE TABLE course (
   course_code VARCHAR NOT NULL,
   external_id VARCHAR NULL,
   name VARCHAR NOT NULL,
-  archived BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
   archived_at TIMESTAMP WITH TIME ZONE NULL
 );
