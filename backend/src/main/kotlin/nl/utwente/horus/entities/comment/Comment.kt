@@ -13,9 +13,8 @@ data class Comment (
         @ManyToOne
         val person: Person,
 
-        val threadId: Long,
-
-        val type: CommentType,
+        @ManyToOne
+        val thread: CommentThread,
 
         var content: String,
 
@@ -25,7 +24,7 @@ data class Comment (
 
 ) {
 
-    constructor(person: Person, threadId: Long, type: CommentType, content: String): this(0, person, threadId, type, content, ZonedDateTime.now(), ZonedDateTime.now()) {
+    constructor(person: Person, thread: CommentThread, content: String): this(0, person, thread, content, ZonedDateTime.now(), ZonedDateTime.now()) {
         this.lastEditedAt = this.createdAt
     }
 }
