@@ -21,8 +21,6 @@ data class Group (
 
         var name: String,
 
-        var archived: Boolean,
-
         @ManyToOne
         var createdBy: Participant,
 
@@ -41,5 +39,8 @@ data class Group (
     val participants
         get() = this.members.map { member -> member.participant }
 
-    constructor(groupSet: GroupSet, externalId: String?, name: String, createdBy: Participant): this(0, groupSet, externalId, 0, name, false, createdBy, ZonedDateTime.now(), null)
+    val archived
+        get() = this.archivedAt == null
+
+    constructor(groupSet: GroupSet, externalId: String?, name: String, createdBy: Participant): this(0, groupSet, externalId, 0, name, createdBy, ZonedDateTime.now(), null)
 }

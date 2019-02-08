@@ -71,7 +71,6 @@ CREATE TABLE "group" (
   group_set_id BIGSERIAL NOT NULL REFERENCES group_set(id),
   external_id VARCHAR NULL,
   comment_thread_id BIGINT NOT NULL,
-  archived BOOLEAN NOT NULL DEFAULT FALSE,
   created_by BIGINT NOT NULL REFERENCES participant(id),
   archived_by BIGINT NULL REFERENCES participant(id),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
