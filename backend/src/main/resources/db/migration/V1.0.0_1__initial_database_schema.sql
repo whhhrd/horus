@@ -12,7 +12,7 @@ CREATE TABLE person (
 CREATE TYPE CommentType AS ENUM ('STAFF_ONLY', 'PUBLIC');
 
 CREATE TABLE comment_thread (
-  id BIGINT NOT NULL PRIMARY KEY,
+  id BIGSERIAL NOT NULL PRIMARY KEY,
   "type" CommentType NOT NULL
 );
 
