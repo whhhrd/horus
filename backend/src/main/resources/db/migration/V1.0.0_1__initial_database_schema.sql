@@ -18,7 +18,7 @@ CREATE TABLE comment_thread (
 
 
 CREATE TABLE comment (
-  id BIGSERIAL NOT NULL,
+  id BIGSERIAL NOT NULL PRIMARY KEY,
   person_id BIGINT NOT NULL REFERENCES person(id),
   thread_id BIGINT NOT NULL REFERENCES comment_thread(id) ON DELETE CASCADE,
   content VARCHAR NOT NULL,
@@ -28,8 +28,6 @@ CREATE TABLE comment (
 
 CREATE INDEX comment_person_idx ON comment(person_id);
 CREATE INDEX comment_thread_idx ON comment(thread_id);
-
-CREATE SEQUENCE comment_thread_id_seq;
 
 ------ Course-related commands ------------
 
