@@ -5,7 +5,7 @@ import nl.utwente.horus.HorusConfigurationProperties
 import nl.utwente.horus.auth.util.JWTUtil
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import javax.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * TokenFactory generates tokens based on configuration data using the JWTUtil helper class.

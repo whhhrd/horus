@@ -12,9 +12,8 @@ import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import java.lang.Exception
-import java.util.*
-import javax.transaction.Transactional
 
 /**
  * JWTAuthenticationProvider authenticates a RawToken (unauthenticated token string),

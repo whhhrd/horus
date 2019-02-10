@@ -8,7 +8,7 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
-import javax.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * DummyPasswordLoginProvider provides username/password authentication support.
@@ -34,7 +34,7 @@ class DummyPasswordLoginProvider: AuthenticationProvider {
                 throw BadCredentialsException("Invalid credentials")
             }
             // Fetch the person and create a RefreshToken
-            val person = personService.getPersonByLoginId(authentication.name)
+            val person = personService.getPersonByLoginId(authentication.name) ?: throw BadCredentialsException("Invalid credentials")
             return tokenFactory.generateRefreshToken(person)
         }
         throw BadCredentialsException("Invalid credentials")
