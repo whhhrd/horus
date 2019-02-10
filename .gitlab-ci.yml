@@ -12,6 +12,7 @@ variables:
     POSTGRES_PASSWORD: horus
 
 before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle
     - /etc/init.d/postgresql start
     - (cd frontend/; yarn)
     
