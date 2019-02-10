@@ -35,7 +35,7 @@ class DummyPasswordLoginProvider: AuthenticationProvider {
             }
             // Fetch the person and create a RefreshToken
             val person = personService.getPersonByLoginId(authentication.name) ?: throw BadCredentialsException("Invalid credentials")
-            return tokenFactory.generateRefreshToken(person)
+            return tokenFactory.generateTokenpair(person)
         }
         throw BadCredentialsException("Invalid credentials")
     }

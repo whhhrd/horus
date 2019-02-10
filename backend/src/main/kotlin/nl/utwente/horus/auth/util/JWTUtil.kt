@@ -4,12 +4,12 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
-import nl.utwente.horus.services.auth.HorusUserDetails
 import nl.utwente.horus.auth.tokens.AccessToken
 import nl.utwente.horus.auth.tokens.RefreshToken
+import nl.utwente.horus.auth.tokens.TokenPair
 import nl.utwente.horus.auth.tokens.TokenType
 import nl.utwente.horus.entities.person.Person
-import org.springframework.transaction.annotation.Transactional
+import nl.utwente.horus.services.auth.HorusUserDetails
 import java.time.Duration
 import java.util.*
 import javax.crypto.SecretKey
@@ -28,6 +28,12 @@ class JWTUtil {
          */
         private fun parseSecretKeyBase64(secretKey: String): SecretKey {
             return Keys.hmacShaKeyFor(Base64.getUrlDecoder().decode(secretKey))
+        }
+
+        fun buildTokenPair(person: Person, secretKey: String, validityDuration: Long): TokenPair {
+            val refresh = buildRefreshToken(person, secretKey, validityDuration)
+            val access = buildAccessToken(person, refresh, secretKey, validityDuration)
+            return TokenPair(access, refresh)
         }
 
         /**

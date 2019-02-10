@@ -1,8 +1,8 @@
 package nl.utwente.horus.auth.handlers
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import nl.utwente.horus.auth.tokens.TokenPair
 import nl.utwente.horus.representations.auth.AuthTokenResponse
-import nl.utwente.horus.auth.tokens.RefreshToken
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.core.Authentication
@@ -21,14 +21,15 @@ class LoginSuccessHandler: AuthenticationSuccessHandler {
 
     override fun onAuthenticationSuccess(request: HttpServletRequest?, response: HttpServletResponse?, authentication: Authentication?) {
         // After login, Authentication returned from the filter's attemptAuthentication
-        // MUST be a RefreshToken. Here's its encoded string representation is taken
+        // is a TokenPair. Here's its encoded string representation is taken
         // and written as JSON to the response.
-        val refreshToken: RefreshToken = authentication as RefreshToken
+        val tokens: TokenPair = authentication as TokenPair
 
         response!!.status = HttpStatus.OK.value()
         response.contentType = MediaType.APPLICATION_JSON_UTF8_VALUE
 
-        objectMapper.writeValue(response.writer, AuthTokenResponse(null, refreshToken.token))
+        objectMapper.writeValue(response.writer, AuthTokenResponse(tokens.accessToken.token,
+                tokens.refreshToken.token))
 
     }
 }
