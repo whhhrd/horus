@@ -1,8 +1,8 @@
 image: richyrick/horus_builder
 
 variables:
-    - POSTGRES_USER: horus
-    - POSTGRES_PASSWORD: horus
+    POSTGRES_USER: horus
+    POSTGRES_PASSWORD: horus
 
 before_script:
     - /etc/init.d/postgresql start
@@ -12,4 +12,6 @@ stages:
     - build
     
 build_backend:
-    - (cd backend/; ./gradlew check)
+    stage: build
+    script:
+        - (cd backend/; ./gradlew check)
