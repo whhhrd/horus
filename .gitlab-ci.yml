@@ -1,5 +1,12 @@
 image: richyrick/horus_builder
 
+cache: 
+    key: "ALL_SHARED_KEY"
+    paths:
+        - frontend/node_modules/
+        - .gradle/caches
+        - .gradle/wrapper
+
 variables:
     POSTGRES_USER: horus
     POSTGRES_PASSWORD: horus
