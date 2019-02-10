@@ -1,0 +1,15 @@
+image: richyrick/horus_builder
+
+variables:
+    - POSTGRES_USER: horus
+    - POSTGRES_PASSWORD: horus
+
+before_script:
+    - /etc/init.d/postgresql start
+    - (cd frontend/; yarn)
+    
+stages: 
+    - build
+    
+build_backend:
+    - (cd backend/; ./gradlew check)
