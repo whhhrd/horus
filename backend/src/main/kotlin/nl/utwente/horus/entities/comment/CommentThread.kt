@@ -8,6 +8,7 @@ data class CommentThread(
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         val id: Long = 0,
 
+        @Enumerated(value = EnumType.STRING)
         val type: CommentType
 ) {
 

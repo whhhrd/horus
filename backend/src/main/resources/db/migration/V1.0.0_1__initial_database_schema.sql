@@ -42,10 +42,9 @@ CREATE TABLE course (
 
 ------ Auth-related commands ------------
 
-CREATE TYPE RoleName AS ENUM ('TEACHER', 'TEACHING_ASSISTANT', 'STUDENT');
-
 CREATE TABLE role (
-  name RoleName NOT NULL PRIMARY KEY
+  id BIGSERIAL NOT NULL PRIMARY KEY,
+  name VARCHAR NOT NULL UNIQUE
 );
 
 CREATE TABLE permission (
@@ -53,13 +52,13 @@ CREATE TABLE permission (
 );
 
 CREATE TABLE role_permission (
-  role_name RoleName NOT NULL REFERENCES role(name),
+  role_id BIGINT NOT NULL REFERENCES role(id),
   permission_name VARCHAR NOT NULL REFERENCES permission(name),
 
-  CONSTRAINT role_permission_pkey PRIMARY KEY (role_name, permission_name)
+  CONSTRAINT role_permission_pkey PRIMARY KEY (role_id, permission_name)
 );
 
-CREATE INDEX role_permission_role_idx ON role_permission(role_name);
+CREATE INDEX role_permission_role_idx ON role_permission(role_id);
 CREATE INDEX role_permission_permission_idx ON role_permission(permission_name);
 
 ------ Course participation commands ------------
@@ -68,7 +67,7 @@ CREATE TABLE participant (
   id BIGSERIAL NOT NULL PRIMARY KEY,
   person_id BIGINT NOT NULL REFERENCES person(id),
   course_id BIGINT NOT NULL REFERENCES course(id),
-  role_name RoleName NOT NULL REFERENCES role(name),
+  role_id BIGINT NOT NULL REFERENCES role(id),
   comment_thread_id BIGINT NULL REFERENCES comment_thread(id) ON DELETE SET NULL,
   enabled BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -78,7 +77,7 @@ CREATE TABLE participant (
 
 CREATE INDEX participant_person_idx ON participant(person_id);
 CREATE INDEX participant_course_idx ON participant(course_id);
-CREATE INDEX participant_role_idx ON participant(role_name);
+CREATE INDEX participant_role_idx ON participant(role_id);
 
 ------ Group-related commands ------------
 

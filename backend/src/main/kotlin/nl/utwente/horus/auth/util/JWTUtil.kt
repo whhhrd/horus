@@ -30,9 +30,9 @@ class JWTUtil {
             return Keys.hmacShaKeyFor(Base64.getUrlDecoder().decode(secretKey))
         }
 
-        fun buildTokenPair(person: Person, secretKey: String, validityDuration: Long): TokenPair {
-            val refresh = buildRefreshToken(person, secretKey, validityDuration)
-            val access = buildAccessToken(person, refresh, secretKey, validityDuration)
+        fun buildTokenPair(person: Person, secretKey: String, accessValidityDuration: Long, refreshValidityDuration: Long): TokenPair {
+            val refresh = buildRefreshToken(person, secretKey, refreshValidityDuration)
+            val access = buildAccessToken(person, refresh, secretKey, accessValidityDuration)
             return TokenPair(access, refresh)
         }
 

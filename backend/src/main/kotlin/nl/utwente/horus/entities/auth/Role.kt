@@ -1,14 +1,14 @@
 package nl.utwente.horus.entities.auth
 
-import javax.persistence.CascadeType
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.OneToMany
+import javax.persistence.*
 
 @Entity
 data class Role (
         @Id
-        val name: RoleName
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        val id: Long = 0,
+
+        val name: String
 ) {
     @OneToMany(mappedBy = "id.role", cascade = [CascadeType.ALL], orphanRemoval = true)
     val rolePermissions: MutableSet<RolePermission> = HashSet()

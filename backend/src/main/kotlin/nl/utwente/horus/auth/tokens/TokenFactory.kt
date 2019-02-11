@@ -18,7 +18,7 @@ class TokenFactory {
     lateinit var configurationProperties: HorusConfigurationProperties
 
     fun generateTokenpair(person: Person) : TokenPair {
-        return JWTUtil.buildTokenPair(person, configurationProperties.tokenSecret, configurationProperties.refreshTokenValidityDuration)
+        return JWTUtil.buildTokenPair(person, configurationProperties.tokenSecret, configurationProperties.accessTokenValidityDuration, configurationProperties.refreshTokenValidityDuration)
     }
 
     fun generateRefreshToken(person: Person): RefreshToken {
