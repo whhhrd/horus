@@ -1,0 +1,25 @@
+image: richyrick/horus_builder
+
+cache: 
+    key: "ALL_SHARED_KEY"
+    paths:
+        - frontend/node_modules/
+        - .gradle/caches
+        - .gradle/wrapper
+
+variables:
+    POSTGRES_USER: horus
+    POSTGRES_PASSWORD: horus
+
+before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+    - /etc/init.d/postgresql start
+    - (cd frontend/; yarn)
+    
+stages: 
+    - test
+    
+build_backend:
+    stage: test
+    script:
+        - (cd backend/; ./gradlew check)
