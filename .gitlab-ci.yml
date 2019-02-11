@@ -17,9 +17,9 @@ before_script:
     - (cd frontend/; yarn)
     
 stages: 
-    - build
+    - test
     
 build_backend:
-    stage: build
+    stage: test
     script:
         - (cd backend/; ./gradlew check)
