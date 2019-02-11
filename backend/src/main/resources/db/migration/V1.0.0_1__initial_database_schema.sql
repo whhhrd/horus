@@ -140,6 +140,9 @@ CREATE TABLE assignment_group_sets_mapping (
   CONSTRAINT assignment_group_sets_mapping_unique UNIQUE (assignment_set_id, group_set_id)
 );
 
+CREATE INDEX assignment_group_sets_mapping_assignment_idx ON assignment_group_sets_mapping(assignment_set_id);
+CREATE INDEX assignment_group_sets_mapping_group_idx ON assignment_group_sets_mapping(group_set_id);
+
 CREATE TABLE assignment (
   id BIGSERIAL NOT NULL PRIMARY KEY,
   assignment_set_id BIGINT NOT NULL REFERENCES assignment_set(id),
