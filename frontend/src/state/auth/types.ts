@@ -3,14 +3,7 @@ export interface LoginForm {
     password: string;
 }
 
-export interface LoginResponse {
-    accessToken: string;
-    refreshToken: string;
-}
-
-export interface AuthState extends LoginResponse {
+export interface AuthState {
     loggedIn: boolean;
-    accessToken: string;
-    refreshToken: string;
     error?: Error;
 }

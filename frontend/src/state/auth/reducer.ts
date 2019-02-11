@@ -11,8 +11,6 @@ import { AuthState } from './types';
 
 const initialState: AuthState = {
     loggedIn: false,
-    accessToken: '',
-    refreshToken: '',
     error: undefined,
 };
 
@@ -27,7 +25,6 @@ function authReducer(state: AuthState, action: LoginAction): AuthState {
             return {
                 loggedIn: true,
                 error: undefined,
-                ...action.response
             };
         case LOGIN_FAILED_ACTION:
             return {

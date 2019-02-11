@@ -30,7 +30,6 @@ class Login extends Component<LoginProps, LoginState> {
 
     onSubmit = (values: LoginValues) => {
         const { logIn } = this.props;
-        console.log(values);
         logIn(values);
     }
 

@@ -12,7 +12,7 @@ import { Provider } from 'react-redux';
 // React Router and React Router Redux dependencies
 import { ConnectedRouter } from 'connected-react-router';
 
-import { App } from './components/App';
+import App from './components/App';
 
 ReactDOM.render(
 	<Provider store={store}>

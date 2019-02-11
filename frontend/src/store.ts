@@ -12,6 +12,9 @@ import { ApplicationState } from './state/state';
 import rootSaga from './state/sagas';
 import { rootReducer } from './state/reducer';
 
+// Import the API auth saga
+import { authenticationFlow } from './api';
+
 export const history = createBrowserHistory()
 
 const initialState: ApplicationState = {
@@ -26,7 +29,7 @@ const configureStore = function(initialState: ApplicationState): Store<Applicati
 
   // We'll create our store with the combined reducers/sagas, and the initial Redux state that
   // we'll be passing from our entry point.
-
+  
   const store = createStore(
     rootReducer(history),
     initialState,
@@ -34,8 +37,11 @@ const configureStore = function(initialState: ApplicationState): Store<Applicati
   )
 
   // Don't forget to run the root saga, and return the store object.
-  sagaMiddleware.run(rootSaga)
-  return store
+  sagaMiddleware.run(function* () {
+    yield* authenticationFlow();
+    yield* rootSaga();
+  });
+  return store;
 };
 
 const store = configureStore(initialState);
