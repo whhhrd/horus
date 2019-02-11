@@ -134,6 +134,15 @@ CREATE TABLE assignment_set (
 CREATE INDEX assignment_set_course_idx ON assignment_set(course_id);
 CREATE INDEX assignment_set_created_by_idx ON assignment_set(created_by);
 
+CREATE TABLE assignment_group_sets_mapping (
+  assignment_set_id BIGINT NOT NULL REFERENCES assignment_set(id),
+  group_set_id BIGINT NOT NULL REFERENCES group_set(id),
+  CONSTRAINT assignment_group_sets_mapping_unique UNIQUE (assignment_set_id, group_set_id)
+);
+
+CREATE INDEX assignment_group_sets_mapping_assignment_idx ON assignment_group_sets_mapping(assignment_set_id);
+CREATE INDEX assignment_group_sets_mapping_group_idx ON assignment_group_sets_mapping(group_set_id);
+
 CREATE TABLE assignment (
   id BIGSERIAL NOT NULL PRIMARY KEY,
   assignment_set_id BIGINT NOT NULL REFERENCES assignment_set(id),
