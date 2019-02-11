@@ -4,8 +4,10 @@ import nl.utwente.horus.entities.person.Person
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 
 @Repository
+@Transactional
 interface CourseRepository: JpaRepository<Course, Long> {
 
     @Query("SELECT c FROM Course c INNER JOIN Participant p ON p.person = person AND p.course = c")

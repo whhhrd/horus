@@ -1,4 +1,4 @@
-package nl.utwente.horus.entities.person
+package nl.utwente.horus.entities.group
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
@@ -6,8 +6,6 @@ import org.springframework.transaction.annotation.Transactional
 
 @Repository
 @Transactional
-interface PersonRepository: JpaRepository<Person, Long> {
-
-    fun findPersonByLoginId(loginId: String): Person?
+interface GroupRepository: JpaRepository<Group, Long> {
 
 }

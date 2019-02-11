@@ -1,6 +1,5 @@
 package nl.utwente.horus.entities.assignment
 
-import nl.utwente.horus.entities.comment.Comment
 import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.participant.Participant
 import java.io.Serializable
