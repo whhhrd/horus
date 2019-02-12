@@ -1,4 +1,4 @@
-interface PersonDtoBrief {
+export interface PersonDtoBrief {
     createdAt: Date;
     email: string | null;
     fullName: string;
@@ -9,17 +9,17 @@ interface PersonDtoBrief {
 
 type CommentType = "STAFF_ONLY" | "PUBLIC";
 
-interface CommentThreadDtoBrief {
+export interface CommentThreadDtoBrief {
     id: number;
     type: CommentType;
 }
 
-interface RoleDtoBrief {
+export interface RoleDtoBrief {
     id: number;
     name: string;
 }
 
-interface ParticipantDto {
+export interface ParticipantDto {
     commentThread: CommentThreadDtoBrief | null;
     courseCode: number;
     createdAt: Date;
@@ -29,11 +29,11 @@ interface ParticipantDto {
     role: RoleDtoBrief;
 }
 
-interface PersonDtoFull extends PersonDtoBrief {
+export interface PersonDtoFull extends PersonDtoBrief {
     participations: ParticipantDto[];
 }
 
-interface GroupDtoBrief {
+export interface GroupDtoBrief {
     archivedAt: Date | null;
     createdAt: Date;
     externalId: string | null;
@@ -41,24 +41,24 @@ interface GroupDtoBrief {
     name: string;
 }
 
-interface GroupSetDtoBrief {
+export interface GroupSetDtoBrief {
     createdAt: Date;
     externalId: string | null;
     id: number;
     name: string;
 }
 
-interface GroupDtoSummary extends GroupDtoBrief {
+export interface GroupDtoSummary extends GroupDtoBrief {
     commentThread: CommentThreadDtoBrief | null;
     createdBy: ParticipantDto;
     groupSet: GroupSetDtoBrief;
 }
 
-interface GroupDtoFull extends GroupDtoSummary {
+export interface GroupDtoFull extends GroupDtoSummary {
     participants: ParticipantDto[];
 }
 
-interface CourseDtoBrief {
+export interface CourseDtoBrief {
     archived: boolean;
     archivedAt: Date | null;
     courseCode: string | null;
@@ -68,42 +68,42 @@ interface CourseDtoBrief {
     name: string;
 }
 
-interface GroupSetDtoSummary extends GroupSetDtoBrief {
+export interface GroupSetDtoSummary extends GroupSetDtoBrief {
     course: CourseDtoBrief;
     createdBy: PersonDtoBrief;
 }
 
-interface GroupSetDtoFull extends GroupSetDtoSummary {
+export interface GroupSetDtoFull extends GroupSetDtoSummary {
     groups: GroupDtoBrief[];
 }
 
-interface AssignmentDtoBrief {
+export interface AssignmentDtoBrief {
     createdAt: Date;
     id: number;
     name: string;
     orderKey: string;
 }
 
-interface AssignmentSetDtoBrief {
+export interface AssignmentSetDtoBrief {
     createdAt: Date;
     id: number;
     name: string;
 }
 
-interface AssignmentDtoSummary extends AssignmentDtoBrief {
+export interface AssignmentDtoSummary extends AssignmentDtoBrief {
     assignmentSet: AssignmentSetDtoBrief;
     commentThread: CommentThreadDtoBrief | null;
     createdBy: ParticipantDto;
 }
 
-interface AssignmentSetDtoSummary extends AssignmentSetDtoBrief {
+export interface AssignmentSetDtoSummary extends AssignmentSetDtoBrief {
     course: CourseDtoBrief;
     createdBy: ParticipantDto;
 }
 
 type SignOffResult = "COMPLETE" | "INCOMPLETE";
 
-interface SignOffResultDtoSummary {
+export interface SignOffResultDtoSummary {
     assignment: AssignmentDtoBrief;
     commentThread: CommentThreadDtoBrief | null;
     participant: ParticipantDto;
@@ -112,7 +112,7 @@ interface SignOffResultDtoSummary {
     signer: ParticipantDto;
 }
 
-interface CommentDto {
+export interface CommentDto {
     content: string;
     createdAt: Date;
     id: number;
