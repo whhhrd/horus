@@ -4,7 +4,8 @@ buildscript {
         springBootVersion = '2.1.2.RELEASE'
     }
     repositories {
-        mavenCentral()
+        mavenCentral()    
+        
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -31,6 +32,7 @@ sourceCompatibility = '1.8'
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -44,8 +46,10 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "org.jetbrains.kotlin:kotlin-reflect"
     implementation 'io.jsonwebtoken:jjwt-api:0.10.5'
+    implementation 'com.github.ntrrgc:ts-generator:1.1.1'
     runtime 'io.jsonwebtoken:jjwt-impl:0.10.5'
     runtime 'io.jsonwebtoken:jjwt-jackson:0.10.5'
+    providedRuntime 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
     providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'

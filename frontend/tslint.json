@@ -11,5 +11,12 @@
         "member-access": [true, "no-public"],
         "ordered-imports": false
     },
-    "rulesDirectory": []
+    "rulesDirectory": [],
+    "linterOptions": {
+      "exclude": [
+          "src/state/types.d.ts"
+      ]
+  }
+    
 }
+
