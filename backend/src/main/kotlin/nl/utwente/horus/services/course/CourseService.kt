@@ -3,6 +3,7 @@ package nl.utwente.horus.services.course
 import nl.utwente.horus.entities.assignment.AssignmentSet
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.course.CourseRepository
+import nl.utwente.horus.entities.group.GroupSet
 import nl.utwente.horus.entities.person.Person
 import nl.utwente.horus.exceptions.CourseNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,8 +18,8 @@ class CourseService {
     @Autowired
     lateinit var courseRepository: CourseRepository
 
-    fun getCourseById(courseId: Long): Course? {
-        return courseRepository.findByIdOrNull(courseId)
+    fun getCourseById(courseId: Long): Course {
+        return courseRepository.findByIdOrNull(courseId) ?: throw CourseNotFoundException()
     }
 
     fun getAllCourses(): List<Course> {
@@ -30,7 +31,10 @@ class CourseService {
     }
 
     fun getAssignmentSetsOfCourse(courseId: Long) : List<AssignmentSet> {
-        val course = getCourseById(courseId) ?: throw CourseNotFoundException()
-        return course.assignmentSets.toList()
+        return getCourseById(courseId).assignmentSets.toList()
+    }
+
+    fun getGroupSetsOfCourse(courseId: Long) : List<GroupSet> {
+        return getCourseById(courseId).groupSets.toList()
     }
 }

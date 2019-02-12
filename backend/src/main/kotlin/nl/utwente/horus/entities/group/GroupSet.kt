@@ -1,7 +1,7 @@
 package nl.utwente.horus.entities.group
 
-import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.course.Course
+import nl.utwente.horus.entities.participant.Participant
 import java.time.ZonedDateTime
 import javax.persistence.*
 
@@ -20,6 +20,7 @@ data class GroupSet (
         var name: String,
 
         @ManyToOne
+        @JoinColumn(name="created_by")
         val createdBy: Participant,
 
         val createdAt: ZonedDateTime
