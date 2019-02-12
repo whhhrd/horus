@@ -1,30 +1,30 @@
-import { put, takeEvery, take, race } from 'redux-saga/effects'
-import { push } from 'connected-react-router';
+import { push } from "connected-react-router";
+import { put, race, take, takeEvery } from "redux-saga/effects";
 
 import {
-    requestPasswordLogin,
-    requestLogout,
-    requestTokenLoad,
-    API_AUTH_AUTHENTICATION_SUCCEEDED,
     API_AUTH_AUTHENTICATION_FAILED,
+    API_AUTH_AUTHENTICATION_SUCCEEDED,
     API_AUTH_LOGOUT_COMPLETED,
-} from '../../api'
+    requestLogout,
+    requestPasswordLogin,
+    requestTokenLoad,
+} from "../../api";
 
-import { 
-    loginSucceededAction,
-    loginFailedAction,
+import {
     LoginAction,
+    loginFailedAction,
+    loginSucceededAction,
     SetLoginRedirectAction,
-} from './actions';
+} from "./actions";
 
-import { 
+import {
+    LOAD_AUTHENTICATION_REQUESTED_ACTION,
     LOGIN_REQUESTED_ACTION,
     LOGIN_SUCCEEDED_ACTION,
-    LOAD_AUTHENTICATION_REQUESTED_ACTION,
     SET_LOGIN_REDIRECT_REQUESTED_ACTION,
- } from './constants';
+ } from "./constants";
 
- const LOGIN_REDIRECT_LS_KEY = "redirectUrl";
+const LOGIN_REDIRECT_LS_KEY = "redirectUrl";
 
 export function* logIn(action: LoginAction) {
     yield put(requestPasswordLogin(action.form.username, action.form.password));
@@ -36,8 +36,6 @@ export function* logIn(action: LoginAction) {
         yield put(loginSucceededAction());
     } else if (failure != null) {
         yield put(loginFailedAction(Error("Login failed")));
-    } else {
-        console.log("INVALID STATE ENCOUNTERED");
     }
 }
 
@@ -51,8 +49,6 @@ export function* loadAuthentication() {
         yield put(loginSucceededAction());
     } else if (failure != null) {
         yield postLogoutRedirect();
-    } else {
-        console.log("INVALID STATE ENCOUNTERED");
     }
 }
 
@@ -80,7 +76,7 @@ export function* setLoginRedirect(action: SetLoginRedirectAction) {
 
 export default function* authSagas() {
     yield takeEvery(LOGIN_REQUESTED_ACTION, logIn);
-    yield takeEvery(SET_LOGIN_REDIRECT_REQUESTED_ACTION, setLoginRedirect)
+    yield takeEvery(SET_LOGIN_REDIRECT_REQUESTED_ACTION, setLoginRedirect);
     yield takeEvery(LOGIN_SUCCEEDED_ACTION, postLoginRedirect);
     yield takeEvery(API_AUTH_LOGOUT_COMPLETED, postLoginRedirect);
     yield takeEvery(LOAD_AUTHENTICATION_REQUESTED_ACTION, loadAuthentication);

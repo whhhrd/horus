@@ -1,81 +1,82 @@
-import { call, put, race, delay, take, fork} from 'redux-saga/effects';
+import { call, delay, fork, put, race, take} from "redux-saga/effects";
 
-import { fetchJSON, FetchFunction } from './util'
 import {
-    API_AUTH_LOAD_TOKEN_REQUESTED,
-
-    API_AUTH_PASSWORD_LOGIN_AUTHENTICATION_REQUESTED,
-    API_AUTH_AUTHENTICATION_SUCCEEDED,
     API_AUTH_AUTHENTICATION_FAILED,
 
-    API_AUTH_TOKEN_REFRESH_REQUESTED,
-    API_AUTH_TOKEN_REFRESH_SUCCEEDED,
-    API_AUTH_TOKEN_REFRESH_FAILED,
-    API_AUTH_TOKEN_REFRESH_COMPLETED,
-
+    API_AUTH_AUTHENTICATION_SUCCEEDED,
+    API_AUTH_LOAD_TOKEN_REQUESTED,
     API_AUTH_LOGOUT_REQUESTED,
 
-    AuthenticationType
+    API_AUTH_PASSWORD_LOGIN_AUTHENTICATION_REQUESTED,
+    API_AUTH_TOKEN_REFRESH_COMPLETED,
+    API_AUTH_TOKEN_REFRESH_FAILED,
+    API_AUTH_TOKEN_REFRESH_REQUESTED,
 
-} from './constants'
+    API_AUTH_TOKEN_REFRESH_SUCCEEDED,
+
+    AuthenticationType,
+
+} from "./constants";
+import { FetchFunction, fetchJSON } from "./util";
 
 import {
-    eventAuthenticationSucceeded,
-    eventAuthenticationFailed,
     eventAuthenticationCanceled,
     eventAuthenticationCompleted,
-
-    requestAuthenticationRefresh,
-    eventAuthenticationRefreshSucceeded,
-    eventAuthenticationRefreshFailed,
+    eventAuthenticationFailed,
     eventAuthenticationRefreshCompleted,
 
+    eventAuthenticationRefreshFailed,
+    eventAuthenticationRefreshSucceeded,
+    eventAuthenticationSucceeded,
+    eventLogoutCompleted,
+
+    requestAuthenticationRefresh,
     requestForcedLogout,
-    eventLogoutCompleted
 
-} from './actions'
+} from "./actions";
 
-const _backendUrl = "/api/"
-const _endpoints = {
-    passwordLogin: "auth/login/password",
+const backendUrl = "/api/";
+const endponts = {
+    accessToken: "auth/token/refresh",
     logout: "auth/logout",
-    accessToken: "auth/token/refresh"
-}
+    passwordLogin: "auth/login/password",
+};
 const LOCAL_STORAGE_REFRESH_TOKEN_KEY = "refreshToken";
 
 interface AuthenticationState {
-    authenticated: boolean,
-    accessToken?: string,
-    refreshToken?: string
+    authenticated: boolean;
+    accessToken?: string;
+    refreshToken?: string;
 }
-var _authenticationState: AuthenticationState = {
+let authenticationState: AuthenticationState = {
     authenticated: false,
     accessToken: undefined,
-    refreshToken: undefined
-}
+    refreshToken: undefined,
+};
 
-function buildAuthenticationState(authenticated: boolean, refreshToken?: string, accessToken?: string): AuthenticationState {
+function buildAuthenticationState(authenticated: boolean, refreshToken?: string, accessToken?: string)
+: AuthenticationState {
     return {
-        authenticated: authenticated,
-        accessToken: accessToken,
-        refreshToken: refreshToken
-    }
+        authenticated,
+        accessToken,
+        refreshToken,
+    };
 }
 
 function loadAuthFromLocalStorage() {
-    const refreshToken = localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN_KEY)
-    _authenticationState = {
-        ..._authenticationState,
-        refreshToken: refreshToken != null ?  refreshToken: undefined
-    }
+    const refreshToken = localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN_KEY);
+    authenticationState = {
+        ...authenticationState,
+        refreshToken: refreshToken != null ?  refreshToken : undefined,
+    };
 }
 
 function saveAuthTokenToStorage() {
-    localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN_KEY, _authenticationState.refreshToken!)
+    localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN_KEY, authenticationState.refreshToken!);
 }
 
 export function* authenticationFlow() {
-	yield fork(authenticationFlowLoop);
+    yield fork(authenticationFlowLoop);
 }
 
 /**
@@ -86,116 +87,123 @@ function* authenticationFlowLoop() {
     // Load refresh token from storage
     loadAuthFromLocalStorage();
 
-	while (true) {
+    while (true) {
 
         // Wait for a login request or a token refresh auth action
-		const { loadTokenRequest, passwordLoginRequest } = yield race({
-			loadTokenRequest: take(API_AUTH_LOAD_TOKEN_REQUESTED),
-			passwordLoginRequest: take(API_AUTH_PASSWORD_LOGIN_AUTHENTICATION_REQUESTED),
+        const { loadTokenRequest, passwordLoginRequest } = yield race({
+            loadTokenRequest: take(API_AUTH_LOAD_TOKEN_REQUESTED),
+            passwordLoginRequest: take(API_AUTH_PASSWORD_LOGIN_AUTHENTICATION_REQUESTED),
         });
 
         const authenticationType = {
-			...loadTokenRequest,
-			...passwordLoginRequest,
-		}.type;
-
+            ...loadTokenRequest,
+            ...passwordLoginRequest,
+        }.type;
 
         // Load token or do auth
-		if (loadTokenRequest != null) {
-			yield fork(loadToken, _authenticationState.refreshToken ? _authenticationState.refreshToken: "");
-		} else if (passwordLoginRequest != null) {
-			yield fork(passwordLogin, passwordLoginRequest.username, passwordLoginRequest.password);
-		}
+        if (loadTokenRequest != null) {
+            yield fork(loadToken, authenticationState.refreshToken ? authenticationState.refreshToken : "");
+        } else if (passwordLoginRequest != null) {
+            yield fork(passwordLogin, passwordLoginRequest.username, passwordLoginRequest.password);
+        }
 
         // See how things went, or was a logout requested
-		const { authenticationSuccess, authenticationFailure } = yield race({
-			authenticationSuccess: take(API_AUTH_AUTHENTICATION_SUCCEEDED),
-			authenticationFailure: take(API_AUTH_AUTHENTICATION_FAILED),
-			logoutRequest: take(API_AUTH_LOGOUT_REQUESTED),
-		});
+        const { authenticationSuccess, authenticationFailure } = yield race({
+            authenticationSuccess: take(API_AUTH_AUTHENTICATION_SUCCEEDED),
+            authenticationFailure: take(API_AUTH_AUTHENTICATION_FAILED),
+            logoutRequest: take(API_AUTH_LOGOUT_REQUESTED),
+        });
 
-		if (authenticationSuccess != null) {
-            _authenticationState = buildAuthenticationState(true, authenticationSuccess.refreshToken, authenticationSuccess.accessToken);
+        if (authenticationSuccess != null) {
+            authenticationState = buildAuthenticationState(
+                true,
+                authenticationSuccess.refreshToken,
+                authenticationSuccess.accessToken,
+            );
             saveAuthTokenToStorage();
 
-			yield put(eventAuthenticationSucceeded(authenticationType, authenticationSuccess.refreshToken, authenticationSuccess.accessToken));
-		} else if (authenticationFailure != null) {
-			_authenticationState = buildAuthenticationState(false, undefined, undefined);
+            yield put(eventAuthenticationSucceeded(
+                authenticationType,
+                authenticationSuccess.refreshToken,
+                authenticationSuccess.accessToken,
+            ));
+        } else if (authenticationFailure != null) {
+            authenticationState = buildAuthenticationState(false, undefined, undefined);
 
-			yield put(eventAuthenticationFailed(authenticationType, authenticationFailure.error));
-		} else {
-			_authenticationState = buildAuthenticationState(false, undefined, undefined);
+            yield put(eventAuthenticationFailed(authenticationType, authenticationFailure.error));
+        } else {
+            authenticationState = buildAuthenticationState(false, undefined, undefined);
 
-			yield put(eventAuthenticationCanceled(authenticationType));
-		}
+            yield put(eventAuthenticationCanceled(authenticationType));
+        }
 
-		yield put(eventAuthenticationCompleted(authenticationType));
+        yield put(eventAuthenticationCompleted(authenticationType));
 
         // Token refresh loop
-		while (_authenticationState.authenticated) {
-			const { authRefreshRequest, authRefreshTimeout } = yield race({
-				authRefreshRequest: take(API_AUTH_TOKEN_REFRESH_REQUESTED),
-				authRefreshTimeout: delay(270000), // 4.5 minutes
-				logoutRequest: take(API_AUTH_LOGOUT_REQUESTED),
-			});
+        while (authenticationState.authenticated) {
+            const { authRefreshRequest, authRefreshTimeout } = yield race({
+                authRefreshRequest: take(API_AUTH_TOKEN_REFRESH_REQUESTED),
+                authRefreshTimeout: delay(270000), // 4.5 minutes
+                logoutRequest: take(API_AUTH_LOGOUT_REQUESTED),
+            });
 
-			if (authRefreshRequest != null || authRefreshTimeout != null) {
-				yield fork(updateAccessToken, _authenticationState.refreshToken!);
-			} else {
-				yield call(logout, _authenticationState.refreshToken!);
+            if (authRefreshRequest != null || authRefreshTimeout != null) {
+                yield fork(updateAccessToken, authenticationState.refreshToken!);
+            } else {
+                yield call(logout, authenticationState.refreshToken!);
 
-				_authenticationState = buildAuthenticationState(false, undefined, undefined);
+                authenticationState = buildAuthenticationState(false, undefined, undefined);
 
-				yield put(eventLogoutCompleted());
+                yield put(eventLogoutCompleted());
 
-				continue;
-			}
+                continue;
+            }
 
-			const { authRefreshSuccess, authRefreshFailure } = yield race({
-				authRefreshSuccess: take(API_AUTH_TOKEN_REFRESH_SUCCEEDED),
-				authRefreshFailure: take(API_AUTH_TOKEN_REFRESH_FAILED),
-				logoutRequest: take(API_AUTH_LOGOUT_REQUESTED),
-			});
+            const { authRefreshSuccess, authRefreshFailure } = yield race({
+                authRefreshSuccess: take(API_AUTH_TOKEN_REFRESH_SUCCEEDED),
+                authRefreshFailure: take(API_AUTH_TOKEN_REFRESH_FAILED),
+                logoutRequest: take(API_AUTH_LOGOUT_REQUESTED),
+            });
 
-			if (authRefreshSuccess != null) {
-                
-				_authenticationState = {
-					..._authenticationState,
-					accessToken: authRefreshSuccess.accessToken,
-				};
+            if (authRefreshSuccess != null) {
+
+                authenticationState = {
+                    ...authenticationState,
+                    accessToken: authRefreshSuccess.accessToken,
+                };
 
                 // TODO: SOMETHING HERE TO UPDATE USER PERMISSIONS (after re-receiving)
 
-				yield put(eventAuthenticationRefreshCompleted());
-			} else if (authRefreshFailure != null) {
-				yield put(requestForcedLogout(authRefreshFailure.error));
+                yield put(eventAuthenticationRefreshCompleted());
+            } else if (authRefreshFailure != null) {
+                yield put(requestForcedLogout(authRefreshFailure.error));
 
-				yield call(logout, _authenticationState.refreshToken!);
+                yield call(logout, authenticationState.refreshToken!);
 
-				_authenticationState = buildAuthenticationState(false, undefined, undefined);
+                authenticationState = buildAuthenticationState(false, undefined, undefined);
 
-				yield put(eventAuthenticationRefreshCompleted());
+                yield put(eventAuthenticationRefreshCompleted());
 
-				yield put(eventLogoutCompleted());
-			} else {
-				yield call(logout, _authenticationState.refreshToken!);
+                yield put(eventLogoutCompleted());
+            } else {
+                yield call(logout, authenticationState.refreshToken!);
 
-				_authenticationState = buildAuthenticationState(false, undefined, undefined);
+                authenticationState = buildAuthenticationState(false, undefined, undefined);
 
-				yield put(eventAuthenticationRefreshCompleted());
+                yield put(eventAuthenticationRefreshCompleted());
 
-				yield put(eventLogoutCompleted());
-			}
-		}
-	}
+                yield put(eventLogoutCompleted());
+            }
+        }
+    }
 }
 
 /**
  * Fetch a new access token from  a refresh token.
- * @param refreshToken 
+ * @param refreshToken
  */
 function* fetchAccessToken(refreshToken: string) {
-	return yield call(asyncCallBackendFetch, fetchJSON, 'POST', _endpoints.accessToken, null, null, refreshToken);
+    return yield call(asyncCallBackendFetch, fetchJSON, "POST", endponts.accessToken, null, null, refreshToken);
 }
 
 /**
@@ -203,13 +211,13 @@ function* fetchAccessToken(refreshToken: string) {
  * @param refreshToken the refresh token to use
  */
 function* updateAccessToken(refreshToken: string) {
-	try {
-		const { accessToken } = yield* fetchAccessToken(refreshToken);
+    try {
+        const { accessToken } = yield* fetchAccessToken(refreshToken);
 
-		yield put(eventAuthenticationRefreshSucceeded(accessToken));
-	} catch (error) {
-		yield put(eventAuthenticationRefreshFailed(error));
-	}
+        yield put(eventAuthenticationRefreshSucceeded(accessToken));
+    } catch (error) {
+        yield put(eventAuthenticationRefreshFailed(error));
+    }
 }
 
 /**
@@ -217,13 +225,13 @@ function* updateAccessToken(refreshToken: string) {
  * @param refreshToken the refresh token
  */
 function* loadToken(refreshToken: string) {
-	try {
-		const { accessToken } = yield* fetchAccessToken(refreshToken);
+    try {
+        const { accessToken } = yield* fetchAccessToken(refreshToken);
 
-		yield put(eventAuthenticationSucceeded(AuthenticationType.SAVED_TOKEN, refreshToken, accessToken));
-	} catch (error) {
-		yield put(eventAuthenticationFailed(AuthenticationType.SAVED_TOKEN, error));
-	}
+        yield put(eventAuthenticationSucceeded(AuthenticationType.SAVED_TOKEN, refreshToken, accessToken));
+    } catch (error) {
+        yield put(eventAuthenticationFailed(AuthenticationType.SAVED_TOKEN, error));
+    }
 }
 
 /**
@@ -232,12 +240,19 @@ function* loadToken(refreshToken: string) {
  * @param password password
  */
 function* passwordLogin(username: string, password: string) {
-	try {
-        const { accessToken, refreshToken } = yield call(asyncCallBackendFetch, fetchJSON, 'POST', _endpoints.passwordLogin, null, { username: username, password: password });
-		yield put(eventAuthenticationSucceeded(AuthenticationType.PASSWORD_LOGIN, refreshToken, accessToken));
-	} catch (error) {
-		yield put(eventAuthenticationFailed(AuthenticationType.PASSWORD_LOGIN, error));
-	}
+    try {
+        const { accessToken, refreshToken } = yield call(
+            asyncCallBackendFetch,
+            fetchJSON,
+            "POST",
+            endponts.passwordLogin,
+            null,
+            { username, password },
+        );
+        yield put(eventAuthenticationSucceeded(AuthenticationType.PASSWORD_LOGIN, refreshToken, accessToken));
+    } catch (error) {
+        yield put(eventAuthenticationFailed(AuthenticationType.PASSWORD_LOGIN, error));
+    }
 }
 
 /**
@@ -245,9 +260,11 @@ function* passwordLogin(username: string, password: string) {
  * @param refreshToken refresh token to revoke
  */
 function* logout(refreshToken: string) {
-	try {
-		yield call(asyncCallBackendFetch, fetchJSON, 'POST', _endpoints.logout, null, null, refreshToken);
-	} catch (error) { }
+    try {
+        yield call(asyncCallBackendFetch, fetchJSON, "POST", endponts.logout, null, null, refreshToken);
+    } catch (error) {
+        // do nothing now
+    }
 }
 
 /**
@@ -259,7 +276,13 @@ function* logout(refreshToken: string) {
  * @param headers map of headers to use for request
  * @param options additional request options
  */
-export function* authenticatedFetchJSON(method: string, path: string, query: Object | null = null, body: Object | null = null, headers = {}, options = {}) {
+export function* authenticatedFetchJSON(
+    method: string,
+    path: string,
+    query: object | null = null,
+    body: object | null = null,
+    headers = {},
+    options = {}) {
     return yield call(authenticatedFetch, fetchJSON, method, path, query, body, false, headers, options);
 }
 
@@ -274,42 +297,54 @@ export function* authenticatedFetchJSON(method: string, path: string, query: Obj
  * @param headers map of headers to use for request
  * @param options additional request options
  */
-export function* authenticatedFetch(fetchFunction: FetchFunction, method: string, path: string, query: Object | null = null, body: Object | null = null, useRefreshToken = false, headers = {}, options = {}) {
-	let authenticationState = { ..._authenticationState };
+export function* authenticatedFetch(
+    fetchFunction: FetchFunction,
+    method: string,
+    path: string,
+    query: object | null = null,
+    body: object | null = null,
+    useRefreshToken = false,
+    headers = {},
+    options = {},
+) {
 
-	let token = (useRefreshToken ? authenticationState.refreshToken : authenticationState.accessToken);
+    let authState = {
+        ...authenticationState,
+    };
 
-	try {
-		return yield call(asyncCallBackendFetch, fetchFunction, method, path, query, body, token, headers, options);
-	} catch (error) {
-		if (error.status !== 401) {
-			throw error;
-		}
-	}
+    let token = (useRefreshToken ? authState.refreshToken : authState.accessToken);
 
-	yield put(requestAuthenticationRefresh());
+    try {
+        return yield call(asyncCallBackendFetch, fetchFunction, method, path, query, body, token, headers, options);
+    } catch (error) {
+        if (error.status !== 401) {
+            throw error;
+        }
+    }
 
-	yield take(API_AUTH_TOKEN_REFRESH_COMPLETED);
+    yield put(requestAuthenticationRefresh());
 
-	authenticationState = { ..._authenticationState };
+    yield take(API_AUTH_TOKEN_REFRESH_COMPLETED);
 
-	if (!authenticationState.authenticated) {
-		throw Error('js.fetch.auth.Unauthorized');
-	} else if (useRefreshToken) {
-		throw Error('js.fetch.auth.InvalidState');
-	}
+    authState = { ...authenticationState };
 
-	token = authenticationState.accessToken;
+    if (!authState.authenticated) {
+        throw Error("js.fetch.auth.Unauthorized");
+    } else if (useRefreshToken) {
+        throw Error("js.fetch.auth.InvalidState");
+    }
 
-	try {
-		return yield call(asyncCallBackendFetch, fetchFunction, method, path, query, body, token, headers, options);
-	} catch (error) {
-		if (error.status === 401) {
-			throw Error('js.fetch.auth.InvalidState');
-		} else {
-			throw error;
-		}
-	}
+    token = authState.accessToken;
+
+    try {
+        return yield call(asyncCallBackendFetch, fetchFunction, method, path, query, body, token, headers, options);
+    } catch (error) {
+        if (error.status === 401) {
+            throw Error("js.fetch.auth.InvalidState");
+        } else {
+            throw error;
+        }
+    }
 }
 
 /**
@@ -322,33 +357,45 @@ export function* authenticatedFetch(fetchFunction: FetchFunction, method: string
  * @param headers map of headers to use for request
  * @param options additional request options
  */
-async function asyncCallFetch(fetchFunction: FetchFunction, method: string, url: string, query: Object | null = null, body: Object | null = null, headers = {}, options = {}) {
-	let fetchUrl = url;
-	if (query) {
-		const queryString = Object.entries(query).map(([ name, value ]) => {
-			if (Array.isArray(value)) {
-				const arrayFiltered = value.filter(arrayVal => !!arrayVal);
-				if (arrayFiltered.length > 0) {
-					return value.filter(arrayVal => !!arrayVal).map(arrayVal => `${encodeURIComponent(name)}=${encodeURIComponent(arrayVal)}`).join('&');
-				} else {
-					return null;
-				}
-			} else if (value != null) {
-				return `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
-			} else {
-				return null;
-			}
-		}).filter(e => !!e).join('&');
-		if (queryString !== '') {
-			fetchUrl += `?${queryString}`;
-		}
-	}
-	return await fetchFunction(fetchUrl, {
-		...options,
-		method: method,
-		headers: headers,
-		body: body,
-	});
+async function asyncCallFetch(
+    fetchFunction: FetchFunction,
+    method: string,
+    url: string,
+    query: object | null = null,
+    body: object | null = null,
+    headers = {},
+    options = {},
+) {
+
+    let fetchUrl = url;
+    if (query) {
+        const queryString = Object.entries(query).map(([ name, value ]) => {
+            if (Array.isArray(value)) {
+                const arrayFiltered = value.filter((arrayVal) => !!arrayVal);
+                if (arrayFiltered.length > 0) {
+                    return value.filter((arrayVal) => !!arrayVal)
+                        .map(
+                            (arrayVal) => `${encodeURIComponent(name)}=${encodeURIComponent(arrayVal)}`,
+                        ).join("&");
+                } else {
+                    return null;
+                }
+            } else if (value != null) {
+                return `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
+            } else {
+                return null;
+            }
+        }).filter((e) => !!e).join("&");
+        if (queryString !== "") {
+            fetchUrl += `?${queryString}`;
+        }
+    }
+    return await fetchFunction(fetchUrl, {
+        ...options,
+        method,
+        headers,
+        body,
+    });
 }
 /**
  * Asynchronously fetch from the backend
@@ -361,13 +408,22 @@ async function asyncCallFetch(fetchFunction: FetchFunction, method: string, url:
  * @param headers map of headers to use for request
  * @param options additional request options
  */
-async function asyncCallBackendFetch(fetchFunction: FetchFunction, method: string, path: string, query: Object | null = null, body: Object | null = null, token: string | null = null, headers = {}, options = {}) {
-	let newHeaders = headers;
-	if (token != null) {
-		newHeaders = {
-			...newHeaders,
-			'Authorization': `Bearer ${token}`,
-		};
+async function asyncCallBackendFetch(
+    fetchFunction: FetchFunction,
+    method: string,
+    path: string,
+    query: object | null = null,
+    body: object | null = null,
+    token: string | null = null,
+    headers = {},
+    options = {},
+) {
+    let newHeaders = headers;
+    if (token != null) {
+        newHeaders = {
+            ...newHeaders,
+            Authorization: `Bearer ${token}`,
+        };
     }
-	return await asyncCallFetch(fetchFunction, method, _backendUrl + path, query, body, newHeaders, options);
+    return await asyncCallFetch(fetchFunction, method, backendUrl + path, query, body, newHeaders, options);
 }

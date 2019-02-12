@@ -17,8 +17,14 @@ before_script:
     - (cd frontend/; yarn)
     
 stages: 
+    - check
     - test
-    
+
+lint_frontend:
+    stage: check
+    script:
+        - (cd frontend/; yarn lint)
+
 build_backend:
     stage: test
     script:

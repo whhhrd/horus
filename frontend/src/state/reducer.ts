@@ -1,13 +1,13 @@
-import { combineReducers } from 'redux';
-import { History } from 'history';
+import { History } from "history";
+import { combineReducers } from "redux";
 
-import authReducer from './auth/reducer';
-import { ApplicationState } from './state';
-import { connectRouter } from 'connected-react-router';
+import { connectRouter } from "connected-react-router";
+import authReducer from "./auth/reducer";
+import { ApplicationState } from "./state";
 
- // TODO: implement cleaning the state on log out.
+// TODO: implement cleaning the state on log out.
 
 export const rootReducer = (history: History) => combineReducers<ApplicationState>({
     router: connectRouter(history),
-	auth: authReducer,
+    auth: authReducer,
 } as any);

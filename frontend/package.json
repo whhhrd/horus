@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "The frontend of the Horus grading and sign-off system.",
   "scripts": {
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
     "build": "webpack --progress --colors --mode=production",

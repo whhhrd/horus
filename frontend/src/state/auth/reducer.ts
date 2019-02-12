@@ -1,13 +1,13 @@
 import {
+    LOGIN_FAILED_ACTION,
     LOGIN_REQUESTED_ACTION,
     LOGIN_SUCCEEDED_ACTION,
-    LOGIN_FAILED_ACTION,
-} from './constants';
+} from "./constants";
 
 import {
-    LoginAction
-} from './actions';
-import { AuthState } from './types';
+    LoginAction,
+} from "./actions";
+import { AuthState } from "./types";
 
 const initialState: AuthState = {
     loggedIn: false,
@@ -30,7 +30,7 @@ function authReducer(state: AuthState, action: LoginAction): AuthState {
             return {
                 ...initialState,
                 error: action.error,
-            }
+            };
         default:
             return state;
     }
