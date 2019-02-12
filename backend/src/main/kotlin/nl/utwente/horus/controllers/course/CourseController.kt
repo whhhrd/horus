@@ -1,7 +1,13 @@
 package nl.utwente.horus.controllers.course
 
+import nl.utwente.horus.entities.person.Person
+import nl.utwente.horus.exceptions.PersonNotFoundException
 import nl.utwente.horus.representations.assignment.AssignmentSetDtoBrief
+import nl.utwente.horus.representations.auth.RoleDtoBrief
 import nl.utwente.horus.representations.course.CourseDtoBrief
+import nl.utwente.horus.representations.course.CourseDtoSummary
+import nl.utwente.horus.services.assignment.AssignmentService
+import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.representations.group.GroupSetDtoBrief
 import nl.utwente.horus.services.course.CourseService
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,9 +26,13 @@ class CourseController {
     @Autowired
     lateinit var courseService: CourseService
 
+    @Autowired
+    lateinit var userDetailService: HorusUserDetailService
+
     @GetMapping(path = ["", "/"], produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
-    fun listCourses(): List<CourseDtoBrief> {
-        return courseService.getAllCourses().map { c -> CourseDtoBrief(c) }
+    fun listCourses(): List<CourseDtoSummary> {
+        val person: Person = userDetailService.getCurrentPerson()
+        return person.participations.map { p -> CourseDtoSummary(p.course, RoleDtoBrief( p.role)) }
     }
 
     @GetMapping(path = ["/{courseId}/assignmentSets"])

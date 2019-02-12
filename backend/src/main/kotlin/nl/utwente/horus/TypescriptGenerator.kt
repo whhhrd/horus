@@ -7,6 +7,7 @@ import nl.utwente.horus.representations.assignment.SignOffResultDtoSummary
 import nl.utwente.horus.representations.auth.RoleDtoBrief
 import nl.utwente.horus.representations.comment.CommentDto
 import nl.utwente.horus.representations.comment.CommentThreadDtoBrief
+import nl.utwente.horus.representations.course.CourseDtoSummary
 import nl.utwente.horus.representations.group.GroupDtoFull
 import nl.utwente.horus.representations.group.GroupSetDtoFull
 import nl.utwente.horus.representations.participant.ParticipantDto
@@ -26,7 +27,8 @@ fun generate() {
                     CommentThreadDtoBrief::class,
                     SignOffResultDtoSummary::class,
                     RoleDtoBrief::class,
-                    CommentDto::class
+                    CommentDto::class,
+                    CourseDtoSummary::class
 
             ),
             mappings = mapOf(

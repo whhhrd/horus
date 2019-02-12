@@ -120,3 +120,7 @@ export interface CommentDto {
     person: PersonDtoBrief;
     thread: CommentThreadDtoBrief;
 }
+
+export interface CourseDtoSummary extends CourseDtoBrief {
+    role: RoleDtoBrief;
+}
