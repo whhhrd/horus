@@ -17,6 +17,7 @@ data class AssignmentSet (
         var name: String,
 
         @ManyToOne
+        @JoinColumn(name="created_by")
         val createdBy: Participant,
 
         val createdAt: ZonedDateTime

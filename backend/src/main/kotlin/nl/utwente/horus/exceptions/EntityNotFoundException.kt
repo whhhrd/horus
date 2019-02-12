@@ -4,4 +4,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
 import java.lang.RuntimeException
 
-class PersonNotFoundException: EntityNotFoundException()
+@ResponseStatus(HttpStatus.NOT_FOUND)
+open class EntityNotFoundException : RuntimeException() {
+
+}
