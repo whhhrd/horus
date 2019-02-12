@@ -16,7 +16,7 @@ export async function fetchJSON(url: string, options: RequestOptions) {
     if (options) {
         newOptions = {
             method: options.method,
-            body: JSON.stringify(options.body),
+            body: options.body != null ? JSON.stringify(options.body) : null,
             headers: {
                 ...options.headers,
                 "Content-Type": "application/json; charset=utf-8",
