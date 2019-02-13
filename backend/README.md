@@ -1,5 +1,8 @@
 # Horus Backend
 
+## API documentation 
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/c28839779b86c457e517)
+
 ## Initial database setup
 ```postgresql
 CREATE DATABASE horus;
