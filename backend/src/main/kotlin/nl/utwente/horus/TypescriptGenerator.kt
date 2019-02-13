@@ -45,6 +45,6 @@ fun generate() {
     File("entities.d.ts").writeText(generator.definitionsText)
 }
 
-fun main(args: Array<String>) {
-    generate()
-}
+//fun main(args: Array<String>) {
+//    generate()
+//}
