@@ -1,14 +1,13 @@
 package nl.utwente.horus.controllers.course
 
 import nl.utwente.horus.entities.person.Person
-import nl.utwente.horus.exceptions.PersonNotFoundException
+import nl.utwente.horus.representations.assignment.AssignmentGroupSetsMappingDto
 import nl.utwente.horus.representations.assignment.AssignmentSetDtoBrief
 import nl.utwente.horus.representations.auth.RoleDtoBrief
-import nl.utwente.horus.representations.course.CourseDtoBrief
 import nl.utwente.horus.representations.course.CourseDtoSummary
+import nl.utwente.horus.representations.group.GroupSetDtoBrief
 import nl.utwente.horus.services.assignment.AssignmentService
 import nl.utwente.horus.services.auth.HorusUserDetailService
-import nl.utwente.horus.representations.group.GroupSetDtoBrief
 import nl.utwente.horus.services.course.CourseService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -22,6 +21,9 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping(path=["/api/courses"])
 @Transactional
 class CourseController {
+
+    @Autowired
+    lateinit var assignmentService: AssignmentService
 
     @Autowired
     lateinit var courseService: CourseService
@@ -45,5 +47,9 @@ class CourseController {
         return courseService.getGroupSetsOfCourse(courseId).map { GroupSetDtoBrief(it) }
     }
 
+    @GetMapping(path = ["/{courseId}/assignmentgroupsetsmappings"])
+    fun listAssignmentGroupSetsMappings(@PathVariable courseId: Long) : List<AssignmentGroupSetsMappingDto> {
+        return assignmentService.getAssignmentGroupSetsMappingsInCourse(courseId).map { AssignmentGroupSetsMappingDto(it) }
+    }
 
 }

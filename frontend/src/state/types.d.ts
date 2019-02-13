@@ -73,7 +73,19 @@ export interface GroupSetDtoSummary extends GroupSetDtoBrief {
     createdBy: PersonDtoBrief;
 }
 
+export interface AssignmentSetDtoBrief {
+    createdAt: Date;
+    id: number;
+    name: string;
+}
+
+export interface AssignmentGroupSetsMappingDto {
+    assignmentSet: AssignmentSetDtoBrief;
+    groupSet: GroupSetDtoBrief;
+}
+
 export interface GroupSetDtoFull extends GroupSetDtoSummary {
+    assignmentSetMappings: AssignmentGroupSetsMappingDto[];
     groups: GroupDtoBrief[];
 }
 
@@ -82,12 +94,6 @@ export interface AssignmentDtoBrief {
     id: number;
     name: string;
     orderKey: string;
-}
-
-export interface AssignmentSetDtoBrief {
-    createdAt: Date;
-    id: number;
-    name: string;
 }
 
 export interface AssignmentDtoSummary extends AssignmentDtoBrief {

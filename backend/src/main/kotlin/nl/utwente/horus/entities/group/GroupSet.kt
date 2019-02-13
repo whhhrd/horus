@@ -1,5 +1,6 @@
 package nl.utwente.horus.entities.group
 
+import nl.utwente.horus.entities.assignmentgroupmapping.AssignmentGroupSetsMapping
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.participant.Participant
 import java.time.ZonedDateTime
@@ -28,6 +29,9 @@ data class GroupSet (
 ) {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "groupSet", cascade = [CascadeType.ALL], orphanRemoval = true)
     val groups: MutableSet<Group> = HashSet()
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "id.groupSet", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val assignmentSetMappings: MutableSet<AssignmentGroupSetsMapping> = HashSet()
 
     constructor(externalId: String?, course: Course, name: String, createdBy: Participant): this(0, externalId, course, name, createdBy, ZonedDateTime.now())
 }
