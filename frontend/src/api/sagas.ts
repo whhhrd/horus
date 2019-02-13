@@ -1,4 +1,4 @@
-import { call, delay, fork, put, race, take} from "redux-saga/effects";
+import { call, delay, fork, put, race, take } from "redux-saga/effects";
 
 import {
     API_AUTH_AUTHENTICATION_FAILED,
@@ -15,6 +15,8 @@ import {
     API_AUTH_TOKEN_REFRESH_SUCCEEDED,
 
     AuthenticationType,
+    API_AUTH_AUTHENTICATION_COMPLETED,
+    API_AUTH_AUTHENTICATION_CANCELED,
 
 } from "./constants";
 import { FetchFunction, fetchJSON } from "./util";
@@ -307,6 +309,19 @@ export function* authenticatedFetch(
     headers = {},
     options = {},
 ) {
+
+    // If unauthenticated and if we're not using the refresh token,
+    // wait for authentication or for an authentication failure
+    if (!authenticationState.authenticated && !useRefreshToken) {
+        const { failed, canceled } = yield race({
+            completed: take(API_AUTH_AUTHENTICATION_COMPLETED),
+            failed: take(API_AUTH_AUTHENTICATION_FAILED),
+            canceled: take(API_AUTH_AUTHENTICATION_CANCELED),
+        });
+        if (canceled != null || failed != null) {
+            return;
+        }
+    }
 
     let authState = {
         ...authenticationState,
