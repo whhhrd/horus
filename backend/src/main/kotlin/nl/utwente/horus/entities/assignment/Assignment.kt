@@ -1,11 +1,8 @@
 package nl.utwente.horus.entities.assignment
 
-import nl.utwente.horus.entities.comment.Comment
 import nl.utwente.horus.entities.comment.CommentThread
-import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.participant.Participant
 import java.time.ZonedDateTime
-import java.util.*
 import javax.persistence.*
 
 @Entity
@@ -26,6 +23,7 @@ data class Assignment (
         var orderKey: String,
 
         @ManyToOne
+        @JoinColumn(name = "created_by")
         val createdBy: Participant,
 
         val createdAt: ZonedDateTime
