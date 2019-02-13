@@ -2,7 +2,8 @@ package nl.utwente.horus
 
 import me.ntrrgc.tsGenerator.TypeScriptGenerator
 import nl.utwente.horus.representations.assignment.AssignmentDtoSummary
-import nl.utwente.horus.representations.assignment.AssignmentSetDtoSummary
+import nl.utwente.horus.representations.assignment.AssignmentGroupSetsMappingDto
+import nl.utwente.horus.representations.assignment.AssignmentSetDtoFull
 import nl.utwente.horus.representations.assignment.SignOffResultDtoSummary
 import nl.utwente.horus.representations.auth.RoleDtoBrief
 import nl.utwente.horus.representations.comment.CommentDto
@@ -18,18 +19,24 @@ import java.time.ZonedDateTime
 fun generate() {
     val generator = TypeScriptGenerator(
             rootClasses = setOf(
-                    PersonDtoFull::class,
+                    AssignmentSetDtoFull::class,
+                    AssignmentGroupSetsMappingDto::class,
+                    AssignmentDtoSummary::class,
+                    SignOffResultDtoSummary::class,
+
+                    RoleDtoBrief::class,
+
+                    CommentDto::class,
+                    CommentThreadDtoBrief::class,
+
+                    CourseDtoSummary::class,
+
                     GroupDtoFull::class,
                     GroupSetDtoFull::class,
-                    AssignmentDtoSummary::class,
-                    AssignmentSetDtoSummary::class,
-                    ParticipantDto::class,
-                    CommentThreadDtoBrief::class,
-                    SignOffResultDtoSummary::class,
-                    RoleDtoBrief::class,
-                    CommentDto::class,
-                    CourseDtoSummary::class
 
+                    ParticipantDto::class,
+
+                    PersonDtoFull::class
             ),
             mappings = mapOf(
                     ZonedDateTime::class to "Date"
@@ -38,6 +45,6 @@ fun generate() {
     File("entities.d.ts").writeText(generator.definitionsText)
 }
 
-//fun main(args: Array<String>) {
-//    generate()
-//}
+fun main(args: Array<String>) {
+    generate()
+}
