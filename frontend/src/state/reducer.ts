@@ -1,3 +1,4 @@
+import coursesReducer from "./course-selection/reducer";
 import { History } from "history";
 import { combineReducers } from "redux";
 
@@ -10,4 +11,5 @@ import { ApplicationState } from "./state";
 export const rootReducer = (history: History) => combineReducers<ApplicationState>({
     router: connectRouter(history),
     auth: authReducer,
+    course: coursesReducer,
 } as any);

@@ -24,4 +24,5 @@ export {
 export {
     authenticationFlow,
     authenticatedFetch,
+    authenticatedFetchJSON,
 } from "./sagas";

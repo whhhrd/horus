@@ -9,9 +9,12 @@ import "../styling/index.scss";
 import { loadAuthenticationAction, setLoginRedirectAction } from "../state/auth/actions"
 import { isLoggedIn } from "..//state/auth/selectors";
 
-import Login from "./pages/login/Login";
-import Home from "./pages/home/Home";
-import { ApplicationState } from "../state/state";
+import Login from './pages/login/Login';
+import Home from './pages/home/Home';
+import CourseSelection from './pages/course-selection/CourseSelection';
+
+import { ApplicationState } from '../state/state';
+import Dashboard from './pages/dashboard/Dashboard';
 
 export interface AppProps {
   loadAuthentication: () => {
@@ -49,6 +52,8 @@ class App extends React.Component<AppProps & RouteComponentProps, AppState> {
           <Switch>
               <Route exact path="/" component={Home} />
               <Route path={PATH_LOGIN} component={Login} />
+              <Route exact path="/courses" component={CourseSelection} />
+              <Route path="/courses/:id" component={Dashboard} />
           </Switch>
         </div>
       </div>

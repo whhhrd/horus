@@ -30,7 +30,23 @@ button {
     justify-content: flex-end;
     align-self: flex-end;
     padding: 1em;
-}
+  }
+  .CourseListEntry:hover {
+    background-color: grey;
+    cursor: pointer;
+  }
+  .card {
+    height: 100px;
+    width: 300px;
+    padding-top: 0px;
+    padding-right: 0px;
+    padding-left: 0px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    flex: none;
+  }
 
 .navigation-bar {
     height: 100vh;
