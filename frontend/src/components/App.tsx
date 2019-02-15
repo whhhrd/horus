@@ -1,5 +1,6 @@
+
 import React from "react";
-import { Route, Switch, withRouter, RouteComponentProps} from "react-router-dom";
+import { Route, Switch, withRouter, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -7,65 +8,69 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../styling/index.scss";
 
 import { loadAuthenticationAction, setLoginRedirectAction } from "../state/auth/actions"
-import { isLoggedIn } from "..//state/auth/selectors";
+import { isLoggedIn } from "../state/auth/selectors";
 
-import Login from './pages/login/Login';
-import Home from './pages/home/Home';
-import CourseSelection from './pages/course-selection/CourseSelection';
+import Login from "./pages/login/Login";
+import Home from "./pages/home/Home";
+import Assignments from "./pages/assignments/Assignments";
+import CourseSelection from "./pages/course-selection/CourseSelection";
+import Dashboard from "./pages/dashboard/Dashboard";
 
-import { ApplicationState } from '../state/state';
-import Dashboard from './pages/dashboard/Dashboard';
+import { ApplicationState } from "../state/state";
 
 export interface AppProps {
-  loadAuthentication: () => {
-    type: string,
-  };
-  setLoginRedirect: (redirectUrl: string) => {
-    type: string,
-  };
-  pathname: string;
-  search: string;
+    loadAuthentication: () => {
+        type: string,
+    };
+    setLoginRedirect: (redirectUrl: string) => {
+        type: string,
+    };
+    pathname: string;
+    search: string;
 }
 export interface AppState {
-  loggedIn: boolean;
+    loggedIn: boolean;
 }
 
 const PATH_LOGIN = "/login";
+const PATH_ASSIGNMENT_SET = "/courses/:cid/assignmentsets";
 
 class App extends React.Component<AppProps & RouteComponentProps, AppState> {
 
-  componentDidMount() {
-      const path = this.props.pathname;
-      if (path !== PATH_LOGIN) {
-        this.props.setLoginRedirect(this.props.pathname);
-        this.props.loadAuthentication();
-      }
-  }
-
-  render() {
-    return (
-      <div>
-        { this.props.pathname !== PATH_LOGIN &&
-          <div className="navigation-bar" />
+    componentDidMount() {
+        const path = this.props.pathname;
+        if (path !== PATH_LOGIN) {
+            this.props.setLoginRedirect(this.props.pathname);
+            this.props.loadAuthentication();
         }
-        <div className="main-body">
-          <Switch>
-              <Route exact path="/" component={Home} />
-              <Route path={PATH_LOGIN} component={Login} />
-              <Route exact path="/courses" component={CourseSelection} />
-              <Route path="/courses/:id" component={Dashboard} />
-          </Switch>
-        </div>
-      </div>
-    );
-  }
-} 
+    }
 
-export default withRouter(connect( (state: ApplicationState) => ({
-  loggedIn: isLoggedIn(state),
-  pathname: state.router!.location.pathname,
-  search: state.router!.location.search,
+
+    render() {
+        return (
+            <div className="d-flex">
+                {this.props.pathname !== PATH_LOGIN &&
+                    <div className="navigation-bar" />
+                }
+                <div className="main-body flex-fill">
+                    <Switch>
+                        <Route exact path="/" component={Home} />
+                        <Route path={PATH_LOGIN} component={Login} />
+                        <Route path={PATH_ASSIGNMENT_SET} component={Assignments} />
+                        <Route exact path="/courses" component={CourseSelection} />
+                        <Route path="/courses/:id" component={Dashboard} />
+                    </Switch>
+                </div>
+            </div>
+        );
+    }
+}
+
+export default withRouter(connect((state: ApplicationState) => ({
+    loggedIn: isLoggedIn(state),
+    pathname: state.router!.location.pathname,
+    search: state.router!.location.search,
 }), {
-  loadAuthentication: loadAuthenticationAction,
-  setLoginRedirect: setLoginRedirectAction
-})(App));
+        loadAuthentication: loadAuthenticationAction,
+        setLoginRedirect: setLoginRedirectAction
+    })(App));

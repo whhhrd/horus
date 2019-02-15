@@ -11,6 +11,6 @@ import org.springframework.transaction.annotation.Transactional
 interface AssignmentGroupSetsMappingRepository: JpaRepository<AssignmentGroupSetsMapping,
         AssignmentGroupSetsMapping.AssignmentGroupMappingId> {
 
-    @Query("SELECT m FROM AssignmentGroupSetsMapping m, GroupSet g WHERE m.id.groupSet = g AND g.course = ?1")
+    @Query("SELECT m FROM AssignmentGroupSetsMapping m, AssignmentSet a WHERE m.id.assignmentSet = a AND a.course = ?1")
     fun findMappingsInCourse(course: Course) : List<AssignmentGroupSetsMapping>
 }

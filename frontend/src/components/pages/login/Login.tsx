@@ -99,8 +99,6 @@ class Login extends Component<LoginProps, LoginState> {
     }
 }
 
-export default connect( (state: ApplicationState) => ({
-    loggedIn: isLoggedIn(state),
-}), {
+export default connect( (state: ApplicationState) => ({ loggedIn: isLoggedIn(state),}), {
     logIn: loginAction,
 })(Login);

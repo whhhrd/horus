@@ -30,12 +30,9 @@ button {
     justify-content: flex-end;
     align-self: flex-end;
     padding: 1em;
-  }
-  .CourseListEntry:hover {
-    background-color: grey;
-    cursor: pointer;
-  }
-  .card {
+}
+
+.course-selection-card {
     height: 100px;
     width: 300px;
     padding-top: 0px;
@@ -46,17 +43,26 @@ button {
     margin-top: 10px;
     margin-bottom: 10px;
     flex: none;
-  }
+}
 
 .navigation-bar {
     height: 100vh;
     width: 84px;
     background-color: rgb(45, 59, 69);
-    float: left;
 }
   
 .main-body {
-    height: 100vh;
-    width: auto;
-    overflow: hidden;
+    max-height: 100vh !important;
+    padding: 0px;
+    overflow-y: hidden;
+}
+
+.main-body-breadcrumbs {
+    height: 10vh;
+    background-color: white;
+}
+
+.main-body-display {
+    max-height: 90vh;
+    overflow-y: scroll;
 }

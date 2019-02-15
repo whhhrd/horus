@@ -43,7 +43,7 @@ class CourseList extends Component<CourseListProps, CourseListState> {
     private content = () => {
         return Array.from(this.props.courses!, (course: CourseDtoBrief) => {
             return(
-                <Card body key={course.id} onClick={() => this.props.selectCourse(course.id)}>
+                <Card body className="course-selection-card" key={course.id} onClick={() => this.props.selectCourse(course.id)}>
                     <CardImg style={{backgroundColor: "hsl(" + this.randomColor(course.name) +", 90%, 50%)", border: "0px"}} height="100%" width="100%"></CardImg>
                     <CardTitle>
                         {course.name}
