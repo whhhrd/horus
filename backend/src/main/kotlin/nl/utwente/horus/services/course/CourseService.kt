@@ -4,6 +4,7 @@ import nl.utwente.horus.entities.assignment.AssignmentSet
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.course.CourseRepository
 import nl.utwente.horus.entities.group.GroupSet
+import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.person.Person
 import nl.utwente.horus.exceptions.CourseNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,5 +37,9 @@ class CourseService {
 
     fun getGroupSetsOfCourse(courseId: Long) : List<GroupSet> {
         return getCourseById(courseId).groupSets.toList()
+    }
+
+    fun getParticipantsOfCourse(courseId: Long) : List<Participant> {
+        return getCourseById(courseId).participants.toList()
     }
 }

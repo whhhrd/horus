@@ -4,11 +4,14 @@ import nl.utwente.horus.entities.person.Person
 import nl.utwente.horus.representations.assignment.AssignmentGroupSetsMappingDto
 import nl.utwente.horus.representations.assignment.AssignmentSetDtoBrief
 import nl.utwente.horus.representations.auth.RoleDtoBrief
+import nl.utwente.horus.representations.course.CourseDtoFull
 import nl.utwente.horus.representations.course.CourseDtoSummary
 import nl.utwente.horus.representations.group.GroupSetDtoBrief
+import nl.utwente.horus.representations.participant.ParticipantDto
 import nl.utwente.horus.services.assignment.AssignmentService
 import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.course.CourseService
+import nl.utwente.horus.services.participant.ParticipantService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.transaction.annotation.Transactional
@@ -31,6 +34,9 @@ class CourseController {
     @Autowired
     lateinit var userDetailService: HorusUserDetailService
 
+    @Autowired
+    lateinit var participantService: ParticipantService
+
     @GetMapping(path = ["", "/"], produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
     fun listCourses(): List<CourseDtoSummary> {
         val person: Person = userDetailService.getCurrentPerson()
@@ -50,6 +56,17 @@ class CourseController {
     @GetMapping(path = ["/{courseId}/assignmentgroupsetsmappings"])
     fun listAssignmentGroupSetsMappings(@PathVariable courseId: Long) : List<AssignmentGroupSetsMappingDto> {
         return assignmentService.getAssignmentGroupSetsMappingsInCourse(courseId).map { AssignmentGroupSetsMappingDto(it) }
+    }
+
+    @GetMapping(path = ["/{courseId}/participants"])
+    fun listParticipantsOfCourse(@PathVariable courseId: Long) : List<ParticipantDto> {
+        return courseService.getParticipantsOfCourse(courseId).map { ParticipantDto(it) }
+    }
+
+    @GetMapping(path = ["/{courseId}"])
+    fun getFullCourse(@PathVariable courseId: Long): CourseDtoFull {
+        val participation = participantService.getParticipationInCourse(courseId)
+        return CourseDtoFull(courseService.getCourseById(courseId), RoleDtoBrief(participation.role))
     }
 
 }

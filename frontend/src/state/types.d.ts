@@ -108,6 +108,11 @@ export interface CourseDtoSummary extends CourseDtoBrief {
     role: RoleDtoBrief;
 }
 
+export interface CourseDtoFull extends CourseDtoSummary {
+    assignmentSets: AssignmentSetDtoBrief[];
+    groupSets: GroupSetDtoBrief[];
+}
+
 export interface GroupDtoBrief {
     archivedAt: Date | null;
     createdAt: Date;

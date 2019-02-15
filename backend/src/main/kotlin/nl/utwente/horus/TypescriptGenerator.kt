@@ -8,7 +8,7 @@ import nl.utwente.horus.representations.assignment.SignOffResultDtoSummary
 import nl.utwente.horus.representations.auth.RoleDtoBrief
 import nl.utwente.horus.representations.comment.CommentDto
 import nl.utwente.horus.representations.comment.CommentThreadDtoFull
-import nl.utwente.horus.representations.course.CourseDtoSummary
+import nl.utwente.horus.representations.course.CourseDtoFull
 import nl.utwente.horus.representations.group.GroupDtoFull
 import nl.utwente.horus.representations.group.GroupSetDtoFull
 import nl.utwente.horus.representations.participant.ParticipantDto
@@ -29,7 +29,7 @@ fun generate() {
                     CommentDto::class,
                     CommentThreadDtoFull::class,
 
-                    CourseDtoSummary::class,
+                    CourseDtoFull::class,
 
                     GroupDtoFull::class,
                     GroupSetDtoFull::class,
