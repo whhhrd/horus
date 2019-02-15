@@ -100,6 +100,10 @@ export interface CommentDto {
     thread: CommentThreadDtoBrief;
 }
 
+export interface CommentThreadDtoFull extends CommentThreadDtoBrief {
+    comments: CommentDto[];
+}
+
 export interface CourseDtoSummary extends CourseDtoBrief {
     role: RoleDtoBrief;
 }
