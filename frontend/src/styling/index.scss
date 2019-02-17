@@ -66,3 +66,15 @@ button {
     max-height: 90vh;
     overflow-y: scroll;
 }
+
+.ErrorComponent {
+    pointer-events: all;
+    display: inline-block;
+}
+.ErrorComponentWrapper {
+    pointer-events: none;
+    text-align: center;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}

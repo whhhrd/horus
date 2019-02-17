@@ -1,5 +1,6 @@
-import { coursesRequestFailedAction, coursesRequestSucceededAction} from "./action";
-import {put, takeEvery, call} from "redux-saga/effects";
+import { coursesRequestSucceededAction } from "./action";
+import { notifyError } from "../notifications/constants";
+import { put, takeEvery, call } from "redux-saga/effects";
 import { COURSES_REQUESTED_ACTION } from "./constants";
 import { authenticatedFetchJSON } from "../../api";
 import { CourseDtoSummary } from "../types";
@@ -9,7 +10,7 @@ export function* requestCourses() {
         const result: CourseDtoSummary[] = yield call(authenticatedFetchJSON, "GET", "courses");
         yield put(coursesRequestSucceededAction(result));
     } catch (e) {
-        yield put(coursesRequestFailedAction(e));
+        yield put(notifyError("Failed to fetch courses"));
     }
 }
 

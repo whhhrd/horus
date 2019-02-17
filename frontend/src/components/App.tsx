@@ -16,6 +16,7 @@ import Assignments from "./pages/assignments/Assignments";
 import CourseSelection from "./pages/course-selection/CourseSelection";
 import Dashboard from "./pages/dashboard/Dashboard";
 
+import NotificationList from './notifications/NotificationList';
 import { ApplicationState } from "../state/state";
 
 export interface AppProps {
@@ -37,17 +38,18 @@ const PATH_ASSIGNMENT_SET = "/courses/:cid/assignmentsets";
 
 class App extends React.Component<AppProps & RouteComponentProps, AppState> {
 
-    componentDidMount() {
-        const path = this.props.pathname;
-        if (path !== PATH_LOGIN) {
-            this.props.setLoginRedirect(this.props.pathname);
-            this.props.loadAuthentication();
-        }
-    }
+  componentDidMount() {
+      const path = this.props.pathname;
+      if (path !== PATH_LOGIN) {
+        this.props.setLoginRedirect(this.props.pathname);
+        this.props.loadAuthentication();
+      }
+  }
 
-
-    render() {
-        return (
+  render() {
+    return (
+      <div>
+        <NotificationList />
             <div className="d-flex">
                 {this.props.pathname !== PATH_LOGIN &&
                     <div className="navigation-bar" />
@@ -61,6 +63,7 @@ class App extends React.Component<AppProps & RouteComponentProps, AppState> {
                         <Route path="/courses/:id" component={Dashboard} />
                     </Switch>
                 </div>
+            </div>
             </div>
         );
     }
