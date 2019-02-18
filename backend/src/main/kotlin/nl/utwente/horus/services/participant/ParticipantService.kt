@@ -24,4 +24,8 @@ class ParticipantService {
         return person.participations.firstOrNull { it.course.id == courseId } ?: throw NoParticipantException()
     }
 
+    fun getParticipationInCourse(person: Person, courseId: Long) : Participant {
+        return person.participations.firstOrNull { it.course.id == courseId } ?: throw NoParticipantException()
+    }
+
 }
