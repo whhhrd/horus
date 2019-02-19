@@ -35,6 +35,7 @@ export interface AppState {
 
 const PATH_LOGIN = "/login";
 const PATH_ASSIGNMENT_SET = "/courses/:cid/assignmentsets";
+const PATH_COURSES = "/courses";
 
 class App extends React.Component<AppProps & RouteComponentProps, AppState> {
 
@@ -57,10 +58,10 @@ class App extends React.Component<AppProps & RouteComponentProps, AppState> {
                 <div className="main-body flex-fill">
                     <Switch>
                         <Route exact path="/" component={Home} />
-                        <Route path={PATH_LOGIN} component={Login} />
-                        <Route path={PATH_ASSIGNMENT_SET} component={Assignments} />
-                        <Route exact path="/courses" component={CourseSelection} />
-                        <Route path="/courses/:id" component={Dashboard} />
+                        <Route exact path={PATH_LOGIN} component={Login} />
+                        <Route exact path={PATH_ASSIGNMENT_SET} component={Assignments} />
+                        <Route exact path={PATH_COURSES} component={CourseSelection} />
+                        <Route exact path={`${PATH_COURSES}/:id`} component={Dashboard} />
                     </Switch>
                 </div>
             </div>

@@ -17,32 +17,73 @@ import { ApplicationState } from "../../../state/state";
 
 interface AssignmentsProps {
 
-    assignmentSetDtoBriefs: AssignmentSetDtoBrief[] | null,
-    assignmentGroupSetsMappingDtos: AssignmentGroupSetsMappingDto[] | null,
-    error: Error | null,
+    assignmentSetDtoBriefs: AssignmentSetDtoBrief[] | null;
+    assignmentGroupSetsMappingDtos: AssignmentGroupSetsMappingDto[] | null;
+    error: Error | null;
 
     fetchAssignmentGroupSetsMappingDtos: (courseID: number) => {
-        type: string
-    },
+        type: string,
+    };
 
     fetchAssignmentSetDtoBriefs: (courseID: number) => {
-        type: string
-    },
+        type: string,
+    };
 }
 
-interface AssignmentsState { }
+interface AssignmentsState {}
 
 class Assignments extends Component<AssignmentsProps & RouteComponentProps<any>, AssignmentsState> {
 
+    componentDidMount() {
+        // Fetch the AssignmentSetDtoBriefs
+        this.props.fetchAssignmentSetDtoBriefs(this.props.match.params.cid);
+
+        // Fetch the AssignmentGroupSets mappings
+        this.props.fetchAssignmentGroupSetsMappingDtos(this.props.match.params.cid);
+    }
+
+    render() {
+        // If an error occurred, show the error
+        if (this.props.error != null) {
+            return <Alert key={1} color="danger">Something went wrong. Perhaps the course does not exist.</Alert>;
+        }
+
+        // Prepare the mapping of assignment set with its groupsets
+        const preparedASetGroupSetsMapping: Map<number, GroupSetDtoBrief[]> =
+            this.prepareAssignmentGroupSetsMappingDtosToMap(this.props.assignmentGroupSetsMappingDtos!);
+
+        // Put the AssignmentSetListEntry elements in the following map
+        const aSetJSXs: JSX.Element[] =
+            this.composeAssignmentSetListEntries(this.props.assignmentSetDtoBriefs, preparedASetGroupSetsMapping);
+
+        return (
+            <Container fluid={true}>
+                <Row className="main-body-breadcrumbs px-2 pt-3">
+                    <Col md="12">
+                        <h3>Sign-off Lists Manager
+                        { this.props.assignmentSetDtoBriefs == null &&
+                            <Spinner color="primary" type="grow"></Spinner>
+                        }
+                        </h3>
+                        <hr />
+                    </Col>
+                </Row>
+                <Row className="main-body-display px-2">
+                    {aSetJSXs}
+                </Row>
+            </Container>
+        );
+    }
+
     /**
      * Prepares the mapping between AssignmentSets and GroupSets. Generates a Map with as key
-     * an assignmentSetID and as value a list of GroupSetDtoBrief objects. 
+     * an assignmentSetID and as value a list of GroupSetDtoBrief objects.
      * @param mappingDtos The Dtos fetched from the API call /courses/:cid/assignmentgroupsetsmappings
      */
     private prepareAssignmentGroupSetsMappingDtosToMap(mappingDtos: AssignmentGroupSetsMappingDto[]) {
 
         // The prepared mapping to be returned.
-        let aSetIDsToGroupSets = new Map<number, GroupSetDtoBrief[]>();
+        const aSetIDsToGroupSets = new Map<number, GroupSetDtoBrief[]>();
 
         // Return an empty map if there are no mappings found
         if (mappingDtos == null) {
@@ -50,9 +91,9 @@ class Assignments extends Component<AssignmentsProps & RouteComponentProps<any>,
         } else {
 
             // Else loop over the mappingDtos and fill the map
-            for (var mappingDto of mappingDtos) {
-                var aSetDtoBrief = mappingDto.assignmentSet;
-                var groupSetDtoBrief = mappingDto.groupSet;
+            for (const mappingDto of mappingDtos) {
+                const aSetDtoBrief = mappingDto.assignmentSet;
+                const groupSetDtoBrief = mappingDto.groupSet;
 
                 // Put an empty list if there is no key yet for this aSetDtoBrief
                 if (aSetIDsToGroupSets.get(aSetDtoBrief.id) === undefined) {
@@ -75,29 +116,31 @@ class Assignments extends Component<AssignmentsProps & RouteComponentProps<any>,
      * @param aSetDtoBriefs The list of AssignmentSetDtoBriefs, necessary for displaying the AssignmentSetListEntry
      * @param preparedASetGroupSetsMapping A Map that maps assignmentSetID to a list of GroupSetDtoBriefs
      */
-    private composeAssignmentSetListEntries(aSetDtoBriefs: AssignmentSetDtoBrief[] | null,
-        preparedASetGroupSetsMapping: Map<number, GroupSetDtoBrief[]>) {
+    private composeAssignmentSetListEntries(
+        aSetDtoBriefs: AssignmentSetDtoBrief[] | null,
+        preparedASetGroupSetsMapping: Map<number, GroupSetDtoBrief[]>,
+    ) {
 
         // The JSX.Element[] list to be returned
-        var aSetJSXs: JSX.Element[] = [];
+        const aSetJSXs: JSX.Element[] = [];
 
         // Put entries in the list only if there are assignmentSetDtoBriefs, otherwise put an alert into the list
         if (aSetDtoBriefs == null) {
-            aSetJSXs.push(<Spinner key={1} color="primary" size=""></Spinner>)
+            aSetJSXs.push(<div />);
         } else if (aSetDtoBriefs.length > 0) {
-            // Loop over each assignmentSetDtoBrief and put 
-            for (var aSetDtoBrief of aSetDtoBriefs) {
+            // Loop over each assignmentSetDtoBrief and put
+            for (const aSetDtoBrief of aSetDtoBriefs) {
 
                 // Retrieve the groupSets mapped to the assignmentSet
-                var groupSets = preparedASetGroupSetsMapping.get(aSetDtoBrief.id);
+                const groupSets = preparedASetGroupSetsMapping.get(aSetDtoBrief.id);
 
                 // Push an AssignmentSetListEntry with the necessary details
                 aSetJSXs.push(
                     <AssignmentSetListEntry
                         key={aSetDtoBrief.id}
                         assignmentSet={aSetDtoBrief}
-                        groupSets={groupSets != undefined ? groupSets : []}
-                    />
+                        groupSets={groupSets !== undefined ? groupSets : []}
+                    />,
                 );
             }
         } else {
@@ -106,47 +149,6 @@ class Assignments extends Component<AssignmentsProps & RouteComponentProps<any>,
         }
 
         return aSetJSXs;
-    }
-
-
-    componentDidMount() {
-        // Fetch the AssignmentSetDtoBriefs
-        this.props.fetchAssignmentSetDtoBriefs(this.props.match.params.cid);
-
-        // Fetch the AssignmentGroupSets mappings
-        this.props.fetchAssignmentGroupSetsMappingDtos(this.props.match.params.cid);
-    }
-
-    public render() {
-        // If an error occurred, show the error
-        if (this.props.error != null) {
-            return <Alert key={1} color="danger">Something went wrong. Perhaps the course does not exist.</Alert>
-        }
-
-        // Prepare the mapping of assignment set with its groupsets
-        const preparedASetGroupSetsMapping: Map<number, GroupSetDtoBrief[]> =
-            this.prepareAssignmentGroupSetsMappingDtosToMap(this.props.assignmentGroupSetsMappingDtos!);
-
-        // Put the AssignmentSetListEntry elements in the following map
-        const aSetJSXs: JSX.Element[] =
-            this.composeAssignmentSetListEntries(this.props.assignmentSetDtoBriefs, preparedASetGroupSetsMapping);
-
-        return (
-            <Container fluid={true}>
-                <Row className="main-body-breadcrumbs px-2 pt-3">
-                    <Col md="12">
-                        <h3>Sign-off Lists Manager</h3>
-                        <hr />
-                    </Col>
-                </Row>
-                <Row className="main-body-display px-2">
-                    <Col lg="5" xs="12" s="12">
-                        <h4>Sign-off Lists</h4>
-                        {aSetJSXs}
-                    </Col>
-                </Row>
-            </Container>
-        );
     }
 }
 
