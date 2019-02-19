@@ -9,11 +9,10 @@ CREATE TABLE person (
 
 ------ Comment-related commands -----------------------------
 
-CREATE TYPE CommentType AS ENUM ('STAFF_ONLY', 'PUBLIC');
-
 CREATE TABLE comment_thread (
   id BIGSERIAL NOT NULL PRIMARY KEY,
-  "type" CommentType NOT NULL
+  "type" VARCHAR NOT NULL,
+  CHECK ( "type" IN ('STAFF_ONLY', 'PUBLIC') )
 );
 
 
@@ -33,7 +32,7 @@ CREATE INDEX comment_thread_idx ON comment(thread_id);
 
 CREATE TABLE course (
   id BIGSERIAL NOT NULL PRIMARY KEY,
-  course_code VARCHAR NOT NULL,
+  course_code VARCHAR NULL,
   external_id VARCHAR NULL,
   name VARCHAR NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -155,16 +154,15 @@ CREATE TABLE assignment (
 CREATE INDEX assignment_assignment_set_idx ON assignment(assignment_set_id);
 CREATE INDEX assignment_created_by_idx ON assignment(created_by);
 
-CREATE TYPE SignOffResult AS ENUM ('COMPLETE', 'INCOMPLETE');
-
 CREATE TABLE assignment_sign_off_result (
   participant_id BIGINT NOT NULL REFERENCES participant(id),
   assignment_id BIGINT NOT NULL REFERENCES assignment(id),
   comment_thread_id BIGINT NULL REFERENCES comment_thread(id) ON DELETE SET NULL,
-  result SignOffResult NOT NULL,
+  result VARCHAR NOT NULL,
   signer_id BIGINT NOT NULL REFERENCES participant(id),
   signed_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  CONSTRAINT assignment_sign_off_result_unique UNIQUE (participant_id, assignment_id)
+  CONSTRAINT assignment_sign_off_result_unique UNIQUE (participant_id, assignment_id),
+  CHECK ( result IN ('COMPLETE', 'INCOMPLETE') )
 );
 
 CREATE INDEX assignment_sign_off_result_assignment_idx ON assignment_sign_off_result(assignment_id);

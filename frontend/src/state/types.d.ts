@@ -91,6 +91,21 @@ export interface SignOffResultDtoSummary {
     signer: ParticipantDto;
 }
 
+export interface AssignmentCreateUpdateDto {
+    id: number | null;
+    name: string;
+    orderKey: string;
+}
+
+export interface AssignmentSetCreateDto {
+    name: string;
+}
+
+export interface AssignmentSetUpdateDto {
+    assignments: AssignmentCreateUpdateDto[] | null;
+    name: string;
+}
+
 export interface CommentDto {
     content: string;
     createdAt: Date;
@@ -104,6 +119,24 @@ export interface CommentThreadDtoFull extends CommentThreadDtoBrief {
     comments: CommentDto[];
 }
 
+export interface CommentCreateDto {
+    content: string;
+    threadId: number;
+}
+
+export interface CommentThreadCreateDto {
+    content: string;
+    type: CommentType;
+}
+
+export interface CommentThreadUpdateDto {
+    type: CommentType;
+}
+
+export interface CommentUpdateDto {
+    content: string;
+}
+
 export interface CourseDtoSummary extends CourseDtoBrief {
     role: RoleDtoBrief;
 }
@@ -111,6 +144,18 @@ export interface CourseDtoSummary extends CourseDtoBrief {
 export interface CourseDtoFull extends CourseDtoSummary {
     assignmentSets: AssignmentSetDtoBrief[];
     groupSets: GroupSetDtoBrief[];
+}
+
+export interface CourseCreateDto {
+    courseCode: string | null;
+    externalId: string | null;
+    name: string;
+}
+
+export interface CourseUpdateDto {
+    archivedAt: Date | null;
+    courseCode: string | null;
+    name: string;
 }
 
 export interface GroupDtoBrief {
@@ -139,6 +184,17 @@ export interface GroupSetDtoSummary extends GroupSetDtoBrief {
 export interface GroupSetDtoFull extends GroupSetDtoSummary {
     assignmentSetMappings: AssignmentGroupSetsMappingDto[];
     groups: GroupDtoBrief[];
+}
+
+export interface ParticipantCreateDto {
+    personId: number;
+    roleId: number;
+}
+
+export interface ParticipantUpdateDto {
+    commentThreadId: number | null;
+    enabled: boolean;
+    roleId: number;
 }
 
 export interface PersonDtoFull extends PersonDtoBrief {

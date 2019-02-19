@@ -1,10 +1,9 @@
 package nl.utwente.horus.entities.participant
 
-import nl.utwente.horus.entities.person.Person
 import nl.utwente.horus.entities.auth.Role
-import nl.utwente.horus.entities.comment.Comment
 import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.course.Course
+import nl.utwente.horus.entities.person.Person
 import java.time.ZonedDateTime
 import javax.persistence.*
 
@@ -22,7 +21,7 @@ data class Participant (
         val course: Course,
 
         @ManyToOne
-        val role: Role,
+        var role: Role,
 
         @OneToOne(optional = true, fetch = FetchType.LAZY)
         @JoinColumn(name = "comment_thread_id")
