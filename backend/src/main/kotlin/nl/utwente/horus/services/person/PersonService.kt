@@ -21,4 +21,10 @@ class PersonService {
         return personRepository.findById(id).orElseThrow()
     }
 
+    fun createPerson(loginId: String, fullName: String, shortName: String, email: String): Person {
+        val person = Person(loginId, fullName, shortName, email)
+        personRepository.save(person)
+        return person
+    }
+
 }
