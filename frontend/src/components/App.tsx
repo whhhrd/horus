@@ -14,10 +14,10 @@ import Login from "./pages/login/Login";
 import Home from "./pages/home/Home";
 import Assignments from "./pages/assignments/Assignments";
 import CourseSelection from "./pages/course-selection/CourseSelection";
-import Dashboard from "./pages/dashboard/Dashboard";
 
+import { ApplicationState } from '../state/state';
+import CourseDashboard from "./pages/course-dashboard/CourseDashboard";
 import NotificationList from './notifications/NotificationList';
-import { ApplicationState } from "../state/state";
 
 export interface AppProps {
     loadAuthentication: () => {
@@ -61,7 +61,7 @@ class App extends React.Component<AppProps & RouteComponentProps, AppState> {
                             <Route exact path={PATH_LOGIN} component={Login} />
                             <Route exact path={PATH_ASSIGNMENT_SET} component={Assignments} />
                             <Route exact path={PATH_COURSES} component={CourseSelection} />
-                            <Route exact path={`${PATH_COURSES}/:id`} component={Dashboard} />
+                            <Route exact path={`${PATH_COURSES}/:id`} component={CourseDashboard} />
                         </Switch>
                     </div>
                 </div>

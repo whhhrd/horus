@@ -34,8 +34,11 @@ button {
 
 .card {
     box-shadow: 1px 1px 2px 1px rgba(0,0,0,0.1);
-    width: 300px;
     margin: 1.25rem;
+    max-width: 200px;
+    min-width: 150px;
+    flex: auto;
+    flex-basis: 0;
 }
 
 .card-clickable:hover {
@@ -49,10 +52,20 @@ button {
 }
 
 .card-header-colored {
-    height: 200px;
     padding-bottom: 0;
 }
-
+.card-header-colored:before {
+    content: "";
+    display: block;
+    padding-top: 100%;
+}
+.dashboard-sidebar {
+    background-color: lightgray;
+    height: 100vh;
+    flex: auto;
+    flex-basis: 50%;
+    padding: 1rem;
+}
 .card-footer {
     border-top: 0;
     padding-top: 0;
@@ -62,7 +75,15 @@ button {
 .card-title {
     font-size: 1.2em;
 }
-
+.dashboard-sidebar-mobile {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: calc(90% - 84px);
+    background-color: lightgray;
+    height: 100%;
+    padding: 1rem;
+}
 .navigation-bar {
     height: 100vh;
     width: 84px;
@@ -96,7 +117,8 @@ button {
 .ErrorComponentWrapper {
     pointer-events: none;
     text-align: center;
-    position: absolute;
+    position: fixed;
     top: 0;
     width: 100%;
+    z-index: 1000;
 }

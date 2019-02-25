@@ -1,5 +1,7 @@
 export const COURSES_REQUESTED_ACTION = "course-selection/COURSES_REQUESTED";
 export const COURSES_REQUEST_SUCCEEDED_ACTION = "course-selection/COURSES_REQUEST_SUCCEEDED_ACTION";
+export const COURSE_REQUESTED_ACTION = "course/COURSE_REQUESTED_ACTION";
+export const COURSE_REQUEST_SUCCEEDED_ACTION = "course/COURSE_REQUEST_SUCCEDED_ACTION";
 
 export const COURSE_LIST_TA = "course-selection/course-list/ta-mode";
 export const COURSE_LIST_STUDENT = "course-selection/course-list/student-mode";

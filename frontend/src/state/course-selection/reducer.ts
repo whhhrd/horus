@@ -1,24 +1,36 @@
 import { CoursesState } from "./types";
-import { CourseRequestAction } from "./action";
+import { CoursesRequestSucceededAction } from "./action";
 import {
-    COURSES_REQUESTED_ACTION,
     COURSES_REQUEST_SUCCEEDED_ACTION,
+    COURSE_REQUEST_SUCCEEDED_ACTION,
 } from "./constants";
+import { CourseDtoSummary } from "../types";
 
 const initialState: CoursesState = {
 };
 
-export default function coursesReducer(state: CoursesState, action: CourseRequestAction): CoursesState {
+export default function coursesReducer(state: CoursesState, action: CoursesRequestSucceededAction): CoursesState {
     if (state == null) {
         return initialState;
     }
     switch (action.type) {
-        case COURSES_REQUESTED_ACTION:
-            return initialState;
         case COURSES_REQUEST_SUCCEEDED_ACTION:
             return {
                 courses: action.courses,
             };
+        case COURSE_REQUEST_SUCCEEDED_ACTION:
+            if (state.courses !== undefined) {
+                const newCourses = state.courses!.filter((course: CourseDtoSummary) =>
+                    course.id !== action.course!.id);
+                newCourses.push(action.course!);
+                return {
+                    courses: newCourses,
+                };
+            } else {
+                return {
+                    courses: [action.course!],
+                };
+            }
         default:
             return state;
     }

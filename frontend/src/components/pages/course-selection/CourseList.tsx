@@ -12,6 +12,7 @@ import CardTitle from 'reactstrap/lib/CardTitle';
 import {push} from 'connected-react-router';
 import CardBody from 'reactstrap/lib/CardBody';
 import CardHeader from 'reactstrap/lib/CardHeader';
+import { randomColor } from '../../util';
 interface CourseListProps {
     courses: CourseDtoBrief[];
     mode: string;
@@ -24,13 +25,7 @@ interface CourseListState {
 }
 
 class CourseList extends Component<CourseListProps, CourseListState> {
-
-    static palette: string[] = [
-        "#D32F2F", "#C2185B", "#7B1FA2", "#512DA8", "#303F9F",
-        "#1976D2", "#0097A7", "#00796B", "#388E3C", "#AFB42B",
-        "#FBC02D", "#FFA000", "#F57C00", "#E64A19",
-    ];
-
+    
     render() {
         if (this.props.courses.length === 0) {
             return <Row />;
@@ -65,22 +60,13 @@ class CourseList extends Component<CourseListProps, CourseListState> {
             return "";
         }
     }
-    private randomColor = (courseName: string) => {
-        let hash = 0;
-        const len = courseName.length;
-        for (let i = 0; i < len; i++) {
-          hash  = ((hash << 5) - hash) + courseName.charCodeAt(i);
-          hash |= 0;
-        }
-        return CourseList.palette[Math.abs(hash) % CourseList.palette.length];
-    }
     private content = () => {
         return Array.from(this.props.courses!, (course: CourseDtoBrief) => {
             return(
                 <Card className="card-clickable" key={course.id} onClick={() => this.props.selectCourse(course.id)}>
                     <CardHeader
                         className="card-header-colored"
-                        style={{backgroundColor: this.randomColor(course.name)}}>
+                        style={{backgroundColor: randomColor(course.name)}}>
                     </CardHeader>
                     <CardBody>
                         <CardTitle>

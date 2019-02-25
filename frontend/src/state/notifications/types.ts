@@ -11,10 +11,10 @@ export interface NotificationsState {
 }
 
 export interface NotificationProps {
-    notifyError: (message: string, fadeAway: boolean) => { type: string };
-    notifySuccess: (message: string, fadeAway: boolean) => { type: string };
-    notifyWarning: (message: string, fadeAway: boolean) => { type: string };
-    notifyInfo: (message: string, fadeAway: boolean) => { type: string };
+    notifyError: (message: string, fadeAway?: boolean) => { type: string };
+    notifySuccess: (message: string, fadeAway?: boolean) => { type: string };
+    notifyWarning: (message: string, fadeAway?: boolean) => { type: string };
+    notifyInfo: (message: string, fadeAway?: boolean) => { type: string };
 }
 export enum NotificationKind {
     Error = "danger",
