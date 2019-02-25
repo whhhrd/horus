@@ -54,11 +54,13 @@ button {
 .card-header-colored {
     padding-bottom: 0;
 }
+
 .card-header-colored:before {
     content: "";
     display: block;
     padding-top: 100%;
 }
+
 .dashboard-sidebar {
     background-color: lightgray;
     height: 100vh;
@@ -66,6 +68,7 @@ button {
     flex-basis: 50%;
     padding: 1rem;
 }
+
 .card-footer {
     border-top: 0;
     padding-top: 0;
@@ -75,6 +78,12 @@ button {
 .card-title {
     font-size: 1.2em;
 }
+
+.AssignmentSetCard {
+    max-width: 250px;
+    min-width: 250px;
+}
+
 .dashboard-sidebar-mobile {
     position: absolute;
     top: 0;
@@ -84,6 +93,7 @@ button {
     height: 100%;
     padding: 1rem;
 }
+
 .navigation-bar {
     height: 100vh;
     width: 84px;
@@ -114,6 +124,7 @@ button {
     pointer-events: all;
     display: inline-block;
 }
+
 .ErrorComponentWrapper {
     pointer-events: none;
     text-align: center;

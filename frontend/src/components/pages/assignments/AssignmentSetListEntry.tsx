@@ -22,7 +22,7 @@ export default class AssignmentSetListEntry extends
             <Badge color="primary" className="mx-1" key={groupSetDtoBrief.id}>{groupSetDtoBrief.name}</Badge>);
 
         return (
-            <Card className="my-3">
+            <Card className="my-3 AssignmentSetCard">
                 <CardHeader>
 
                     <h5>{this.props.assignmentSet.name}</h5>
