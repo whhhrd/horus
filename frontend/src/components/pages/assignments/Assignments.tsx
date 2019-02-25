@@ -6,10 +6,10 @@ import { Container, Row, Alert, Spinner, Col } from "reactstrap";
 
 import AssignmentSetListEntry from "./AssignmentSetListEntry";
 
-import { getError, getAssignmentGroupSetsMappingDtos, getAssignmentSetDtoBriefs }
-    from "../../../state/courses/assignments/selectors";
+import { getAssignmentGroupSetsMappingDtos, getAssignmentSetDtoBriefs }
+    from "../../../state/assignments/selectors";
 import { assignmentGroupSetsMappingDtoFetchRequestedAction, assignmentSetDtoBriefsFetchRequestedAction }
-    from "../../../state/courses/assignments/actions";
+    from "../../../state/assignments/actions";
 
 import { AssignmentSetDtoBrief, AssignmentGroupSetsMappingDto, GroupSetDtoBrief }
     from "../../../state/types";
@@ -19,7 +19,6 @@ interface AssignmentsProps {
 
     assignmentSetDtoBriefs: AssignmentSetDtoBrief[] | null;
     assignmentGroupSetsMappingDtos: AssignmentGroupSetsMappingDto[] | null;
-    error: Error | null;
 
     fetchAssignmentGroupSetsMappingDtos: (courseID: number) => {
         type: string,
@@ -43,11 +42,6 @@ class Assignments extends Component<AssignmentsProps & RouteComponentProps<any>,
     }
 
     render() {
-        // If an error occurred, show the error
-        if (this.props.error != null) {
-            return <Alert key={1} color="danger">Something went wrong. Perhaps the course does not exist.</Alert>;
-        }
-
         // Prepare the mapping of assignment set with its groupsets
         const preparedASetGroupSetsMapping: Map<number, GroupSetDtoBrief[]> =
             this.prepareAssignmentGroupSetsMappingDtosToMap(this.props.assignmentGroupSetsMappingDtos!);
@@ -60,7 +54,7 @@ class Assignments extends Component<AssignmentsProps & RouteComponentProps<any>,
             <Container fluid={true}>
                 <Row className="main-body-breadcrumbs px-2 pt-3">
                     <Col md="12">
-                        <h3>Sign-off Lists Manager
+                        <h3>Assignment Sets Manager
                         { this.props.assignmentSetDtoBriefs == null &&
                             <Spinner color="primary" type="grow"></Spinner>
                         }
@@ -126,7 +120,7 @@ class Assignments extends Component<AssignmentsProps & RouteComponentProps<any>,
 
         // Put entries in the list only if there are assignmentSetDtoBriefs, otherwise put an alert into the list
         if (aSetDtoBriefs == null) {
-            aSetJSXs.push(<div />);
+            aSetJSXs.push(<div key={-1} />);
         } else if (aSetDtoBriefs.length > 0) {
             // Loop over each assignmentSetDtoBrief and put
             for (const aSetDtoBrief of aSetDtoBriefs) {
@@ -145,7 +139,7 @@ class Assignments extends Component<AssignmentsProps & RouteComponentProps<any>,
             }
         } else {
             // If there are no assignmentSetDtoBriefs, push an Alert saying so
-            aSetJSXs.push(<Alert className="mt-3" color="primary">No assignment sets for this course yet.</Alert>);
+            aSetJSXs.push(<Alert className="mt-3" color="primary" key={-2}>No assignment sets for this course yet.</Alert>);
         }
 
         return aSetJSXs;
@@ -155,7 +149,6 @@ class Assignments extends Component<AssignmentsProps & RouteComponentProps<any>,
 export default withRouter(connect((state: ApplicationState) => ({
     assignmentGroupSetsMappingDtos: getAssignmentGroupSetsMappingDtos(state),
     assignmentSetDtoBriefs: getAssignmentSetDtoBriefs(state),
-    error: getError(state),
 }), {
         fetchAssignmentGroupSetsMappingDtos: assignmentGroupSetsMappingDtoFetchRequestedAction,
         fetchAssignmentSetDtoBriefs: assignmentSetDtoBriefsFetchRequestedAction,

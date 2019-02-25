@@ -8,13 +8,12 @@ import {
 import {
     AssignmentSetDtoFetchAction,
     assignmentSetDtoBriefsFetchSucceededAction,
-    assignmentSetDtoBriefsFetchFailedAction,
     assignmentGroupSetsMappingDtoFetchSucceededAction,
-    assignmentGroupSetsMappingDtoFetchFailedAction,
 } from "./actions";
 
-import { authenticatedFetchJSON } from "../../../api/sagas";
-import { AssignmentSetDtoBrief, AssignmentGroupSetsMappingDto } from "../../types";
+import { authenticatedFetchJSON } from "../../api/sagas";
+import { AssignmentSetDtoBrief, AssignmentGroupSetsMappingDto } from "../types";
+import { notifyError } from "../notifications/constants";
 
 export function* fetchAssignmentSetDtoBriefs(action: AssignmentSetDtoFetchAction) {
     try {
@@ -26,7 +25,7 @@ export function* fetchAssignmentSetDtoBriefs(action: AssignmentSetDtoFetchAction
         yield put(assignmentSetDtoBriefsFetchSucceededAction(assignmentSetDtoBriefs));
     } catch (e) {
         // Something went wrong, send an error to the AssignmentSetState
-        yield put(assignmentSetDtoBriefsFetchFailedAction(e));
+        yield put(notifyError("Failed to fetch assignment sets"));
     }
 }
 
@@ -40,7 +39,7 @@ export function* fetchAssignmentGroupSetsMappingDto(action: AssignmentSetDtoFetc
         yield put(assignmentGroupSetsMappingDtoFetchSucceededAction(assignmentGroupSetsMappingDtos));
     } catch (e) {
         // Something went wrong, send an error to the AssignmentSetState
-        yield put(assignmentGroupSetsMappingDtoFetchFailedAction(e));
+        yield put(notifyError("Failed to fetch assignment sets/group sets mapping"));
     }
 }
 

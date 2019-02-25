@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { ApplicationState } from '../state/state';
-import { getAssignmentSetDtoBriefs } from '../state/courses/assignments/selectors';
-import { assignmentSetDtoBriefsFetchRequestedAction } from '../state/courses/assignments/actions';
+import { getAssignmentSetDtoBriefs } from '../state/assignments/selectors';
+import { assignmentSetDtoBriefsFetchRequestedAction } from '../state/assignments/actions';
 import { AssignmentSetDtoBrief } from '../state/types';
 import Row from 'reactstrap/lib/Row';
 

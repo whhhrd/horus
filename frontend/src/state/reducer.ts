@@ -2,7 +2,7 @@ import { History } from "history";
 import { combineReducers } from "redux";
 
 import authReducer from "./auth/reducer";
-import assignmentSetsReducer from "./courses/assignments/reducer";
+import assignmentSetsReducer from "./assignments/reducer";
 import coursesReducer from "./course-selection/reducer";
 import { ApplicationState } from "./state";
 import notificationsReducer from "./notifications/reducers";

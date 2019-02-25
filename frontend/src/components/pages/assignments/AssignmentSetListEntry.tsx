@@ -18,21 +18,20 @@ export default class AssignmentSetListEntry extends
     Component<AssignmentSetListEntryProps, AssignmentSetListEntryState> {
 
     render() {
-        // <Badge className="badge-primary" key={gid}>{groupName}</Badge>;
-
         const groupSetTags = this.props.groupSets.map((groupSetDtoBrief) =>
             <Badge color="primary" className="mx-1" key={groupSetDtoBrief.id}>{groupSetDtoBrief.name}</Badge>);
 
         return (
             <Card className="my-3">
                 <CardHeader>
+
                     <h5>{this.props.assignmentSet.name}</h5>
                 </CardHeader>
                 <CardBody>
                     <p>
                         {
                             groupSetTags.length > 0 ?
-                                <span><div><small>Group sets:</small></div>{groupSetTags}</span> :
+                                <span><small>Group sets:</small><br/>{groupSetTags}</span> :
                                 <small className="text-muted">No group sets assigned yet.</small>
                         }
                     </p>
@@ -43,5 +42,4 @@ export default class AssignmentSetListEntry extends
             </Card>
         );
     }
-
 }

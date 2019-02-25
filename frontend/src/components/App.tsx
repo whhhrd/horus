@@ -36,35 +36,35 @@ export interface AppState {
 const PATH_LOGIN = "/login";
 const PATH_ASSIGNMENT_SET = "/courses/:cid/assignmentsets";
 const PATH_COURSES = "/courses";
-
 class App extends React.Component<AppProps & RouteComponentProps, AppState> {
 
-  componentDidMount() {
-      const path = this.props.pathname;
-      if (path !== PATH_LOGIN) {
-        this.props.setLoginRedirect(this.props.pathname);
-        this.props.loadAuthentication();
-      }
-  }
+    componentDidMount() {
+        const path = this.props.pathname;
+        if (path !== PATH_LOGIN) {
+            this.props.setLoginRedirect(this.props.pathname);
+            this.props.loadAuthentication();
+        }
+    }
 
-  render() {
-    return (
-      <div>
-        <NotificationList />
-            <div className="d-flex">
-                {this.props.pathname !== PATH_LOGIN &&
-                    <div className="navigation-bar" />
-                }
-                <div className="main-body flex-fill">
-                    <Switch>
-                        <Route exact path="/" component={Home} />
-                        <Route exact path={PATH_LOGIN} component={Login} />
-                        <Route exact path={PATH_ASSIGNMENT_SET} component={Assignments} />
-                        <Route exact path={PATH_COURSES} component={CourseSelection} />
-                        <Route exact path={`${PATH_COURSES}/:id`} component={Dashboard} />
-                    </Switch>
+
+    render() {
+        return (
+            <div>
+                <NotificationList />
+                <div className="d-flex">
+                    {this.props.pathname !== PATH_LOGIN &&
+                        <div className="navigation-bar" />
+                    }
+                    <div className="main-body flex-fill">
+                        <Switch>
+                            <Route exact path="/" component={Home} />
+                            <Route exact path={PATH_LOGIN} component={Login} />
+                            <Route exact path={PATH_ASSIGNMENT_SET} component={Assignments} />
+                            <Route exact path={PATH_COURSES} component={CourseSelection} />
+                            <Route exact path={`${PATH_COURSES}/:id`} component={Dashboard} />
+                        </Switch>
+                    </div>
                 </div>
-            </div>
             </div>
         );
     }
