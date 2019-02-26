@@ -11,7 +11,7 @@ import nl.utwente.horus.representations.assignment.AssignmentSetCreateDto
 import nl.utwente.horus.representations.course.CourseCreateDto
 import nl.utwente.horus.representations.course.CourseUpdateDto
 import nl.utwente.horus.services.assignment.AssignmentService
-import nl.utwente.horus.services.auth.RoleService
+import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.participant.ParticipantService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
@@ -33,10 +33,18 @@ class CourseService {
     lateinit var participantService: ParticipantService
 
     @Autowired
-    lateinit var roleService: RoleService
+    lateinit var userDetailService: HorusUserDetailService
 
     fun getCourseById(courseId: Long): Course {
         return courseRepository.findByIdOrNull(courseId) ?: throw CourseNotFoundException()
+    }
+
+    fun getCourseByExternalId(externalId: String): Course {
+        return courseRepository.findCourseByExternalId(externalId) ?: throw CourseNotFoundException()
+    }
+
+    fun existsCourseByExternalId(externalId: String): Boolean {
+        return courseRepository.existsCourseByExternalId(externalId)
     }
 
     fun getAllCourses(): List<Course> {
@@ -57,6 +65,11 @@ class CourseService {
 
     fun getParticipantsOfCourse(courseId: Long) : List<Participant> {
         return getCourseById(courseId).participants.toList()
+    }
+
+    fun getCurrentParticipationInCourse(course: Course): Participant {
+        val user = userDetailService.getCurrentPerson()
+        return course.participants.first { it.person.id == user.id }
     }
 
     fun createAssignmentSetInCourse(creator: Person, courseId: Long, dto: AssignmentSetCreateDto): AssignmentSet {

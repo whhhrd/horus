@@ -3,6 +3,9 @@ package nl.utwente.horus
 import me.ntrrgc.tsGenerator.TypeScriptGenerator
 import nl.utwente.horus.representations.assignment.*
 import nl.utwente.horus.representations.auth.RoleDtoBrief
+import nl.utwente.horus.representations.canvas.CanvasCourseDto
+import nl.utwente.horus.representations.canvas.CanvasTokenCheckResultDto
+import nl.utwente.horus.representations.canvas.CanvasTokenDto
 import nl.utwente.horus.representations.comment.*
 import nl.utwente.horus.representations.course.CourseCreateDto
 import nl.utwente.horus.representations.course.CourseDtoFull
@@ -28,6 +31,10 @@ fun generate() {
                     AssignmentSetUpdateDto::class,
 
                     RoleDtoBrief::class,
+
+                    CanvasTokenCheckResultDto::class,
+                    CanvasCourseDto::class,
+                    CanvasTokenDto::class,
 
                     CommentDto::class,
                     CommentThreadDtoFull::class,

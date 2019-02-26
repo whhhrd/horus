@@ -53,7 +53,7 @@ class CourseController {
         val creator = userDetailService.getCurrentPerson()
         // TODO: Be able to check highest privileges via API
         // RoleID below is based on mocking data
-        val participation = participantService.createParticipant(creator.id, course.id, 2)
+        val participation = participantService.createParticipant(creator, course, 2)
         return CourseDtoFull(course, RoleDtoBrief(participation.role))
     }
 

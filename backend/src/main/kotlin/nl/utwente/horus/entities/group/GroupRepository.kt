@@ -8,4 +8,6 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 interface GroupRepository: JpaRepository<Group, Long> {
 
+    fun findByExternalId(externalId: String): List<Group>
+
 }

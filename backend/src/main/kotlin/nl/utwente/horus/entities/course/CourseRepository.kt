@@ -10,7 +10,11 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 interface CourseRepository: JpaRepository<Course, Long> {
 
+    fun findCourseByExternalId(externalId: String): Course?
+
     @Query("SELECT c FROM Course c INNER JOIN Participant p ON p.person = person AND p.course = c")
     fun findCoursesByPerson(person: Person): List<Course>
+
+    fun existsCourseByExternalId(externalId: String): Boolean
 
 }

@@ -1,5 +1,6 @@
 package nl.utwente.horus.services.participant
 
+import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.participant.ParticipantRepository
 import nl.utwente.horus.entities.person.Person
@@ -54,15 +55,15 @@ class ParticipantService {
 
 
     fun createParticipant(courseId: Long, dto: ParticipantCreateDto): Participant {
-        return createParticipant(dto.personId, courseId, dto.roleId)
+        return createParticipant(personService.getPersonById(dto.personId),
+                courseService.getCourseById(courseId), dto.roleId)
     }
 
-    fun createParticipant(personId: Long, courseId: Long, roleId: Long): Participant {
+    fun createParticipant(person: Person, course: Course, roleId: Long): Participant {
         val role = roleService.getRoleById(roleId)
-        val person = personService.getPersonById(personId)
-        val course = courseService.getCourseById(courseId)
-        val participant = Participant(person, course, role)
-        participantRepository.save(participant)
+        val participant = participantRepository.save(Participant(person, course, role))
+        course.participants.add(participant)
+        person.participations.add(participant)
         return participant
     }
 

@@ -7,4 +7,7 @@ import org.springframework.transaction.annotation.Transactional
 @Repository
 @Transactional
 interface GroupSetRepository: JpaRepository<GroupSet, Long> {
+
+    fun getGroupSetByExternalId(externalId: String): GroupSet?
+
 }

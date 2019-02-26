@@ -1,12 +1,12 @@
 package nl.utwente.horus.entities.group
 
-import nl.utwente.horus.entities.comment.Comment
 import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.participant.Participant
 import java.time.ZonedDateTime
 import javax.persistence.*
 
 @Entity
+@Table(name = "\"group\"")
 data class Group (
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,9 +24,10 @@ data class Group (
         var name: String,
 
         @ManyToOne
-        var createdBy: Participant,
+        @JoinColumn(name = "created_by")
+        val createdBy: Participant,
 
-        var createdAt: ZonedDateTime,
+        val createdAt: ZonedDateTime,
 
         var archivedAt: ZonedDateTime?
 ) {

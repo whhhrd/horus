@@ -33,7 +33,7 @@ CREATE INDEX comment_thread_idx ON comment(thread_id);
 CREATE TABLE course (
   id BIGSERIAL NOT NULL PRIMARY KEY,
   course_code VARCHAR NULL,
-  external_id VARCHAR NULL,
+  external_id VARCHAR NULL UNIQUE,
   name VARCHAR NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
   archived_at TIMESTAMP WITH TIME ZONE NULL
@@ -95,15 +95,14 @@ CREATE INDEX group_set_course_idx ON group_set(course_id);
 
 CREATE TABLE "group" (
   id BIGSERIAL NOT NULL PRIMARY KEY,
+  name VARCHAR NOT NULL,
   group_set_id BIGSERIAL NOT NULL REFERENCES group_set(id),
   external_id VARCHAR NULL,
   comment_thread_id BIGINT NULL REFERENCES comment_thread(id) ON DELETE SET NULL,
   created_by BIGINT NOT NULL REFERENCES participant(id),
   archived_by BIGINT NULL REFERENCES participant(id),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  archived_at TIMESTAMP WITH TIME ZONE NULL,
-
-  CONSTRAINT group_group_set_external_id_unique UNIQUE (group_set_id, external_id)
+  archived_at TIMESTAMP WITH TIME ZONE NULL
 );
 
 CREATE INDEX group_group_set_idx ON "group"(group_set_id);
@@ -168,3 +167,16 @@ CREATE TABLE assignment_sign_off_result (
 CREATE INDEX assignment_sign_off_result_assignment_idx ON assignment_sign_off_result(assignment_id);
 CREATE INDEX assignment_sign_off_result_participant_idx ON assignment_sign_off_result(participant_id);
 CREATE INDEX assignment_sign_off_result_signer_idx ON assignment_sign_off_result(signer_id);
+
+---- Canvas-related tables -----
+CREATE TABLE canvas_token(
+  id BIGSERIAL NOT NULL PRIMARY KEY,
+  person_id BIGINT NOT NULL REFERENCES person(id) UNIQUE,
+  token VARCHAR NOT NULL
+);
+
+CREATE TABLE token_source(
+  id BIGSERIAL NOT NULL PRIMARY KEY,
+  course_id BIGINT NOT NULL REFERENCES course(id) UNIQUE,
+  canvas_token_id BIGINT NOT NULL REFERENCES canvas_token(id)
+);

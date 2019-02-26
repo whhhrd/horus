@@ -106,6 +106,22 @@ export interface AssignmentSetUpdateDto {
     name: string;
 }
 
+export interface CanvasTokenCheckResultDto {
+    valid: boolean;
+}
+
+export interface CanvasCourseDto {
+    canvasId: number;
+    courseCode: string;
+    name: string;
+    startAt: Date;
+    studentCount: number;
+}
+
+export interface CanvasTokenDto {
+    token: string;
+}
+
 export interface CommentDto {
     content: string;
     createdAt: Date;
