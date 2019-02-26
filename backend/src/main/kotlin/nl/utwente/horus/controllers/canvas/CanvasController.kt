@@ -1,6 +1,6 @@
 package nl.utwente.horus.controllers.canvas
 
-import nl.utwente.horus.exceptions.assignment.GroupSetNotFoundException
+import nl.utwente.horus.exceptions.GroupSetNotFoundException
 import nl.utwente.horus.representations.auth.RoleDtoBrief
 import nl.utwente.horus.representations.canvas.CanvasCourseDto
 import nl.utwente.horus.representations.canvas.CanvasTokenCheckResultDto

@@ -5,7 +5,7 @@ import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.participant.ParticipantRepository
 import nl.utwente.horus.entities.person.Person
 import nl.utwente.horus.exceptions.NoParticipantException
-import nl.utwente.horus.exceptions.assignment.ParticipantNotFoundException
+import nl.utwente.horus.exceptions.ParticipantNotFoundException
 import nl.utwente.horus.representations.participant.ParticipantCreateDto
 import nl.utwente.horus.representations.participant.ParticipantUpdateDto
 import nl.utwente.horus.services.auth.HorusUserDetailService

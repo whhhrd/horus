@@ -10,6 +10,7 @@ import nl.utwente.horus.representations.comment.*
 import nl.utwente.horus.representations.course.CourseCreateDto
 import nl.utwente.horus.representations.course.CourseDtoFull
 import nl.utwente.horus.representations.course.CourseUpdateDto
+import nl.utwente.horus.representations.error.ErrorDto
 import nl.utwente.horus.representations.group.GroupDtoFull
 import nl.utwente.horus.representations.group.GroupSetDtoFull
 import nl.utwente.horus.representations.participant.ParticipantCreateDto
@@ -54,7 +55,9 @@ fun generate() {
                     ParticipantCreateDto::class,
                     ParticipantUpdateDto::class,
 
-                    PersonDtoFull::class
+                    PersonDtoFull::class,
+
+                    ErrorDto::class
             ),
             mappings = mapOf(
                     ZonedDateTime::class to "Date"

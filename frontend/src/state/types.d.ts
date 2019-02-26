@@ -216,3 +216,9 @@ export interface ParticipantUpdateDto {
 export interface PersonDtoFull extends PersonDtoBrief {
     participations: ParticipantDto[];
 }
+
+export interface ErrorDto {
+    code: string;
+    message: string;
+    path: string;
+}

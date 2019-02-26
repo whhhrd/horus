@@ -4,8 +4,8 @@ import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.group.*
 import nl.utwente.horus.entities.participant.Participant
-import nl.utwente.horus.exceptions.assignment.GroupNotFoundException
-import nl.utwente.horus.exceptions.assignment.GroupSetNotFoundException
+import nl.utwente.horus.exceptions.GroupNotFoundException
+import nl.utwente.horus.exceptions.GroupSetNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
