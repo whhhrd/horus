@@ -83,8 +83,11 @@ class AssignmentService {
                     assignmentRepository.save(assignment)
                     assignmentSet.assignments.add(assignment)
                 } else {
-                    idAssignmentMap[a.id]!!.name = a.name
-                    idAssignmentMap[a.id]!!.orderKey = a.orderKey
+                    val existing = idAssignmentMap[a.id] ?:
+                            throw InvalidAssignmentUpdateRequestException("Assignment with ID " +
+                                    "${a.id} was requested to be updated, but the original does not exist in the set.")
+                    existing.name = a.name
+                    existing.orderKey = a.orderKey
                 }
             }
         }
