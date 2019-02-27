@@ -145,7 +145,7 @@ CREATE TABLE assignment (
   assignment_set_id BIGINT NOT NULL REFERENCES assignment_set(id),
   name VARCHAR NOT NULL,
   comment_thread_id BIGINT NULL REFERENCES comment_thread(id) ON DELETE SET NULL ,
-  order_key VARCHAR NOT NULL,
+  order_key BIGINT NOT NULL,
   created_by BIGINT NOT NULL REFERENCES participant(id),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );

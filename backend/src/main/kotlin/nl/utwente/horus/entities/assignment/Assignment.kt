@@ -20,7 +20,7 @@ data class Assignment (
         @JoinColumn(name = "comment_thread_id")
         var commentThread: CommentThread?,
 
-        var orderKey: String,
+        var orderKey: Long,
 
         @ManyToOne
         @JoinColumn(name = "created_by")
@@ -29,5 +29,5 @@ data class Assignment (
         val createdAt: ZonedDateTime
 ) {
 
-        constructor(assignmentSet: AssignmentSet, name: String, createdBy: Participant, orderKey: String): this(0, assignmentSet, name, null, orderKey, createdBy, ZonedDateTime.now())
+        constructor(assignmentSet: AssignmentSet, name: String, createdBy: Participant, orderKey: Long): this(0, assignmentSet, name, null, orderKey, createdBy, ZonedDateTime.now())
 }

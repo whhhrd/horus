@@ -3,6 +3,7 @@ package nl.utwente.horus.entities.assignment
 import nl.utwente.horus.entities.assignmentgroupmapping.AssignmentGroupSetsMapping
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.participant.Participant
+import org.hibernate.annotations.OrderBy
 import java.time.ZonedDateTime
 import javax.persistence.*
 
@@ -26,6 +27,7 @@ data class AssignmentSet (
 ) {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "assignmentSet", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OrderBy(clause = "order_key ASC")
     val assignments: MutableSet<Assignment> = HashSet()
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "id.assignmentSet", cascade = [CascadeType.ALL], orphanRemoval = true)

@@ -54,7 +54,6 @@ export interface AssignmentDtoBrief {
     createdAt: Date;
     id: number;
     name: string;
-    orderKey: string;
 }
 
 export interface GroupSetDtoBrief {
@@ -94,7 +93,6 @@ export interface SignOffResultDtoSummary {
 export interface AssignmentCreateUpdateDto {
     id: number | null;
     name: string;
-    orderKey: string;
 }
 
 export interface AssignmentSetCreateDto {

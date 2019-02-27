@@ -77,17 +77,16 @@ class AssignmentService {
             val idAssignmentMap = HashMap<Long, Assignment>()
             assignmentSet.assignments.forEach { a -> idAssignmentMap[a.id] = a }
 
-            dto.assignments.forEach { a ->
+            for ((index, a) in dto.assignments.withIndex()) {
                 if (a.id == null) {
-                    val assignment = Assignment(assignmentSet, a.name, participant, a.orderKey)
+                    val assignment = Assignment(assignmentSet, a.name, participant, index.toLong())
                     assignmentRepository.save(assignment)
                     assignmentSet.assignments.add(assignment)
                 } else {
-                    val existing = idAssignmentMap[a.id] ?:
-                            throw InvalidAssignmentUpdateRequestException("Assignment with ID " +
-                                    "${a.id} was requested to be updated, but the original does not exist in the set.")
+                    val existing = idAssignmentMap[a.id] ?: throw InvalidAssignmentUpdateRequestException("Assignment with ID " +
+                            "${a.id} was requested to be updated, but the original does not exist in the set.")
                     existing.name = a.name
-                    existing.orderKey = a.orderKey
+                    existing.orderKey = index.toLong()
                 }
             }
         }
