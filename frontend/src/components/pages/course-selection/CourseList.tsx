@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { connect} from 'react-redux';
 import { CourseDtoBrief } from '../../../state/types';
 import {
     COURSE_LIST_STUDENT,
@@ -7,24 +6,17 @@ import {
     COURSE_LIST_TA,
     COURSE_LIST_ANY,
 } from '../../../state/course-selection/constants' ;
-import {Row, Card} from 'reactstrap';
-import CardTitle from 'reactstrap/lib/CardTitle';
-import {push} from 'connected-react-router';
-import CardBody from 'reactstrap/lib/CardBody';
-import CardHeader from 'reactstrap/lib/CardHeader';
-import { randomColor } from '../../util';
+import {Row} from 'reactstrap';
+import CanvasCard from '../../CanvasCard';
 interface CourseListProps {
     courses: CourseDtoBrief[];
     mode: string;
-    selectCourse: (id: number) => {
-        type: string,
-    };
 }
 interface CourseListState {
     loading: boolean;
 }
 
-class CourseList extends Component<CourseListProps, CourseListState> {
+export default class CourseList extends Component<CourseListProps, CourseListState> {
     
     render() {
         if (this.props.courses.length === 0) {
@@ -62,23 +54,7 @@ class CourseList extends Component<CourseListProps, CourseListState> {
     }
     private content = () => {
         return Array.from(this.props.courses!, (course: CourseDtoBrief) => {
-            return(
-                <Card className="card-clickable" key={course.id} onClick={() => this.props.selectCourse(course.id)}>
-                    <CardHeader
-                        className="card-header-colored"
-                        style={{backgroundColor: randomColor(course.name)}}>
-                    </CardHeader>
-                    <CardBody>
-                        <CardTitle>
-                                {course.name}
-                        </CardTitle>
-                    </CardBody>
-                </Card>
-            );
+            return <CanvasCard cardTitle={course.name} key={course.id} url={`/courses/${course.id}`} />
         });
     }
-
 }
-export default connect( () => ({}), {
-    selectCourse: (id: number) => push(`/courses/${id}`),
-})(CourseList);

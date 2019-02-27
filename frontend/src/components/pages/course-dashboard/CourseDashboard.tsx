@@ -9,15 +9,11 @@ import { courseRequestedAction } from '../../../state/course-selection/action';
 import { Spinner } from 'reactstrap';
 import Row from 'reactstrap/lib/Row';
 import Col from 'reactstrap/lib/Col';
-import Card from 'reactstrap/lib/Card';
 import { NOTIFICATION_ACTION_CONNECTOR } from '../../../state/notifications/constants';
-import CardHeader from 'reactstrap/lib/CardHeader';
-import { randomColor } from '../../util';
-import CardBody from 'reactstrap/lib/CardBody';
-import CardTitle from 'reactstrap/lib/CardTitle';
 import { NotificationProps } from '../../../state/notifications/types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
+import CanvasCard from '../../CanvasCard';
 
 const FIXED_SIDEBAR_WIDTH = 700;
 
@@ -130,20 +126,7 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
             return (
                 <div className="card-collection" style={{ display: "flex", flexWrap: "wrap" }}>
                     {course.assignmentSets.map((aSet: AssignmentSetDtoBrief) => {
-                        return (
-                            <Card className="card-clickable" key={aSet.id}
-                                onClick={() => this.props.notifyInfo("Not yet implemented")}>
-                                <CardHeader
-                                    className="card-header-colored"
-                                    style={{ backgroundColor: randomColor(aSet.name) }}>
-                                </CardHeader>
-                                <CardBody>
-                                    <CardTitle>
-                                        {aSet.name}
-                                    </CardTitle>
-                                </CardBody>
-                            </Card>
-                        );
+                        return <CanvasCard key={aSet.id} cardTitle={aSet.name} url={`/courses/${course.id}/assignmentsets/${aSet.id}`} />
                     })}
                 </div>
             );

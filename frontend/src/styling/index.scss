@@ -38,30 +38,36 @@ button {
 .card {
     box-shadow: 1px 1px 2px 1px rgba(0,0,0,0.1);
     margin: 1.25rem;
-    max-width: 200px;
-    min-width: 150px;
+    max-width: 225px;
+    min-width: 200px;
     flex: auto;
     flex-basis: 0;
 }
 
-.card-clickable:hover {
+.card-title {
+    font-size: 1.2em;
+    margin-bottom: 0;
+}
+
+.canvas-card:hover {
     box-shadow: 2px 2px 5px 3px rgba(0,0,0,0.08);
     cursor: pointer;
 }
 
-.card-header {
+.canvas-card-header {
     border-bottom: 0;
-    padding-bottom: 0.25rem;
+    height: 150px;
 }
 
-.card-header-colored {
-    padding-bottom: 0;
+.aset-card {
+    max-width: 250px;
+    min-width: 250px;
 }
 
-.card-header-colored:before {
-    content: "";
-    display: block;
-    padding-top: 100%;
+.aset-card-footer {
+    border-top: 0;
+    padding-top: 0;
+    background: none;
 }
 
 .dashboard-sidebar {
@@ -70,21 +76,6 @@ button {
     flex: auto;
     flex-basis: 50%;
     padding: 1rem;
-}
-
-.card-footer {
-    border-top: 0;
-    padding-top: 0;
-    background: none;
-}
-
-.card-title {
-    font-size: 1.2em;
-}
-
-.AssignmentSetCard {
-    max-width: 250px;
-    min-width: 250px;
 }
 
 .dashboard-sidebar-mobile {

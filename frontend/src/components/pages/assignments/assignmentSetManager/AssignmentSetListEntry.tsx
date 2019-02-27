@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, Button, Badge } from 'reactstrap';
+import { Card, Button, Badge, CardTitle } from 'reactstrap';
 import CardBody from 'reactstrap/lib/CardBody';
 import CardHeader from 'reactstrap/lib/CardHeader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -12,32 +12,28 @@ interface AssignmentSetListEntryProps {
     groupSets: GroupSetDtoBrief[];
 }
 
-interface AssignmentSetListEntryState {}
-
-export default class AssignmentSetListEntry extends
-    Component<AssignmentSetListEntryProps, AssignmentSetListEntryState> {
+export default class AssignmentSetListEntry extends Component<AssignmentSetListEntryProps> {
 
     render() {
         const groupSetTags = this.props.groupSets.map((groupSetDtoBrief) =>
             <Badge color="primary" className="mx-1" key={groupSetDtoBrief.id}>{groupSetDtoBrief.name}</Badge>);
 
         return (
-            <Card className="my-3 AssignmentSetCard">
+            <Card className="my-3 aset-card">
                 <CardHeader>
-
-                    <h5>{this.props.assignmentSet.name}</h5>
+                    <CardTitle>{this.props.assignmentSet.name}</CardTitle>
                 </CardHeader>
                 <CardBody>
-                    <p>
+                    <p className="mb-0">
                         {
                             groupSetTags.length > 0 ?
-                                <span><small>Group sets:</small><br/>{groupSetTags}</span> :
+                                <span><small>Group sets:</small><br />{groupSetTags}</span> :
                                 <small className="text-muted">No group sets assigned yet.</small>
                         }
                     </p>
                 </CardBody>
-                <CardFooter>
-                <Button outline block color="primary" size="md"><FontAwesomeIcon icon={faEdit} /> Edit</Button>
+                <CardFooter className="aset-card-footer">
+                    <Button outline block color="primary" size="md"><FontAwesomeIcon icon={faEdit} /> Edit</Button>
                 </CardFooter>
             </Card>
         );
