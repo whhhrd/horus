@@ -25,6 +25,10 @@ class GroupService {
     @Autowired
     lateinit var groupMemberRepository: GroupMemberRepository
 
+    fun getGroupSetById(id: Long): GroupSet {
+        return groupSetRepository.findByIdOrNull(id) ?: throw GroupSetNotFoundException()
+    }
+
     fun getGroupSetByExternalId(externalId: String) : GroupSet? {
         return groupSetRepository.getGroupSetByExternalId(externalId)
     }

@@ -11,10 +11,12 @@ import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.person.Person
 import nl.utwente.horus.exceptions.AssignmentSetNotFoundException
 import nl.utwente.horus.exceptions.InvalidAssignmentCreateRequestException
+import nl.utwente.horus.exceptions.InvalidAssignmentGroupSetsMappingCreateRequestException
 import nl.utwente.horus.exceptions.InvalidAssignmentUpdateRequestException
 import nl.utwente.horus.representations.assignment.AssignmentSetCreateDto
 import nl.utwente.horus.representations.assignment.AssignmentSetUpdateDto
 import nl.utwente.horus.services.course.CourseService
+import nl.utwente.horus.services.group.GroupService
 import nl.utwente.horus.services.participant.ParticipantService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
@@ -35,6 +37,9 @@ class AssignmentService {
 
     @Autowired
     lateinit var courseService: CourseService
+
+    @Autowired
+    lateinit var groupService: GroupService
 
     @Autowired
     lateinit var participantService: ParticipantService
@@ -68,7 +73,7 @@ class AssignmentService {
         }
 
         assignmentSet.name = dto.name
-
+        // Update included assignments
         if (dto.assignments != null) {
             val deletionIdSet: Set<Long> = HashSet(assignmentSet.assignments.map { a -> a.id } - dto.assignments.filter { a -> a.id != null }.map { a -> a.id!! })
             val deletionSet = assignmentSet.assignments.filter { a -> deletionIdSet.contains(a.id) }
@@ -89,6 +94,29 @@ class AssignmentService {
                     existing.orderKey = index.toLong()
                 }
             }
+        }
+
+        // Update related group sets
+        val existing = assignmentSet.groupSetMappings
+        val dtoGroupIds = dto.groupSetIds.toSet()
+
+        // Remove mappings for "deleted" associations
+        existing.filter { !dtoGroupIds.contains(it.groupSet.id) }.forEach {mapping ->
+            mapping.assignmentSet.groupSetMappings.remove(mapping)
+            mapping.groupSet.assignmentSetMappings.remove(mapping)
+            assignmentGroupSetsMappingRepository.delete(mapping)
+        }
+
+        // Add mappings which are "new"
+        val existingIds = existing.map { it.groupSet.id }.toSet()
+        (dtoGroupIds - existingIds).forEach {newGroupId ->
+            val groupSet = groupService.getGroupSetById(newGroupId)
+            if (groupSet.course.id != assignmentSet.course.id) {
+                throw InvalidAssignmentGroupSetsMappingCreateRequestException("GroupSet ID $newGroupId does not belong to the same course as the assignment set requested to update.")
+            }
+            val mapping = assignmentGroupSetsMappingRepository.save(AssignmentGroupSetsMapping(assignmentSet, groupSet))
+            groupSet.assignmentSetMappings.add(mapping)
+            assignmentSet.groupSetMappings.add(mapping)
         }
 
         return assignmentSet

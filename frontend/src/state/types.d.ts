@@ -101,6 +101,7 @@ export interface AssignmentSetCreateDto {
 
 export interface AssignmentSetUpdateDto {
     assignments: AssignmentCreateUpdateDto[] | null;
+    groupSetIds: number[];
     name: string;
 }
 

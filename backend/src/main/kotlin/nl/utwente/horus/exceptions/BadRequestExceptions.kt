@@ -12,6 +12,8 @@ class InvalidAssignmentCreateRequestException(message: String) : BadRequestExcep
 
 class InvalidAssignmentUpdateRequestException(message: String) : BadRequestException(message)
 
+class InvalidAssignmentGroupSetsMappingCreateRequestException(message: String) : BadRequestException(message)
+
 // Canvas-related
 class CanvasTokenNotFoundException : BadRequestException("The action required a Canvas token, " +
         "which is not present for this entity.")
