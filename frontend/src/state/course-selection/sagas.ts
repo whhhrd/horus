@@ -23,7 +23,7 @@ export function* requestCourse(action: CoursesRequestedAction) {
     }
 }
 
-export default function* coursesSaga() {
+export default function* coursesSagas() {
     yield takeEvery(COURSES_REQUESTED_ACTION, requestCourses);
     yield takeEvery(COURSE_REQUESTED_ACTION, requestCourse);
 }

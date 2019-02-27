@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Route, Switch, withRouter, RouteComponentProps } from "react-router-dom";
+import { Switch, withRouter, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -11,13 +11,16 @@ import { loadAuthenticationAction, setLoginRedirectAction } from "../state/auth/
 import { isLoggedIn } from "../state/auth/selectors";
 
 import Login from "./pages/login/Login";
-import Home from "./pages/home/Home";
-import Assignments from "./pages/assignments/Assignments";
 import CourseSelection from "./pages/course-selection/CourseSelection";
+import NavigationBar from "./pages/navigationBar/NavigationBar";
+import CourseDashboard from "./pages/course-dashboard/CourseDashboard";
+import AssignmentSetManager from "./pages/assignments/assignmentSetManager/AssignmentSetManager";
 
 import { ApplicationState } from '../state/state';
-import CourseDashboard from "./pages/course-dashboard/CourseDashboard";
 import NotificationList from './notifications/NotificationList';
+import RouteExtension from "./RouteExtension";
+import { ActiveTabEnum } from "../state/navigationBar/types";
+import { PATH_LOGIN, PATH_ASSIGNMENT_SET_MANAGER, PATH_COURSES, PATH_DASHBOARD } from "../routes";
 
 export interface AppProps {
     loadAuthentication: () => {
@@ -29,13 +32,11 @@ export interface AppProps {
     pathname: string;
     search: string;
 }
+
 export interface AppState {
     loggedIn: boolean;
 }
 
-const PATH_LOGIN = "/login";
-const PATH_ASSIGNMENT_SET = "/courses/:cid/assignmentsets";
-const PATH_COURSES = "/courses";
 class App extends React.Component<AppProps & RouteComponentProps, AppState> {
 
     componentDidMount() {
@@ -46,22 +47,27 @@ class App extends React.Component<AppProps & RouteComponentProps, AppState> {
         }
     }
 
-
     render() {
         return (
             <div>
                 <NotificationList />
                 <div className="d-flex">
                     {this.props.pathname !== PATH_LOGIN &&
-                        <div className="navigation-bar" />
+                        <NavigationBar />
                     }
                     <div className="main-body flex-fill">
                         <Switch>
-                            <Route exact path="/" component={Home} />
-                            <Route exact path={PATH_LOGIN} component={Login} />
-                            <Route exact path={PATH_ASSIGNMENT_SET} component={Assignments} />
-                            <Route exact path={PATH_COURSES} component={CourseSelection} />
-                            <Route exact path={`${PATH_COURSES}/:id`} component={CourseDashboard} />
+                            <RouteExtension exact path={PATH_LOGIN} component={Login}
+                                setActiveTab={ActiveTabEnum.NONE} />
+
+                            <RouteExtension exact path={PATH_ASSIGNMENT_SET_MANAGER} component={AssignmentSetManager}
+                                setActiveTab={ActiveTabEnum.ADMINISTRATION} />
+
+                            <RouteExtension exact path={["", "/", PATH_COURSES]} component={CourseSelection}
+                                setActiveTab={ActiveTabEnum.COURSES} />
+
+                            <RouteExtension exact path={PATH_DASHBOARD} component={CourseDashboard}
+                                setActiveTab={ActiveTabEnum.DASHBOARD} />
                         </Switch>
                     </div>
                 </div>

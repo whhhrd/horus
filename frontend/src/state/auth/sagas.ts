@@ -23,6 +23,7 @@ import {
     LOGIN_SUCCEEDED_ACTION,
     SET_LOGIN_REDIRECT_REQUESTED_ACTION,
  } from "./constants";
+import { PATH_COURSES } from "../../routes";
 
 const LOGIN_REDIRECT_LS_KEY = "redirectUrl";
 
@@ -61,7 +62,7 @@ export function* postLoginRedirect() {
     if (redirectUrl != null) {
         yield put(push(redirectUrl));
     } else {
-        yield put(push("/"));
+        yield put(push(PATH_COURSES));
     }
 }
 

@@ -7,15 +7,15 @@ import { Container, Row, Alert, Spinner, Col } from "reactstrap";
 import AssignmentSetListEntry from "./AssignmentSetListEntry";
 
 import { getAssignmentGroupSetsMappingDtos, getAssignmentSetDtoBriefs }
-    from "../../../state/assignments/selectors";
+    from "../../../../state/assignments/selectors";
 import { assignmentGroupSetsMappingDtoFetchRequestedAction, assignmentSetDtoBriefsFetchRequestedAction }
-    from "../../../state/assignments/actions";
+    from "../../../../state/assignments/actions";
 
 import { AssignmentSetDtoBrief, AssignmentGroupSetsMappingDto, GroupSetDtoBrief }
-    from "../../../state/types";
-import { ApplicationState } from "../../../state/state";
+    from "../../../../state/types";
+import { ApplicationState } from "../../../../state/state";
 
-interface AssignmentsProps {
+interface AssignmentSetManagerProps {
 
     assignmentSetDtoBriefs: AssignmentSetDtoBrief[] | null;
     assignmentGroupSetsMappingDtos: AssignmentGroupSetsMappingDto[] | null;
@@ -29,9 +29,9 @@ interface AssignmentsProps {
     };
 }
 
-interface AssignmentsState {}
+interface AssignmentSetManagerState {}
 
-class Assignments extends Component<AssignmentsProps & RouteComponentProps<any>, AssignmentsState> {
+class AssignmentSetManager extends Component<AssignmentSetManagerProps & RouteComponentProps<any>, AssignmentSetManagerState> {
 
     componentDidMount() {
         // Fetch the AssignmentSetDtoBriefs
@@ -152,4 +152,4 @@ export default withRouter(connect((state: ApplicationState) => ({
 }), {
         fetchAssignmentGroupSetsMappingDtos: assignmentGroupSetsMappingDtoFetchRequestedAction,
         fetchAssignmentSetDtoBriefs: assignmentSetDtoBriefsFetchRequestedAction,
-    })(Assignments));
+    })(AssignmentSetManager));

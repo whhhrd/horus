@@ -19,7 +19,8 @@ module.exports = {
   module: {
     rules: [
       { test: /\.(ts|js)x?$/, loader: 'babel-loader', exclude: /node_modules/ },
-      { test:/\.(s*)css$/, use:['style-loader','css-loader', 'sass-loader'] },
+      { test: /\.(s*)css$/, use: ['style-loader', 'css-loader', 'sass-loader'] },
+      { test: /\.(png|jpg|gif)$/, use: [{ loader: 'file-loader', options: {}, },], },
     ],
   },
 
@@ -27,10 +28,10 @@ module.exports = {
     historyApiFallback: true,
     proxy: {
       '/api': {
-          target: 'http://localhost:8080',
-          secure: false
+        target: 'http://localhost:8080',
+        secure: false
       }
-  }
+    }
   },
 
   plugins: [

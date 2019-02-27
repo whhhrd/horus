@@ -4,7 +4,7 @@ import CardBody from 'reactstrap/lib/CardBody';
 import CardHeader from 'reactstrap/lib/CardHeader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit } from '@fortawesome/free-solid-svg-icons'
-import { AssignmentSetDtoBrief, GroupSetDtoBrief } from '../../../state/types';
+import { AssignmentSetDtoBrief, GroupSetDtoBrief } from '../../../../state/types';
 import CardFooter from 'reactstrap/lib/CardFooter';
 
 interface AssignmentSetListEntryProps {

@@ -1,3 +1,6 @@
+$color_blue: #007bff;
+$color_canvas: rgb(45, 59, 69);
+
 body {
     margin: 0;
     padding: 0;
@@ -94,11 +97,10 @@ button {
     padding: 1rem;
 }
 
-.navigation-bar {
+.NavigationBar {
     height: 100vh;
     width: 84px;
-    background-color: rgb(45, 59, 69);
-    flex-shrink: 0;
+    background-color: white;
 }
 
 .course-role-heading {
@@ -132,4 +134,30 @@ button {
     top: 0;
     width: 100%;
     z-index: 1000;
+}
+
+.NavigationBarLogo {
+    width: 84px;
+    display: block;
+}
+
+.NavigationBarLogo > img {
+    width: 100%;
+}
+
+.navigation-bar-item-link, .navigation-bar-item-link:hover {
+    text-decoration: none !important;
+    color: black
+}
+
+.navigation-bar-item-link-active  {
+    color: white !important;
+}
+
+.navigation-bar-item-link-active > li {
+    background-color: $color_blue !important;
+}
+
+.navigation-bar-item-text {
+    font-size: 0.80rem;
 }

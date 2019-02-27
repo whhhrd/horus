@@ -48,7 +48,7 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
     private spinner = <Spinner color="primary" type="grow" />;
 
     private headingText = () => {
-        const course = this.props.course(+this.props.match.params.id);
+        const course = this.props.course(+this.props.match.params.cid);
         if (course === undefined) {
             return (
                 <h3>
@@ -91,7 +91,7 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
 
     public componentDidMount() {
         window.addEventListener("resize", this.handleResize);
-        this.props.requestCourse(+this.props.match.params.id);
+        this.props.requestCourse(+this.props.match.params.cid);
     }
 
     public componentWillUnmount() {
@@ -122,7 +122,7 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
     }
 
     private buildContent = () => {
-        const course = this.props.course(+this.props.match.params.id);
+        const course = this.props.course(+this.props.match.params.cid);
         if (course === undefined) {
             return <div />;
         }
