@@ -12,6 +12,7 @@ import nl.utwente.horus.representations.course.CourseDtoFull
 import nl.utwente.horus.representations.course.CourseDtoSummary
 import nl.utwente.horus.representations.course.CourseUpdateDto
 import nl.utwente.horus.representations.group.GroupSetDtoBrief
+import nl.utwente.horus.representations.group.GroupSetDtoSummary
 import nl.utwente.horus.representations.participant.ParticipantCreateDto
 import nl.utwente.horus.representations.participant.ParticipantDto
 import nl.utwente.horus.representations.participant.ParticipantUpdateDto
@@ -77,8 +78,8 @@ class CourseController {
     }
 
     @GetMapping(path = ["/{courseId}/groupSets"])
-    fun listGroupSetsOfCourse(@PathVariable courseId: Long) : List<GroupSetDtoBrief> {
-        return courseService.getGroupSetsOfCourse(courseId).map { GroupSetDtoBrief(it) }
+    fun listGroupSetsOfCourse(@PathVariable courseId: Long) : List<GroupSetDtoSummary> {
+        return courseService.getGroupSetsOfCourse(courseId).map { GroupSetDtoSummary(it) }
     }
 
     @GetMapping(path = ["/{courseId}/assignmentgroupsetsmappings"])

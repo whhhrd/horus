@@ -8,6 +8,7 @@ import { ApplicationState } from "./state";
 import { connectRouter } from "connected-react-router";
 import navigationBarReducer from "./navigationBar/reducer";
 import notificationsReducer from "./notifications/reducers";
+import groupsReducer from "./groups/reducer";
 
 // TODO: implement cleaning the state on log out.
 
@@ -15,6 +16,7 @@ export const rootReducer = (history: History) => combineReducers<ApplicationStat
     router: connectRouter(history),
     auth: authReducer,
     assignmentSets: assignmentSetsReducer,
+    groups: groupsReducer,
     course: coursesReducer,
     navigationBar:  navigationBarReducer,
     notifications: notificationsReducer,

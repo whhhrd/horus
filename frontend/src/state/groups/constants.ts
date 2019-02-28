@@ -1,0 +1,11 @@
+export const GROUP_SETS_FETCH_REQUESTED_ACTION =
+    "courses/groups/GROUP_SETS_FETCH_REQUESTED";
+
+export const GROUP_SETS_FETCH_SUCCEEDED_ACTION =
+    "courses/groups/GROUP_SETS_FETCH_SUCCEEDED";
+
+export const GROUPS_FETCH_REQUESTED_ACTION =
+    "courses/groups/GROUPS_FETCH_REQUESTED";
+
+export const GROUPS_FETCH_SUCCEEDED_ACTION =
+    "courses/groups/GROUPS_FETCH_SUCCEEDED";

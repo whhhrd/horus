@@ -29,7 +29,7 @@ class GroupService {
         return groupSetRepository.findByIdOrNull(id) ?: throw GroupSetNotFoundException()
     }
 
-    fun getGroupSetByExternalId(externalId: String) : GroupSet? {
+    fun getGroupSetByExternalId(externalId: String): GroupSet? {
         return groupSetRepository.getGroupSetByExternalId(externalId)
     }
 

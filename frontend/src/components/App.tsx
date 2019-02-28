@@ -7,20 +7,31 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 import "../styling/index.scss";
 
-import { loadAuthenticationAction, setLoginRedirectAction } from "../state/auth/actions"
+import { loadAuthenticationAction, setLoginRedirectAction } from "../state/auth/actions";
 import { isLoggedIn } from "../state/auth/selectors";
 
 import Login from "./pages/login/Login";
 import CourseSelection from "./pages/course-selection/CourseSelection";
 import NavigationBar from "./pages/navigationBar/NavigationBar";
 import CourseDashboard from "./pages/course-dashboard/CourseDashboard";
+import CourseAdministration from "./pages/admin/CourseAdministration";
 import AssignmentSetManager from "./pages/assignments/assignmentSetManager/AssignmentSetManager";
+import GroupSetManager from "./pages/admin/groups/groupSets/GroupSetManager";
 
 import { ApplicationState } from '../state/state';
 import NotificationList from './notifications/NotificationList';
 import RouteExtension from "./RouteExtension";
 import { ActiveTabEnum } from "../state/navigationBar/types";
-import { PATH_LOGIN, PATH_ASSIGNMENT_SET_MANAGER, PATH_COURSES, PATH_DASHBOARD } from "../routes";
+import {
+    PATH_LOGIN,
+    PATH_ASSIGNMENT_SET_MANAGER,
+    PATH_GROUP_SET_MANAGER,
+    PATH_COURSES,
+    PATH_DASHBOARD,
+    PATH_COURSE_ADMINISTRATION,
+    PATH_GROUP_SET_GROUPS_MANAGER,
+} from "../routes";
+import GroupManager from "./pages/admin/groups/groups/GroupManager";
 
 export interface AppProps {
     loadAuthentication: () => {
@@ -60,7 +71,16 @@ class App extends React.Component<AppProps & RouteComponentProps, AppState> {
                             <RouteExtension exact path={PATH_LOGIN} component={Login}
                                 setActiveTab={ActiveTabEnum.NONE} />
 
+                            <RouteExtension exact path={PATH_COURSE_ADMINISTRATION} component={CourseAdministration}
+                                setActiveTab={ActiveTabEnum.ADMINISTRATION} />
+
                             <RouteExtension exact path={PATH_ASSIGNMENT_SET_MANAGER} component={AssignmentSetManager}
+                                setActiveTab={ActiveTabEnum.ADMINISTRATION} />
+
+                            <RouteExtension exact path={PATH_GROUP_SET_MANAGER} component={GroupSetManager}
+                                setActiveTab={ActiveTabEnum.ADMINISTRATION} />
+
+                            <RouteExtension exact path={PATH_GROUP_SET_GROUPS_MANAGER} component={GroupManager}
                                 setActiveTab={ActiveTabEnum.ADMINISTRATION} />
 
                             <RouteExtension exact path={["", "/", PATH_COURSES]} component={CourseSelection}

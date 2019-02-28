@@ -27,8 +27,6 @@ export class NavigationBar extends Component<NavigationBarProps, NavigationBarSt
             return null;
         }
 
-        console.log("build", activeTab, match);
-
         const inCourse: boolean = match.params.cid != null;
 
         return (
