@@ -16,7 +16,7 @@ export class NavigationBarItem extends Component<NavigationBarItemProps> {
     render() {
         const classes = "navigation-bar-item-link border-bottom" +
             (this.props.active ? " navigation-bar-item-link-active" : "");
-            
+
         return (
             <Link to={this.props.url} className={classes}>
                 <ListGroupItem className="text-center w-100 px-0">

@@ -12,7 +12,7 @@ import Col from 'reactstrap/lib/Col';
 import { NOTIFICATION_ACTION_CONNECTOR } from '../../../state/notifications/constants';
 import { NotificationProps } from '../../../state/notifications/types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faTasks } from '@fortawesome/free-solid-svg-icons';
 import CanvasCard from '../../CanvasCard';
 
 const FIXED_SIDEBAR_WIDTH = 700;
@@ -126,7 +126,7 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
             return (
                 <div className="card-collection" style={{ display: "flex", flexWrap: "wrap" }}>
                     {course.assignmentSets.map((aSet: AssignmentSetDtoBrief) => {
-                        return <CanvasCard key={aSet.id} cardTitle={aSet.name} url={`/courses/${course.id}/assignmentsets/${aSet.id}`} />
+                        return <CanvasCard watermarkIcon={faTasks} key={aSet.id} cardTitle={aSet.name} url={`/courses/${course.id}/assignmentsets/${aSet.id}`} />
                     })}
                 </div>
             );

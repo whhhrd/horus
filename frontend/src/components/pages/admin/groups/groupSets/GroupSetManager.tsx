@@ -10,6 +10,7 @@ import { groupSetsFetchRequestedAction } from "../../../../../state/groups/actio
 import { GroupSetDtoSummary } from "../../../../../state/types";
 import { ApplicationState } from "../../../../../state/state";
 import CanvasCard from "../../../../CanvasCard";
+import { faUsers } from "@fortawesome/free-solid-svg-icons";
 
 interface GroupSetManagerProps {
 
@@ -45,6 +46,7 @@ class GroupSetManager extends Component<GroupSetManagerProps & RouteComponentPro
                     { groupSets != null &&
                         groupSets.map( (gSet) =>
                             <CanvasCard
+                                watermarkIcon={faUsers}
                                 key={gSet.id}
                                 cardTitle={gSet.name}
                                 url={`/courses/${gSet.course.id}/administration/groupsets/${gSet.id}`}
