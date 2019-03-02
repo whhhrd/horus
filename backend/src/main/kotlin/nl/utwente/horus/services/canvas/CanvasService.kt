@@ -64,7 +64,8 @@ class CanvasService {
     }
 
     fun checkPersonCanvasTokenValid(person: Person): Boolean {
-        return checkCanvasTokenValid(getTokenByPerson(person))
+        val token = canvasTokenRepository.getCanvasTokenByPerson(person) ?: return false
+        return checkCanvasTokenValid(token)
     }
 
     fun checkCanvasTokenValid(token: CanvasToken): Boolean {

@@ -17,11 +17,14 @@ import CourseDashboard from "./pages/course-dashboard/CourseDashboard";
 import CourseAdministration from "./pages/admin/CourseAdministration";
 import AssignmentSetManager from "./pages/assignments/assignmentSetManager/AssignmentSetManager";
 import GroupSetManager from "./pages/admin/groups/groupSets/GroupSetManager";
+import CanvasCourseImport from "./pages/canvas-settings/CanvasCourseImport";
+import CanvasTokenForm from "./pages/canvas-settings/CanvasTokenForm";
 
 import { ApplicationState } from '../state/state';
 import NotificationList from './notifications/NotificationList';
 import RouteExtension from "./RouteExtension";
 import { ActiveTabEnum } from "../state/navigationBar/types";
+
 import {
     PATH_LOGIN,
     PATH_ASSIGNMENT_SET_MANAGER,
@@ -29,7 +32,9 @@ import {
     PATH_COURSES,
     PATH_DASHBOARD,
     PATH_COURSE_ADMINISTRATION,
-    PATH_GROUP_SET_GROUPS_MANAGER,
+    PATH_GROUP_SET_GROUPS_MANAGER, 
+    PATH_CANVAS_TOKEN, 
+    PATH_CANVAS_IMPORT
 } from "../routes";
 import GroupManager from "./pages/admin/groups/groups/GroupManager";
 
@@ -88,6 +93,8 @@ class App extends React.Component<AppProps & RouteComponentProps, AppState> {
 
                             <RouteExtension exact path={PATH_DASHBOARD} component={CourseDashboard}
                                 setActiveTab={ActiveTabEnum.DASHBOARD} />
+                            <RouteExtension exact path={PATH_CANVAS_TOKEN} component={CanvasTokenForm} setActiveTab={ActiveTabEnum.NONE}/>
+                            <RouteExtension exact path={PATH_CANVAS_IMPORT} component={CanvasCourseImport} setActiveTab={ActiveTabEnum.NONE}/>
                         </Switch>
                     </div>
                 </div>
