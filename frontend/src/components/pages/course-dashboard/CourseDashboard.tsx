@@ -11,11 +11,9 @@ import Row from 'reactstrap/lib/Row';
 import Col from 'reactstrap/lib/Col';
 import { NOTIFICATION_ACTION_CONNECTOR } from '../../../state/notifications/constants';
 import { NotificationProps } from '../../../state/notifications/types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faTasks } from '@fortawesome/free-solid-svg-icons';
+import { faTasks } from '@fortawesome/free-solid-svg-icons';
 import CanvasCard from '../../CanvasCard';
-
-const FIXED_SIDEBAR_WIDTH = 700;
+import Sidebar from '../../sidebar/Sidebar';
 
 interface CourseDashboardProps {
     course: (id: number) => CourseDtoSummary | undefined;
@@ -24,18 +22,9 @@ interface CourseDashboardProps {
     }
 }
 interface CourseDashboardState {
-    width: number;
-    sidebarOpen: boolean;
 }
 
 class CourseDashboard extends Component<CourseDashboardProps & RouteComponentProps<any> & NotificationProps, CourseDashboardState> {
-    constructor(props: CourseDashboardProps & RouteComponentProps<any> & NotificationProps) {
-        super(props);
-        this.state = {
-            width: window.innerWidth,
-            sidebarOpen: false,
-        };
-    }
 
     private isFullCourse(course: CourseDtoBrief): course is CourseDtoFull {
         return (course as CourseDtoFull).assignmentSets !== undefined;
@@ -63,60 +52,14 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
                     <h3>
                         {course.name}
                     </h3>
-                    {this.state.width < FIXED_SIDEBAR_WIDTH && !this.state.sidebarOpen &&
-                        <div onClick={() => this.setState({ sidebarOpen: true })}>
-                            <FontAwesomeIcon icon={faBars} style={{ position: "absolute", top: 0, right: 0 }} size="2x" />
-                        </div>}
                 </div>
             );
         }
-    }
-
-    private handleResize = () => {
-        this.setState({
-            width: window.innerWidth,
-            sidebarOpen: this.state.sidebarOpen && window.innerWidth < FIXED_SIDEBAR_WIDTH
-        });
-    }
-
-    private buildSideBarContent = () => {
-        return (
-            <h4>Sidebar content here</h4>
-        )
     }
 
     public componentDidMount() {
-        window.addEventListener("resize", this.handleResize);
         this.props.requestCourse(+this.props.match.params.cid);
     }
-
-    public componentWillUnmount() {
-        window.removeEventListener("resize", this.handleResize);
-    }
-
-    private buildSideBar = () => {
-        if (this.state.width > 700) {
-            return (
-                <div className="dashboard-sidebar">
-                    {this.buildSideBarContent()}
-                </div>
-            )
-        } else if (this.state.sidebarOpen) {
-            return (
-                <div className="dashboard-sidebar-mobile">
-                    <div onClick={() => this.setState({ sidebarOpen: false })}>
-                        <FontAwesomeIcon icon={faBars}
-                            style={{ position: "absolute", top: "1rem", right: "0.5rem" }} size="2x" />
-                    </div>
-                    {this.buildSideBarContent()}
-                </div>
-            );
-        } else {
-            return null;
-        }
-
-    }
-
     private buildContent = () => {
         const course = this.props.course(+this.props.match.params.cid);
         if (course === undefined) {
@@ -151,7 +94,9 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
                         </Col>
                     </Row>
                 </Container>
-                {this.buildSideBar()}
+                <Sidebar>
+                    <h4>Sidebar content here</h4>
+                </Sidebar>
             </div>
         );
     }
