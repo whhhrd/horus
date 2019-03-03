@@ -22,4 +22,31 @@ class HorusConfigurationProperties {
 
     // Validity duration of refresh tokens in seconds
     var refreshTokenValidityDuration: Long = 0
+
+    // Scheme of application URL (http/https)
+    lateinit var applicationScheme: String
+
+    // External URL host:port of application
+    lateinit var applicationHost: String
+
+    // URL for redirect with an authentication code
+    lateinit var authCodeRedirectURL: String
+
+    // SAML SP Entity ID
+    lateinit var samlServiceProviderEntityId: String
+
+    // Path to SAML key store
+    lateinit var samlKeyStorePath: String
+
+    // Password for SAML key store
+    lateinit var samlKeyStorePassword: String
+
+    // Password for SAML private key
+    lateinit var samlPrivateKeyPassword: String
+
+    // Location of SAML Identity Provider metadata
+    lateinit var samlIdPMetadataLocation: String
+
+    val applicationBaseURL: String
+        get() = "$applicationScheme://$applicationHost"
 }

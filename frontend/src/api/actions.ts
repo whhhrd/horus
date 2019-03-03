@@ -18,11 +18,14 @@ import {
     API_AUTH_TOKEN_REFRESH_SUCCEEDED,
 
     AuthenticationType,
+    API_AUTH_CODE_LOGIN_AUTHENTICATION_REQUESTED,
 } from "./constants";
 
 export const requestTokenLoad = () => ({ type: API_AUTH_LOAD_TOKEN_REQUESTED });
 export const requestPasswordLogin = (username: string, password: string) => (
     { type: API_AUTH_PASSWORD_LOGIN_AUTHENTICATION_REQUESTED, username, password });
+export const requestAuthCodeLogin = (code: string) => (
+        { type: API_AUTH_CODE_LOGIN_AUTHENTICATION_REQUESTED, code });
 export const eventAuthenticationStarted = (authenticationType: AuthenticationType) => (
     { type: API_AUTH_AUTHENTICATION_STARTED, authenticationType });
 export const eventAuthenticationSucceeded = (

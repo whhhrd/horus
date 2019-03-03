@@ -14,6 +14,7 @@ export {
 export {
     requestTokenLoad,
     requestPasswordLogin,
+    requestAuthCodeLogin,
     requestLogout,
 } from "./actions";
 

@@ -8,6 +8,7 @@ import {
     API_AUTH_LOGOUT_REQUESTED,
 
     API_AUTH_PASSWORD_LOGIN_AUTHENTICATION_REQUESTED,
+    API_AUTH_CODE_LOGIN_AUTHENTICATION_REQUESTED,
     API_AUTH_TOKEN_REFRESH_COMPLETED,
     API_AUTH_TOKEN_REFRESH_FAILED,
     API_AUTH_TOKEN_REFRESH_REQUESTED,
@@ -17,7 +18,6 @@ import {
     AuthenticationType,
     API_AUTH_AUTHENTICATION_COMPLETED,
     API_AUTH_AUTHENTICATION_CANCELED,
-
 } from "./constants";
 import { FetchFunction, fetchJSON } from "./util";
 
@@ -34,7 +34,6 @@ import {
 
     requestAuthenticationRefresh,
     requestForcedLogout,
-
 } from "./actions";
 
 const backendUrl = "/api/";
@@ -42,6 +41,7 @@ const endponts = {
     accessToken: "auth/token/refresh",
     logout: "auth/logout",
     passwordLogin: "auth/login/password",
+    codeLogin: "auth/login/code",
 };
 const LOCAL_STORAGE_REFRESH_TOKEN_KEY = "refreshToken";
 
@@ -92,14 +92,16 @@ function* authenticationFlowLoop() {
     while (true) {
 
         // Wait for a login request or a token refresh auth action
-        const { loadTokenRequest, passwordLoginRequest } = yield race({
+        const { loadTokenRequest, passwordLoginRequest, authCodeLoginRequest } = yield race({
             loadTokenRequest: take(API_AUTH_LOAD_TOKEN_REQUESTED),
             passwordLoginRequest: take(API_AUTH_PASSWORD_LOGIN_AUTHENTICATION_REQUESTED),
+            authCodeLoginRequest: take(API_AUTH_CODE_LOGIN_AUTHENTICATION_REQUESTED),
         });
 
         const authenticationType = {
             ...loadTokenRequest,
             ...passwordLoginRequest,
+            ...authCodeLoginRequest,
         }.type;
 
         // Load token or do auth
@@ -107,6 +109,8 @@ function* authenticationFlowLoop() {
             yield fork(loadToken, authenticationState.refreshToken ? authenticationState.refreshToken : "");
         } else if (passwordLoginRequest != null) {
             yield fork(passwordLogin, passwordLoginRequest.username, passwordLoginRequest.password);
+        } else if (authCodeLoginRequest != null) {
+            yield fork(codeLogin, authCodeLoginRequest.code);
         }
 
         // See how things went, or was a logout requested
@@ -254,6 +258,27 @@ function* passwordLogin(username: string, password: string) {
         yield put(eventAuthenticationSucceeded(AuthenticationType.PASSWORD_LOGIN, refreshToken, accessToken));
     } catch (error) {
         yield put(eventAuthenticationFailed(AuthenticationType.PASSWORD_LOGIN, error));
+    }
+}
+
+/**
+ * Login with auth code via the API
+ * @param code authentication code
+ */
+function* codeLogin(code: string) {
+    try {
+        const { accessToken, refreshToken } = yield call(
+            asyncCallBackendFetch,
+            fetchJSON,
+            "POST",
+            endponts.codeLogin,
+            null,
+            {},
+            code,
+        );
+        yield put(eventAuthenticationSucceeded(AuthenticationType.AUTH_CODE, refreshToken, accessToken));
+    } catch (error) {
+        yield put(eventAuthenticationFailed(AuthenticationType.AUTH_CODE, error));
     }
 }
 

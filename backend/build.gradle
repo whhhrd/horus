@@ -33,6 +33,7 @@ sourceCompatibility = '1.8'
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
+    maven { url 'https://build.shibboleth.net/nexus/content/repositories/releases/' }
 }
 
 
@@ -46,6 +47,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
+    implementation 'org.pac4j:pac4j-saml:3.5.0'
     implementation 'org.flywaydb:flyway-core'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "org.jetbrains.kotlin:kotlin-reflect"

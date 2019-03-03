@@ -15,6 +15,6 @@ import org.springframework.scheduling.annotation.EnableScheduling
 class HorusApplication
 
 fun main(args: Array<String>) {
-	runApplication<HorusApplication>(*args)
+    runApplication<HorusApplication>(*args)
 }
 

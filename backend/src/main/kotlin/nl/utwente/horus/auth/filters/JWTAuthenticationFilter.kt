@@ -20,20 +20,20 @@ import org.springframework.security.core.context.SecurityContextHolder
 class JWTAuthenticationFilter(requiresAuthenticationRequestMatcher: RequestMatcher?) : AbstractAuthenticationProcessingFilter(requiresAuthenticationRequestMatcher) {
 
     companion object {
-        const val AUTHORIZATON_HEADER_NAME = "Authorization"
-        const val AUTHORIZATON_HEADER_PREFIX = "Bearer "
+        const val AUTHORIZATION_HEADER_NAME = "Authorization"
+        const val AUTHORIZATION_HEADER_PREFIX = "Bearer "
     }
 
     override fun attemptAuthentication(request: HttpServletRequest?, response: HttpServletResponse?): Authentication {
-        // Check and exract header
-        val authHeader = request!!.getHeader(AUTHORIZATON_HEADER_NAME)
-        if (authHeader == null || authHeader.length < AUTHORIZATON_HEADER_PREFIX.length || !authHeader.startsWith(AUTHORIZATON_HEADER_PREFIX)) {
+        // Check and extract header
+        val authHeader = request!!.getHeader(AUTHORIZATION_HEADER_NAME)
+        if (authHeader == null || authHeader.length < AUTHORIZATION_HEADER_PREFIX.length || !authHeader.startsWith(AUTHORIZATION_HEADER_PREFIX)) {
             throw BadCredentialsException("Token not provided")
         }
 
         // Authenticates the token with the AuthenticationManager,
         // which calls the JWTAuthenticationProvider to perform the checks
-        return authenticationManager.authenticate(RawToken(authHeader.substring(AUTHORIZATON_HEADER_PREFIX.length)))
+        return authenticationManager.authenticate(RawToken(authHeader.substring(AUTHORIZATION_HEADER_PREFIX.length)))
     }
 
     override fun successfulAuthentication(request: HttpServletRequest?, response: HttpServletResponse?, chain: FilterChain?, authResult: Authentication?) {

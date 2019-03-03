@@ -109,5 +109,5 @@ export default withRouter(connect((state: ApplicationState) => ({
     search: state.router!.location.search,
 }), {
         loadAuthentication: loadAuthenticationAction,
-        setLoginRedirect: setLoginRedirectAction
+        setLoginRedirect: setLoginRedirectAction,
     })(App));

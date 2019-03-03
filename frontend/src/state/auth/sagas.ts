@@ -7,6 +7,7 @@ import {
     API_AUTH_LOGOUT_COMPLETED,
     requestLogout,
     requestPasswordLogin,
+    requestAuthCodeLogin,
     requestTokenLoad,
 } from "../../api";
 
@@ -28,7 +29,11 @@ import { PATH_COURSES } from "../../routes";
 const LOGIN_REDIRECT_LS_KEY = "redirectUrl";
 
 export function* logIn(action: LoginAction) {
-    yield put(requestPasswordLogin(action.form.username, action.form.password));
+    if (action.form != null)  {
+        yield put(requestPasswordLogin(action.form!.username, action.form!.password));
+    } else if (action.code != null) {
+        yield put(requestAuthCodeLogin(action.code!));
+    }
     const { success, failure } = yield race({
         success: take(API_AUTH_AUTHENTICATION_SUCCEEDED),
         failure: take(API_AUTH_AUTHENTICATION_FAILED),

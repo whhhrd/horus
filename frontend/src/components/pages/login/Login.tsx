@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
+import { withRouter, RouteComponentProps } from "react-router-dom";
 import { connect } from 'react-redux';
+import queryString from 'query-string';
 import { Container, Row, Col, Form, Button, Input, Label, FormGroup, ButtonGroup } from 'reactstrap'
 import { Formik, Field } from 'formik';
 
@@ -7,16 +9,19 @@ import { LoginForm } from '../../../state/auth/types';
 import { isLoggedIn } from '../../../state/auth/selectors';
 import { ApplicationState } from '../../../state/state';
 import { loginAction } from '../../../state/auth/actions';
+import Spinner from 'reactstrap/lib/Spinner';
 
 export interface LoginProps {
-    logIn: (form: LoginForm) => {
+    logIn: (form: LoginForm | null, code: string | null) => {
         type: string;
-        form: LoginForm;
+        form: LoginForm | null;
+        code: string | null
     }
 }
 
 export interface LoginState {
-    loggedIn: boolean
+    loggedIn: boolean;
+    loginCode: string | null;
 }
 
 interface LoginValues {
@@ -24,33 +29,54 @@ interface LoginValues {
     password: string;
 }
 
-class Login extends Component<LoginProps, LoginState> {
+class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
 
-    readonly state: LoginState = {loggedIn: false};
+    readonly state: LoginState = {loggedIn: false, loginCode: null};
 
     onSubmit = (values: LoginValues) => {
         const { logIn } = this.props;
-        logIn(values);
+        logIn(values, null);
     }
 
-    private validate(values: LoginValues) {
+    getLoginCode = () => {
+        const query = this.props.history.location.search;
+        const code = queryString.parse(query).code;
+        if (code != null && code.length > 0) {
+            return code;
+        }
+        return null;
+    }
+
+    componentDidMount() {
+        const { logIn } = this.props;
+        const code = this.getLoginCode();
+        if (code != null) {
+            logIn(null, code as string);
+        }
+    }
+
+    validate(values: LoginValues) {
         if (values.username.length === 0 && values.password.length === 0) {
             return;
         }
         return;
     }
 
-    public render() {
+    render() {
+        const code = this.getLoginCode();
         return (
             <Container className="Login">
                 <h2>
                     Horus - Log in
                 </h2>
-                <Formik
-                    initialValues={{ username: '', password: ''}}
+                { code != null &&
+                  <Spinner />
+                }
+                { code == null &&
+                 <Formik
+                    initialValues={{ username: "", password: ""}}
                     validate={this.validate}
-                    onSubmit={this.onSubmit}
-                >
+                    onSubmit={this.onSubmit} >
                     {({ handleSubmit }) => (
                         <Form>
                             <Row>
@@ -61,7 +87,7 @@ class Login extends Component<LoginProps, LoginState> {
                                             tag={Field}
                                             id="username"
                                             name="username"
-                                            placeholder="s1234567/m1234567"   
+                                            placeholder="s1234567/m1234567"
                                         />
                                     </FormGroup>
                                 </Col>
@@ -84,7 +110,7 @@ class Login extends Component<LoginProps, LoginState> {
                                 <Col>
                                     <ButtonGroup>
                                         <Button
-                                            onClick={() => {handleSubmit()}}
+                                            onClick={() => {handleSubmit();}}
                                         >
                                             Submit
                                         </Button>
@@ -94,11 +120,13 @@ class Login extends Component<LoginProps, LoginState> {
                         </Form>
                     )}
                 </Formik>
+                }
+                <a href="/api/auth/saml/request">SAML Login</a>
             </Container>
         );
     }
 }
 
-export default connect( (state: ApplicationState) => ({ loggedIn: isLoggedIn(state),}), {
+export default withRouter(connect( (state: ApplicationState) => ({ loggedIn: isLoggedIn(state),}), {
     logIn: loginAction,
-})(Login);
+})(Login));
