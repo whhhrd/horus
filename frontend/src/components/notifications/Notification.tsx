@@ -1,9 +1,11 @@
-import React, { Component } from 'react';
-import { Alert } from 'reactstrap';
-import { connect } from 'react-redux';
-import { notificationDismissedAction } from '../../state/notifications/actions';
-import { NotificationState } from '../../state/notifications/types';
-import { NOTIFICATION_TIMEOUT } from '../../state/notifications/constants';
+import React, { Component } from "react";
+import { Alert } from "reactstrap";
+import { connect } from "react-redux";
+import { notificationDismissedAction } from "../../state/notifications/actions";
+import { NotificationState, NotificationKind } from "../../state/notifications/types";
+import { NOTIFICATION_TIMEOUT } from "../../state/notifications/constants";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconDefinition, faTimesCircle, faInfoCircle, faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
 
 interface NotificationProps {
     notification: NotificationState
@@ -15,29 +17,60 @@ interface NotificationProps {
 interface NotificationLocalState {
     visible: boolean;
 }
-var timerId = -1;
+
+let timerId = -1;
+
 class Notification extends Component<NotificationProps, NotificationLocalState> {
+
     constructor(props: NotificationProps) {
         super(props);
         this.state = { visible: true };
     }
+
     public componentDidMount() {
         if (this.props.notification.fadeAway) {
-            timerId = setTimeout(() => { this.setState({ visible: false }); this.props.dismissNotification(this.props.notification.id); }, NOTIFICATION_TIMEOUT);
+            timerId = setTimeout(() => {
+                this.setState((_) => ({ visible: false }));
+                this.props.dismissNotification(this.props.notification.id);
+            }, NOTIFICATION_TIMEOUT);
         }
     }
+
     public componentWillUnmount() {
         if (this.props.notification.fadeAway) {
             clearTimeout(timerId);
         }
     }
+
     public render() {
-        return <Alert isOpen={this.state.visible}
-            toggle={() => {
-                this.setState({ visible: false });
-                this.props.dismissNotification(this.props.notification.id);
-            }}
-            color={this.props.notification.kind}>{this.props.notification.message} </Alert>
+
+        let icon: IconDefinition | undefined = undefined;
+        switch (this.props.notification.kind) {
+            case NotificationKind.Error: icon = faTimesCircle; break;
+            case NotificationKind.Info: icon = faInfoCircle; break;
+            case NotificationKind.Success: icon = faCheckCircle; break;
+            case NotificationKind.Warning: icon = faExclamationCircle; break;
+        }
+
+        return (
+            <Alert
+                className="mt-4 mb-0"
+                isOpen={this.state.visible}
+                toggle={() => {
+                    this.setState((_) => ({ visible: false }));
+                    this.props.dismissNotification(this.props.notification.id);
+                }}
+                color={this.props.notification.kind}>
+                <div className="p-2 d-flex flex-row">
+                    <div>
+                        <FontAwesomeIcon className="mr-3" icon={icon!} size="3x" />
+                    </div>
+                    <div className="my-auto">
+                        <big>{this.props.notification.message}</big>
+                    </div>
+                </div>
+            </Alert>
+        );
     }
 }
 
