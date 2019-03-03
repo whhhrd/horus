@@ -6,7 +6,7 @@ class SAML2Util {
 
     companion object {
 
-        fun credentialAttruibutesToMap(attributes: List<SAML2Credentials.SAMLAttribute>): HashMap<String, String> {
+        fun credentialAttributesToMap(attributes: List<SAML2Credentials.SAMLAttribute>): HashMap<String, String> {
             val map = HashMap<String, String>()
             attributes.forEach { attr ->
                 if (attr.attributeValues != null && attr.attributeValues.size > 0) {

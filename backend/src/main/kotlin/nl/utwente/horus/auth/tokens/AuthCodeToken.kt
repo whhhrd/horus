@@ -9,7 +9,7 @@ class AuthCodeToken(val code: String) : AbstractAuthenticationToken(HashSet()) {
     }
 
     override fun getPrincipal(): Any? {
-        return null //To change body of created functions use File | Settings | File Templates.
+        return null
     }
 
     override fun isAuthenticated(): Boolean {

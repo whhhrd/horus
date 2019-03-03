@@ -13,7 +13,7 @@ class SAML2AttributeExtractor {
     }
 
     fun extractSAMLCredentialsToAuthCredentials(credentials: SAML2Credentials): SAML2AuthenticationCredentials {
-        val map = SAML2Util.credentialAttruibutesToMap(credentials.attributes)
+        val map = SAML2Util.credentialAttributesToMap(credentials.attributes)
         return SAML2AuthenticationCredentials(
                 credentials,
                 map[scheme.getUserIdAttributeName()] ?: throw BadCredentialsException("userId unavailable"),
