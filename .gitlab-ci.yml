@@ -1,7 +1,8 @@
 image: richyrick/horus_builder
 
 cache: 
-    key: "ALL_SHARED_KEY"
+    # Cache per branch
+    key: ${CI_COMMIT_REF_SLUG}
     paths:
         - frontend/node_modules/
         - .gradle/caches
@@ -19,6 +20,7 @@ before_script:
 stages: 
     - check
     - test
+    - deploy
 
 lint_frontend:
     stage: check
@@ -29,3 +31,30 @@ build_backend:
     stage: test
     script:
         - (cd backend/; ./gradlew check)
+
+deploy:
+    stage: deploy
+    only:
+        - beta
+    before_script:
+        # Setup SSH credentials and known host
+        - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
+        - mkdir -p ~/.ssh
+        - echo "$SSH_PRIVATE" | tr -d '\r' > ~/.ssh/id_rsa
+        - chmod 700 ~/.ssh/id_rsa
+        - eval "$(ssh-agent -s)"
+        - ssh-add ~/.ssh/id_rsa
+        - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+        - chmod 644 ~/.ssh/known_hosts
+    script:
+        # Build the JAR with the correct configurations
+        - (cd backend/; ./prod_configurator.sh)
+        - (cd backend/; ./gradlew bootJar)
+        # Stop existing screen instance
+        - ssh $SSH_DESTINATION 'screen -S horus -X quit'
+        # Copy over file
+        - scp -P22 'backend/build/libs/horus.jar' $SSH_DESTINATION:/home/s1843141/horus.jar
+        # Restart server in new screen instance (same name!)
+        - ssh $SSH_DESTINATION 'screen -S horus -d -m sudo java -jar /home/s1843141/horus.jar'
+
+        

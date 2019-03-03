@@ -23,6 +23,11 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'war'
 
+// Set filename for output JAR
+bootJar {
+    archiveName = 'horus.jar'
+}
+
 // Force copying of the front-end into correct folders before processing resources
 processResources.dependsOn buildFrontEnd
 
