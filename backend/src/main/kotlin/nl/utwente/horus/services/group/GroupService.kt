@@ -37,6 +37,10 @@ class GroupService {
         return groupRepository.findByExternalId(externalId)
     }
 
+    fun getGroupById(id: Long): Group {
+        return groupRepository.findByIdOrNull(id) ?: throw GroupNotFoundException()
+    }
+
     fun addParticipantToGroup(group: Group, p: Participant) {
         val member = GroupMember(group, p)
         groupMemberRepository.save(member)
@@ -77,6 +81,24 @@ class GroupService {
         gs.externalId = externalId
         gs.name = name
         return gs
+    }
+
+    fun deleteGroupSetById(id: String) {
+        deleteGroupSet(getGroupSetByExternalId(id) ?: throw GroupSetNotFoundException())
+    }
+
+    fun deleteGroupSet(gs: GroupSet) {
+        gs.groups.forEach { deleteGroup(it) }
+        // Delete all associations
+        gs.assignmentSetMappings.removeIf { m -> m.groupSet.id == gs.id }
+        gs.course.groupSets.remove(gs)
+
+        groupSetRepository.delete(gs)
+    }
+
+
+    fun deleteGroup(g: Group) {
+        groupRepository.delete(g)
     }
 
 }

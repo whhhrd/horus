@@ -181,6 +181,9 @@ class CanvasService {
         val reader = getReader(course)
         val categories = reader.getCourseGroupCategories(course.externalId ?: throw SyncUnauthorizedException())
 
+        val deletedIds = course.groupSets.filter { it.externalId != null }.map { it.externalId!!} - categories.map { it.groupCategoryId.toString() }
+        deletedIds.forEach { groupService.deleteGroupSetById(it) }
+
         categories.forEach { cat ->
             // Check for existence within course, and act upon that
             val existing = course.groupSets.firstOrNull { gs -> gs.externalId == cat.groupCategoryId.toString() }
