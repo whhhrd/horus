@@ -12,9 +12,11 @@ import nl.utwente.horus.entities.person.Person
 import nl.utwente.horus.exceptions.*
 import nl.utwente.horus.representations.assignment.AssignmentSetCreateDto
 import nl.utwente.horus.representations.assignment.AssignmentSetUpdateDto
+import nl.utwente.horus.services.comment.CommentService
 import nl.utwente.horus.services.course.CourseService
 import nl.utwente.horus.services.group.GroupService
 import nl.utwente.horus.services.participant.ParticipantService
+import nl.utwente.horus.services.signoff.SignOffService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -40,6 +42,12 @@ class AssignmentService {
 
     @Autowired
     lateinit var participantService: ParticipantService
+
+    @Autowired
+    lateinit var signOffService: SignOffService
+
+    @Autowired
+    lateinit var commentService: CommentService
 
     fun getAssignmentSetById(id: Long) : AssignmentSet {
         return assignmentSetRepository.findByIdOrNull(id) ?: throw AssignmentSetNotFoundException()
@@ -102,11 +110,7 @@ class AssignmentService {
         val dtoGroupIds = dto.groupSetIds.toSet()
 
         // Remove mappings for "deleted" associations
-        existing.filter { !dtoGroupIds.contains(it.groupSet.id) }.forEach {mapping ->
-            mapping.assignmentSet.groupSetMappings.remove(mapping)
-            mapping.groupSet.assignmentSetMappings.remove(mapping)
-            assignmentGroupSetsMappingRepository.delete(mapping)
-        }
+        existing.filter { !dtoGroupIds.contains(it.groupSet.id) }.forEach(this::deleteMapping)
 
         // Add mappings which are "new"
         val existingIds = existing.map { it.groupSet.id }.toSet()
@@ -121,6 +125,37 @@ class AssignmentService {
         }
 
         return assignmentSet
+    }
+
+    fun deleteMapping(mapping: AssignmentGroupSetsMapping) {
+        mapping.assignmentSet.groupSetMappings.remove(mapping)
+        mapping.groupSet.assignmentSetMappings.remove(mapping)
+        assignmentGroupSetsMappingRepository.delete(mapping)
+    }
+
+    fun deleteAssignmentSet(assignmentSet: AssignmentSet) {
+        assignmentSet.assignments.forEach(this::deleteAssignment)
+        assignmentSet.assignments.clear()
+
+        assignmentSet.groupSetMappings.forEach(this::deleteMapping)
+        assignmentSet.groupSetMappings.clear()
+
+        assignmentSet.course.assignmentSets.remove(assignmentSet)
+
+        assignmentSetRepository.delete(assignmentSet)
+    }
+
+    fun deleteAssignment(assignment: Assignment) {
+        if (assignment.commentThread != null) {
+            commentService.deleteCommentsThread(assignment.commentThread!!)
+        }
+        signOffService.getAssignmentSignOffResults(assignment).forEach { signOffService.deleteSignOffResult(it) }
+
+        // NOT removing from assignment set here: this will cause a ConcurrentModificationException
+        // due to the usage of this function in deleteAssignmentSet()
+        // assignment.assignmentSet.assignments.remove(assignment)
+
+        assignmentRepository.delete(assignment)
     }
 
 

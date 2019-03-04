@@ -84,7 +84,7 @@ class ParticipantService {
             } else if (existingThread.id != replacement.id) {
                 participant.commentThread = replacement
                 // Also delete old thread
-                commentService.deleteCommentsThread(existingThread.id)
+                commentService.deleteCommentsThread(existingThread)
             }
         }
 

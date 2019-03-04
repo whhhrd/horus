@@ -71,8 +71,7 @@ class CommentService {
         return getThreadById(id).comments.toList()
     }
 
-    fun deleteCommentsThread(id: Long) {
-        val thread = getThreadById(id)
+    fun deleteCommentsThread(thread: CommentThread) {
         commentThreadRepository.delete(thread)
     }
 
