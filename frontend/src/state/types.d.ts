@@ -112,8 +112,8 @@ export interface SignOffResultDtoCompact {
     result: SignOffResult;
 }
 
-export interface BooleanResultDto {
-    result: boolean;
+export interface CanvasTokenCheckResultDto {
+    valid: boolean;
 }
 
 export interface CanvasCourseDto {
