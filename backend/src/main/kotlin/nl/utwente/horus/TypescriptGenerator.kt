@@ -17,6 +17,7 @@ import nl.utwente.horus.representations.participant.ParticipantCreateDto
 import nl.utwente.horus.representations.participant.ParticipantDto
 import nl.utwente.horus.representations.participant.ParticipantUpdateDto
 import nl.utwente.horus.representations.person.PersonDtoFull
+import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
 import java.io.File
 import java.time.ZonedDateTime
 
@@ -30,6 +31,7 @@ fun generate() {
                     AssignmentCreateUpdateDto::class,
                     AssignmentSetCreateDto::class,
                     AssignmentSetUpdateDto::class,
+                    SignOffResultDtoCompact::class,
 
                     RoleDtoBrief::class,
 
@@ -50,6 +52,7 @@ fun generate() {
 
                     GroupDtoFull::class,
                     GroupSetDtoFull::class,
+                    GroupAssignmentSetSearchResultDto::class,
 
                     ParticipantDto::class,
                     ParticipantCreateDto::class,

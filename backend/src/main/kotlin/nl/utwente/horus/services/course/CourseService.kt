@@ -1,18 +1,24 @@
 package nl.utwente.horus.services.course
 
 import nl.utwente.horus.entities.assignment.AssignmentSet
+import nl.utwente.horus.entities.assignment.AssignmentSignOffResult
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.course.CourseRepository
 import nl.utwente.horus.entities.group.GroupSet
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.person.Person
+import nl.utwente.horus.exceptions.AssignmentSetNotFoundException
 import nl.utwente.horus.exceptions.CourseNotFoundException
+import nl.utwente.horus.exceptions.GroupNotFoundException
 import nl.utwente.horus.representations.assignment.AssignmentSetCreateDto
 import nl.utwente.horus.representations.course.CourseCreateDto
 import nl.utwente.horus.representations.course.CourseUpdateDto
+import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
 import nl.utwente.horus.services.assignment.AssignmentService
 import nl.utwente.horus.services.auth.HorusUserDetailService
+import nl.utwente.horus.services.group.GroupService
 import nl.utwente.horus.services.participant.ParticipantService
+import nl.utwente.horus.services.signoff.SignOffService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -34,6 +40,12 @@ class CourseService {
 
     @Autowired
     lateinit var userDetailService: HorusUserDetailService
+
+    @Autowired
+    lateinit var groupService: GroupService
+
+    @Autowired
+    lateinit var signOffService: SignOffService
 
     fun getCourseById(courseId: Long): Course {
         return courseRepository.findByIdOrNull(courseId) ?: throw CourseNotFoundException()
@@ -99,5 +111,21 @@ class CourseService {
         course.name = name
         course.archivedAt = archivedAt
         return course
+    }
+
+    fun getSignOffGroupSearchResults(courseId: Long, query: String): GroupAssignmentSetSearchResultDto {
+        return groupService.getGroupSignOffSearchResults(courseId, query)
+    }
+
+    fun getSignOffResultsFilteredInCourse(courseId: Long, groupId: Long, assignmentSetId: Long): List<AssignmentSignOffResult> {
+        val group = groupService.getGroupById(groupId)
+        val assignmentSet = assignmentService.getAssignmentSetById(assignmentSetId)
+        if (group.groupSet.course.id != courseId) {
+            throw GroupNotFoundException()
+        }
+        if (assignmentSet.course.id != courseId) {
+            throw AssignmentSetNotFoundException()
+        }
+        return signOffService.getSignOffResults(group, assignmentSet)
     }
 }

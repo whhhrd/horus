@@ -7,6 +7,8 @@ abstract class BadRequestException(message: String, code: String? = null) : Horu
 // Course-related
 class WrongCourseException : BadRequestException("This entity does not belong to the indicated course.")
 
+class EmptySearchQueryException : BadRequestException("No search query provided")
+
 // Assignment-related
 class InvalidAssignmentCreateRequestException(message: String) : BadRequestException(message)
 

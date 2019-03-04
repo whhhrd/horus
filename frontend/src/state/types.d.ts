@@ -105,6 +105,13 @@ export interface AssignmentSetUpdateDto {
     name: string;
 }
 
+export interface SignOffResultDtoCompact {
+    assignmentId: number;
+    commentThreadId: number | null;
+    participantId: number;
+    result: SignOffResult;
+}
+
 export interface CanvasTokenCheckResultDto {
     valid: boolean;
 }
@@ -199,6 +206,18 @@ export interface GroupSetDtoSummary extends GroupSetDtoBrief {
 export interface GroupSetDtoFull extends GroupSetDtoSummary {
     assignmentSetMappings: AssignmentGroupSetsMappingDto[];
     groups: GroupDtoBrief[];
+}
+
+export interface GroupDtoSearch {
+    assignmentSetIds: number[];
+    id: number;
+    memberNames: string[];
+    name: string;
+}
+
+export interface GroupAssignmentSetSearchResultDto {
+    assignmentSets: AssignmentSetDtoBrief[];
+    groups: GroupDtoSearch[];
 }
 
 export interface ParticipantCreateDto {

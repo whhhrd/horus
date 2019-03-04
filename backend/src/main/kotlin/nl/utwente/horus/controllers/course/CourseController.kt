@@ -1,21 +1,19 @@
 package nl.utwente.horus.controllers.course
 
 import nl.utwente.horus.entities.person.Person
+import nl.utwente.horus.exceptions.EmptySearchQueryException
 import nl.utwente.horus.exceptions.WrongCourseException
-import nl.utwente.horus.representations.assignment.AssignmentGroupSetsMappingDto
-import nl.utwente.horus.representations.assignment.AssignmentSetCreateDto
-import nl.utwente.horus.representations.assignment.AssignmentSetDtoBrief
-import nl.utwente.horus.representations.assignment.AssignmentSetDtoFull
+import nl.utwente.horus.representations.assignment.*
 import nl.utwente.horus.representations.auth.RoleDtoBrief
 import nl.utwente.horus.representations.course.CourseCreateDto
 import nl.utwente.horus.representations.course.CourseDtoFull
 import nl.utwente.horus.representations.course.CourseDtoSummary
 import nl.utwente.horus.representations.course.CourseUpdateDto
-import nl.utwente.horus.representations.group.GroupSetDtoBrief
 import nl.utwente.horus.representations.group.GroupSetDtoSummary
 import nl.utwente.horus.representations.participant.ParticipantCreateDto
 import nl.utwente.horus.representations.participant.ParticipantDto
 import nl.utwente.horus.representations.participant.ParticipantUpdateDto
+import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
 import nl.utwente.horus.services.assignment.AssignmentService
 import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.course.CourseService
@@ -120,6 +118,19 @@ class CourseController {
     fun getFullCourse(@PathVariable courseId: Long): CourseDtoFull {
         val participation = participantService.getParticipationInCourse(courseId)
         return CourseDtoFull(courseService.getCourseById(courseId), RoleDtoBrief(participation.role))
+    }
+
+    @GetMapping(path = ["/{courseId}/groups/search"])
+    fun getSignOffGroupSearchResults(@PathVariable courseId: Long, @RequestParam query: String?): GroupAssignmentSetSearchResultDto {
+        if (query == null || query.trim().isEmpty()) {
+            throw EmptySearchQueryException()
+        }
+        return courseService.getSignOffGroupSearchResults(courseId, query)
+    }
+
+    @GetMapping(path = ["/{courseId}/signoffresults"])
+    fun getSignOffResultsFiltered(@PathVariable courseId: Long, @RequestParam groupId: Long, @RequestParam assignmentSetId: Long): List<SignOffResultDtoCompact> {
+        return courseService.getSignOffResultsFilteredInCourse(courseId, groupId, assignmentSetId).map { SignOffResultDtoCompact(it) }
     }
 
 }
