@@ -16,4 +16,9 @@ class SignOffService {
     fun getSignOffResults(group: Group, assignmentSet: AssignmentSet): List<AssignmentSignOffResult> {
         return assignmentSignOffResultRepository.getAllByGroupAndAssignmentSet(group.id, assignmentSet.id)
     }
+
+
+    fun doAssignmentsHaveSignOffResults(ids: List<Long>): Boolean {
+        return assignmentSignOffResultRepository.existsByAssignment(ids)
+    }
 }

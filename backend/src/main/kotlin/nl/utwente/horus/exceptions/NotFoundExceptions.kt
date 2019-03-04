@@ -16,6 +16,8 @@ class CourseNotFoundException : EntityNotFoundException("Course could not be fou
 
 class AssignmentSetNotFoundException : EntityNotFoundException("Assignment set could not be found.")
 
+class AssignmentNotFoundException : EntityNotFoundException("Assignment could not be found.")
+
 class ParticipantNotFoundException : EntityNotFoundException("Participant in course could not be found.")
 
 class GroupNotFoundException : EntityNotFoundException("Group could not be found.")

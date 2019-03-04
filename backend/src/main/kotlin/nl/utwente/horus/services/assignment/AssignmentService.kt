@@ -9,10 +9,7 @@ import nl.utwente.horus.entities.assignmentgroupmapping.AssignmentGroupSetsMappi
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.person.Person
-import nl.utwente.horus.exceptions.AssignmentSetNotFoundException
-import nl.utwente.horus.exceptions.InvalidAssignmentCreateRequestException
-import nl.utwente.horus.exceptions.InvalidAssignmentGroupSetsMappingCreateRequestException
-import nl.utwente.horus.exceptions.InvalidAssignmentUpdateRequestException
+import nl.utwente.horus.exceptions.*
 import nl.utwente.horus.representations.assignment.AssignmentSetCreateDto
 import nl.utwente.horus.representations.assignment.AssignmentSetUpdateDto
 import nl.utwente.horus.services.course.CourseService
@@ -46,6 +43,10 @@ class AssignmentService {
 
     fun getAssignmentSetById(id: Long) : AssignmentSet {
         return assignmentSetRepository.findByIdOrNull(id) ?: throw AssignmentSetNotFoundException()
+    }
+
+    fun getAssignmentById(id: Long): Assignment {
+        return assignmentRepository.findByIdOrNull(id) ?: throw AssignmentNotFoundException()
     }
 
     fun getAssignmentGroupSetsMappingsInCourse(courseId: Long) : List<AssignmentGroupSetsMapping> {

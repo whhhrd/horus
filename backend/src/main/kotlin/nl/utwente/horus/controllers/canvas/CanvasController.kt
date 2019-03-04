@@ -1,9 +1,9 @@
 package nl.utwente.horus.controllers.canvas
 
 import nl.utwente.horus.exceptions.GroupSetNotFoundException
+import nl.utwente.horus.representations.BooleanResultDto
 import nl.utwente.horus.representations.auth.RoleDtoBrief
 import nl.utwente.horus.representations.canvas.CanvasCourseDto
-import nl.utwente.horus.representations.canvas.CanvasTokenCheckResultDto
 import nl.utwente.horus.representations.canvas.CanvasTokenDto
 import nl.utwente.horus.representations.course.CourseDtoFull
 import nl.utwente.horus.representations.group.GroupSetDtoFull
@@ -44,7 +44,7 @@ class CanvasController {
     }
 
     @GetMapping(path = ["/tokenValid"])
-    fun checkToken(): CanvasTokenCheckResultDto {
+    fun checkToken(): BooleanResultDto {
         val result: Boolean
         val user = userDetailService.getCurrentPerson()
         result = try {
@@ -52,7 +52,7 @@ class CanvasController {
         } catch (e: Exception) {
             false
         }
-        return CanvasTokenCheckResultDto(result)
+        return BooleanResultDto(result)
     }
 
     @PostMapping(path = ["/{canvasId}"])

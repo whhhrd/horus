@@ -1,10 +1,10 @@
 package nl.utwente.horus
 
 import me.ntrrgc.tsGenerator.TypeScriptGenerator
+import nl.utwente.horus.representations.BooleanResultDto
 import nl.utwente.horus.representations.assignment.*
 import nl.utwente.horus.representations.auth.RoleDtoBrief
 import nl.utwente.horus.representations.canvas.CanvasCourseDto
-import nl.utwente.horus.representations.canvas.CanvasTokenCheckResultDto
 import nl.utwente.horus.representations.canvas.CanvasTokenDto
 import nl.utwente.horus.representations.comment.*
 import nl.utwente.horus.representations.course.CourseCreateDto
@@ -35,7 +35,7 @@ fun generate() {
 
                     RoleDtoBrief::class,
 
-                    CanvasTokenCheckResultDto::class,
+                    BooleanResultDto::class,
                     CanvasCourseDto::class,
                     CanvasTokenDto::class,
 
