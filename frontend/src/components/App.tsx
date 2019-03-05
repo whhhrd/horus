@@ -20,8 +20,8 @@ import GroupSetManager from "./pages/admin/groups/groupSets/GroupSetManager";
 import CanvasCourseImport from "./pages/canvas-settings/CanvasCourseImport";
 import CanvasTokenForm from "./pages/canvas-settings/CanvasTokenForm";
 
-import { ApplicationState } from '../state/state';
-import NotificationList from './notifications/NotificationList';
+import { ApplicationState } from "../state/state";
+import NotificationList from "./notifications/NotificationList";
 import RouteExtension from "./RouteExtension";
 import { ActiveTabEnum } from "../state/navigationBar/types";
 
@@ -32,11 +32,12 @@ import {
     PATH_COURSES,
     PATH_DASHBOARD,
     PATH_COURSE_ADMINISTRATION,
-    PATH_GROUP_SET_GROUPS_MANAGER, 
-    PATH_CANVAS_TOKEN, 
-    PATH_CANVAS_IMPORT
+    PATH_GROUP_SET_GROUPS_MANAGER,
+    PATH_CANVAS_TOKEN,
+    PATH_CANVAS_IMPORT, PATH_SIGNOFF,
 } from "../routes";
 import GroupManager from "./pages/admin/groups/groups/GroupManager";
+import SignoffSearch from "./pages/signoff/SignOffSearch";
 
 export interface AppProps {
     loadAuthentication: () => {
@@ -93,8 +94,13 @@ class App extends React.Component<AppProps & RouteComponentProps, AppState> {
 
                             <RouteExtension exact path={PATH_DASHBOARD} component={CourseDashboard}
                                 setActiveTab={ActiveTabEnum.DASHBOARD} />
-                            <RouteExtension exact path={PATH_CANVAS_TOKEN} component={CanvasTokenForm} setActiveTab={ActiveTabEnum.NONE}/>
-                            <RouteExtension exact path={PATH_CANVAS_IMPORT} component={CanvasCourseImport} setActiveTab={ActiveTabEnum.NONE}/>
+                            <RouteExtension exact path={PATH_CANVAS_TOKEN} component={CanvasTokenForm}
+                                            setActiveTab={ActiveTabEnum.NONE}/>
+                            <RouteExtension exact path={PATH_CANVAS_IMPORT} component={CanvasCourseImport}
+                                            setActiveTab={ActiveTabEnum.NONE}/>
+
+                            <RouteExtension exact path={PATH_SIGNOFF} component={SignoffSearch}
+                                            setActiveTab={ActiveTabEnum.SIGNOFF}/>
                         </Switch>
                     </div>
                 </div>
