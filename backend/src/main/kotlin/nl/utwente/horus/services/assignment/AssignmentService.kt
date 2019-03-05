@@ -6,6 +6,7 @@ import nl.utwente.horus.entities.assignment.AssignmentSet
 import nl.utwente.horus.entities.assignment.AssignmentSetRepository
 import nl.utwente.horus.entities.assignmentgroupmapping.AssignmentGroupSetsMapping
 import nl.utwente.horus.entities.assignmentgroupmapping.AssignmentGroupSetsMappingRepository
+import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.person.Person
@@ -128,6 +129,14 @@ class AssignmentService {
         }
 
         return assignmentSet
+    }
+
+    fun addThreadToAssignment(assignment: Assignment, thread: CommentThread) {
+        if (assignment.commentThread == null) {
+            assignment.commentThread = thread
+        } else {
+            throw ExistingThreadException()
+        }
     }
 
     fun deleteMapping(mapping: AssignmentGroupSetsMapping) {

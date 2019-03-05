@@ -4,6 +4,7 @@ import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.group.*
 import nl.utwente.horus.entities.participant.Participant
+import nl.utwente.horus.exceptions.ExistingThreadException
 import nl.utwente.horus.exceptions.GroupNotFoundException
 import nl.utwente.horus.exceptions.GroupSetNotFoundException
 import nl.utwente.horus.representations.assignment.AssignmentSetDtoBrief
@@ -75,10 +76,20 @@ class GroupService {
     fun updateGroup(id: Long, externalId: String?, commentThread: CommentThread?, name: String, archivedAt: ZonedDateTime?): Group {
         val g = groupRepository.findByIdOrNull(id) ?: throw GroupNotFoundException()
         g.externalId = externalId
-        g.commentThread = commentThread
+        if (commentThread != null) {
+            addThread(g, commentThread)
+        }
         g.name = name
         g.archivedAt = archivedAt
         return g
+    }
+
+    fun addThread(g: Group, thread: CommentThread) {
+        if (g.commentThread == null) {
+            g.commentThread = thread
+        } else {
+            throw ExistingThreadException()
+        }
     }
 
     fun archiveGroup(g: Group) {

@@ -21,3 +21,6 @@ class CanvasTokenNotFoundException : BadRequestException("The action required a 
         "which is not present for this entity.")
 
 class InvalidCanvasTokenException : BadRequestException("Used Canvas token invalid.")
+
+// Comment-related
+class ExistingThreadException : BadRequestException("This entity already has an associated comment thread.")

@@ -1,9 +1,11 @@
 package nl.utwente.horus.services.participant
 
+import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.participant.ParticipantRepository
 import nl.utwente.horus.entities.person.Person
+import nl.utwente.horus.exceptions.ExistingThreadException
 import nl.utwente.horus.exceptions.NoParticipantException
 import nl.utwente.horus.exceptions.ParticipantNotFoundException
 import nl.utwente.horus.representations.participant.ParticipantCreateDto
@@ -77,20 +79,21 @@ class ParticipantService {
         participant.role = roleService.getRoleById(roleId)
         // Check if comment thread has changed
         if (commentThreadId != null) {
-            val existingThread = participant.commentThread
-            val replacement = commentService.getThreadById(commentThreadId)
-            if (existingThread == null) {
-                participant.commentThread = replacement
-            } else if (existingThread.id != replacement.id) {
-                participant.commentThread = replacement
-                // Also delete old thread
-                commentService.deleteCommentsThread(existingThread)
-            }
+            val newThread = commentService.getThreadById(commentThreadId)
+            addThread(participant, newThread)
         }
 
         // TODO: Discuss: should this be able to go true -> false -> true?
         participant.enabled = enabled
         return participant
+    }
+
+    fun addThread(p: Participant, thread: CommentThread) {
+        if (p.commentThread == null) {
+            p.commentThread = thread
+        } else {
+            throw ExistingThreadException()
+        }
     }
 
 
