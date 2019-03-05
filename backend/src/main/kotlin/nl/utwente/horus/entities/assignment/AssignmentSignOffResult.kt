@@ -15,7 +15,7 @@ data class AssignmentSignOffResult (
     @JoinColumn(name = "comment_thread_id")
     var commentThread: CommentThread?,
 
-
+    @Enumerated(EnumType.STRING)
     var result: SignOffResult,
 
     @ManyToOne
