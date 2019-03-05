@@ -19,7 +19,7 @@ export function* requestCourse(action: CoursesRequestedAction) {
         const result: CourseDtoFull = yield call(authenticatedFetchJSON, "GET", `courses/${action.id}`);
         yield put(courseRequestSucceededAction(result));
     } catch (e) {
-        yield put(notifyError("Failed to fetch course"));
+        yield put(notifyError("Failed to fetch courseDtoFull"));
     }
 }
 

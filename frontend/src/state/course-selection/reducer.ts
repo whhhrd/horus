@@ -16,6 +16,7 @@ export default function coursesReducer(state: CoursesState, action: CoursesReque
     switch (action.type) {
         case COURSES_REQUEST_SUCCEEDED_ACTION:
             return {
+                ...state,
                 courses: action.courses,
             };
         case COURSE_REQUEST_SUCCEEDED_ACTION:
@@ -25,10 +26,12 @@ export default function coursesReducer(state: CoursesState, action: CoursesReque
                 newCourses.push(action.course!);
                 return {
                     courses: newCourses,
+                    courseDtoFull: action.course,
                 };
             } else {
                 return {
                     courses: [action.course!],
+                    courseDtoFull: action.course,
                 };
             }
         default:

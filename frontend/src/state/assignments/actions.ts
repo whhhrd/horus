@@ -1,26 +1,96 @@
 import {
-    ASSIGNMENT_SET_DTO_BRIEFS_FETCH_REQUESTED_ACTION,
-    ASSIGNMENT_SET_DTO_BRIEFS_FETCH_SUCCEEDED_ACTION,
-    ASSIGNMENT_GROUP_SETS_MAPPING_DTO_FETCH_REQUESTED_ACTION,
-    ASSIGNMENT_GROUP_SETS_MAPPING_DTO_FETCH_SUCCEEDED_ACTION,
+    ASSIGNMENT_SETS_FETCH_REQUESTED_ACTION,
+    ASSIGNMENT_SETS_FETCH_SUCCEEDED_ACTION,
+    ASSIGNMENT_GROUP_SETS_MAPPINGS_FETCH_REQUESTED_ACTION,
+    ASSIGNMENT_GROUP_SETS_MAPPINGS_FETCH_SUCCEEDED_ACTION,
+    ASSIGNMENT_SET_FETCH_REQUESTED_ACTION,
+    ASSIGNMENT_SET_FETCH_SUCCEEDED_ACTION,
+    ASSIGNMENT_SET_UPDATE_REQUESTED_ACTION,
+    ASSIGNMENT_SET_CREATE_REQUESTED_ACTION,
+    ASSIGNMENT_SET_UPDATE_REQUEST_SUCCEEDED_ACTION,
+    ASSIGNMENT_SET_CREATE_REQUEST_SUCCEEDED_ACTION,
 } from "./constants";
 
 import { Action } from "redux";
-import { AssignmentSetDtoBrief, AssignmentGroupSetsMappingDto } from "../types";
+import {
+    AssignmentSetDtoBrief,
+    AssignmentGroupSetsMappingDto,
+    AssignmentSetDtoFull,
+    AssignmentSetUpdateDto,
+    AssignmentSetCreateDto,
+} from "../types";
 
-export interface AssignmentSetDtoFetchAction extends Action<string> {
-    readonly courseID: number;
+// BRIEFS
+export interface AssignmentSetsFetchAction extends Action<string> {
+    readonly courseId: number;
 }
 
-export const assignmentSetDtoBriefsFetchRequestedAction = (courseID: number) =>
-    ({ type: ASSIGNMENT_SET_DTO_BRIEFS_FETCH_REQUESTED_ACTION, courseID });
+export interface AssignmentSetsFetchSucceededAction extends Action<string> {
+    readonly assignmentSets: AssignmentSetDtoBrief[];
+}
 
-export const assignmentSetDtoBriefsFetchSucceededAction = (assignmentSetDtoBriefs: AssignmentSetDtoBrief[]) =>
-    ({ type: ASSIGNMENT_SET_DTO_BRIEFS_FETCH_SUCCEEDED_ACTION, assignmentSetDtoBriefs });
+export const assignmentSetsFetchRequestedAction = (courseId: number) =>
+    ({ type: ASSIGNMENT_SETS_FETCH_REQUESTED_ACTION, courseId });
 
-export const assignmentGroupSetsMappingDtoFetchRequestedAction = (courseID: number) =>
-    ({ type: ASSIGNMENT_GROUP_SETS_MAPPING_DTO_FETCH_REQUESTED_ACTION, courseID });
+export const assignmentSetsFetchSucceededAction = (assignmentSets: AssignmentSetDtoBrief[]) =>
+    ({ type: ASSIGNMENT_SETS_FETCH_SUCCEEDED_ACTION, assignmentSets });
 
-export const assignmentGroupSetsMappingDtoFetchSucceededAction = (
-    assignmentGroupSetsMappingDtos: AssignmentGroupSetsMappingDto[]) =>
-    ({ type: ASSIGNMENT_GROUP_SETS_MAPPING_DTO_FETCH_SUCCEEDED_ACTION, assignmentGroupSetsMappingDtos });
+// FULL
+export interface AssignmentSetFetchAction extends Action<string> {
+    readonly assignmentSetId: number;
+}
+
+export interface AssignmentSetFetchSucceededAction extends Action<string> {
+    readonly assignmentSet: AssignmentSetDtoFull;
+}
+
+export const assignmentSetFetchRequestedAction = (assignmentSetId: number) =>
+    ({ type: ASSIGNMENT_SET_FETCH_REQUESTED_ACTION, assignmentSetId });
+
+export const assignmentSetFetchSucceededAction = (assignmentSet: AssignmentSetDtoFull) =>
+    ({ type: ASSIGNMENT_SET_FETCH_SUCCEEDED_ACTION, assignmentSet });
+
+// MAPPINGS
+export interface AssignmentGroupSetsMappingsFetchSucceededAction extends Action<string> {
+    readonly assignmentGroupSetsMappings: AssignmentGroupSetsMappingDto[];
+}
+
+export const assignmentGroupSetsMappingsFetchRequestedAction = (courseId: number) =>
+    ({ type: ASSIGNMENT_GROUP_SETS_MAPPINGS_FETCH_REQUESTED_ACTION, courseId });
+
+export const assignmentGroupSetsMappingsFetchSucceededAction = (
+    assignmentGroupSetsMappings: AssignmentGroupSetsMappingDto[]) =>
+    ({ type: ASSIGNMENT_GROUP_SETS_MAPPINGS_FETCH_SUCCEEDED_ACTION, assignmentGroupSetsMappings });
+
+// UPDATE
+export interface AssignmentSetUpdateRequestedAction extends Action<string> {
+    readonly assignmentSetId: number;
+    readonly assignmentSetUpdate: AssignmentSetUpdateDto;
+}
+
+export interface AssignmentSetUpdateSucceededAction extends Action<string> {
+    readonly assignmentSet: AssignmentSetDtoFull;
+}
+
+export const assignmentSetUpdateRequestedAction = (assignmentSetId: number,
+                                                   assignmentSetUpdate: AssignmentSetUpdateDto) =>
+    ({ type: ASSIGNMENT_SET_UPDATE_REQUESTED_ACTION, assignmentSetId, assignmentSetUpdate });
+
+export const assignmentSetUpdateSucceededAction = (assignmentSet: AssignmentSetDtoFull) =>
+    ({ type: ASSIGNMENT_SET_UPDATE_REQUEST_SUCCEEDED_ACTION, assignmentSet });
+
+// CREATE
+export interface AssignmentSetCreateRequestedAction extends Action<string> {
+    readonly courseId: number;
+    readonly assignmentSetCreate: AssignmentSetCreateDto;
+}
+
+export interface AssignmentSetCreateSucceededAction extends Action<string> {
+    readonly assignmentSet: AssignmentSetDtoFull;
+}
+
+export const assignmentSetCreateRequestedAction = (courseId: number, assignmentSetCreate: AssignmentSetCreateDto) =>
+    ({ type: ASSIGNMENT_SET_CREATE_REQUESTED_ACTION, courseId, assignmentSetCreate });
+
+export const assignmentSetCreateSucceededAction = (assignmentSet: AssignmentSetDtoFull) =>
+    ({ type: ASSIGNMENT_SET_CREATE_REQUEST_SUCCEEDED_ACTION, assignmentSet });

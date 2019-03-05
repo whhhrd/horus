@@ -45,6 +45,7 @@
     "@types/react-redux": "^7.0.1",
     "@types/react-router-dom": "^4.3.1",
     "@types/reactstrap": "^7.1.1",
+    "@types/sortablejs": "^1.7.2",
     "babel-polyfill": "^6.26.0",
     "bootstrap": "^4.2.1",
     "connected-react-router": "^6.2.2",
@@ -56,15 +57,18 @@
     "moment": "^2.24.0",
     "query-string": "^6.2.0",
     "react": "16.7.0",
+    "react-dom": "^16.8.3",
     "react-autosuggest": "^9.4.3",
     "react-dom": "16.7.0",
     "react-intl": "^2.8.0",
     "react-redux": "^6.0.0",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
+    "react-sortablejs": "^1.5.1",
     "reactstrap": "^7.1.0",
     "redux": "^4.0.1",
-    "redux-saga": "^1.0.1"
+    "redux-saga": "^1.0.1",
+    "sortablejs": "1.6.1"
   },
   "resolutions": {
     "terser": "^3.16.1"

@@ -1,6 +1,7 @@
-import { AssignmentSetDtoBrief, AssignmentGroupSetsMappingDto } from "../types";
+import { AssignmentSetDtoBrief, AssignmentGroupSetsMappingDto, AssignmentSetDtoFull } from "../types";
 
 export interface AssignmentSetsState {
-    assignmentSetDtoBriefs: AssignmentSetDtoBrief[] | null;
-    assignmentGroupSetsMappingDtos: AssignmentGroupSetsMappingDto[] | null;
+    assignmentSetBriefs: AssignmentSetDtoBrief[] | null;
+    assignmentGroupSetsMappings: AssignmentGroupSetsMappingDto[] | null;
+    assignmentSets: Map<number, AssignmentSetDtoFull> | null;
 }

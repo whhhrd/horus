@@ -64,6 +64,12 @@ button {
     min-width: 250px;
 }
 
+.aset-card-create {
+    max-width: 250px;
+    min-width: 250px;
+    height: 250px;
+}
+
 .aset-card-footer {
     border-top: 0;
     padding-top: 0;
@@ -156,6 +162,14 @@ button {
 
 .navigation-bar-item-text {
     font-size: 0.80rem;
+}
+
+.cursor-pointer:hover {
+    cursor: pointer !important;
+}
+
+.cursor-move:hover {
+    cursor: move !important;
 }
 
 .watermark-icon {

@@ -67,7 +67,7 @@ export function* postLoginRedirect() {
     if (redirectUrl != null) {
         yield put(push(redirectUrl));
     } else {
-        yield put(push(PATH_COURSES));
+        yield put(push(PATH_COURSES[0]));
     }
 }
 

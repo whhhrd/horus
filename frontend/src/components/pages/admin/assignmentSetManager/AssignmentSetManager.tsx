@@ -2,40 +2,68 @@ import React, { Component } from "react";
 import { withRouter, RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 
-import { Container, Row, Alert, Spinner, Col } from "reactstrap";
+import { Container, Row, Spinner, Col, Card, CardBody } from "reactstrap";
 
 import AssignmentSetListEntry from "./AssignmentSetListEntry";
 
-import { getAssignmentGroupSetsMappingDtos, getAssignmentSetDtoBriefs }
-    from "../../../../state/assignments/selectors";
-import { assignmentGroupSetsMappingDtoFetchRequestedAction, assignmentSetDtoBriefsFetchRequestedAction }
-    from "../../../../state/assignments/actions";
+import {
+    getAssignmentGroupSetsMappingDtos,
+    getAssignmentSets,
+} from "../../../../state/assignments/selectors";
 
-import { AssignmentSetDtoBrief, AssignmentGroupSetsMappingDto, GroupSetDtoBrief }
-    from "../../../../state/types";
+import {
+    assignmentGroupSetsMappingsFetchRequestedAction,
+    assignmentSetsFetchRequestedAction,
+} from "../../../../state/assignments/actions";
+
+import {
+    AssignmentSetDtoBrief,
+    AssignmentGroupSetsMappingDto,
+    GroupSetDtoBrief,
+} from "../../../../state/types";
+
 import { ApplicationState } from "../../../../state/state";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import AssignmentSetCreatorModal from "./AssignmentSetCreatorModal";
 
 interface AssignmentSetManagerProps {
 
-    assignmentSetDtoBriefs: AssignmentSetDtoBrief[] | null;
     assignmentGroupSetsMappingDtos: AssignmentGroupSetsMappingDto[] | null;
+
+    getAssignmentSets: () => AssignmentSetDtoBrief[] | null;
 
     fetchAssignmentGroupSetsMappingDtos: (courseID: number) => {
         type: string,
     };
 
-    fetchAssignmentSetDtoBriefs: (courseID: number) => {
+    fetchAssignmentSets: (courseID: number) => {
         type: string,
     };
 }
 
-interface AssignmentSetManagerState {}
+interface AssignmentSetManagerState {
+    creatorModalOpen: boolean;
+}
 
-class AssignmentSetManager extends Component<AssignmentSetManagerProps & RouteComponentProps<any>, AssignmentSetManagerState> {
+class AssignmentSetManager extends
+    Component<AssignmentSetManagerProps & RouteComponentProps<any>, AssignmentSetManagerState> {
+
+    constructor(props: AssignmentSetManagerProps & RouteComponentProps<any>) {
+        super(props);
+        this.state = {
+            creatorModalOpen: false,
+        };
+        this.toggleCreatorModal = this.toggleCreatorModal.bind(this);
+    }
+
+    toggleCreatorModal() {
+        this.setState((state) => ({ creatorModalOpen: !state.creatorModalOpen }));
+    }
 
     componentDidMount() {
         // Fetch the AssignmentSetDtoBriefs
-        this.props.fetchAssignmentSetDtoBriefs(this.props.match.params.cid);
+        this.props.fetchAssignmentSets(this.props.match.params.cid);
 
         // Fetch the AssignmentGroupSets mappings
         this.props.fetchAssignmentGroupSetsMappingDtos(this.props.match.params.cid);
@@ -46,24 +74,31 @@ class AssignmentSetManager extends Component<AssignmentSetManagerProps & RouteCo
         const preparedASetGroupSetsMapping: Map<number, GroupSetDtoBrief[]> =
             this.prepareAssignmentGroupSetsMappingDtosToMap(this.props.assignmentGroupSetsMappingDtos!);
 
+        const assignmentSets = this.props.getAssignmentSets();
+
         // Put the AssignmentSetListEntry elements in the following map
         const aSetJSXs: JSX.Element[] =
-            this.composeAssignmentSetListEntries(this.props.assignmentSetDtoBriefs, preparedASetGroupSetsMapping);
+            this.composeAssignmentSetListEntries(assignmentSets, preparedASetGroupSetsMapping);
 
         return (
             <Container fluid={true}>
                 <Row className="main-body-breadcrumbs px-2 pt-3">
                     <Col md="12">
-                        <h3>Assignment Sets Manager
-                        { this.props.assignmentSetDtoBriefs == null &&
-                            <Spinner color="primary" type="grow"></Spinner>
-                        }
+                        <h3>Assignment Set Manager
+                        {assignmentSets == null &&
+                                <Spinner color="primary" type="grow"></Spinner>
+                            }
                         </h3>
                         <hr />
                     </Col>
                 </Row>
                 <Row className="main-body-display px-2">
                     {aSetJSXs}
+                    <AssignmentSetCreatorModal
+                        isOpen={this.state.creatorModalOpen}
+                        courseID={this.props.match.params.cid}
+                        key={-1}
+                        onCloseModal={this.toggleCreatorModal} />
                 </Row>
             </Container>
         );
@@ -105,8 +140,8 @@ class AssignmentSetManager extends Component<AssignmentSetManagerProps & RouteCo
     /**
      * Creates a list of JSX elements, pushing JSX elements based on the following scenarios:
      * 1. A waiting spinner in case the aSetDtoBriefs is null
-     * 2. The actual AssignmentSetListEntry JSX element in case there are assignment sets for this course
-     * 3. An Alert displaying that there are no assignment sets for this course if the aSetDtoBriefs is empty
+     * 2. The actual AssignmentSetListEntry JSX element in case there are assignment sets for this courseDtoFull
+     * 3. An Alert displaying that there are no assignment sets for this courseDtoFull if the aSetDtoBriefs is empty
      * @param aSetDtoBriefs The list of AssignmentSetDtoBriefs, necessary for displaying the AssignmentSetListEntry
      * @param preparedASetGroupSetsMapping A Map that maps assignmentSetID to a list of GroupSetDtoBriefs
      */
@@ -132,15 +167,22 @@ class AssignmentSetManager extends Component<AssignmentSetManagerProps & RouteCo
                 aSetJSXs.push(
                     <AssignmentSetListEntry
                         key={aSetDtoBrief.id}
+                        courseId={this.props.match.params.cid}
                         assignmentSet={aSetDtoBrief}
-                        groupSets={groupSets !== undefined ? groupSets : []}
-                    />,
+                        groupSets={groupSets !== undefined ? groupSets : []} />,
                 );
             }
-        } else {
-            // If there are no assignmentSetDtoBriefs, push an Alert saying so
-            aSetJSXs.push(<Alert className="mt-3" color="primary" key={-2}>No assignment sets for this course yet.</Alert>);
         }
+
+        aSetJSXs.push(
+            <Card key={-2} className="my-3 aset-card-create canvas-card" onClick={() => this.toggleCreatorModal()}>
+                <CardBody className="brounded d-flex vertical-center" style={{ color: "#007bff" }}>
+                    <div className="mx-auto my-auto text-center">
+                        <FontAwesomeIcon icon={faPlus} size="4x" />
+                        <br /><big className="mt-4 d-block">Create assignment set</big>
+                    </div>
+                </CardBody>
+            </Card>);
 
         return aSetJSXs;
     }
@@ -148,8 +190,8 @@ class AssignmentSetManager extends Component<AssignmentSetManagerProps & RouteCo
 
 export default withRouter(connect((state: ApplicationState) => ({
     assignmentGroupSetsMappingDtos: getAssignmentGroupSetsMappingDtos(state),
-    assignmentSetDtoBriefs: getAssignmentSetDtoBriefs(state),
+    getAssignmentSets: () => getAssignmentSets(state),
 }), {
-        fetchAssignmentGroupSetsMappingDtos: assignmentGroupSetsMappingDtoFetchRequestedAction,
-        fetchAssignmentSetDtoBriefs: assignmentSetDtoBriefsFetchRequestedAction,
+        fetchAssignmentGroupSetsMappingDtos: assignmentGroupSetsMappingsFetchRequestedAction,
+        fetchAssignmentSets: assignmentSetsFetchRequestedAction,
     })(AssignmentSetManager));

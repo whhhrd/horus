@@ -64,7 +64,7 @@ class AssignmentService {
 
     fun createAssignmentSet(creator: Participant, course: Course, dto: AssignmentSetCreateDto): AssignmentSet {
         if (dto.name.trim().isEmpty()) {
-            throw InvalidAssignmentCreateRequestException("Assignment set name too short")
+            throw InvalidAssignmentCreateRequestException("Assignment set name too short.")
         }
 
         val assignmentSet = AssignmentSet(course, dto.name, creator)
@@ -78,12 +78,15 @@ class AssignmentService {
         val assignmentSet = assignmentSetRepository.findByIdOrNull(id) ?: throw AssignmentSetNotFoundException()
         val participant = participantService.getParticipationInCourse(creator, assignmentSet.course.id)
         if (dto.name.trim().isEmpty()) {
-            throw InvalidAssignmentUpdateRequestException("Assignment set name too short")
+            throw InvalidAssignmentUpdateRequestException("Assignment set name too short.")
         }
 
         assignmentSet.name = dto.name
         // Update included assignments
         if (dto.assignments != null) {
+            if (dto.assignments.any { it.name.isBlank() }) {
+                throw InvalidAssignmentUpdateRequestException("Assignment name too short.")
+            }
             val deletionIdSet: Set<Long> = HashSet(assignmentSet.assignments.map { a -> a.id } - dto.assignments.filter { a -> a.id != null }.map { a -> a.id!! })
             val deletionSet = assignmentSet.assignments.filter { a -> deletionIdSet.contains(a.id) }
             assignmentSet.assignments.removeAll(deletionSet)
