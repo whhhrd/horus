@@ -2,18 +2,18 @@ package nl.utwente.horus.auth.saml
 
 class UTSAML2AttributeExtractionScheme: SAML2AttributeExtractionScheme {
     override fun getUserIdAttributeName(): String {
-        return "urn:oid:0.9.2342.19200300.100.1.1"
+        return "urn:mace:dir:attribute-def:uid"
     }
 
     override fun getMailAttributeName(): String {
-        return "urn:oid:0.9.2342.19200300.100.1.3"
+        return "urn:mace:dir:attribute-def:mail"
     }
 
     override fun getGivenNameAttributeName(): String {
-        return "urn:oid:2.5.4.42"
+        return "urn:mace:dir:attribute-def:givenName"
     }
 
     override fun getSurNameAttributeName(): String {
-        return "urn:oid:2.5.4.4"
+        return "urn:mace:dir:attribute-def:sn"
     }
 }
