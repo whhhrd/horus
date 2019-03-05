@@ -1,6 +1,6 @@
-import React, { PureComponent } from 'react';
-import { GroupDtoFull } from '../../../../../state/types';
-import { Card, CardHeader, CardTitle, CardBody } from 'reactstrap';
+import React, { PureComponent } from "react";
+import { GroupDtoFull } from "../../../../../state/types";
+import { Card, CardHeader, CardTitle, CardBody } from "reactstrap";
 
 interface GroupListItemProps {
     group: GroupDtoFull;
@@ -27,7 +27,7 @@ export default class GroupListItem extends PureComponent<GroupListItemProps> {
                     }
                 </CardBody>
             </Card>
-        )
+        );
     }
 
 }

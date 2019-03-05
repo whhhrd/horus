@@ -1,22 +1,22 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import { withRouter, RouteComponentProps } from "react-router-dom";
-import { connect } from 'react-redux';
-import queryString from 'query-string';
-import { Container, Row, Col, Form, Button, Input, Label, FormGroup, ButtonGroup } from 'reactstrap'
-import { Formik, Field } from 'formik';
+import { connect } from "react-redux";
+import queryString from "query-string";
+import { Container, Row, Col, Form, Button, Input, Label, FormGroup, ButtonGroup } from "reactstrap";
+import { Formik, Field } from "formik";
 
-import { LoginForm } from '../../../state/auth/types';
-import { isLoggedIn } from '../../../state/auth/selectors';
-import { ApplicationState } from '../../../state/state';
-import { loginAction } from '../../../state/auth/actions';
-import Spinner from 'reactstrap/lib/Spinner';
+import { LoginForm } from "../../../state/auth/types";
+import { isLoggedIn } from "../../../state/auth/selectors";
+import { ApplicationState } from "../../../state/state";
+import { loginAction } from "../../../state/auth/actions";
+import Spinner from "reactstrap/lib/Spinner";
 
 export interface LoginProps {
     logIn: (form: LoginForm | null, code: string | null) => {
         type: string;
         form: LoginForm | null;
         code: string | null
-    }
+    };
 }
 
 export interface LoginState {
@@ -110,7 +110,7 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                                 <Col>
                                     <ButtonGroup>
                                         <Button
-                                            onClick={() => {handleSubmit();}}
+                                            onClick={() => {handleSubmit(); }}
                                         >
                                             Submit
                                         </Button>
@@ -127,6 +127,6 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
     }
 }
 
-export default withRouter(connect( (state: ApplicationState) => ({ loggedIn: isLoggedIn(state),}), {
+export default withRouter(connect( (state: ApplicationState) => ({ loggedIn: isLoggedIn(state)}), {
     logIn: loginAction,
 })(Login));

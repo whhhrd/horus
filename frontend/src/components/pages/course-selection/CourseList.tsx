@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
-import { CourseDtoBrief } from '../../../state/types';
+import React, { Component } from "react";
+import { CourseDtoBrief } from "../../../state/types";
 import {
     COURSE_LIST_STUDENT,
     COURSE_LIST_TEACHER,
     COURSE_LIST_TA,
     COURSE_LIST_ANY,
-} from '../../../state/course-selection/constants';
-import { Row } from 'reactstrap';
-import CanvasCard from '../../CanvasCard';
-import { faBook } from '@fortawesome/free-solid-svg-icons';
+} from "../../../state/course-selection/constants";
+import { Row } from "reactstrap";
+import CanvasCard from "../../CanvasCard";
+import { faBook } from "@fortawesome/free-solid-svg-icons";
 interface CourseListProps {
     courses: CourseDtoBrief[];
     mode: string;

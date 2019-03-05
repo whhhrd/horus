@@ -9,7 +9,11 @@
         "object-literal-sort-keys": false,
         "interface-name": false,
         "member-access": [true, "no-public"],
-        "ordered-imports": false
+        "ordered-imports": false,
+        "quotemark": [true, "double"], 
+        "triple-equals": [true, "allow-undefined-check", "allow-null-check"],
+        "no-consecutive-blank-lines": true,
+        "trailing-comma": [true, {"multiline": "always", "singleline": "never"}]
     },
     "rulesDirectory": [],
     "linterOptions": {

@@ -5,13 +5,19 @@ import { notificationDismissedAction } from "../../state/notifications/actions";
 import { NotificationState, NotificationKind } from "../../state/notifications/types";
 import { NOTIFICATION_TIMEOUT } from "../../state/notifications/constants";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { IconDefinition, faTimesCircle, faInfoCircle, faCheckCircle, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
+import {
+    IconDefinition,
+    faTimesCircle,
+    faInfoCircle,
+    faCheckCircle,
+    faExclamationCircle,
+} from "@fortawesome/free-solid-svg-icons";
 
 interface NotificationProps {
-    notification: NotificationState
+    notification: NotificationState;
     dismissNotification: (id: number) => {
-        type: string
-    },
+        type: string,
+    };
 }
 
 interface NotificationLocalState {
@@ -27,7 +33,7 @@ class Notification extends Component<NotificationProps, NotificationLocalState> 
         this.state = { visible: true };
     }
 
-    public componentDidMount() {
+    componentDidMount() {
         if (this.props.notification.fadeAway) {
             timerId = setTimeout(() => {
                 this.setState((_) => ({ visible: false }));
@@ -36,15 +42,15 @@ class Notification extends Component<NotificationProps, NotificationLocalState> 
         }
     }
 
-    public componentWillUnmount() {
+    componentWillUnmount() {
         if (this.props.notification.fadeAway) {
             clearTimeout(timerId);
         }
     }
 
-    public render() {
+    render() {
 
-        let icon: IconDefinition | undefined = undefined;
+        let icon: IconDefinition | undefined;
         switch (this.props.notification.kind) {
             case NotificationKind.Error: icon = faTimesCircle; break;
             case NotificationKind.Info: icon = faInfoCircle; break;

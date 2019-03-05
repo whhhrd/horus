@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { ApplicationState } from '../../../state/state';
-import { getCourses } from '../../../state/course-selection/selectors';
-import { coursesRequestedAction, } from '../../../state/course-selection/action';
-import Spinner from 'reactstrap/lib/Spinner';
-import { CourseDtoSummary } from '../../../state/types';
-import CourseList from './CourseList';
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { ApplicationState } from "../../../state/state";
+import { getCourses } from "../../../state/course-selection/selectors";
+import { coursesRequestedAction } from "../../../state/course-selection/action";
+import Spinner from "reactstrap/lib/Spinner";
+import { CourseDtoSummary } from "../../../state/types";
+import CourseList from "./CourseList";
 import {
     COURSE_LIST_TA,
     API_STUDENT_ROLE,
@@ -14,10 +14,10 @@ import {
     API_TA_ROLE,
     API_TEACHER_ROLE,
     COURSE_LIST_STUDENT,
-} from '../../../state/course-selection/constants';
-import Container from 'reactstrap/lib/Container';
-import Row from 'reactstrap/lib/Row';
-import Col from 'reactstrap/lib/Col';
+} from "../../../state/course-selection/constants";
+import Container from "reactstrap/lib/Container";
+import Row from "reactstrap/lib/Row";
+import Col from "reactstrap/lib/Col";
 
 interface CourseSelectionProps {
     courses?: CourseDtoSummary[];
@@ -25,9 +25,8 @@ interface CourseSelectionProps {
         type: string,
     };
 }
-interface CourseSelectionState {}
 
-class CourseSelection extends Component<CourseSelectionProps, CourseSelectionState> {
+class CourseSelection extends Component<CourseSelectionProps> {
 
     componentDidMount() {
         this.props.requestCourses();

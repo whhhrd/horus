@@ -2,7 +2,10 @@ import { Route, RouteProps, match } from "react-router-dom";
 import { connect } from "react-redux";
 import { ApplicationState } from "../state/state";
 import { ActiveTabEnum } from "../state/navigationBar/types";
-import { navigationBarSetTabRequestedAction, navigationBarSetMatchRequestedAction } from "../state/navigationBar/actions";
+import {
+    navigationBarSetTabRequestedAction,
+    navigationBarSetMatchRequestedAction,
+} from "../state/navigationBar/actions";
 import { SwitchProps } from "react-router";
 
 interface RouteExtensionProps {
@@ -14,12 +17,12 @@ interface RouteExtensionProps {
 
     setNavigationBarMatchAction: (match: match) => {
         type: string,
-    }
+    };
 }
 
 /**
- * This is an extension on the Route component from the react-router-dom. It is used to 
- * retrieve the 'match' from the router and store it in the global state for later use. 
+ * This is an extension on the Route component from the react-router-dom. It is used to
+ * retrieve the 'match' from the router and store it in the global state for later use.
  * Furthermore, when using this RouteExtension, you have to supply a path (just as before),
  * but you also have to supply an ActiveTabEnum, which represents the tab/button in the navigation-
  * bar that should appear active on that path.
