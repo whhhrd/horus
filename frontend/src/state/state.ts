@@ -6,6 +6,7 @@ import { NotificationsState } from "./notifications/types";
 import { CanvasSettingsState } from "./canvas-settings/types";
 import { NavigationBarState } from "./navigationBar/types";
 import { GroupsState } from "./groups/types";
+import { SearchState } from "./search/types";
 
 export interface ApplicationState {
     router?: RouterState;
@@ -16,4 +17,5 @@ export interface ApplicationState {
     navigationBar?: NavigationBarState;
     notifications?: NotificationsState;
     canvasSettings?: CanvasSettingsState;
+    search?: SearchState;
 }
