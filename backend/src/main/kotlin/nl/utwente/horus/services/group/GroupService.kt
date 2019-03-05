@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.lang.Integer.min
 import java.time.ZonedDateTime
 
 @Component
@@ -29,6 +30,21 @@ class GroupService {
 
     @Autowired
     lateinit var groupMemberRepository: GroupMemberRepository
+
+    class GroupResult {
+        val group: GroupDtoSearch
+        var rank = 0
+
+        constructor(group: GroupDtoSearch, query: Regex) {
+            this.group = group
+            if (group.name.contains(query)) {
+                rank += 100
+            }
+            if (group.memberNames.any {it.contains(query)}) {
+                rank += 50
+            }
+        }
+    }
 
     fun getGroupSetById(id: Long): GroupSet {
         return groupSetRepository.findByIdOrNull(id) ?: throw GroupSetNotFoundException()
@@ -47,12 +63,19 @@ class GroupService {
                 .map { Pair(GroupDtoBrief(it[0] as Long, null, it[1] as String, it[2] as ZonedDateTime, null),
                         AssignmentSetDtoBrief(it[3] as Long, it[4] as String, it[5] as ZonedDateTime)) }
         val memberPairs = if (resultPairs.isNotEmpty()) groupRepository.findFullNamesAndLoginIdsOfMembersInGroups(resultPairs.map { it.first.id }) else emptyList()
-        val memberMap = memberPairs.groupByTo(HashMap(), { it[0] as Long }, { "${it[1]} (${it[2]})" })
+        val memberMap = memberPairs.groupByTo(HashMap(), { it[0] as Long }, { it[1] as String })
         val assignmentSetIdMap = resultPairs.groupByTo(HashMap(), { it.first.id }, { it.second.id })
-        val groups = resultPairs.distinctBy { it.first.id }.map { GroupDtoSearch(it.first.id, it.first.name, assignmentSetIdMap[it.first.id]!!, memberMap[it.first.id]!!) }
-        val assignmentSets = resultPairs.distinctBy { it.second.id }.map { it.second }
 
-        return GroupAssignmentSetSearchResultDto(groups, assignmentSets)
+        val searchRegex = Regex("\\b${query.trim()}\\b")
+        var groups = resultPairs.distinctBy { it.first.id }.map { GroupResult(GroupDtoSearch(it.first.id, it.first.name, assignmentSetIdMap[it.first.id]!!, memberMap[it.first.id]!!), searchRegex) }
+
+        groups = groups.sortedByDescending { it.rank }.subList(0, min(groups.size, 10))
+
+        val groupSet = groups.map { it.group.id }.toSet()
+
+        val assignmentSets = resultPairs.distinctBy { it.second.id }.filter { it.first.id in groupSet }.map { it.second }
+
+        return GroupAssignmentSetSearchResultDto(groups.map { it.group }, assignmentSets)
     }
 
     fun getGroupById(id: Long): Group {
