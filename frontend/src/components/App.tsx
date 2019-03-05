@@ -98,31 +98,31 @@ class App extends React.Component<AppProps & RouteComponentProps, AppState> {
                             <RouteExtension exact path={PATH_GROUP_SET_GROUPS_MANAGER} component={GroupManager}
                                 setActiveTab={ActiveTabEnum.ADMINISTRATION} />
 
-                            {/* Throws a warning for invalid proptype for path.
-                                This is merely a documentation bug. The path actually works. */}
                             <RouteExtension exact path={PATH_COURSES} component={CourseSelection}
                                 setActiveTab={ActiveTabEnum.COURSES} />
 
                             <RouteExtension exact path={PATH_DASHBOARD} component={CourseDashboard}
                                 setActiveTab={ActiveTabEnum.DASHBOARD} />
+
                             <RouteExtension
                                 exact
                                 path={PATH_CANVAS_TOKEN}
-                                component={CanvasTokenForm} setActiveTab={ActiveTabEnum.NONE}
-                            />
+                                component={CanvasTokenForm} setActiveTab={ActiveTabEnum.NONE} />
+
                             <RouteExtension
                                 exact
                                 path={PATH_CANVAS_IMPORT}
                                 component={CanvasCourseImport}
-                                setActiveTab={ActiveTabEnum.NONE}
-                            />
+                                setActiveTab={ActiveTabEnum.NONE} />
+
                             <RouteExtension exact path={PATH_CANVAS_TOKEN} component={CanvasTokenForm}
-                                            setActiveTab={ActiveTabEnum.NONE}/>
+                                setActiveTab={ActiveTabEnum.NONE} />
+
                             <RouteExtension exact path={PATH_CANVAS_IMPORT} component={CanvasCourseImport}
-                                            setActiveTab={ActiveTabEnum.NONE}/>
+                                setActiveTab={ActiveTabEnum.NONE} />
 
                             <RouteExtension exact path={PATH_SIGNOFF} component={SignoffSearch}
-                                            setActiveTab={ActiveTabEnum.SIGNOFF}/>
+                                setActiveTab={ActiveTabEnum.SIGNOFF} />
                         </Switch>
                     </div>
                 </div>

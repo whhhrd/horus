@@ -7,6 +7,15 @@ import {
 
 import { GroupsState } from "./types";
 import { GroupSetsFetchSucceededAction, GroupsFetchSucceededAction } from "./actions";
+import {
+    CANVAS_REFRESH_SETS_LIST_REQUEST_SUCCEEDED_ACTION,
+    CANVAS_REFRESH_SET_REQUEST_SUCCEEDED_ACTION,
+} from "../canvas-settings/constants";
+
+import {
+    CanvasRefreshSetsListRequestSucceededAction,
+    CanvasRefreshSetRequestSucceededAction,
+} from "../canvas-settings/actions";
 
 const initialState: GroupsState = {
     groupSets: null,
@@ -14,8 +23,8 @@ const initialState: GroupsState = {
 };
 
 function groupsReducer(
-        state: GroupsState, action: GroupSetsFetchSucceededAction | GroupsFetchSucceededAction,
-    ): GroupsState {
+    state: GroupsState, action: GroupSetsFetchSucceededAction | GroupsFetchSucceededAction,
+): GroupsState {
     if (state == null) {
         return initialState;
     }
@@ -29,7 +38,7 @@ function groupsReducer(
         case GROUP_SETS_FETCH_SUCCEEDED_ACTION:
             return {
                 ...state,
-                groupSets : (action as GroupSetsFetchSucceededAction).groupSets,
+                groupSets: (action as GroupSetsFetchSucceededAction).groupSets,
             };
         case GROUPS_FETCH_REQUESTED_ACTION:
             return {
@@ -39,7 +48,17 @@ function groupsReducer(
         case GROUPS_FETCH_SUCCEEDED_ACTION:
             return {
                 ...state,
-                groups : (action as GroupsFetchSucceededAction).groups,
+                groups: (action as GroupsFetchSucceededAction).groups,
+            };
+        case CANVAS_REFRESH_SETS_LIST_REQUEST_SUCCEEDED_ACTION:
+            return {
+                ...state,
+                groupSets: (action as CanvasRefreshSetsListRequestSucceededAction).groupSets,
+            };
+        case CANVAS_REFRESH_SET_REQUEST_SUCCEEDED_ACTION:
+            return {
+                ...state,
+                groups: (action as CanvasRefreshSetRequestSucceededAction).groups,
             };
         default:
             return state;
