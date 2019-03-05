@@ -19,9 +19,9 @@ class CommentThreadController {
     @Autowired
     lateinit var userDetailService: HorusUserDetailService
 
-    @GetMapping(path = ["/{threadId}"])
-    fun getThread(@PathVariable threadId: Long): CommentThreadDtoFull {
-        return CommentThreadDtoFull(commentService.getThreadById(threadId))
+    @GetMapping(path = ["", "/"])
+    fun getThreads(@RequestParam threadIds: List<Long>): List<CommentThreadDtoFull> {
+        return threadIds.map { CommentThreadDtoFull(commentService.getThreadById(it)) }
     }
 
     @PostMapping(path = ["", "/"])
