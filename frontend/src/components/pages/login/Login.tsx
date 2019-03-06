@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
 import queryString from "query-string";
-import { Container, Row, Col, Form, Button, Input, Label, FormGroup, ButtonGroup } from "reactstrap";
+import { Row, Col, Form, Button, Input, Label, FormGroup, Jumbotron, Modal } from "reactstrap";
 import { Formik, Field } from "formik";
 
 import { LoginForm } from "../../../state/auth/types";
@@ -22,6 +22,7 @@ export interface LoginProps {
 export interface LoginState {
     loggedIn: boolean;
     loginCode: string | null;
+    showExternalLogin: boolean;
 }
 
 interface LoginValues {
@@ -31,7 +32,19 @@ interface LoginValues {
 
 class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
 
-    readonly state: LoginState = {loggedIn: false, loginCode: null};
+    constructor(props: LoginProps & RouteComponentProps) {
+        super(props);
+        this.state = {
+            loggedIn: false,
+            loginCode: null,
+            showExternalLogin: false,
+        };
+        this.toggleExternalLoginCollapse = this.toggleExternalLoginCollapse.bind(this);
+    }
+
+    toggleExternalLoginCollapse() {
+        this.setState((state) => ({ showExternalLogin: !state.showExternalLogin }));
+    }
 
     onSubmit = (values: LoginValues) => {
         const { logIn } = this.props;
@@ -65,68 +78,75 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
     render() {
         const code = this.getLoginCode();
         return (
-            <Container className="Login">
-                <h2>
-                    Horus - Log in
-                </h2>
-                { code != null &&
-                  <Spinner />
-                }
-                { code == null &&
-                 <Formik
-                    initialValues={{ username: "", password: ""}}
-                    validate={this.validate}
-                    onSubmit={this.onSubmit} >
-                    {({ handleSubmit }) => (
-                        <Form>
-                            <Row>
-                                <Col>
-                                    <FormGroup>
-                                        <Label>Username</Label>
-                                        <Input
-                                            tag={Field}
-                                            id="username"
-                                            name="username"
-                                            placeholder="s1234567/m1234567"
-                                        />
-                                    </FormGroup>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col>
-                                    <FormGroup>
-                                        <Label>Password</Label>
-                                        <Input
-                                            tag={Field}
-                                            id="password"
-                                            name="password"
-                                            placeholder="*********"
-                                            type="password"
-                                        />
-                                    </FormGroup>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col>
-                                    <ButtonGroup>
-                                        <Button
-                                            onClick={() => {handleSubmit(); }}
-                                        >
-                                            Submit
-                                        </Button>
-                                    </ButtonGroup>
-                                </Col>
-                            </Row>
-                        </Form>
-                    )}
-                </Formik>
-                }
-                <a href="/api/auth/saml/request">SAML Login</a>
-            </Container>
+            <Row className="login-wrapper d-flex align-items-center">
+                <Col className="mx-auto" lg="5" sm="12">
+                    <svg className="LoginBackground">
+                        <circle cx="1%" cy="50%" r="60%" fill="#e7e7e7" fillOpacity="0.5" />
+                        <circle cx="70%" cy="10%" r="70%" fill="#e7e7e7" fillOpacity="0.5" />
+                        <circle cx="20%" cy="20%" r="60%" fill="#e7e7e7" fillOpacity="0.5" />
+                        <circle cx="80%" cy="70%" r="50%" fill="#e7e7e7" fillOpacity="0.5" />
+                    </svg>
+                    <Jumbotron className="Login mx-auto">
+                        <h1 className="display-5">Horus, TA administration system</h1>
+                        <p className="lead">Description of the system here</p>
+                        <p className="lead mt-5 mb-0">
+                            <a className="no-decoration mb-4" href="/api/auth/saml/request">
+                                <Button size="lg" color="primary">Log in with UT</Button>
+                            </a>
+
+                            {code != null &&
+                                <Spinner />
+                            }
+
+                            {code == null &&
+                                <Modal isOpen={this.state.showExternalLogin}
+                                    toggle={() => this.toggleExternalLoginCollapse()}>
+                                    <Formik
+                                        initialValues={{ username: "", password: "" }}
+                                        validate={this.validate}
+                                        onSubmit={this.onSubmit} >
+                                        {({ handleSubmit }) => (
+                                            <Form className="p-3">
+                                            <h4>External login</h4>
+                                                <FormGroup>
+                                                    <Label>Username</Label>
+                                                    <Input
+                                                        tag={Field}
+                                                        id="username"
+                                                        name="username"
+                                                        placeholder="s1234567/m1234567"
+                                                    />
+                                                </FormGroup>
+                                                <FormGroup>
+                                                    <Label>Password</Label>
+                                                    <Input
+                                                        tag={Field}
+                                                        id="password"
+                                                        name="password"
+                                                        placeholder="*********"
+                                                        type="password"
+                                                    />
+                                                </FormGroup>
+                                                <Button block color="primary"
+                                                    outline onClick={() => { handleSubmit(); }}>
+                                                    Log in
+                                                </Button>
+                                            </Form>
+                                        )}
+                                    </Formik>
+                                </Modal>
+                            }
+                        </p>
+                    </Jumbotron>
+                    <a className="ExternalLoginToggle"
+                        onClick={() => this.toggleExternalLoginCollapse()}><small>External login</small>
+                    </a>
+                </Col>
+            </Row >
         );
     }
 }
 
-export default withRouter(connect( (state: ApplicationState) => ({ loggedIn: isLoggedIn(state)}), {
+export default withRouter(connect((state: ApplicationState) => ({ loggedIn: isLoggedIn(state) }), {
     logIn: loginAction,
 })(Login));
