@@ -8,7 +8,7 @@ import { GroupAssignmentSetSearchResultDto } from "../types";
 export function* signOffSearchQuery(action: SignOffSearchQueryAction) {
     try {
         const result: GroupAssignmentSetSearchResultDto = yield call(authenticatedFetchJSON, "GET",
-            `courses/${action.courseID}/groups/search?query=${action.searchQuery}`);
+            `courses/${action.courseID}/groups/search`, {query: action.searchQuery});
         yield put(signOffSearchSucceededAction(result));
     } catch (e) {
         yield put(notifyError("Failed to execute search query"));

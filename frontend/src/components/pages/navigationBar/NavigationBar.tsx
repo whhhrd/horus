@@ -1,7 +1,7 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 
 import logoWhite from "../../../images/university_of_twente_logo_black.png";
-import { Link, match } from "react-router-dom";
+import {Link, match} from "react-router-dom";
 import ListGroup from "reactstrap/lib/ListGroup";
 import { faTachometerAlt, faTasks, faBook, faSignOutAlt, faTools } from "@fortawesome/free-solid-svg-icons";
 import { connect } from "react-redux";
@@ -57,7 +57,7 @@ export class NavigationBar extends Component<NavigationBarProps> {
                                 inCourse ?
                                     <NavigationBarItem title="Sign-off lists" icon={faTasks}
                                         active={activeTab === ActiveTabEnum.SIGNOFF}
-                                        url={`/courses/${computedMatch.params.cid}/signoffs`} />
+                                        url={`/courses/${computedMatch.params.cid}/signoff`} />
                                     : undefined
                             }
                             { (!inCourse || hasAdmin) &&
@@ -71,12 +71,12 @@ export class NavigationBar extends Component<NavigationBarProps> {
                     <div className="w-100">
                         <ListGroup flush className="border-top">
                             <NavigationBarItem title="Courses" icon={faBook}
-                                active={activeTab === ActiveTabEnum.COURSES} url="/courses" />
-                            <NavigationBarItem title="Logout" icon={faSignOutAlt} active={false} url="/login" />
+                                               active={activeTab === ActiveTabEnum.COURSES} url="/courses"/>
+                            <NavigationBarItem title="Logout" icon={faSignOutAlt} active={false} url="/login"/>
                         </ListGroup>
                     </div>
                 </div>
-            </div >
+            </div>
         );
     }
 

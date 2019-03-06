@@ -36,6 +36,7 @@ import {
     PATH_CANVAS_TOKEN,
     PATH_CANVAS_IMPORT,
     PATH_SIGNOFF,
+    PATH_SIGNOFF_INITIAL,
 } from "../routes";
 import GroupManager from "./pages/admin/groups/groups/GroupManager";
 import AssignmentSetManager from "./pages/admin/assignmentSetManager/AssignmentSetManager";
@@ -121,6 +122,8 @@ class App extends React.Component<AppProps & RouteComponentProps, AppState> {
                             <RouteExtension exact path={PATH_CANVAS_IMPORT} component={CanvasCourseImport}
                                 setActiveTab={ActiveTabEnum.NONE} />
 
+                            <RouteExtension exact path={PATH_SIGNOFF_INITIAL} component={SignoffSearch}
+                                            setActiveTab={ActiveTabEnum.SIGNOFF}/>
                             <RouteExtension exact path={PATH_SIGNOFF} component={SignoffSearch}
                                 setActiveTab={ActiveTabEnum.SIGNOFF} />
                         </Switch>
