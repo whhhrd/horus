@@ -10,6 +10,7 @@ import notificationsReducer from "./notifications/reducers";
 import canvasReducer from "./canvas-settings/reducer";
 import navigationBarReducer from "./navigationBar/reducer";
 import groupsReducer from "./groups/reducer";
+import commentsReducer from "./comments/reducer";
 import searchReducer from "./search/reducer";
 
 // TODO: implement cleaning the state on log out.
@@ -19,6 +20,7 @@ export const rootReducer = (history: History) => combineReducers<ApplicationStat
     assignmentSets: assignmentSetsReducer,
     groups: groupsReducer,
     course: coursesReducer,
+    comments: commentsReducer,
     navigationBar:  navigationBarReducer,
     notifications: notificationsReducer,
     canvasSettings: canvasReducer,

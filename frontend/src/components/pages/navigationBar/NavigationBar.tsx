@@ -36,7 +36,7 @@ export class NavigationBar extends Component<NavigationBarProps> {
         const hasAdmin = courseAdmin.check(courseId, permissions);
 
         return (
-            <div className="NavigationBar border-right">
+            <div className="NavigationBar bg-light border-right">
                 <div className="d-flex align-items-start flex-column h-100">
                     <div>
                         <Link className="NavigationBarLogo py-3"

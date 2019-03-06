@@ -44,13 +44,13 @@ export default class Sidebar extends Component<SidebarProps, SidebarState> {
 
         if (this.state.windowWidth > SIDEBAR_APPEAR_THRESHOLD_WIDTH) {
             return (
-                <div className="dashboard-sidebar p-3 border-left dashboard-sidebar-desktop">
+                <div className="dashboard-sidebar bg-light px-3 border-left dashboard-sidebar-desktop">
                     {this.props.children}
                 </div>
             );
         } else if (this.state.sidebarOpen) {
             return (
-                <div className="dashboard-sidebar p-3 border-left dashboard-sidebar-mobile">
+                <div className="dashboard-sidebar bg-light px-3 border-left dashboard-sidebar-mobile">
                     {sidebarToggleButton}
                     {this.props.children}
                 </div>

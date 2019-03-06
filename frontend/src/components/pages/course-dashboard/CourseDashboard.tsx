@@ -14,6 +14,7 @@ import { NotificationProps } from "../../../state/notifications/types";
 import { faTasks } from "@fortawesome/free-solid-svg-icons";
 import CanvasCard from "../../CanvasCard";
 import Sidebar from "../../sidebar/Sidebar";
+import CommentThread, { CommentThreadType } from "../../comments/CommentThread";
 
 interface CourseDashboardProps {
     course: (id: number) => CourseDtoSummary | undefined;
@@ -47,7 +48,31 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
                     </Row>
                 </Container>
                 <Sidebar>
-                    <h4>Sidebar content here</h4>
+                    {/* For Demo purposes */}
+                    <CommentThread linkedEntityId={1}
+                        linkedEntityType={CommentThreadType.Participant}
+                        commentThreadId={175}
+                        commentThreadSubject="Justin Praas"
+                        showCommentThreadContent={true}
+                        needToFetchThread={true} />
+                    <CommentThread linkedEntityId={1}
+                        linkedEntityType={CommentThreadType.Group}
+                        commentThreadId={300}
+                        commentThreadSubject="CP Group 1"
+                        showCommentThreadContent={false}
+                        needToFetchThread={true} />
+                    <CommentThread linkedEntityId={1}
+                        linkedEntityType={CommentThreadType.Assignment}
+                        commentThreadId={140}
+                        commentThreadSubject="Exercise 3"
+                        showCommentThreadContent={false}
+                        needToFetchThread={true} />
+                    <CommentThread linkedEntityId={1}
+                        linkedEntityType={CommentThreadType.Signoff}
+                        commentThreadId={null}
+                        commentThreadSubject="Assignment 5"
+                        showCommentThreadContent={true}
+                        needToFetchThread={true} />
                 </Sidebar>
             </div>
         );

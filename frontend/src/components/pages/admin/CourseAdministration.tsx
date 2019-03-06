@@ -6,6 +6,7 @@ import { Container, Row, Col } from "reactstrap";
 import { Link } from "react-router-dom";
 
 class CourseAdministration extends PureComponent<RouteComponentProps<any>> {
+
     render() {
         return (
             <Container fluid>
@@ -18,13 +19,11 @@ class CourseAdministration extends PureComponent<RouteComponentProps<any>> {
                 <Row className="main-body-display px-2">
                     <Col>
                         <Link
-                            to={`/courses/${this.props.match.params.cid}/administration/assignmentsets`}
-                        >
+                            to={`/courses/${this.props.match.params.cid}/administration/assignmentsets`}>
                             <h5>Manage Assignment Sets</h5>
                         </Link>
                         <Link
-                            to={`/courses/${this.props.match.params.cid}/administration/groupsets`}
-                        >
+                            to={`/courses/${this.props.match.params.cid}/administration/groupsets`}>
                             <h5>Manage Group Sets</h5>
                         </Link>
                     </Col>

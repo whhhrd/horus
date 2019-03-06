@@ -1,4 +1,7 @@
 $color_blue: #007bff;
+$color_yellow: #ffc107;
+$color_red: #dc3545;
+$color_green: #28a745;
 $color_canvas: rgb(45, 59, 69);
 
 body {
@@ -77,9 +80,9 @@ button {
 }
 
 .dashboard-sidebar {
-    background-color: #f7f7f7;
     height: 100vh;
-    padding: 1rem;    
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .dashboard-sidebar-desktop {
@@ -102,7 +105,10 @@ button {
 .NavigationBar {
     height: 100vh;
     width: 84px;
-    background-color: white;
+}
+
+.bg-light {
+    background-color: #f7f7f7 !important;
 }
 
 .course-role-heading {
@@ -135,7 +141,7 @@ button {
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 1000;
+    z-index: 9000;
 }
 
 .NavigationBarLogo {
@@ -234,4 +240,20 @@ button {
 
 .react-autosuggest__suggestion--highlighted {
     background-color: #ddd;
+}
+
+.thread-border-participant {
+    border-left: 7px solid $color_blue;
+}
+
+.thread-border-group {
+    border-left: 7px solid $color_red;
+}
+
+.thread-border-assignment {
+    border-left: 7px solid $color_green;
+}
+
+.thread-border-signoff {
+    border-left: 7px solid $color_yellow;
 }

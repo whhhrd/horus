@@ -19,7 +19,7 @@ export class NavigationBarItem extends Component<NavigationBarItemProps> {
 
         return (
             <Link to={this.props.url} className={classes}>
-                <ListGroupItem className="text-center w-100 px-0">
+                <ListGroupItem className="text-center bg-light w-100 px-0">
 
                     <FontAwesomeIcon icon={this.props.icon} size="2x" /> <br />
                     <span className="navigation-bar-item-text">{this.props.title}</span>
