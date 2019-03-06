@@ -7,8 +7,8 @@ import { ApplicationState } from "../../../../../state/state";
 import { getGroups } from "../../../../../state/groups/selectors";
 import { groupsFetchRequestedAction, GroupsFetchAction } from "../../../../../state/groups/actions";
 import GroupListItem from "./GroupListItem";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSync } from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faSync} from "@fortawesome/free-solid-svg-icons";
 import {
     canvasRefreshSetRequestedAction,
     CanvasRefreshSetRequestedAction,
@@ -28,7 +28,19 @@ interface GroupManagerProps {
     refreshSet: (courseId: number, groupSetId: number) => CanvasRefreshSetRequestedAction;
 }
 
-class GroupManager extends Component<GroupManagerProps & RouteComponentProps<any>> {
+interface GroupManagerState {
+    searchQuery: string;
+}
+
+class GroupManager extends Component<GroupManagerProps & RouteComponentProps<any>, GroupManagerState> {
+
+    constructor(props: GroupManagerProps & RouteComponentProps<any>) {
+        super(props);
+
+        this.state = {
+            searchQuery: "",
+        };
+    }
 
     componentDidMount() {
         this.props.fetchGroups(this.props.match.params.gsid);
@@ -45,11 +57,11 @@ class GroupManager extends Component<GroupManagerProps & RouteComponentProps<any
                 <Row className="main-body-breadcrumbs px-2 pt-3">
                     <Col md="12">
                         <h3>Group Sets Manager
-                        {groups == null &&
-                                <Spinner color="primary" type="grow"></Spinner>
+                            {groups == null &&
+                            <Spinner color="primary" type="grow"/>
                             }
                         </h3>
-                        <hr />
+                        <hr/>
                     </Col>
                 </Row>
                 <Row className="main-body-display px-2 flex-row justify-content-center">
@@ -66,26 +78,54 @@ class GroupManager extends Component<GroupManagerProps & RouteComponentProps<any
                                                 this.props.match.params.gsid)}>
                                         <FontAwesomeIcon
                                             icon={faSync}
-                                            className="mr-2" />Sync this group set with Canvas
+                                            className="mr-2"/>Sync this group set with Canvas
                                     </Button>
-                                    <hr />
+                                    <hr/>
                                 </div> : null
                         }
                         <Input
                             className="form-control-lg mb-3"
-                            placeholder="Group name/number or student name/number" />
-                        <Row>
-                            {groups != null &&
-                                groups.map((group) =>
-                                    <GroupListItem key={group.id} group={group} />,
-                                )
-                            }
-                        </Row>
-
+                            placeholder="Group name/number or student name/number"
+                            onInput={(e) => {
+                                // @ts-ignore
+                                this.onSearchQueryInput(e.target.value);
+                            }}/>
+                        <Row>{this.renderGroups(groups)}</Row>
                     </Col>
                 </Row>
             </Container>
         );
+    }
+
+    private onSearchQueryInput(newValue: string) {
+        this.setState(() => ({searchQuery: newValue.toLowerCase()}));
+    }
+
+    private renderGroups(groups: GroupDtoFull[] | null) {
+        if (groups === null) {
+            return null;
+        } else {
+            const searchQuery = this.state.searchQuery;
+            const groupsRender = [];
+            for (const group of groups) {
+                if (group.name.toLowerCase().includes(searchQuery)) {
+                    groupsRender.push(<GroupListItem key={group.id} group={group}/>);
+                } else {
+                    for (const participant of group.participants) {
+                        if (participant.person.fullName.toLowerCase().includes(searchQuery)
+                            || participant.person.loginId.toLowerCase().includes(searchQuery)) {
+                            groupsRender.push(<GroupListItem key={group.id} group={group}/>);
+                            break;
+                        }
+                    }
+                }
+            }
+            return (
+                <Row>
+                    {groupsRender}
+                </Row>
+            );
+        }
     }
 }
 
@@ -93,7 +133,7 @@ export default withRouter(connect((state: ApplicationState) => ({
     course: getCourseDtoFull(state),
     groups: getGroups(state),
 }), {
-        fetchGroups: groupsFetchRequestedAction,
-        refreshSet: canvasRefreshSetRequestedAction,
-        fetchCourse: (id: number) => courseRequestedAction(id),
-    })(GroupManager));
+    fetchGroups: groupsFetchRequestedAction,
+    refreshSet: canvasRefreshSetRequestedAction,
+    fetchCourse: (id: number) => courseRequestedAction(id),
+})(GroupManager));
