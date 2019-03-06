@@ -7,7 +7,7 @@ import { Container, Row, Spinner, Col, Button } from "reactstrap";
 import { getGroupSets } from "../../../../../state/groups/selectors";
 import { groupSetsFetchRequestedAction } from "../../../../../state/groups/actions";
 
-import { GroupSetDtoSummary, CourseDtoSummary } from "../../../../../state/types";
+import { GroupSetDtoSummary, CourseDtoFull } from "../../../../../state/types";
 import { ApplicationState } from "../../../../../state/state";
 import CanvasCard from "../../../../CanvasCard";
 import { faUsers, faSync } from "@fortawesome/free-solid-svg-icons";
@@ -17,10 +17,10 @@ import {
     CanvasRefreshSetsListRequestedAction,
 } from "../../../../../state/canvas-settings/actions";
 import { courseRequestedAction } from "../../../../../state/course-selection/action";
-import { getCourse } from "../../../../../state/course-selection/selectors";
+import { getCourseDtoFull } from "../../../../../state/course-selection/selectors";
 
 interface GroupSetManagerProps {
-    course: (id: number) => CourseDtoSummary | undefined;
+    course: CourseDtoFull | undefined;
     groupSets: GroupSetDtoSummary[] | null;
 
     fetchGroupSets: (courseId: number) => {
@@ -45,7 +45,8 @@ class GroupSetManager extends Component<GroupSetManagerProps & RouteComponentPro
     }
 
     render() {
-        const { groupSets } = this.props;
+        const { groupSets, course } = this.props;
+
         return (
             <Container fluid={true}>
                 <Row className="main-body-breadcrumbs px-2 pt-3">
@@ -61,7 +62,7 @@ class GroupSetManager extends Component<GroupSetManagerProps & RouteComponentPro
                 <Row className="main-body-display px-2 flex-row">
                     <Col md="12" xs="12">
                         {
-                            this.props.course(this.props.match.params.cid) !== undefined ?
+                            course !== undefined && course!.externalId !== null ?
                                 <Button block color="primary" size="lg" className="mb-3 w-25"
                                     onClick={() =>
                                         this.props.refreshSetsList(this.props.match.params.cid)}>
@@ -86,7 +87,7 @@ class GroupSetManager extends Component<GroupSetManagerProps & RouteComponentPro
 }
 
 export default withRouter(connect((state: ApplicationState) => ({
-    course: (id: number) => getCourse(state, id),
+    course: getCourseDtoFull(state),
     groupSets: getGroupSets(state),
 }), {
         fetchGroupSets: groupSetsFetchRequestedAction,

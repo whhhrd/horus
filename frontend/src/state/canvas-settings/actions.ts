@@ -9,6 +9,7 @@ import {
     CANVAS_REFRESH_SETS_LIST_REQUESTED_ACTION,
     CANVAS_REFRESH_SETS_LIST_REQUEST_SUCCEEDED_ACTION,
     CANVAS_REFRESH_SET_REQUEST_SUCCEEDED_ACTION,
+    CANVAS_REFRESH_SET_REQUESTED_ACTION,
 } from "./constants";
 
 import { CanvasCourseDto, GroupSetDtoSummary, GroupDtoFull } from "../types";
@@ -78,7 +79,7 @@ export interface CanvasRefreshSetRequestSucceededAction extends Action<string> {
 }
 
 export const canvasRefreshSetRequestedAction = (courseId: number, groupSetId: number) =>
-    ({ type: CANVAS_REFRESH_SETS_LIST_REQUESTED_ACTION, courseId, groupSetId });
+    ({ type: CANVAS_REFRESH_SET_REQUESTED_ACTION, courseId, groupSetId });
 
 export const canvasRefreshSetRequestSucceededAction = (groups: GroupDtoFull[]) =>
     ({ type: CANVAS_REFRESH_SET_REQUEST_SUCCEEDED_ACTION, groups });

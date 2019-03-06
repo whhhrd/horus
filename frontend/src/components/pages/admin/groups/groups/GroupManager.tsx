@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Spinner, Container, Row, Col, Button, Input } from "reactstrap";
 import { RouteComponentProps, withRouter } from "react-router";
-import { GroupDtoFull, CourseDtoSummary } from "../../../../../state/types";
+import { GroupDtoFull, CourseDtoFull } from "../../../../../state/types";
 import { ApplicationState } from "../../../../../state/state";
 import { getGroups } from "../../../../../state/groups/selectors";
 import { groupsFetchRequestedAction, GroupsFetchAction } from "../../../../../state/groups/actions";
@@ -13,14 +13,14 @@ import {
     canvasRefreshSetRequestedAction,
     CanvasRefreshSetRequestedAction,
 } from "../../../../../state/canvas-settings/actions";
-import { getCourse } from "../../../../../state/course-selection/selectors";
+import { getCourseDtoFull } from "../../../../../state/course-selection/selectors";
 import { courseRequestedAction } from "../../../../../state/course-selection/action";
 
 interface GroupManagerProps {
     groups: GroupDtoFull[] | null;
     fetchGroups: (groupSetId: number) => GroupsFetchAction;
 
-    course: (id: number) => CourseDtoSummary | undefined;
+    course: CourseDtoFull | undefined;
     fetchCourse: (id: number) => {
         type: string,
     };
@@ -38,7 +38,7 @@ class GroupManager extends Component<GroupManagerProps & RouteComponentProps<any
     }
 
     render() {
-        const { groups } = this.props;
+        const { groups, course } = this.props;
 
         return (
             <Container fluid={true}>
@@ -55,7 +55,7 @@ class GroupManager extends Component<GroupManagerProps & RouteComponentProps<any
                 <Row className="main-body-display px-2 flex-row justify-content-center">
                     <Col className="col-md-6 col-xs-12">
                         {
-                            this.props.course(this.props.match.params.cid) !== undefined ?
+                            course !== undefined && course!.externalId !== null ?
                                 <div>
                                     <Button
                                         block color="primary"
@@ -90,7 +90,7 @@ class GroupManager extends Component<GroupManagerProps & RouteComponentProps<any
 }
 
 export default withRouter(connect((state: ApplicationState) => ({
-    course: (id: number) => getCourse(state, id),
+    course: getCourseDtoFull(state),
     groups: getGroups(state),
 }), {
         fetchGroups: groupsFetchRequestedAction,

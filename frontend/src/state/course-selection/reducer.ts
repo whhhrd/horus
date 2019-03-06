@@ -3,6 +3,7 @@ import { CoursesRequestSucceededAction } from "./action";
 import {
     COURSES_REQUEST_SUCCEEDED_ACTION,
     COURSE_REQUEST_SUCCEEDED_ACTION,
+    COURSE_REQUESTED_ACTION,
 } from "./constants";
 import { CourseDtoSummary } from "../types";
 
@@ -14,6 +15,11 @@ export default function coursesReducer(state: CoursesState, action: CoursesReque
         return initialState;
     }
     switch (action.type) {
+        case COURSE_REQUESTED_ACTION:
+            return {
+                ...state,
+                courseDtoFull: undefined,
+            };
         case COURSES_REQUEST_SUCCEEDED_ACTION:
             return {
                 ...state,
