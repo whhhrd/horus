@@ -29,4 +29,9 @@ class CommentController {
     fun updateComment(@PathVariable commentId: Long, @RequestBody dto: CommentUpdateDto): CommentDto {
         return CommentDto(commentService.updateComment(commentId, dto))
     }
+
+    @DeleteMapping(path = ["/{commentId}"])
+    fun deleteComment(@PathVariable commentId: Long) {
+        commentService.deleteComment(commentService.getCommentById(commentId))
+    }
 }

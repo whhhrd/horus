@@ -30,4 +30,9 @@ class CommentThreadController {
         return CommentThreadDtoFull(commentService.createThread(dto, author))
     }
 
+    @DeleteMapping(path = ["/{threadId}"])
+    fun deleteThread(@PathVariable threadId: Long) {
+        commentService.deleteCommentsThread(commentService.getThreadById(threadId))
+    }
+
 }

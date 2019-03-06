@@ -75,6 +75,16 @@ class CommentService {
         commentThreadRepository.delete(thread)
     }
 
+    fun deleteComment(comment: Comment) {
+        if (comment.thread.comments.size <= 1) {
+            deleteCommentsThread(comment.thread)
+        } else {
+            comment.thread.comments.remove(comment)
+            commentRepository.delete(comment)
+        }
+
+    }
+
 
 
 }
