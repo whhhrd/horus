@@ -12,6 +12,7 @@ interface AssignmentSetListEntryProps {
     assignmentSet: AssignmentSetDtoBrief;
     groupSets: GroupSetDtoBrief[];
     courseId: number;
+    canEdit: boolean;
 }
 
 interface AssignmentSetListEntryState {
@@ -52,10 +53,12 @@ export default class AssignmentSetListEntry
                     </p>
                 </CardBody>
                 <CardFooter className="aset-card-footer">
-                    <Button outline block color="primary" size="md"
-                        onClick={() => this.toggleEditorModal()}>
-                        <FontAwesomeIcon icon={faEdit} /> Edit
-                    </Button>
+                    { this.props.canEdit &&
+                        <Button outline block color="primary" size="md"
+                            onClick={() => this.toggleEditorModal()}>
+                            <FontAwesomeIcon icon={faEdit} /> Edit
+                        </Button>
+                    }
                     { this.state.editorModalOpen &&
                         <AssignmentSetEditorModal
                             isOpen={this.state.editorModalOpen}

@@ -3,6 +3,8 @@ package nl.utwente.horus.auth.handlers
 import com.fasterxml.jackson.databind.ObjectMapper
 import nl.utwente.horus.auth.tokens.AccessToken
 import nl.utwente.horus.representations.auth.AuthTokenResponse
+import nl.utwente.horus.representations.auth.HorusAuthorityDto
+import nl.utwente.horus.representations.person.PersonDtoFull
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.core.Authentication
@@ -28,7 +30,14 @@ class AccessTokenRequestSuccessHandler: AuthenticationSuccessHandler {
         response!!.status = HttpStatus.OK.value()
         response.contentType = MediaType.APPLICATION_JSON_UTF8_VALUE
 
-        objectMapper.writeValue(response.writer, AuthTokenResponse(accessToken.token, null))
+        objectMapper.writeValue(
+                response.writer,
+                AuthTokenResponse(
+                        accessToken.token,
+                        null,
+                        accessToken.userDetails!!.horusAuthorities.map { HorusAuthorityDto(it) }
+                )
+        )
 
     }
 }

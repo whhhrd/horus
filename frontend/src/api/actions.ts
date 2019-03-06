@@ -21,6 +21,8 @@ import {
     API_AUTH_CODE_LOGIN_AUTHENTICATION_REQUESTED,
 } from "./constants";
 
+import { HorusAuthorityDto } from "../state/types";
+
 export const requestTokenLoad = () => ({ type: API_AUTH_LOAD_TOKEN_REQUESTED });
 export const requestPasswordLogin = (username: string, password: string) => (
     { type: API_AUTH_PASSWORD_LOGIN_AUTHENTICATION_REQUESTED, username, password });
@@ -29,9 +31,9 @@ export const requestAuthCodeLogin = (code: string) => (
 export const eventAuthenticationStarted = (authenticationType: AuthenticationType) => (
     { type: API_AUTH_AUTHENTICATION_STARTED, authenticationType });
 export const eventAuthenticationSucceeded = (
-    authenticationType: AuthenticationType, refreshToken: string, accessToken: string,
+    authenticationType: AuthenticationType, refreshToken: string, accessToken: string, authorities: HorusAuthorityDto[],
     ) => (
-    { type: API_AUTH_AUTHENTICATION_SUCCEEDED, authenticationType, refreshToken, accessToken});
+    { type: API_AUTH_AUTHENTICATION_SUCCEEDED, authenticationType, refreshToken, accessToken, authorities });
 export const eventAuthenticationFailed = (authenticationType: AuthenticationType, error: Error) => (
     { type: API_AUTH_AUTHENTICATION_FAILED, authenticationType, error });
 export const eventAuthenticationCanceled = (authenticationType: AuthenticationType) => (
@@ -39,8 +41,8 @@ export const eventAuthenticationCanceled = (authenticationType: AuthenticationTy
 export const eventAuthenticationCompleted = (authenticationType: AuthenticationType) => (
     { type: API_AUTH_AUTHENTICATION_COMPLETED, authenticationType });
 export const requestAuthenticationRefresh = () => ({ type: API_AUTH_TOKEN_REFRESH_REQUESTED });
-export const eventAuthenticationRefreshSucceeded = (accessToken: string) => (
-    { type: API_AUTH_TOKEN_REFRESH_SUCCEEDED, accessToken });
+export const eventAuthenticationRefreshSucceeded = (accessToken: string, authorities: HorusAuthorityDto[]) => (
+    { type: API_AUTH_TOKEN_REFRESH_SUCCEEDED, accessToken, authorities });
 export const eventAuthenticationRefreshFailed = (error: Error) => (
     { type: API_AUTH_TOKEN_REFRESH_FAILED, error });
 export const eventAuthenticationRefreshCompleted = () => (

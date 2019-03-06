@@ -26,10 +26,15 @@ import { ApplicationState } from "../../../../state/state";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import AssignmentSetCreatorModal from "./AssignmentSetCreatorModal";
+import { getCoursePermissions } from "../../../../state/auth/selectors";
+import CoursePermissions from "../../../../api/permissions";
+import { assignmentSetsAnyEdit, assignmentSetsAnyCreate } from "../../../../state/auth/constants";
 
 interface AssignmentSetManagerProps {
 
     assignmentGroupSetsMappingDtos: AssignmentGroupSetsMappingDto[] | null;
+
+    permissions: CoursePermissions | null;
 
     getAssignmentSets: () => AssignmentSetDtoBrief[] | null;
 
@@ -153,6 +158,12 @@ class AssignmentSetManager extends
         // The JSX.Element[] list to be returned
         const aSetJSXs: JSX.Element[] = [];
 
+        const canEdit = this.props.permissions != null
+            && assignmentSetsAnyEdit.check(this.props.match.params.cid, this.props.permissions);
+
+        const canCreate = this.props.permissions != null
+        && assignmentSetsAnyCreate.check(this.props.match.params.cid, this.props.permissions);
+
         // Put entries in the list only if there are assignmentSetDtoBriefs, otherwise put an alert into the list
         if (aSetDtoBriefs == null) {
             aSetJSXs.push(<div key={-1} />);
@@ -169,20 +180,23 @@ class AssignmentSetManager extends
                         key={aSetDtoBrief.id}
                         courseId={this.props.match.params.cid}
                         assignmentSet={aSetDtoBrief}
+                        canEdit={canEdit}
                         groupSets={groupSets !== undefined ? groupSets : []} />,
                 );
             }
         }
 
-        aSetJSXs.push(
-            <Card key={-2} className="my-3 aset-card-create canvas-card" onClick={() => this.toggleCreatorModal()}>
-                <CardBody className="brounded d-flex vertical-center" style={{ color: "#007bff" }}>
-                    <div className="mx-auto my-auto text-center">
-                        <FontAwesomeIcon icon={faPlus} size="4x" />
-                        <br /><big className="mt-4 d-block">Create assignment set</big>
-                    </div>
-                </CardBody>
-            </Card>);
+        if (canCreate) {
+            aSetJSXs.push(
+                <Card key={-2} className="my-3 aset-card-create canvas-card" onClick={() => this.toggleCreatorModal()}>
+                    <CardBody className="brounded d-flex vertical-center" style={{ color: "#007bff" }}>
+                        <div className="mx-auto my-auto text-center">
+                            <FontAwesomeIcon icon={faPlus} size="4x" />
+                            <br /><big className="mt-4 d-block">Create assignment set</big>
+                        </div>
+                    </CardBody>
+                </Card>);
+        }
 
         return aSetJSXs;
     }
@@ -191,6 +205,7 @@ class AssignmentSetManager extends
 export default withRouter(connect((state: ApplicationState) => ({
     assignmentGroupSetsMappingDtos: getAssignmentGroupSetsMappingDtos(state),
     getAssignmentSets: () => getAssignmentSets(state),
+    permissions: getCoursePermissions(state),
 }), {
         fetchAssignmentGroupSetsMappingDtos: assignmentGroupSetsMappingsFetchRequestedAction,
         fetchAssignmentSets: assignmentSetsFetchRequestedAction,

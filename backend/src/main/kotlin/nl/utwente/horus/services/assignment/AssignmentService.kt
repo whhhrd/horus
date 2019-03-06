@@ -54,6 +54,10 @@ class AssignmentService {
         return assignmentSetRepository.findByIdOrNull(id) ?: throw AssignmentSetNotFoundException()
     }
 
+    fun getAssignmentSetsByParticipant(participant: Participant): List<AssignmentSet> {
+        return assignmentSetRepository.getAssignmentSetsMappedToParticipant(participant);
+    }
+
     fun getAssignmentById(id: Long): Assignment {
         return assignmentRepository.findByIdOrNull(id) ?: throw AssignmentNotFoundException()
     }
@@ -135,6 +139,10 @@ class AssignmentService {
         return assignmentSet
     }
 
+    fun isPersonMappedToAssignmentSet(person: Person, assignmentSet: AssignmentSet): Boolean {
+        return assignmentSetRepository.isAssignmentSetMappedToPerson(assignmentSet, person)
+    }
+
     fun addThreadToAssignment(assignment: Assignment, thread: CommentThread) {
         if (assignment.commentThread == null) {
             assignment.commentThread = thread
@@ -173,7 +181,5 @@ class AssignmentService {
 
         assignmentRepository.delete(assignment)
     }
-
-
 
 }

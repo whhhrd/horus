@@ -132,6 +132,7 @@ function* authenticationFlowLoop() {
                 authenticationType,
                 authenticationSuccess.refreshToken,
                 authenticationSuccess.accessToken,
+                authenticationSuccess.authorities,
             ));
         } else if (authenticationFailure != null) {
             authenticationState = buildAuthenticationState(false, undefined, undefined);
@@ -178,19 +179,19 @@ function* authenticationFlowLoop() {
                     accessToken: authRefreshSuccess.accessToken,
                 };
 
-                // TODO: SOMETHING HERE TO UPDATE USER PERMISSIONS (after re-receiving)
-
                 yield put(eventAuthenticationRefreshCompleted());
             } else if (authRefreshFailure != null) {
                 yield put(requestForcedLogout(authRefreshFailure.error));
 
-                yield call(logout, authenticationState.refreshToken!);
+                try {
+                    yield call(logout, authenticationState.refreshToken!);
+                } finally {
+                    authenticationState = buildAuthenticationState(false, undefined, undefined);
 
-                authenticationState = buildAuthenticationState(false, undefined, undefined);
+                    yield put(eventAuthenticationRefreshCompleted());
 
-                yield put(eventAuthenticationRefreshCompleted());
-
-                yield put(eventLogoutCompleted());
+                    yield put(eventLogoutCompleted());
+                }
             } else {
                 yield call(logout, authenticationState.refreshToken!);
 
@@ -218,9 +219,9 @@ function* fetchAccessToken(refreshToken: string) {
  */
 function* updateAccessToken(refreshToken: string) {
     try {
-        const { accessToken } = yield* fetchAccessToken(refreshToken);
+        const { accessToken, authorities } = yield* fetchAccessToken(refreshToken);
 
-        yield put(eventAuthenticationRefreshSucceeded(accessToken));
+        yield put(eventAuthenticationRefreshSucceeded(accessToken, authorities));
     } catch (error) {
         yield put(eventAuthenticationRefreshFailed(error));
     }
@@ -232,9 +233,9 @@ function* updateAccessToken(refreshToken: string) {
  */
 function* loadToken(refreshToken: string) {
     try {
-        const { accessToken } = yield* fetchAccessToken(refreshToken);
+        const { accessToken, authorities } = yield* fetchAccessToken(refreshToken);
 
-        yield put(eventAuthenticationSucceeded(AuthenticationType.SAVED_TOKEN, refreshToken, accessToken));
+        yield put(eventAuthenticationSucceeded(AuthenticationType.SAVED_TOKEN, refreshToken, accessToken, authorities));
     } catch (error) {
         yield put(eventAuthenticationFailed(AuthenticationType.SAVED_TOKEN, error));
     }
@@ -247,7 +248,7 @@ function* loadToken(refreshToken: string) {
  */
 function* passwordLogin(username: string, password: string) {
     try {
-        const { accessToken, refreshToken } = yield call(
+        const { accessToken, refreshToken, authorities } = yield call(
             asyncCallBackendFetch,
             fetchJSON,
             "POST",
@@ -255,7 +256,9 @@ function* passwordLogin(username: string, password: string) {
             null,
             { username, password },
         );
-        yield put(eventAuthenticationSucceeded(AuthenticationType.PASSWORD_LOGIN, refreshToken, accessToken));
+        yield put(eventAuthenticationSucceeded(
+            AuthenticationType.PASSWORD_LOGIN, refreshToken, accessToken, authorities,
+        ));
     } catch (error) {
         yield put(eventAuthenticationFailed(AuthenticationType.PASSWORD_LOGIN, error));
     }
@@ -267,7 +270,7 @@ function* passwordLogin(username: string, password: string) {
  */
 function* codeLogin(code: string) {
     try {
-        const { accessToken, refreshToken } = yield call(
+        const { accessToken, refreshToken, authorities } = yield call(
             asyncCallBackendFetch,
             fetchJSON,
             "POST",
@@ -276,7 +279,7 @@ function* codeLogin(code: string) {
             {},
             code,
         );
-        yield put(eventAuthenticationSucceeded(AuthenticationType.AUTH_CODE, refreshToken, accessToken));
+        yield put(eventAuthenticationSucceeded(AuthenticationType.AUTH_CODE, refreshToken, accessToken, authorities));
     } catch (error) {
         yield put(eventAuthenticationFailed(AuthenticationType.AUTH_CODE, error));
     }

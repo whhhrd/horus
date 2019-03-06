@@ -1,8 +1,16 @@
 package nl.utwente.horus.controllers.course
 
+import nl.utwente.horus.entities.assignment.AssignmentSet
 import nl.utwente.horus.entities.person.Person
-import nl.utwente.horus.exceptions.EmptySearchQueryException
 import nl.utwente.horus.exceptions.WrongCourseException
+import nl.utwente.horus.representations.assignment.AssignmentGroupSetsMappingDto
+import nl.utwente.horus.representations.assignment.AssignmentSetCreateDto
+import nl.utwente.horus.representations.assignment.AssignmentSetDtoBrief
+import nl.utwente.horus.representations.assignment.AssignmentSetDtoFull
+import nl.utwente.horus.auth.permissions.HorusPermission
+import nl.utwente.horus.auth.permissions.HorusResource
+import nl.utwente.horus.exceptions.EmptySearchQueryException
+import nl.utwente.horus.exceptions.InsufficientPermissionsException
 import nl.utwente.horus.representations.assignment.*
 import nl.utwente.horus.representations.auth.RoleDtoBrief
 import nl.utwente.horus.representations.course.CourseCreateDto
@@ -65,13 +73,26 @@ class CourseController {
 
     @GetMapping(path = ["/{courseId}/assignmentSets"])
     fun listAssignmentSetsOfCourse(@PathVariable courseId: Long) : List<AssignmentSetDtoBrief> {
-        return courseService.getAssignmentSetsOfCourse(courseId).map { AssignmentSetDtoBrief(it) }
+        val assignmentSets: List<AssignmentSet>
+        when {
+            userDetailService.hasCoursePermission(courseId, HorusPermission.anyList(HorusResource.COURSE_ASSIGNMENTSET)) -> {
+                assignmentSets = courseService.getAssignmentSetsOfCourse(courseId)
+            }
+            userDetailService.hasCoursePermission(courseId, HorusPermission.ownList(HorusResource.COURSE_ASSIGNMENTSET)) -> {
+                assignmentSets = courseService.getAssignmentSetsOfCourseByPerson(courseId, userDetailService.getCurrentPerson())
+            }
+            else -> throw InsufficientPermissionsException()
+        }
+        return assignmentSets.map { AssignmentSetDtoBrief(it) }
     }
 
     @PostMapping(path = ["/{courseId}/assignmentSets"])
     fun createAssignmentSetsInCourse(@PathVariable courseId: Long, @RequestBody dto: AssignmentSetCreateDto) : AssignmentSetDtoFull {
         val creator = userDetailService.getCurrentPerson()
-        // TODO: check permissions
+        if (!userDetailService.hasCoursePermission(courseId,
+                        HorusPermission.anyCreate(HorusResource.COURSE_ASSIGNMENTSET))) {
+            throw InsufficientPermissionsException()
+        }
         return AssignmentSetDtoFull(courseService.createAssignmentSetInCourse(creator, courseId, dto))
     }
 

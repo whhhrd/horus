@@ -232,7 +232,25 @@ export interface ParticipantUpdateDto {
     roleId: number;
 }
 
+export type HorusResource = "PERSON" | "COURSE" | "COURSE_PARTICIPANT" | "COURSE_GROUPSET" | "COURSE_GROUP" | "COURSE_GROUPMEMBER" | "COURSE_ASSIGNMENTSET" | "COURSE_COMMENT_STAFFONLY" | "COURSE_COMMENT_PUBLIC" | "COURSE_SIGNOFFRESULT";
+
+export type HorusResourceScope = "OWN" | "ANY";
+
+export type HorusPermissionType = "LIST" | "VIEW" | "CREATE" | "EDIT" | "DELETE";
+
+export interface HorusPermissionDto {
+    resource: HorusResource;
+    scope: HorusResourceScope;
+    type: HorusPermissionType;
+}
+
+export interface HorusAuthorityDto {
+    courseIds: number[] | null;
+    permission: HorusPermissionDto;
+}
+
 export interface PersonDtoFull extends PersonDtoBrief {
+    authorities: HorusAuthorityDto[];
     participations: ParticipantDto[];
 }
 

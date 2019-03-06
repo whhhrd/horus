@@ -9,11 +9,15 @@ import { ApplicationState } from "../../../state/state";
 import { ActiveTabEnum } from "../../../state/navigationBar/types";
 import { getActiveTab, getMatch } from "../../../state/navigationBar/selectors";
 import { NavigationBarItem } from "./NavigationBarItem";
+import { getCoursePermissions } from "../../../state/auth/selectors";
+import { courseAdmin } from "../../../state/auth/constants";
+import CoursePermissions from "../../../api/permissions";
 
 interface NavigationBarProps {
     // userPermissions: boolean | null; // TODO
     activeTab: ActiveTabEnum | null;
     computedMatch: match<any> | null;
+    coursePermissions: CoursePermissions | null;
 }
 
 export class NavigationBar extends Component<NavigationBarProps> {
@@ -25,13 +29,16 @@ export class NavigationBar extends Component<NavigationBarProps> {
             return null;
         }
 
-        const inCourse: boolean = computedMatch.params.cid != null;
+        const courseId = Number(computedMatch.params.cid);
+        const inCourse: boolean = courseId != null;
+        const permissions = this.props.coursePermissions!;
+
+        const hasAdmin = courseAdmin.check(courseId, permissions);
 
         return (
             <div className="NavigationBar border-right">
                 <div className="d-flex align-items-start flex-column h-100">
                     <div>
-
                         <Link className="NavigationBarLogo py-3"
                             to={inCourse ? `/courses/${computedMatch.params.cid}` : "/courses"}>
                             <img src={logoWhite} />
@@ -53,7 +60,7 @@ export class NavigationBar extends Component<NavigationBarProps> {
                                         url={`/courses/${computedMatch.params.cid}/signoffs`} />
                                     : undefined
                             }
-                            {
+                            { (!inCourse || hasAdmin) &&
                                 <NavigationBarItem title="Admin" icon={faTools}
                                     active={activeTab === ActiveTabEnum.ADMINISTRATION}
                                     url={inCourse ?
@@ -81,6 +88,6 @@ export class NavigationBar extends Component<NavigationBarProps> {
 export default connect((state: ApplicationState) => ({
     activeTab: getActiveTab(state),
     computedMatch: getMatch(state),
-    // userPermissions: getUserPermission(state),
+    coursePermissions: getCoursePermissions(state),
 }), {
     })(NavigationBar);

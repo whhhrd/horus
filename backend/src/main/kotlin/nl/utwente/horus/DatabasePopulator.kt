@@ -50,6 +50,7 @@ class DatabasePopulator {
                         query.executeUpdate()
                     }
                 } catch (e: Exception) {
+                    transaction.rollback()
                     throw RuntimeException("Error occurred executing $script", e)
                 }
             }

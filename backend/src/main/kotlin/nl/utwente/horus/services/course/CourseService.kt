@@ -71,6 +71,11 @@ class CourseService {
         return getCourseById(courseId).assignmentSets.toList()
     }
 
+    fun getAssignmentSetsOfCourseByPerson(courseId: Long, person: Person): List<AssignmentSet> {
+        val participant = participantService.getParticipationInCourse(person, courseId)
+        return assignmentService.getAssignmentSetsByParticipant(participant)
+    }
+
     fun getGroupSetsOfCourse(courseId: Long) : List<GroupSet> {
         return getCourseById(courseId).groupSets.toList()
     }

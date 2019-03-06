@@ -61,7 +61,7 @@ class JWTAuthenticationProvider: AuthenticationProvider {
         when(type) {
             TokenType.ACCESS_TOKEN -> {
                 token = AccessToken(
-                        person.getAuthorities(),
+                        HashSet(person.getAuthorities()),
                         authentication.token,
                         body.id,
                         body.issuer,

@@ -10,3 +10,5 @@ class SyncUnauthorizedException : ForbiddenException("Canvas sync not authorized
 class NoParticipantException : ForbiddenException("You are not a participant in this course.")
 
 class CommentThreadStaffOnly : ForbiddenException("Not authorized to view thread.")
+
+class InsufficientPermissionsException : ForbiddenException("Insufficient permisions to perform requested operation.")

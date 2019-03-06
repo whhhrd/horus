@@ -1,8 +1,10 @@
 package nl.utwente.horus
 
 import me.ntrrgc.tsGenerator.TypeScriptGenerator
+import nl.utwente.horus.auth.permissions.HorusResource
 import nl.utwente.horus.representations.BooleanResultDto
 import nl.utwente.horus.representations.assignment.*
+import nl.utwente.horus.representations.auth.HorusAuthorityDto
 import nl.utwente.horus.representations.auth.RoleDtoBrief
 import nl.utwente.horus.representations.canvas.CanvasCourseDto
 import nl.utwente.horus.representations.canvas.CanvasTokenDto
@@ -63,6 +65,8 @@ fun generate() {
 
                     SignOffResultPatchDto::class,
 
+                    HorusAuthorityDto::class,
+                    HorusResource::class,
                     ErrorDto::class
             ),
             mappings = mapOf(
