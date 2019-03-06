@@ -1,7 +1,7 @@
 package nl.utwente.horus.services.course
 
 import nl.utwente.horus.entities.assignment.AssignmentSet
-import nl.utwente.horus.entities.assignment.AssignmentSignOffResult
+import nl.utwente.horus.entities.assignment.SignOffResult
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.course.CourseRepository
 import nl.utwente.horus.entities.group.GroupSet
@@ -117,7 +117,7 @@ class CourseService {
         return groupService.getGroupSignOffSearchResults(courseId, query)
     }
 
-    fun getSignOffResultsFilteredInCourse(courseId: Long, groupId: Long, assignmentSetId: Long): List<AssignmentSignOffResult> {
+    fun getSignOffResultsFilteredInCourse(courseId: Long, groupId: Long, assignmentSetId: Long): List<SignOffResult> {
         val group = groupService.getGroupById(groupId)
         val assignmentSet = assignmentService.getAssignmentSetById(assignmentSetId)
         if (group.groupSet.course.id != courseId) {

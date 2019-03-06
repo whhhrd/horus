@@ -79,13 +79,13 @@ export interface AssignmentDtoSummary extends AssignmentDtoBrief {
     createdBy: ParticipantDto;
 }
 
-type SignOffResult = "COMPLETE" | "INCOMPLETE";
+type SignOffResultType = "COMPLETE" | "INSUFFICIENT";
 
 export interface SignOffResultDtoSummary {
     assignment: AssignmentDtoBrief;
     commentThread: CommentThreadDtoBrief | null;
     participant: ParticipantDto;
-    result: SignOffResult;
+    result: SignOffResultType;
     signedAt: Date;
     signer: ParticipantDto;
 }
@@ -109,7 +109,7 @@ export interface SignOffResultDtoCompact {
     assignmentId: number;
     commentThreadId: number | null;
     participantId: number;
-    result: SignOffResult;
+    result: SignOffResultType;
 }
 
 export interface BooleanResultDto {
@@ -233,6 +233,23 @@ export interface ParticipantUpdateDto {
 
 export interface PersonDtoFull extends PersonDtoBrief {
     participations: ParticipantDto[];
+}
+
+export interface SignOffResultCreateDto {
+    assignmentId: number;
+    comment: string | null;
+    participantId: number;
+    result: SignOffResultType;
+}
+
+export interface SignOffResultArchiveDto {
+    comment: string | null;
+    id: number;
+}
+
+export interface SignOffResultPatchDto {
+    create: SignOffResultCreateDto[];
+    delete: SignOffResultArchiveDto[];
 }
 
 export interface ErrorDto {

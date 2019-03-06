@@ -153,20 +153,41 @@ CREATE TABLE assignment (
 CREATE INDEX assignment_assignment_set_idx ON assignment(assignment_set_id);
 CREATE INDEX assignment_created_by_idx ON assignment(created_by);
 
-CREATE TABLE assignment_sign_off_result (
+CREATE TABLE sign_off_result (
+  id BIGSERIAL NOT NULL PRIMARY KEY,
   participant_id BIGINT NOT NULL REFERENCES participant(id),
   assignment_id BIGINT NOT NULL REFERENCES assignment(id),
   comment_thread_id BIGINT NULL REFERENCES comment_thread(id) ON DELETE SET NULL,
   result VARCHAR NOT NULL,
-  signer_id BIGINT NOT NULL REFERENCES participant(id),
+  signed_by BIGINT NOT NULL REFERENCES participant(id),
   signed_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  CONSTRAINT assignment_sign_off_result_unique UNIQUE (participant_id, assignment_id),
-  CHECK ( result IN ('COMPLETE', 'INCOMPLETE') )
+  archived_at TIMESTAMP WITH TIME ZONE NULL,
+  archived_by BIGINT NULL REFERENCES participant(id),
+  CHECK ((archived_at IS NULL AND archived_by IS NULL) OR (archived_at IS NOT NULL AND archived_by IS NOT NULL)),
+  CHECK ( result IN ('COMPLETE', 'INSUFFICIENT') )
 );
 
-CREATE INDEX assignment_sign_off_result_assignment_idx ON assignment_sign_off_result(assignment_id);
-CREATE INDEX assignment_sign_off_result_participant_idx ON assignment_sign_off_result(participant_id);
-CREATE INDEX assignment_sign_off_result_signer_idx ON assignment_sign_off_result(signer_id);
+CREATE OR REPLACE FUNCTION check_one_active() RETURNS TRIGGER AS  $$
+    BEGIN
+        IF (SELECT COUNT(*) FROM sign_off_result AS r WHERE r.participant_id = NEW.participant_id AND r.assignment_id = NEW.assignment_id AND archived_by IS NULL) > 1 THEN
+            RAISE EXCEPTION 'Multiple unarchived sign-off results.';
+        END IF;
+        RETURN NULL;
+    END;
+  $$ LANGUAGE plpgsql;
+
+CREATE CONSTRAINT TRIGGER sign_off_check
+AFTER INSERT OR UPDATE ON sign_off_result DEFERRABLE INITIALLY DEFERRED
+FOR EACH ROW EXECUTE PROCEDURE check_one_active();
+
+CREATE INDEX sign_off_result_assignment_idx ON sign_off_result(assignment_id);
+CREATE INDEX sign_off_result_participant_idx ON sign_off_result(participant_id);
+CREATE INDEX sign_off_result_signed_by_idx ON sign_off_result(signed_by);
+CREATE INDEX sign_off_result_archived_by_idx ON sign_off_result(archived_by);
+CREATE INDEX sign_off_result_archived_at_idx ON sign_off_result(archived_at);
+
+
+
 
 ---- Canvas-related tables -----
 CREATE TABLE canvas_token(

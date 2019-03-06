@@ -2,8 +2,8 @@ package nl.utwente.horus.services.signoff
 
 import nl.utwente.horus.entities.assignment.Assignment
 import nl.utwente.horus.entities.assignment.AssignmentSet
-import nl.utwente.horus.entities.assignment.AssignmentSignOffResult
 import nl.utwente.horus.entities.assignment.AssignmentSignOffResultRepository
+import nl.utwente.horus.entities.assignment.SignOffResult
 import nl.utwente.horus.entities.group.Group
 import nl.utwente.horus.services.comment.CommentService
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,7 +18,7 @@ class SignOffService {
     @Autowired
     lateinit var assignmentSignOffResultRepository: AssignmentSignOffResultRepository
 
-    fun getSignOffResults(group: Group, assignmentSet: AssignmentSet): List<AssignmentSignOffResult> {
+    fun getSignOffResults(group: Group, assignmentSet: AssignmentSet): List<SignOffResult> {
         return assignmentSignOffResultRepository.getAllByGroupAndAssignmentSet(group.id, assignmentSet.id)
     }
 
@@ -27,11 +27,11 @@ class SignOffService {
         return assignmentSignOffResultRepository.existsByAssignment(ids)
     }
 
-    fun getAssignmentSignOffResults(assignment: Assignment): List<AssignmentSignOffResult> {
+    fun getAssignmentSignOffResults(assignment: Assignment): List<SignOffResult> {
         return assignmentSignOffResultRepository.getAssignmentSignOffResultByAssignment(assignment)
     }
 
-    fun deleteSignOffResult(result: AssignmentSignOffResult) {
+    fun deleteSignOffResult(result: SignOffResult) {
         // Delete associations
         if (result.commentThread != null) {
             commentService.deleteCommentsThread(result.commentThread!!)
