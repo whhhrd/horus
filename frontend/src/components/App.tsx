@@ -35,12 +35,14 @@ import {
     PATH_GROUP_SET_GROUPS_MANAGER,
     PATH_CANVAS_TOKEN,
     PATH_CANVAS_IMPORT,
+    PATH_SIGNOFF_TABLE,
     PATH_SIGNOFF,
     PATH_SIGNOFF_INITIAL,
 } from "../routes";
+import SignoffTable from "./pages/sign-off/SignoffTable";
 import GroupManager from "./pages/admin/groups/groups/GroupManager";
 import AssignmentSetManager from "./pages/admin/assignmentSetManager/AssignmentSetManager";
-import SignoffSearch from "./pages/signoff/SignOffSearch";
+import SignoffSearch from "./pages/sign-off/SignOffSearch";
 
 export interface AppProps {
     loadAuthentication: () => {
@@ -124,7 +126,11 @@ class App extends React.Component<AppProps & RouteComponentProps, AppState> {
 
                             <RouteExtension exact path={PATH_SIGNOFF_INITIAL} component={SignoffSearch}
                                             setActiveTab={ActiveTabEnum.SIGNOFF}/>
+
                             <RouteExtension exact path={PATH_SIGNOFF} component={SignoffSearch}
+                                setActiveTab={ActiveTabEnum.SIGNOFF} />
+
+                            <RouteExtension exact path={PATH_SIGNOFF_TABLE} component={SignoffTable}
                                 setActiveTab={ActiveTabEnum.SIGNOFF} />
                         </Switch>
                     </div>

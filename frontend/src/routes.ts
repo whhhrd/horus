@@ -13,3 +13,4 @@ export const PATH_CANVAS_TOKEN             = "/canvas/token";
 export const PATH_CANVAS_IMPORT            = "/canvas/import";
 export const PATH_GROUP_SET_MANAGER        = `${PATH_COURSES}/:cid/administration/groupsets`;
 export const PATH_GROUP_SET_GROUPS_MANAGER = `${PATH_COURSES}/:cid/administration/groupsets/:gsid`;
+export const PATH_SIGNOFF_TABLE            = `${PATH_COURSES}/:cid/assignmentsets/:asid/signoff/table`;

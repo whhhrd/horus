@@ -131,6 +131,9 @@ class SignOffSearch extends Component<SignOffSearchProps & RouteComponentProps<a
                     }
                 }}
                 onSuggestionSelected={(_: any, suggestion: any) => {
+                    if (suggestion == null) {
+                        return;
+                    }
                     const groupAssignmentSetCombination: GroupAssignmentSetCombination = suggestion.suggestion;
                     this.pushURL(this.props.match.params.cid,
                         groupAssignmentSetCombination.assignmentSet.id,
@@ -181,7 +184,7 @@ class SignOffSearch extends Component<SignOffSearchProps & RouteComponentProps<a
         if (asid === undefined) {
             newURL = "/signoff";
         } else {
-            newURL = "/courses/" + cid + "/assignmentsets/" + asid + "/signoff";
+            newURL = "/courses/" + cid + "/assignmentsets/" + asid + "/signoff/table";
             if (selectedGroupID !== undefined) {
                 newURL += "?g=" + selectedGroupID;
             }

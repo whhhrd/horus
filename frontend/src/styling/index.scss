@@ -206,6 +206,23 @@ button {
     color: rgba(255,255,255,0.12);
 }
 
+.sign-off-table {
+    table-layout: fixed;
+}
+
+.sign-off-table-heading {
+    background-color: #f7f7f7;
+    font-weight: bold;
+}
+
+.sign-off-table-entry-enabled {
+    width: 100%;
+    height: 100%;
+    overflow: hidden; 
+    float: left; 
+    text-align: center;
+}
+
 .react-autosuggest__container {
     position: relative;
 }

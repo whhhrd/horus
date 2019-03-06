@@ -10,6 +10,7 @@ import notificationsReducer from "./notifications/reducers";
 import canvasReducer from "./canvas-settings/reducer";
 import navigationBarReducer from "./navigationBar/reducer";
 import groupsReducer from "./groups/reducer";
+import signOffReducer from "./sign-off/reducer";
 import commentsReducer from "./comments/reducer";
 import searchReducer from "./search/reducer";
 
@@ -24,5 +25,6 @@ export const rootReducer = (history: History) => combineReducers<ApplicationStat
     navigationBar:  navigationBarReducer,
     notifications: notificationsReducer,
     canvasSettings: canvasReducer,
+    signOffs: signOffReducer,
     search: searchReducer,
 } as any);
