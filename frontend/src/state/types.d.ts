@@ -79,7 +79,7 @@ export interface AssignmentDtoSummary extends AssignmentDtoBrief {
     createdBy: ParticipantDto;
 }
 
-type SignOffResultType = "COMPLETE" | "INSUFFICIENT";
+export type SignOffResultType = "COMPLETE" | "INSUFFICIENT";
 
 export interface SignOffResultDtoSummary {
     assignment: AssignmentDtoBrief;
@@ -108,6 +108,7 @@ export interface AssignmentSetUpdateDto {
 export interface SignOffResultDtoCompact {
     assignmentId: number;
     commentThreadId: number | null;
+    id: number;
     participantId: number;
     result: SignOffResultType;
 }

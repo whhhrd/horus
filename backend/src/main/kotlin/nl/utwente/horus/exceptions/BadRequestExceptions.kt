@@ -24,3 +24,8 @@ class InvalidCanvasTokenException : BadRequestException("Used Canvas token inval
 
 // Comment-related
 class ExistingThreadException : BadRequestException("This entity already has an associated comment thread.")
+
+// Sign-off-related
+class AlreadyArchivedException : BadRequestException("This sign-off result has already been marked as archived.")
+
+class DifferentAssignmentSetException : BadRequestException("This request contains assignments which do not belong to the given set ID.")

@@ -63,6 +63,10 @@ class AssignmentService {
                 .findMappingsInCourse(courseService.getCourseById(courseId))
     }
 
+    fun getAssignmentsByIds(ids: List<Long>): List<Assignment> {
+        return assignmentRepository.findAllByIdIn(ids)
+    }
+
     fun createAssignmentSet(creator: Participant, course: Course, dto: AssignmentSetCreateDto): AssignmentSet {
         if (dto.name.trim().isEmpty()) {
             throw InvalidAssignmentCreateRequestException("Assignment set name too short.")

@@ -37,5 +37,8 @@ data class SignOffResult (
     var archivedAt: ZonedDateTime?
 
 ) {
-    constructor(participant: Participant, assignment: Assignment, result: SignOffResultType, signer: Participant): this(0, participant, assignment, null, result, signer, ZonedDateTime.now(), null, null)
+    constructor(participant: Participant, assignment: Assignment, result: SignOffResultType, signer: Participant, commentThread: CommentThread? = null): this(0, participant, assignment, commentThread, result, signer, ZonedDateTime.now(), null, null)
+
+    val isArchived
+        get() = archivedAt != null
 }

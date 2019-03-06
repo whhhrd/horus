@@ -58,7 +58,7 @@ class CourseController {
 
     @PutMapping(path = ["/{courseId}"])
     fun updateCourse(@PathVariable courseId: Long, @RequestBody dto: CourseUpdateDto): CourseDtoFull {
-        val participant = participantService.getParticipationInCourse(courseId)
+        val participant = participantService.getCurrentParticipationInCourse(courseId)
         // TODO: Check permissions
         return CourseDtoFull(courseService.updateCourse(courseId, dto), RoleDtoBrief(participant.role))
     }
@@ -116,7 +116,7 @@ class CourseController {
 
     @GetMapping(path = ["/{courseId}"])
     fun getFullCourse(@PathVariable courseId: Long): CourseDtoFull {
-        val participation = participantService.getParticipationInCourse(courseId)
+        val participation = participantService.getCurrentParticipationInCourse(courseId)
         return CourseDtoFull(courseService.getCourseById(courseId), RoleDtoBrief(participation.role))
     }
 

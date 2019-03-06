@@ -23,3 +23,5 @@ class ParticipantNotFoundException : EntityNotFoundException("Participant in cou
 class GroupNotFoundException : EntityNotFoundException("Group could not be found.")
 
 class GroupSetNotFoundException : EntityNotFoundException("Group set could not be found.")
+
+class SignOffResultNotFoundException : EntityNotFoundException("Sign off result could not be found.")

@@ -46,16 +46,22 @@ class ParticipantService {
         return participantRepository.findByIdOrNull(id) ?: throw ParticipantNotFoundException()
     }
 
-    fun getParticipationInCourse(courseId: Long) : Participant {
+    fun getCurrentParticipationInCourse(courseId: Long) : Participant {
         val person: Person = userDetailService.getCurrentPerson()
-        return person.participations.firstOrNull { it.course.id == courseId } ?: throw NoParticipantException()
+        return participantRepository.findParticipantByPersonIdAndCourseId(person.id, courseId) ?: throw ParticipantNotFoundException()
     }
 
     fun getParticipationInCourse(person: Person, courseId: Long) : Participant {
         return person.participations.firstOrNull { it.course.id == courseId } ?: throw NoParticipantException()
     }
 
-
+    fun getParticipationsInCourse(personIds: Set<Long>, courseId: Long): List<Participant> {
+        val result = participantRepository.findAllByPersonIdInAndCourseId(personIds, courseId)
+        if (personIds.size != result.size) {
+            throw ParticipantNotFoundException()
+        }
+        return result
+    }
     fun createParticipant(courseId: Long, dto: ParticipantCreateDto): Participant {
         return createParticipant(personService.getPersonById(dto.personId),
                 courseService.getCourseById(courseId), dto.roleId)
