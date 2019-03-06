@@ -28,6 +28,7 @@ data class GroupSet (
 
 ) {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "groupSet", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OrderBy("id ASC")
     val groups: MutableSet<Group> = HashSet()
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "id.groupSet", cascade = [CascadeType.ALL], orphanRemoval = true)

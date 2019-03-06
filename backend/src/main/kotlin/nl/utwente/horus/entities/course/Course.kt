@@ -1,8 +1,8 @@
 package nl.utwente.horus.entities.course
 
-import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.assignment.AssignmentSet
 import nl.utwente.horus.entities.group.GroupSet
+import nl.utwente.horus.entities.participant.Participant
 import java.time.ZonedDateTime
 import javax.persistence.*
 
@@ -27,9 +27,11 @@ data class Course (
     val participants: MutableSet<Participant> = HashSet()
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "course", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OrderBy("id ASC")
     val assignmentSets: MutableSet<AssignmentSet> = HashSet()
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "course", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OrderBy("id ASC")
     val groupSets: MutableSet<GroupSet> = HashSet()
 
     val archived
