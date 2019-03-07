@@ -30,7 +30,7 @@ export class NavigationBar extends Component<NavigationBarProps> {
         }
 
         const courseId = Number(computedMatch.params.cid);
-        const inCourse: boolean = courseId != null;
+        const inCourse: boolean = courseId != null && !isNaN(courseId) && courseId > 0;
         const permissions = this.props.coursePermissions!;
 
         const hasAdmin = courseAdmin.check(courseId, permissions);
