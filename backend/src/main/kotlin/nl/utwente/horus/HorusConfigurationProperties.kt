@@ -32,6 +32,9 @@ class HorusConfigurationProperties {
     // URL for redirect with an authentication code
     lateinit var authCodeRedirectURL: String
 
+    // Enable SAML login by initializing the client or not
+    var enableSamlAuth: Boolean = true
+
     // SAML SP Entity ID
     lateinit var samlServiceProviderEntityId: String
 

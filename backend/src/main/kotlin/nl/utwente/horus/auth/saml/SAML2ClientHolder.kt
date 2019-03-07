@@ -25,6 +25,8 @@ class SAML2ClientHolder: InitializingBean {
         configuration.serviceProviderEntityId = configurationProperties.samlServiceProviderEntityId
         saml2Client = SAML2Client(configuration)
         saml2Client!!.callbackUrl = configurationProperties.applicationBaseURL+HorusWebSecurityConfiguration.AUTH_LOGIN_SAML_RESPONSE_PATTERN
-        saml2Client!!.init()
+        if (configurationProperties.enableSamlAuth) {
+            saml2Client!!.init()
+        }
     }
 }
