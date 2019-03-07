@@ -13,7 +13,6 @@ import { isLoggedIn } from "../state/auth/selectors";
 
 import Login from "./pages/login/Login";
 import CourseSelection from "./pages/course-selection/CourseSelection";
-import NavigationBar from "./pages/navigationBar/NavigationBar";
 import CourseDashboard from "./pages/course-dashboard/CourseDashboard";
 import CourseAdministration from "./pages/admin/CourseAdministration";
 import GroupSetManager from "./pages/admin/groups/groupSets/GroupSetManager";
@@ -43,6 +42,7 @@ import SignoffTable from "./pages/sign-off/SignoffTable";
 import GroupManager from "./pages/admin/groups/groups/GroupManager";
 import AssignmentSetManager from "./pages/admin/assignmentSetManager/AssignmentSetManager";
 import SignoffSearch from "./pages/sign-off/SignOffSearch";
+import NavigationBar from "./navigationBar/NavigationBar";
 
 export interface AppProps {
     loadAuthentication: () => {

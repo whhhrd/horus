@@ -111,7 +111,7 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
         let titleEntityPrefix: string;
         switch (this.props.linkedEntityType) {
             case CommentThreadType.Assignment:
-                borderColor = `thread-border-signoff`;
+                borderColor = `thread-border-assignment`;
                 titleEntityPrefix = "Assignment: ";
                 break;
             case CommentThreadType.Participant:
