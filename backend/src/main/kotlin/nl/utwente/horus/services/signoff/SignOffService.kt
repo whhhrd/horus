@@ -51,8 +51,13 @@ class SignOffService {
         return signOffResultRepository.getAllByGroupAndAssignmentSet(group.id, assignmentSet.id)
     }
 
-    fun doAssignmentsHaveSignOffResults(ids: List<Long>): Boolean {
-        return signOffResultRepository.existsByAssignment(ids)
+    fun getSignOffResultCounts(ids: List<Long>): Map<Assignment, Long> {
+        val result = HashMap<Assignment, Long>()
+        ids.forEach {id ->
+            val assignment = assignmentService.getAssignmentById(id)
+            result[assignment] = signOffResultRepository.countAllByAssignment(assignment)
+        }
+        return result
     }
 
     fun getAssignmentSignOffResults(assignment: Assignment): List<SignOffResult> {

@@ -16,9 +16,7 @@ interface SignOffResultRepository: JpaRepository<SignOffResult, Long> {
 
     fun getAllByParticipantIdAndAssignmentIdAndArchivedByIsNull(participantId: Long, assignmentId: Long): List<SignOffResult>
 
-
-    @Query("SELECT CASE WHEN COUNT(r) > 0 THEN TRUE ELSE FALSE END FROM SignOffResult r WHERE r.assignment.id IN ?1")
-    fun existsByAssignment(assignmentIds: List<Long>): Boolean
+    fun countAllByAssignment(assignment: Assignment): Long
 
     @Query("SELECT r FROM SignOffResult r WHERE r.assignment = ?1")
     fun getAssignmentSignOffResultByAssignment(assignment: Assignment): List<SignOffResult>

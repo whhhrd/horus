@@ -1,7 +1,6 @@
 package nl.utwente.horus.controllers.assignment
 
 import nl.utwente.horus.exceptions.CommentThreadNotFoundException
-import nl.utwente.horus.representations.BooleanResultDto
 import nl.utwente.horus.representations.comment.CommentThreadCreateDto
 import nl.utwente.horus.representations.comment.CommentThreadDtoFull
 import nl.utwente.horus.services.assignment.AssignmentService
@@ -30,9 +29,9 @@ class AssignmentController {
     lateinit var userDetailService: HorusUserDetailService
 
     @GetMapping(path = ["/deletable"])
-    fun canDeleteAssignments(@RequestParam assignmentIds: List<Long>): BooleanResultDto  {
-        val result = signOffService.doAssignmentsHaveSignOffResults(assignmentIds)
-        return BooleanResultDto(!result)
+    fun canDeleteAssignments(@RequestParam assignmentIds: List<Long>): List<Boolean>  {
+        val result = signOffService.getSignOffResultCounts(assignmentIds).mapKeys { it.key.id }
+        return assignmentIds.map { result[it] == 0L }
     }
 
     @DeleteMapping(path = ["/{assignmentId}"])

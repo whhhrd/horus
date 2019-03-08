@@ -96,8 +96,10 @@ class AssignmentService {
             if (dto.assignments.any { it.name.isBlank() }) {
                 throw InvalidAssignmentUpdateRequestException("Assignment name too short.")
             }
+
             val deletionIdSet: Set<Long> = HashSet(assignmentSet.assignments.map { a -> a.id } - dto.assignments.filter { a -> a.id != null }.map { a -> a.id!! })
             val deletionSet = assignmentSet.assignments.filter { a -> deletionIdSet.contains(a.id) }
+            deletionSet.forEach(this::deleteAssignment)
             assignmentSet.assignments.removeAll(deletionSet)
 
             val idAssignmentMap = HashMap<Long, Assignment>()
