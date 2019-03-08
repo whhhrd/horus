@@ -36,7 +36,7 @@ deploy:
     stage: deploy
     only:
         - beta
-    before_script:
+    script:
         # Setup SSH credentials and known host
         - which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
         - mkdir -p ~/.ssh
@@ -46,7 +46,6 @@ deploy:
         - ssh-add ~/.ssh/id_rsa
         - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
         - chmod 644 ~/.ssh/known_hosts
-    script:
         # Build the JAR with the correct configurations
         - (cd backend/; ./prod_configurator.sh)
         - (cd backend/; ./gradlew bootJar)
