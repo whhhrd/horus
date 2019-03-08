@@ -85,7 +85,7 @@ export const commentCreateRequestSucceededAction = (comment: CommentDto) =>
 
 // COMMENT UPDATE
 export interface CommentUpdateRequestAction extends Action<string> {
-    readonly commentID: number;
+    readonly commentId: number;
     readonly commentUpdate: CommentUpdateDto;
 }
 
@@ -93,8 +93,8 @@ export interface CommentUpdateSucceededAction extends Action<string> {
     readonly comment: CommentDto;
 }
 
-export const commentUpdateRequestedAction = (commentID: number, commentUpdate: CommentUpdateDto) =>
-    ({ type: COMMENT_UPDATE_REQUESTED_ACTION, commentID, commentUpdate });
+export const commentUpdateRequestedAction = (commentId: number, commentUpdate: CommentUpdateDto) =>
+    ({ type: COMMENT_UPDATE_REQUESTED_ACTION, commentId, commentUpdate });
 
 export const commentUpdateRequestSucceededAction = () =>
     ({ type: COMMENT_UPDATE_REQUEST_SUCCEEDED_ACTION });

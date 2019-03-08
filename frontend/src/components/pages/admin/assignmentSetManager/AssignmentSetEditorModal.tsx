@@ -61,7 +61,7 @@ interface AssignmentSetEditorModalProps {
         type: string,
     };
 
-    assignmentSet: (asid: number) => AssignmentSetDtoFull | null | undefined;
+    assignmentSet: (asid: number) => AssignmentSetDtoFull | null;
 
     onCloseModal: () => void;
 }

@@ -8,6 +8,7 @@ import {
 
 const initialState: CanvasSettingsState = {
     currentlyImporting: [],
+    canvasCourses: null,
 };
 
 export default function canvasReducer(state: CanvasSettingsState, action: CanvasCoursesReceivedAction |

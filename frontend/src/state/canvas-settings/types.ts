@@ -1,6 +1,6 @@
 import { CanvasCourseDto } from "../types";
 
 export interface CanvasSettingsState {
-    canvasCourses?: CanvasCourseDto[];
+    canvasCourses: CanvasCourseDto[] | null;
     currentlyImporting: number[];
 }

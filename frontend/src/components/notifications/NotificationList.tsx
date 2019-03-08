@@ -6,13 +6,13 @@ import { getNotifications } from "../../state/notifications/selectors";
 import Notification from "./Notification";
 
 interface NotificationListProps {
-    notifications?: NotificationState[];
+    notifications: NotificationState[] | null;
 }
 
 class NotificationList extends Component<NotificationListProps> {
 
     render() {
-        if (this.props.notifications === undefined) {
+        if (this.props.notifications === null) {
             return null;
         }
         return (

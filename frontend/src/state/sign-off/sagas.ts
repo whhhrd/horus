@@ -45,7 +45,7 @@ export function* pushChanges(action: SignOffSaveRequestedAction) {
         }
     });
     try {
-        yield call(authenticatedFetchJSON, "PATCH", `signoff/${action.asid}`, undefined, changes);
+        yield call(authenticatedFetchJSON, "PATCH", `signoff/${action.asid}`, null, changes);
         yield put(notifySuccess("Changes saved successfully"));
         yield put(signOffSaveRequestSucceededAction());
     } catch (e) {

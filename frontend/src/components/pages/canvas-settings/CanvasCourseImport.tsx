@@ -15,14 +15,17 @@ import Button from "reactstrap/lib/Button";
 import FormGroup from "reactstrap/lib/FormGroup";
 
 interface CanvasCourseImportProps {
-    courses?: CanvasCourseDto[];
+    courses: CanvasCourseDto[] | null;
+
+    isImporting: (id: number) => boolean;
+
     importCourse: (id: number) => {
         type: string,
     };
+
     checkToken: () => {
         type: string,
     };
-    isImporting: (id: number) => boolean;
 }
 interface CanvasCourseValue {
     courseId: number;
@@ -57,59 +60,60 @@ class CanvasCourseImport extends Component<CanvasCourseImportProps> {
         this.props.importCourse(course.courseId);
     }
     private buildContent = () => {
-        if (this.props.courses === undefined) {
+        if (this.props.courses === null) {
             return null;
-        }
-        if (this.props.courses.length === 0) {
+        } else if (this.props.courses.length === 0) {
             return <h4>You do not have any courses on Canvas that you can import</h4>;
-        }
-        return (
-            <Formik
-                initialValues={{ courseId: this.props.courses![0].canvasId }}
-                onSubmit={this.onSubmit}
-            >
-                {({ handleSubmit }) => (
-                    <Form style={{
-                        width: "50%",
-                        marginLeft: "auto",
-                        marginRight: "auto",
-                        padding: "1rem",
+        } else {
+            return (
+                <Formik
+                    initialValues={{ courseId: this.props.courses![0].canvasId }}
+                    onSubmit={this.onSubmit}
+                >
+                    {({ handleSubmit }) => (
+                        <Form style={{
+                            width: "50%",
+                            marginLeft: "auto",
+                            marginRight: "auto",
+                            padding: "1rem",
 
-                    }}>
-                        <Row>
-                            <Col>
-                                <FormGroup>
-                                    <Field className="custom-select"
-                                        component="select"
-                                        name="courseId"
-                                        id="courseId"
-                                        style={{ marginBottom: "1rem" }}>
-                                        {this.props.courses!.filter((course: CanvasCourseDto) =>
-                                            !this.props.isImporting(course.canvasId)).map((course: CanvasCourseDto) =>
-                                                <option
-                                                    value={course.canvasId}
-                                                    key={course.canvasId}>{course.name}
-                                                </option>,
-                                            )}
-                                    </Field>
-                                </FormGroup>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col>
-                                <ButtonGroup>
-                                    <Button
-                                        onClick={() => { handleSubmit(); }}
-                                    >
-                                        Submit
-                                    </Button>
-                                </ButtonGroup>
-                            </Col>
-                        </Row>
-                    </Form>
-                )}
-            </Formik>
-        );
+                        }}>
+                            <Row>
+                                <Col>
+                                    <FormGroup>
+                                        <Field className="custom-select"
+                                            component="select"
+                                            name="courseId"
+                                            id="courseId"
+                                            style={{ marginBottom: "1rem" }}>
+                                            {this.props.courses!.filter((course: CanvasCourseDto) =>
+                                                !this.props.isImporting(course.canvasId)).map(
+                                                    (course: CanvasCourseDto) =>
+                                                        <option
+                                                            value={course.canvasId}
+                                                            key={course.canvasId}>{course.name}
+                                                        </option>,
+                                                )}
+                                        </Field>
+                                    </FormGroup>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col>
+                                    <ButtonGroup>
+                                        <Button
+                                            onClick={() => { handleSubmit(); }}
+                                        >
+                                            Submit
+                                        </Button>
+                                    </ButtonGroup>
+                                </Col>
+                            </Row>
+                        </Form>
+                    )}
+                </Formik>
+            );
+        }
     }
 }
 export default connect((state: ApplicationState) => ({

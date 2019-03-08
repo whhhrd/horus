@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Spinner, Container, Row, Col, Button, Input } from "reactstrap";
 import { RouteComponentProps, withRouter } from "react-router";
-import { GroupDtoFull, CourseDtoFull } from "../../../../../state/types";
+import { GroupDtoFull, CourseDtoSummary } from "../../../../../state/types";
 import { ApplicationState } from "../../../../../state/state";
 import { getGroups } from "../../../../../state/groups/selectors";
 import { groupsFetchRequestedAction, GroupsFetchAction } from "../../../../../state/groups/actions";
@@ -13,17 +13,19 @@ import {
     canvasRefreshSetRequestedAction,
     CanvasRefreshSetRequestedAction,
 } from "../../../../../state/canvas-settings/actions";
-import { getCourseDtoFull } from "../../../../../state/course-selection/selectors";
 import { courseRequestedAction } from "../../../../../state/course-selection/action";
+import { getCourse } from "../../../../../state/course-selection/selectors";
 
 interface GroupManagerProps {
     groups: GroupDtoFull[] | null;
-    fetchGroups: (groupSetId: number) => GroupsFetchAction;
 
-    course: CourseDtoFull | undefined;
+    course: (id: number) => CourseDtoSummary | null;
+
     fetchCourse: (id: number) => {
         type: string,
     };
+
+    fetchGroups: (groupSetId: number) => GroupsFetchAction;
 
     refreshSet: (courseId: number, groupSetId: number) => CanvasRefreshSetRequestedAction;
 }
@@ -50,7 +52,9 @@ class GroupManager extends Component<GroupManagerProps & RouteComponentProps<any
     }
 
     render() {
-        const { groups, course } = this.props;
+        const { groups } = this.props;
+
+        const course = this.props.course(this.props.match.params.cid);
 
         return (
             <Container fluid={true}>
@@ -67,7 +71,7 @@ class GroupManager extends Component<GroupManagerProps & RouteComponentProps<any
                 <Row className="main-body-display px-2 flex-row justify-content-center">
                     <Col className="col-md-6 col-xs-12">
                         {
-                            course !== undefined && course!.externalId !== null ?
+                            course !== null && course.externalId !== null ?
                                 <div>
                                     <Button
                                         block color="primary"
@@ -130,7 +134,7 @@ class GroupManager extends Component<GroupManagerProps & RouteComponentProps<any
 }
 
 export default withRouter(connect((state: ApplicationState) => ({
-    course: getCourseDtoFull(state),
+    course: (id: number) => getCourse(state, id),
     groups: getGroups(state),
 }), {
     fetchGroups: groupsFetchRequestedAction,

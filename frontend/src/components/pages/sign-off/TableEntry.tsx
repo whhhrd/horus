@@ -7,7 +7,7 @@ interface TableEntryProps {
     signOffState: SignOff;
     unsafed: boolean;
     onCommentClick?: () => any;
-    onClick?: () => any;
+    onClick: () => any | null;
 }
 
 export default class TableEntry extends Component<TableEntryProps> {

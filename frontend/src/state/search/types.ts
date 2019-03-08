@@ -1,7 +1,7 @@
 import {AssignmentSetDtoBrief} from "../types";
 
 export interface SearchState {
-    searchResult?: GroupAssignmentSetCombination[];
+    searchResult: GroupAssignmentSetCombination[] | null;
 }
 
 export interface GroupAssignmentSetCombination {
@@ -10,5 +10,5 @@ export interface GroupAssignmentSetCombination {
     memberNames: string[];
     assignmentSet: AssignmentSetDtoBrief;
     // Used to indicate that this suggestion should be at the top of the search results
-    important?: boolean;
+    important: boolean | null;
 }

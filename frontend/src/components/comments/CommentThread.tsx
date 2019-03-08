@@ -39,7 +39,7 @@ interface CommentThreadProps {
     showCommentThreadContent: boolean;
     needToFetchThread: boolean;
 
-    commentThread: (ctid: number) => CommentThreadDtoFull | undefined;
+    commentThread: (ctid: number) => CommentThreadDtoFull | null;
     fetchCommentThread: (ctid: number) => CommentThreadRequestedAction;
 }
 
@@ -228,7 +228,7 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
                         isOpen={this.state.commentThreadCreatorModalOpen} />
                 </div>
             );
-        } else if (this.props.commentThread(this.props.commentThreadId!) === undefined) {
+        } else if (this.props.commentThread(this.props.commentThreadId) === null) {
             return (
                 <Alert color="warning" className="mt-4 d-flex">
                     <div className="my-auto mr-3">

@@ -7,7 +7,7 @@ import { Container, Row, Spinner, Col, Button } from "reactstrap";
 import { getGroupSets } from "../../../../../state/groups/selectors";
 import { groupSetsFetchRequestedAction } from "../../../../../state/groups/actions";
 
-import { GroupSetDtoSummary, CourseDtoFull } from "../../../../../state/types";
+import { GroupSetDtoSummary, CourseDtoSummary } from "../../../../../state/types";
 import { ApplicationState } from "../../../../../state/state";
 import CanvasCard from "../../../../CanvasCard";
 import { faUsers, faSync } from "@fortawesome/free-solid-svg-icons";
@@ -17,11 +17,12 @@ import {
     CanvasRefreshSetsListRequestedAction,
 } from "../../../../../state/canvas-settings/actions";
 import { courseRequestedAction } from "../../../../../state/course-selection/action";
-import { getCourseDtoFull } from "../../../../../state/course-selection/selectors";
+import { getCourse } from "../../../../../state/course-selection/selectors";
 
 interface GroupSetManagerProps {
-    course: CourseDtoFull | undefined;
     groupSets: GroupSetDtoSummary[] | null;
+
+    course: (id: number) => CourseDtoSummary | null;
 
     fetchGroupSets: (courseId: number) => {
         type: string,
@@ -45,8 +46,9 @@ class GroupSetManager extends Component<GroupSetManagerProps & RouteComponentPro
     }
 
     render() {
-        const { groupSets, course } = this.props;
+        const { groupSets } = this.props;
 
+        const course = this.props.course(this.props.match.params.cid);
         return (
             <Container fluid={true}>
                 <Row className="main-body-breadcrumbs px-2 pt-3">
@@ -62,12 +64,11 @@ class GroupSetManager extends Component<GroupSetManagerProps & RouteComponentPro
                 <Row className="main-body-display px-2 flex-row">
                     <Col md="12" xs="12">
                         {
-                            course !== undefined && course!.externalId !== null ?
+                            course !== null && course.externalId !== null ?
                                 <Button block color="primary" size="lg" className="mb-3 w-25"
-                                    onClick={() =>
-                                        this.props.refreshSetsList(this.props.match.params.cid)}>
+                                    onClick={() => this.props.refreshSetsList(this.props.match.params.cid)}>
                                     <FontAwesomeIcon icon={faSync} className="mr-2" />Sync group sets with Canvas
-                            </Button> : null
+                                </Button> : null
                         }
                     </Col>
                     {groupSets != null &&
@@ -87,7 +88,7 @@ class GroupSetManager extends Component<GroupSetManagerProps & RouteComponentPro
 }
 
 export default withRouter(connect((state: ApplicationState) => ({
-    course: getCourseDtoFull(state),
+    course: (id: number) => getCourse(state, id),
     groupSets: getGroupSets(state),
 }), {
         fetchGroupSets: groupSetsFetchRequestedAction,

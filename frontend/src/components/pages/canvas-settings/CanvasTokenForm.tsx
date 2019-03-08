@@ -17,6 +17,7 @@ interface CanvasTokenFormProps {
     submitToken: (token: string) => {
         type: string;
     };
+
     checkTokenAndRedirect: () => {
         type: string;
     };
@@ -31,15 +32,18 @@ interface CanvasTokenValues {
 }
 
 class CanvasTokenForm extends Component<CanvasTokenFormProps, CanvasTokenFormState> {
+
     constructor(props: CanvasTokenFormProps) {
         super(props);
         this.state = {
             submitted: false,
         };
     }
+
     componentWillMount() {
         this.props.checkTokenAndRedirect();
     }
+
     render() {
         return (
             <div style={{ display: "flex" }}>
@@ -59,10 +63,12 @@ class CanvasTokenForm extends Component<CanvasTokenFormProps, CanvasTokenFormSta
             </div>
         );
     }
+
     private onSubmit = (token: CanvasTokenValues) => {
         this.setState({ submitted: true });
         this.props.submitToken(token.token);
     }
+
     private buildContent = () => {
         if (this.state.submitted) {
             return <Spinner color="primary" type="grow" />;
@@ -70,8 +76,7 @@ class CanvasTokenForm extends Component<CanvasTokenFormProps, CanvasTokenFormSta
             return (
                 <Formik
                     initialValues={{ token: "" }}
-                    onSubmit={this.onSubmit}
-                >
+                    onSubmit={this.onSubmit}>
                     {({ handleSubmit }) => (
                         <Form
                             style={{

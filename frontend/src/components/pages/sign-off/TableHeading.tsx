@@ -4,7 +4,7 @@ import { faEllipsisH } from "@fortawesome/free-solid-svg-icons";
 
 interface TableHeadingProps {
     text: string;
-    onCommentClick?: () => any;
+    onCommentClick: (() => any) | null;
 }
 
 export default class TableHeading extends Component<TableHeadingProps> {

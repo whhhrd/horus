@@ -51,14 +51,14 @@ export class NavigationBar extends Component<NavigationBarProps> {
                                     <NavigationBarItem title="Dashboard" icon={faTachometerAlt}
                                         active={activeTab === ActiveTabEnum.DASHBOARD}
                                         url={`/courses/${computedMatch.params.cid}`} />
-                                    : undefined
+                                    : null
                             }
                             {
                                 inCourse ?
                                     <NavigationBarItem title="Sign-off" icon={faTasks}
                                         active={activeTab === ActiveTabEnum.SIGNOFF}
                                         url={`/courses/${computedMatch.params.cid}/signoff`} />
-                                    : undefined
+                                    : null
                             }
                             { (!inCourse || hasAdmin) &&
                                 <NavigationBarItem title="Admin" icon={faTools}

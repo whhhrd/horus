@@ -18,7 +18,7 @@ import {
 } from "./action";
 
 const initialState: CommentsState = {
-    commentThreads: undefined,
+    commentThreads: null,
 };
 
 export default function commentsReducer(
@@ -60,7 +60,7 @@ export default function commentsReducer(
 function updateCommentsStateWithComment(state: CommentsState, comment: CommentDto) {
     const newState = {
         ...state,
-        commentThreads: state.commentThreads !== undefined ? state.commentThreads.slice() : undefined,
+        commentThreads: state.commentThreads !== null ? state.commentThreads.slice() : null,
     };
 
     if (newState.commentThreads != null) {
@@ -96,10 +96,10 @@ function updateCommentsStateWithComment(state: CommentsState, comment: CommentDt
 function updateCommentsStateWithThread(state: CommentsState, commentThread: CommentThreadDtoFull) {
     const newState = {
         ...state,
-        commentThreads: state.commentThreads !== undefined ? state.commentThreads.slice() : undefined,
+        commentThreads: state.commentThreads !== null ? state.commentThreads.slice() : null,
     };
 
-    if (newState.commentThreads !== undefined) {
+    if (newState.commentThreads !== null) {
         const newCommentThreads = newState.commentThreads;
 
         const tempCommentThread = newCommentThreads.find((t) => t.id === commentThread.id);
@@ -123,10 +123,10 @@ function updateCommentsStateWithThread(state: CommentsState, commentThread: Comm
 function updateCommentsStateWithCommentDelete(state: CommentsState, comment: CommentDto) {
     const newState = {
         ...state,
-        commentThreads: state.commentThreads !== undefined ? state.commentThreads.slice() : undefined,
+        commentThreads: state.commentThreads !== null ? state.commentThreads.slice() : null,
     };
 
-    if (newState.commentThreads !== undefined) {
+    if (newState.commentThreads !== null) {
         const newCommentThreads = newState.commentThreads;
         const thread = newCommentThreads.find((t) => t.id === comment.thread.id);
         const threadIndex = newCommentThreads.indexOf(thread!);

@@ -7,12 +7,12 @@ import {
 import { GroupAssignmentSetSearchResultDto } from "../types";
 
 export interface SignOffSearchQueryAction extends Action<string> {
-    readonly courseID?: number;
-    readonly searchQuery?: string;
+    readonly courseID: number;
+    readonly searchQuery: string;
 }
 
 export interface SignOffSearchSucceededAction extends Action<string> {
-    readonly searchResult?: GroupAssignmentSetSearchResultDto;
+    readonly searchResult: GroupAssignmentSetSearchResultDto;
 }
 
 export const signOffSearchQueryAction = (courseID: number, searchQuery: string) =>

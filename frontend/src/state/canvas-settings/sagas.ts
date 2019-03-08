@@ -29,7 +29,7 @@ import { BooleanResultDto, CanvasCourseDto } from "../types";
 
 export function* submitToken(action: TokenSubmittedAction) {
     try {
-        yield call(authenticatedFetchJSON, "POST", "canvas", undefined, { token: action.token });
+        yield call(authenticatedFetchJSON, "POST", "canvas", null, { token: action.token });
         yield put(push(PATH_CANVAS_IMPORT));
     } catch (e) {
         yield put(notifyError("Token submit failed"));

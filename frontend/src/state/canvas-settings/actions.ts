@@ -15,40 +15,34 @@ import {
 import { CanvasCourseDto, GroupSetDtoSummary, GroupDtoFull } from "../types";
 import { Action } from "redux";
 
+// TOKEN SUBMIT AND CHECKING
 export interface TokenSubmittedAction extends Action<string> {
     token: string;
 }
 
+export const tokenSubmitAction = (token: string) => ({ type: TOKEN_SUBMITTED_ACTION, token });
+
+export const checkTokenAndRedirectImportAction = () => ({ type: CHECK_TOKEN_AND_REDIRECT_IMPORT_ACTION });
+
+export const checkTokenAndRedirectTokenAction = () => ({ type: CHECK_TOKEN_AND_REDIRECT_TOKEN_ACTION });
+
+// CANVAS COURSES
 export interface CanvasCoursesReceivedAction extends Action<string> {
     courses: CanvasCourseDto[];
 }
-
-export interface CanvasImportAction extends Action<string> {
-    courseId: number;
-}
-
-export interface CanvasRefreshSetsListRequestedAction extends Action<string> {
-    courseId: number;
-}
-
-export interface CanvasRefreshSetRequestedAction extends Action<string> {
-    courseId: number;
-    groupSetId: number;
-}
-
-export const tokenSubmitAction = (token: string) => ({ type: TOKEN_SUBMITTED_ACTION, token });
 
 export const canvasCoursesRequestedAction = () => ({ type: CANVAS_COURSES_REQUESTED_ACTION });
 
 export const canvasCoursesRequestSucceeededAction = (courses: CanvasCourseDto[]) =>
     ({ type: CANVAS_COURSES_REQUEST_SUCCEEDED_ACTION, courses });
 
+// IMPORT CANVAS COURSE
+export interface CanvasImportAction extends Action<string> {
+    courseId: number;
+}
+
 export const importCanvasCourseAction = (courseId: number) =>
     ({ type: IMPORT_CANVAS_COURSE_REQUESTED_ACTION, courseId });
-
-export const checkTokenAndRedirectImportAction = () => ({ type: CHECK_TOKEN_AND_REDIRECT_IMPORT_ACTION });
-
-export const checkTokenAndRedirectTokenAction = () => ({ type: CHECK_TOKEN_AND_REDIRECT_TOKEN_ACTION });
 
 export const importCanvasCourseFinishedAction = (courseId: number) =>
     ({ type: IMPORT_CANVAS_COURSE_FINISHED_ACTION, courseId });

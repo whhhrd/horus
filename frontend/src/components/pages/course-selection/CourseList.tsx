@@ -48,7 +48,7 @@ export default class CourseList extends Component<CourseListProps, CourseListSta
             case COURSE_LIST_TEACHER:
                 return "Courses where you are a teacher";
             case COURSE_LIST_TA:
-                return "Courses where you are a teaching assitant";
+                return "Courses where you are a teaching assistant";
             default:
                 return "";
         }

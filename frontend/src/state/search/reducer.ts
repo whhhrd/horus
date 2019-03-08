@@ -1,11 +1,12 @@
-import {GroupAssignmentSetCombination, SearchState} from "./types";
+import { GroupAssignmentSetCombination, SearchState } from "./types";
 import { SignOffSearchSucceededAction } from "./action";
 import {
     SIGN_OFF_SEARCH_SUCCEEDED_ACTION,
 } from "./constants";
-import {AssignmentSetDtoBrief} from "../types";
+import { AssignmentSetDtoBrief } from "../types";
 
 const initialState: SearchState = {
+    searchResult: null,
 };
 
 export default function searchReducer(state: SearchState, action: SignOffSearchSucceededAction): SearchState {
@@ -15,26 +16,24 @@ export default function searchReducer(state: SearchState, action: SignOffSearchS
     switch (action.type) {
         case SIGN_OFF_SEARCH_SUCCEEDED_ACTION:
             const searchResult = (action as SignOffSearchSucceededAction).searchResult;
-            if (searchResult === undefined) {
-                return initialState;
-            } else {
-                const groupAssignmentSetCombinations: GroupAssignmentSetCombination[] = [];
-                const assignmentSetsMap = getAssignmentSetsMap(searchResult.assignmentSets);
-                for (const group of searchResult.groups) {
-                    for (const linkedAssignmentSetID of group.assignmentSetIds) {
-                        const groupAssignmentSetCombination: GroupAssignmentSetCombination = {
-                            id: group.id,
-                            name: group.name,
-                            memberNames: group.memberNames,
-                            assignmentSet: assignmentSetsMap[linkedAssignmentSetID],
-                        };
-                        groupAssignmentSetCombinations.push(groupAssignmentSetCombination);
-                    }
+            const groupAssignmentSetCombinations: GroupAssignmentSetCombination[] = [];
+            const assignmentSetsMap = getAssignmentSetsMap(searchResult.assignmentSets);
+
+            for (const group of searchResult.groups) {
+                for (const linkedAssignmentSetID of group.assignmentSetIds) {
+                    const groupAssignmentSetCombination: GroupAssignmentSetCombination = {
+                        id: group.id,
+                        name: group.name,
+                        memberNames: group.memberNames,
+                        assignmentSet: assignmentSetsMap[linkedAssignmentSetID],
+                        important: false,
+                    };
+                    groupAssignmentSetCombinations.push(groupAssignmentSetCombination);
                 }
-                return {
-                    searchResult: groupAssignmentSetCombinations,
-                };
             }
+            return {
+                searchResult: groupAssignmentSetCombinations,
+            };
         default:
             return state;
     }

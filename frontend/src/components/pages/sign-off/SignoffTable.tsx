@@ -33,17 +33,20 @@ import Button from "reactstrap/lib/Button";
 import { Table } from "reactstrap";
 
 interface SignoffTableProps {
-    remoteSignoffs?: SignOffResultDtoCompact[];
+    remoteSignoffs: SignOffResultDtoCompact[] | null;
+    group: GroupDtoFull | null;
+    assignmentSet: AssignmentSetDtoFull | null;
+    localChanges: SignOffChange[] | null;
+    saving: boolean;
+
     requestSignOffs: (asid: number, cid: number, gid: number) => {
         type: string,
     };
+
     localSignOff: (aid: number, pid: number, signOff: SignOff) => {
         type: string;
     };
-    group?: GroupDtoFull;
-    assignmentSet?: AssignmentSetDtoFull;
-    localChanges?: SignOffChange[];
-    saving: boolean;
+
     saveChanges: (localChanges: SignOffChange[], asid: number) => {
         type: string;
     };
@@ -70,7 +73,7 @@ class SignoffTable extends Component<SignoffTableProps & RouteComponentProps<any
     }
 
     render() {
-        if (this.props.remoteSignoffs === undefined) {
+        if (this.props.remoteSignoffs === null) {
             return <Spinner type="grow" />;
         }
         return (
@@ -98,7 +101,8 @@ class SignoffTable extends Component<SignoffTableProps & RouteComponentProps<any
                                         onCommentClick={() => alert("test")} />
                                     {this.props.group!.participants.map((participant: ParticipantDto) => {
                                         return <TableHeading key={participant.id}
-                                            text={participant.person.shortName} />;
+                                            text={participant.person.shortName}
+                                            onCommentClick={null} />;
                                     })}
                                 </tr>
                             </thead>
@@ -144,15 +148,19 @@ class SignoffTable extends Component<SignoffTableProps & RouteComponentProps<any
         const localChange = this.props.localChanges!.find((change: SignOffChange) => (
             change.aid === assignment.id && change.pid === participant.id
         ));
+
         if (localChange !== undefined) {
             return localChange.result;
         }
+
         const remoteSignoff = this.props.remoteSignoffs!.find((signOff: SignOffResultDtoCompact) => (
             signOff.assignmentId === assignment.id && signOff.participantId === participant.id
         ));
+
         if (remoteSignoff === undefined) {
             return SignOff.Unattempted;
         }
+
         switch (remoteSignoff.result) {
             case "COMPLETE":
                 return SignOff.Complete;

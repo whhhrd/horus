@@ -3,9 +3,8 @@ import { Container } from "reactstrap";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { ApplicationState } from "../../../state/state";
 import { connect } from "react-redux";
-import { getCourse } from "../../../state/course-selection/selectors";
-import { CourseDtoFull, CourseDtoBrief, CourseDtoSummary, AssignmentSetDtoBrief } from "../../../state/types";
-import { courseRequestedAction } from "../../../state/course-selection/action";
+import { getCourseFull } from "../../../state/course-selection/selectors";
+import { CourseDtoFull, AssignmentSetDtoBrief } from "../../../state/types";
 import { Spinner } from "reactstrap";
 import Row from "reactstrap/lib/Row";
 import Col from "reactstrap/lib/Col";
@@ -15,9 +14,11 @@ import { faTasks } from "@fortawesome/free-solid-svg-icons";
 import CanvasCard from "../../CanvasCard";
 import Sidebar from "../../sidebar/Sidebar";
 import CommentThread, { CommentThreadType } from "../../comments/CommentThread";
+import { courseRequestedAction } from "../../../state/course-selection/action";
 
 interface CourseDashboardProps {
-    course: (id: number) => CourseDtoSummary | undefined;
+    courseFull: (id: number) => CourseDtoFull | null;
+
     requestCourse: (id: number) => {
         type: string,
     };
@@ -28,7 +29,7 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
     private spinner = <Spinner color="primary" type="grow" />;
 
     componentDidMount() {
-        this.props.requestCourse(+this.props.match.params.cid);
+        this.props.requestCourse(Number(this.props.match.params.cid));
     }
 
     render() {
@@ -78,22 +79,13 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
         );
     }
 
-    private isFullCourse(course: CourseDtoBrief): course is CourseDtoFull {
-        return (course as CourseDtoFull).assignmentSets !== undefined;
-    }
-
     private headingText = () => {
-        const course = this.props.course(+this.props.match.params.cid);
-        if (course === undefined) {
+        const course = this.props.courseFull(Number(this.props.match.params.cid));
+
+        if (course === null) {
             return (
                 <h3>
                     Loading {this.spinner}
-                </h3>
-            );
-        } else if (!this.isFullCourse(course)) {
-            return (
-                <h3>
-                    {course.name} {this.spinner}
                 </h3>
             );
         } else {
@@ -107,11 +99,11 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
         }
     }
     private buildContent = () => {
-        const course = this.props.course(+this.props.match.params.cid);
-        if (course === undefined) {
+        const course = this.props.courseFull(Number(this.props.match.params.cid));
+
+        if (course === null) {
             return <div />;
-        }
-        if (this.isFullCourse(course)) {
+        } else {
             return (
                 <div className="card-collection" style={{ display: "flex", flexWrap: "wrap" }}>
                     {course.assignmentSets.map((aSet: AssignmentSetDtoBrief) => {
@@ -123,14 +115,12 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
                     })}
                 </div>
             );
-        } else {
-            return <div />;
         }
     }
 }
 
 export default withRouter(connect((state: ApplicationState) => ({
-    course: (id: number) => getCourse(state, id),
+    courseFull: (id: number) => getCourseFull(state, id),
 }), {
         requestCourse: (id: number) => courseRequestedAction(id),
         ...NOTIFICATION_ACTION_CONNECTOR,

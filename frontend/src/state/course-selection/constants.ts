@@ -1,7 +1,8 @@
 export const COURSES_REQUESTED_ACTION = "courseDtoFull-selection/COURSES_REQUESTED";
 export const COURSES_REQUEST_SUCCEEDED_ACTION = "courseDtoFull-selection/COURSES_REQUEST_SUCCEEDED_ACTION";
+
 export const COURSE_REQUESTED_ACTION = "courseDtoFull/COURSE_REQUESTED_ACTION";
-export const COURSE_REQUEST_SUCCEEDED_ACTION = "courseDtoFull/COURSE_REQUEST_SUCCEDED_ACTION";
+export const COURSE_REQUEST_SUCCEEDED_ACTION = "courseDtoFull/COURSE_REQUEST_SUCCEEDED_ACTION";
 
 export const COURSE_LIST_TA = "courseDtoFull-selection/courseDtoFull-list/ta-mode";
 export const COURSE_LIST_STUDENT = "courseDtoFull-selection/courseDtoFull-list/student-mode";

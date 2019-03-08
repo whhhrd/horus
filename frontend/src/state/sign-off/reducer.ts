@@ -11,6 +11,7 @@ import { SignOffResultDtoCompact } from "../types";
 
 const initialState: SignOffState = {
     localChanges: [],
+    remoteResults: null,
     saving: false,
 };
 
@@ -67,9 +68,11 @@ const changed = (state: SignOffState, action: ChangeLocalSignoffAction) => {
     const remoteSignOffState = state.remoteResults!.signOffs.find((signOff: SignOffResultDtoCompact) => (
         signOff.assignmentId === action.aid && signOff.participantId === action.pid
     ));
+
     if (remoteSignOffState === undefined) {
         return action.result !== SignOff.Unattempted;
+    } else {
+        return !(remoteSignOffState.result === "COMPLETE" && action.result === SignOff.Complete) &&
+            !(remoteSignOffState.result === "INSUFFICIENT" && action.result === SignOff.Incomplete);
     }
-    return !(remoteSignOffState.result === "COMPLETE" && action.result === SignOff.Complete) &&
-        !(remoteSignOffState.result === "INSUFFICIENT" && action.result === SignOff.Incomplete);
 };

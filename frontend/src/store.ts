@@ -18,9 +18,6 @@ import { authenticationFlow } from "./api";
 export const history = createBrowserHistory();
 
 const initialState: ApplicationState = {
-  router: undefined,
-  auth: undefined,
-  assignmentSets: undefined,
 };
 
 const configureStore = (state: ApplicationState) => {

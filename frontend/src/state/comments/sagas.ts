@@ -107,7 +107,7 @@ export function* deleteComment(action: CommentDeleteRequestAction) {
 export function* updateComment(action: CommentUpdateRequestAction) {
     try {
         const result: CommentDto = yield call(authenticatedFetchJSON, "PUT",
-            `comments/${action.commentID}`, null, action.commentUpdate);
+            `comments/${action.commentId}`, null, action.commentUpdate);
         yield put(commentCreateRequestSucceededAction(result));
         yield put(notifySuccess("Comment updated"));
     } catch (e) {

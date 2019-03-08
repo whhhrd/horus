@@ -14,21 +14,24 @@ import { AssignmentSetDtoBrief } from "../../../state/types";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
 
 interface SignOffSearchProps {
-    searchResult: GroupAssignmentSetCombination[] | undefined;
+    searchResult: GroupAssignmentSetCombination[] | null;
+
     assignmentSets: () => AssignmentSetDtoBrief[] | null;
+    redirectTo: (url: string) => {};
+
     doSearchQuery: (courseID: number, query: string) => {
         type: string,
     };
+
     fetchAssignmentSets: (courseID: number) => {
         type: string,
     };
-    redirectTo: (url: string) => {};
 }
 
 interface SignOffSearchState {
     searchQuery: string;
     dropdownOpen: boolean;
-    selectedAssignmentSet?: AssignmentSetDtoBrief;
+    selectedAssignmentSet: AssignmentSetDtoBrief | null;
 }
 
 class SignOffSearch extends Component<SignOffSearchProps & RouteComponentProps<any> & NotificationProps,
@@ -40,6 +43,7 @@ class SignOffSearch extends Component<SignOffSearchProps & RouteComponentProps<a
         this.state = {
             searchQuery: "",
             dropdownOpen: false,
+            selectedAssignmentSet: null,
         };
         this.toggle = this.toggle.bind(this);
 
@@ -71,7 +75,7 @@ class SignOffSearch extends Component<SignOffSearchProps & RouteComponentProps<a
                 assignmentSetOptions.push(
                     <DropdownItem key={assignmentSet.id}
                         onClick={() => {
-                            this.pushURL(this.props.match.params.cid, assignmentSet.id);
+                            this.pushURL(this.props.match.params.cid, assignmentSet.id, null);
                         }}>{assignmentSet.name}</DropdownItem>,
                 );
             }
@@ -82,7 +86,7 @@ class SignOffSearch extends Component<SignOffSearchProps & RouteComponentProps<a
                 toggle={this.toggle}
                 className="p-4">
                 <DropdownToggle caret>
-                    {selectedAssignmentSet !== undefined ? selectedAssignmentSet.name : "Select an assignment set"}
+                    {selectedAssignmentSet !== null ? selectedAssignmentSet.name : "Select an assignment set"}
                 </DropdownToggle>
                 <DropdownMenu>
                     {assignmentSetOptions}
@@ -94,7 +98,7 @@ class SignOffSearch extends Component<SignOffSearchProps & RouteComponentProps<a
     private renderSearchBar() {
         return (
             <Autosuggest
-                suggestions={this.props.searchResult !== undefined
+                suggestions={this.props.searchResult !== null
                     ? this.orderSearchResults(this.props.searchResult) : []}
                 onSuggestionsFetchRequested={(value: any) => {
                     this.props.doSearchQuery(this.props.match.params.cid, value.value);
@@ -168,24 +172,24 @@ class SignOffSearch extends Component<SignOffSearchProps & RouteComponentProps<a
         }
     }
 
-    private getAssignmentSetByID(asid: number): (AssignmentSetDtoBrief | undefined) {
-        if (asid !== undefined && this.props.assignmentSets() !== null) {
+    private getAssignmentSetByID(asid: number): (AssignmentSetDtoBrief | null) {
+        if (asid !== null && this.props.assignmentSets() !== null) {
             for (const assignmentSet of this.props.assignmentSets()!) {
                 if (assignmentSet.id === asid) {
                     return assignmentSet;
                 }
             }
         }
-        return undefined;
+        return null;
     }
 
-    private pushURL(cid: number, asid?: number, selectedGroupID?: number) {
+    private pushURL(cid: number, asid: number | null, selectedGroupID: number | null) {
         let newURL: string;
-        if (asid === undefined) {
+        if (asid === null) {
             newURL = "/signoff";
         } else {
             newURL = "/courses/" + cid + "/assignmentsets/" + asid + "/signoff/table";
-            if (selectedGroupID !== undefined) {
+            if (selectedGroupID !== null) {
                 newURL += "?g=" + selectedGroupID;
             }
         }

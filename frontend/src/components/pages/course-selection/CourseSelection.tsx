@@ -20,7 +20,7 @@ import Row from "reactstrap/lib/Row";
 import Col from "reactstrap/lib/Col";
 
 interface CourseSelectionProps {
-    courses?: CourseDtoSummary[];
+    courses: CourseDtoSummary[] | null;
     requestCourses: () => {
         type: string,
     };

@@ -50,7 +50,7 @@ class Notification extends Component<NotificationProps, NotificationLocalState> 
 
     render() {
 
-        let icon: IconDefinition | undefined;
+        let icon: IconDefinition | null;
         switch (this.props.notification.kind) {
             case NotificationKind.Error: icon = faTimesCircle; break;
             case NotificationKind.Info: icon = faInfoCircle; break;

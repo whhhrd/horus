@@ -4,8 +4,8 @@ export enum SignOff {
     Complete, Incomplete, Unattempted,
 }
 export interface SignOffState {
-    remoteResults?: SignOffDetails;
-    localChanges?: SignOffChange[];
+    remoteResults: SignOffDetails | null;
+    localChanges: SignOffChange[] | null;
     saving: boolean;
 }
 
