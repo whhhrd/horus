@@ -121,7 +121,7 @@ export interface CanvasCourseDto {
     canvasId: number;
     courseCode: string;
     name: string;
-    startAt: Date;
+    startAt: Date | null;
     studentCount: number;
 }
 

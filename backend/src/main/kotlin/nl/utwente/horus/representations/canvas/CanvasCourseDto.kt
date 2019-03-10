@@ -7,5 +7,5 @@ data class CanvasCourseDto(
         val courseCode: String,
         val name: String,
         val studentCount: Int,
-        val startAt: ZonedDateTime
+        val startAt: ZonedDateTime?
 )

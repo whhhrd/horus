@@ -24,6 +24,9 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 @Component
 @Transactional
@@ -107,7 +110,8 @@ class CanvasService {
             courses.removeIf { c -> courseService.existsCourseByExternalId(c.id.toString()) }
         }
         return courses.map { c -> CanvasCourseDto(c.id, c.courseCode, c.name, c.totalStudents,
-                ZonedDateTime.ofInstant(c.startAt.toInstant(), ZoneId.systemDefault())) }
+                if (c.startAt == null) null
+                else ZonedDateTime.ofInstant(c.startAt.toInstant(), ZoneId.systemDefault())) }
 
     }
 
@@ -200,6 +204,16 @@ class CanvasService {
         // Pull all groups of category
         val reader = getReader(groupSet.course)
         val groups = reader.getGroupsOfCategory(groupSet.externalId ?: throw SyncUnauthorizedException())
+        val compositions = ConcurrentHashMap<edu.ksu.canvas.model.Group, Set<String>>()
+
+        // Parallel fetching due to slow I/O
+        val executor = Executors.newCachedThreadPool()
+        groups.forEach {group -> executor.execute {
+                compositions[group] = reader.getGroupUsers(group.groupId.toString()).map { it.loginId }.toSet()
+            }
+        }
+        executor.shutdown()
+        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS)
 
         // First archive groups which have been deleted
         val missingGroups = groupSet.groups.map { g -> g.externalId!! }.toSet() - groups.map { g -> g.groupId.toString() }.toSet()
@@ -219,7 +233,7 @@ class CanvasService {
 
                 // Check if group composition has changed since last sync
                 val existingIds = current.participants.map { it.person.loginId }.toSet()
-                val canvasIds = reader.getGroupUsers(canvasGroup.groupId.toString()).map { it.loginId }.toSet()
+                val canvasIds = compositions[canvasGroup]
                 if (canvasIds != existingIds) {
                     // Group composition has changed! Archive old group and create a new one
                     groupService.archiveGroup(current)
