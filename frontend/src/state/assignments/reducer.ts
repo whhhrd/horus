@@ -7,10 +7,14 @@ import {
     ASSIGNMENT_SET_FETCH_SUCCEEDED_ACTION,
     ASSIGNMENT_SET_CREATE_REQUEST_SUCCEEDED_ACTION,
     ASSIGNMENT_SET_UPDATE_REQUEST_SUCCEEDED_ACTION,
+    ASSIGNMENTS_DELETE_CHECK_SUCCEEDED_ACTION,
+    ASSIGNMENTS_DELETE_CHECK_REQUESTED_ACTION,
+    ASSIGNMENT_SET_DELETE_REQUEST_SUCCEEDED_ACTION,
+    RESET_DELETE_CHECK_ACTION,
 } from "./constants";
 
 import { AssignmentSetsState } from "./types";
-import { AssignmentSetDtoFull } from "../types";
+import { AssignmentSetDtoFull, AssignmentSetDtoBrief } from "../types";
 import {
     AssignmentSetsFetchSucceededAction,
     AssignmentGroupSetsMappingsFetchSucceededAction,
@@ -18,12 +22,17 @@ import {
     AssignmentSetFetchAction,
     AssignmentSetCreateSucceededAction,
     AssignmentSetUpdateSucceededAction,
+    AssignmentsDeleteCheckAction,
+    AssignmentSetDeleteAction,
 } from "./actions";
+import { Action } from "redux";
 
 const initialState: AssignmentSetsState = {
     assignmentSets: null,
     assignmentSetBriefs: null,
     assignmentGroupSetsMappings: null,
+    deleteCheck: null,
+    deleteOK: false,
 };
 
 function updateAssignmentSetsState(state: AssignmentSetsState, assignmentSet: AssignmentSetDtoFull) {
@@ -46,7 +55,7 @@ function updateAssignmentSetsState(state: AssignmentSetsState, assignmentSet: As
 
     if (newState.assignmentGroupSetsMappings != null) {
         newState.assignmentGroupSetsMappings = newState.assignmentGroupSetsMappings.filter(
-             (value) => value.assignmentSet.id !== assignmentSet.id,
+            (value) => value.assignmentSet.id !== assignmentSet.id,
         );
         newState.assignmentGroupSetsMappings.push(...(assignmentSet.groupSetMappings));
     }
@@ -54,10 +63,7 @@ function updateAssignmentSetsState(state: AssignmentSetsState, assignmentSet: As
     return newState;
 }
 
-function assignmentSetsReducer(state: AssignmentSetsState, action: AssignmentSetFetchSucceededAction |
-    AssignmentSetsFetchSucceededAction | AssignmentGroupSetsMappingsFetchSucceededAction |
-    AssignmentSetFetchAction | AssignmentSetFetchSucceededAction |
-    AssignmentSetCreateSucceededAction) {
+function assignmentSetsReducer(state: AssignmentSetsState, action: Action<string>) {
     if (state == null) {
         return initialState;
     }
@@ -111,6 +117,36 @@ function assignmentSetsReducer(state: AssignmentSetsState, action: AssignmentSet
         case ASSIGNMENT_SET_UPDATE_REQUEST_SUCCEEDED_ACTION: {
             const assignmentSet = (action as AssignmentSetUpdateSucceededAction).assignmentSet;
             return updateAssignmentSetsState(state, assignmentSet);
+        }
+        case ASSIGNMENTS_DELETE_CHECK_REQUESTED_ACTION: {
+            return {
+                ...state,
+                deleteOK: false,
+            };
+        }
+        case ASSIGNMENTS_DELETE_CHECK_SUCCEEDED_ACTION: {
+            return {
+                ...state,
+                deleteCheck: (action as AssignmentsDeleteCheckAction).assignments,
+                deleteOK: true,
+            };
+        }
+        case ASSIGNMENT_SET_DELETE_REQUEST_SUCCEEDED_ACTION: {
+            const newAssignmentSets = state.assignmentSets;
+            newAssignmentSets!.delete((action as AssignmentSetDeleteAction).asid);
+            return {
+                ...state,
+                assignmentSets: newAssignmentSets,
+                assignmentSetBriefs: state.assignmentSetBriefs!.filter((assignmentSet: AssignmentSetDtoBrief) =>
+                    assignmentSet.id !== (action as AssignmentSetDeleteAction).asid),
+            };
+        }
+        case RESET_DELETE_CHECK_ACTION: {
+            return {
+                ...state,
+                deleteCheck: null,
+                deleteOK: false,
+            };
         }
         default:
             return state;

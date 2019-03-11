@@ -27,20 +27,26 @@ import {
     AssignmentSetDtoFull,
     AssignmentSetUpdateDto,
     GroupSetDtoBrief,
+    AssignmentDtoBrief,
 } from "../../../../state/types";
 import {
     assignmentSetFetchRequestedAction,
     assignmentSetUpdateRequestedAction,
+    assignmentsDeleteCheckRequestedAction,
+    resetDeleteCheckAction,
+    assignmentSetDeleteRequestedAction,
 } from "../../../../state/assignments/actions";
 import { groupSetsFetchRequestedAction } from "../../../../state/groups/actions";
 
-import { getAssignmentSet } from "../../../../state/assignments/selectors";
+import { getAssignmentSet, getDeleteWarnings, getDeleteOK } from "../../../../state/assignments/selectors";
 import { getGroupSets } from "../../../../state/groups/selectors";
 import { ApplicationState } from "../../../../state/state";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faPlus, faArrowsAltV } from "@fortawesome/free-solid-svg-icons";
 import ListGroupItem from "reactstrap/lib/ListGroupItem";
+import { AssignmentValue } from "../../../../state/assignments/types";
+import ButtonGroup from "reactstrap/lib/ButtonGroup";
 
 interface AssignmentSetEditorModalProps {
     isOpen: boolean;
@@ -48,6 +54,10 @@ interface AssignmentSetEditorModalProps {
     courseId: number;
 
     groupSets: GroupSetDtoBrief[] | null;
+
+    deleteWarning: AssignmentValue[] | null;
+
+    deleteOK: boolean;
 
     fetchGroupSets: (courseId: number) => {
         type: string,
@@ -64,6 +74,17 @@ interface AssignmentSetEditorModalProps {
     assignmentSet: (asid: number) => AssignmentSetDtoFull | null;
 
     onCloseModal: () => void;
+
+    checkDelete: (assignments: AssignmentValue[]) => {
+        type: string,
+    };
+    deleteAssignmentSet: (asid: number) => {
+        type: string,
+    };
+    resetDeleteCheck: () => {
+        type: string;
+    };
+
 }
 
 interface AssignmentSetEditorModalState {
@@ -73,28 +94,12 @@ interface AssignmentSetEditorModalState {
     lastAssignmentId: number;
     dropdownOpen: boolean;
     newAssignmentId: number;
-}
-
-interface AssignmentValue {
-    id: number;
-    name: string;
+    isDeletingAssignments: boolean;
+    isDeletingSet: boolean;
+    isDeleteOpen: boolean;
 }
 
 class AssignmentSetEditorModal extends Component<AssignmentSetEditorModalProps, AssignmentSetEditorModalState> {
-
-    constructor(props: AssignmentSetEditorModalProps) {
-        super(props);
-        this.state = {
-            name: "",
-            assignedGroupSetDtoBriefs: [],
-            assignmentValues: [],
-            lastAssignmentId: 0,
-            dropdownOpen: false,
-            newAssignmentId: -1,
-        };
-        this.toggleDropDown = this.toggleDropDown.bind(this);
-        this.onCloseModal = this.onCloseModal.bind(this);
-    }
 
     /**
      * Updates this component's own state when the props have been updated due to fetching
@@ -132,6 +137,23 @@ class AssignmentSetEditorModal extends Component<AssignmentSetEditorModalProps, 
         } else {
             return state;
         }
+    }
+
+    constructor(props: AssignmentSetEditorModalProps) {
+        super(props);
+        this.state = {
+            name: "",
+            assignedGroupSetDtoBriefs: [],
+            assignmentValues: [],
+            lastAssignmentId: 0,
+            dropdownOpen: false,
+            newAssignmentId: -1,
+            isDeletingAssignments: false,
+            isDeletingSet: false,
+            isDeleteOpen: false,
+        };
+        this.toggleDropDown = this.toggleDropDown.bind(this);
+        this.onCloseModal = this.onCloseModal.bind(this);
     }
 
     onCloseModal() {
@@ -191,65 +213,153 @@ class AssignmentSetEditorModal extends Component<AssignmentSetEditorModalProps, 
         }
 
         return (
-            <Modal isOpen={this.props.isOpen} size="lg">
-                <ModalHeader toggle={this.onCloseModal}>{`Edit ${this.state.name}`}</ModalHeader>
-                <ModalBody>
-                    <FormGroup>
-                        <Label>Name</Label>
-                        <Input valid={this.isNameValid()} key="name" defaultValue={this.state.name} onInput={(e) => {
-                            // @ts-ignore
-                            this.onNameInput(e.target.value);
-                        }} />
-                    </FormGroup>
-                    <FormGroup>
-                        <Label>Linked group sets</Label>
-                        {assignedGroupsBadges}
-                        <Dropdown className="mt-2"
-                            isOpen={this.state.dropdownOpen}
-                            toggle={this.toggleDropDown}
-                            size="sm">
-                            <DropdownToggle
-                                color="success" outline>
-                                <big>Add group set<FontAwesomeIcon icon={faPlus} className="ml-2" /></big>
-                            </DropdownToggle>
-                            <DropdownMenu>
-                                {unassignedGroupsDropdownItems}
-                            </DropdownMenu>
-                        </Dropdown>
-                    </FormGroup>
-                    <FormGroup>
-                        <Label>Assignments</Label>
-                        <div style={{ maxHeight: "40vh", overflowY: "auto" }}>
-                            <ReactSortable
-                                tag="list-group"
-                                options={{ animation: 100, easing: "cubic-bezier(1, 0, 0, 1)" }}
-                                onChange={
+            <div>
+                <Modal isOpen={this.props.isOpen} size="lg">
+                    <ModalHeader toggle={this.onCloseModal}>{`Edit ${this.state.name}`}</ModalHeader>
+                    <ModalBody>
+                        <FormGroup>
+                            <Label>Name</Label>
+                            <Input valid={this.isNameValid()} key="name"
+                                defaultValue={this.state.name} onInput={(e) => {
                                     // @ts-ignore
-                                    (order, sortable, evt) => this.reorder(order)}>
-                                {assignmentTextBoxes}
-                            </ReactSortable>
-                        </div>
-                    </FormGroup>
-                </ModalBody>
-                <ModalFooter>
-                    <Button block size="md" color="danger" disabled outline onClick={this.onCloseModal}>Delete</Button>
-                    <Button block size="md" color="secondary" outline onClick={this.onCloseModal}>Cancel</Button>
-                    <Button disabled={!this.isFormValid()}
-                        block size="md" color="primary" onClick={() => {
-                            this.updateAssignmentSet();
-                            this.onCloseModal();
-                    }}>Save</Button>
-                </ModalFooter>
-            </Modal >
+                                    this.onNameInput(e.target.value);
+                                }} />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label>Linked group sets</Label>
+                            {assignedGroupsBadges}
+                            <Dropdown className="mt-2"
+                                isOpen={this.state.dropdownOpen}
+                                toggle={this.toggleDropDown}
+                                size="sm">
+                                <DropdownToggle
+                                    color="success" outline>
+                                    <big>Add group set<FontAwesomeIcon icon={faPlus} className="ml-2" /></big>
+                                </DropdownToggle>
+                                <DropdownMenu>
+                                    {unassignedGroupsDropdownItems}
+                                </DropdownMenu>
+                            </Dropdown>
+                        </FormGroup>
+                        <FormGroup>
+                            <Label>Assignments</Label>
+                            <div style={{ maxHeight: "40vh", overflowY: "auto" }}>
+                                <ReactSortable
+                                    tag="list-group"
+                                    options={{ animation: 100, easing: "cubic-bezier(1, 0, 0, 1)" }}
+                                    onChange={
+                                        // @ts-ignore
+                                        (order, sortable, evt) => this.reorder(order)}>
+                                    {assignmentTextBoxes}
+                                </ReactSortable>
+                            </div>
+                        </FormGroup>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button block size="md" color="danger" outline onClick={() => {
+                            this.safeDeleteSet();
+                        }}>Delete</Button>
+                        <Button block size="md" color="secondary" outline onClick={this.onCloseModal}>Cancel</Button>
+                        <Button disabled={!this.isFormValid()}
+                            block size="md" color="primary" onClick={() => {
+                                this.safeDelete();
+                            }}>Save</Button>
+                    </ModalFooter>
+                </Modal >
+                {this.deleteModal()}
+            </div>
         );
     }
+    componentDidUpdate() {
+        // Was there a delete check which resulted in no warnings?
+        if (this.props.deleteOK && this.props.deleteWarning != null && this.props.deleteWarning.length === 0) {
+            // In that case, it is save to delete without a warning.
+            if (this.state.isDeletingAssignments) {
+                this.setState((_) => ({
+                    isDeletingAssignments: false,
+                }));
+                this.updateAssignmentSet();
+            } else if (this.state.isDeletingSet) {
+                this.setState((_) => ({
+                    isDeletingSet: false,
+                }));
+                this.props.deleteAssignmentSet(this.props.assignmentSetId);
+            }
+            this.props.resetDeleteCheck();
+            this.onCloseModal();
+        }
 
+    }
+    private safeDeleteSet() {
+        this.setState((_) => ({
+            isDeletingSet: true,
+            isDeleteOpen: true,
+        }));
+        this.props.checkDelete(this.props.assignmentSet(this.props.assignmentSetId)!
+            .assignments.map((assignment: AssignmentDtoBrief) => ({
+                name: assignment.name,
+                id: assignment.id,
+            })));
+    }
+    private safeDelete() {
+        const deletedAssignments: AssignmentDtoBrief[] = this.props.assignmentSet(this.props.assignmentSetId)!
+            .assignments.filter((assignment: AssignmentDtoBrief) => (
+                !this.state.assignmentValues.some((localAssignment: AssignmentValue) => (
+                    localAssignment.id === assignment.id
+                ))
+            ));
+        this.setState((_) => ({
+            isDeletingAssignments: true,
+            isDeleteOpen: true,
+        }));
+        this.props.checkDelete(deletedAssignments);
+    }
+    private deleteModal() {
+        // If a delete check was done and it is dangerous to do a deletion
+        if (this.props.deleteOK && this.props.deleteWarning != null && this.props.deleteWarning.length !== 0) {
+            // Dangerous to delete, display modal
+            return (<Modal isOpen={this.state.isDeleteOpen}>
+                <ModalHeader>Are you sure?</ModalHeader>
+                <p style={{ padding: "20px" }}>The following assignments you are about to delete contain sign-offs.
+                    Are you sure you want to delete them?</p>
+                <ul style={{ maxHeight: "500px", overflowY: "scroll" }}>
+                    {this.props.deleteWarning.map((assignment: AssignmentValue) => (
+                        <li key={assignment.id}>
+                            {assignment.name}
+                        </li>
+                    ))}
+                </ul>
+                <ButtonGroup>
+                    <Button color="danger" onClick={() => {
+                        if (this.state.isDeletingAssignments) {
+                            this.setState((_) => ({
+                                isDeletingAssignments: false,
+                            }));
+                            this.updateAssignmentSet();
+                        } else if (this.state.isDeletingSet) {
+                            this.setState((_) => ({
+                                isDeletingSet: false,
+                            }));
+                            this.props.deleteAssignmentSet(this.props.assignmentSetId);
+                        }
+                        this.props.resetDeleteCheck();
+                        this.onCloseModal();
+                    }}>OK</Button>
+                    <Button onClick={() => {
+                        this.onCloseModal();
+                    }}>Cancel</Button>
+                </ButtonGroup>
+            </Modal>);
+
+        }
+        return null;
+    }
     private isNameValid(): boolean {
         return this.state.name.trim().length > 0;
     }
 
     private isAssignmentValid(id: number | null, name: string): boolean {
-            return (id == null || id < 0) || name.trim().length > 0;
+        return (id == null || id < 0) || name.trim().length > 0;
     }
 
     private isFormValid(): boolean {
@@ -261,7 +371,6 @@ class AssignmentSetEditorModal extends Component<AssignmentSetEditorModalProps, 
             return { dropdownOpen: !state.dropdownOpen };
         });
     }
-
     // TODO: to be reworked later
     private createAssignmentListGroupItem(id: number, name: string) {
         const isNewAssignmentSetItem = id === this.state.newAssignmentId;
@@ -284,7 +393,7 @@ class AssignmentSetEditorModal extends Component<AssignmentSetEditorModalProps, 
                             // @ts-ignore
                             const value = e.target.value;
                             this.onAssignmentInput(id, value);
-                    }} />
+                        }} />
                     <InputGroupAddon className={`ml-2${invisibleString}`}
                         addonType="append">
                         <InputGroupText disabled={isNewAssignmentSetItem}
@@ -339,12 +448,12 @@ class AssignmentSetEditorModal extends Component<AssignmentSetEditorModalProps, 
 
         if (assignmentValues[assignmentValues.length - 1].name.length > 0) {
             newAssignmentId = newAssignmentId - 1;
-            const newAssignment = {id: newAssignmentId, name: ""};
+            const newAssignment = { id: newAssignmentId, name: "" };
             assignmentValues.push(newAssignment);
             lastAssignmentId = newAssignment.id;
         }
 
-        this.setState(() => ({assignmentValues, lastAssignmentId, newAssignmentId}));
+        this.setState(() => ({ assignmentValues, lastAssignmentId, newAssignmentId }));
     }
 
     private removeAssignmentValue(goalId: number) {
@@ -404,8 +513,13 @@ class AssignmentSetEditorModal extends Component<AssignmentSetEditorModalProps, 
 export default connect((state: ApplicationState) => ({
     groupSets: getGroupSets(state),
     assignmentSet: (asid: number) => getAssignmentSet(state, asid),
+    deleteWarning: getDeleteWarnings(state),
+    deleteOK: getDeleteOK(state),
 }), {
         fetchGroupSets: groupSetsFetchRequestedAction,
         fetchAssignmentSet: assignmentSetFetchRequestedAction,
         updateAssignmentSet: assignmentSetUpdateRequestedAction,
+        checkDelete: assignmentsDeleteCheckRequestedAction,
+        resetDeleteCheck: resetDeleteCheckAction,
+        deleteAssignmentSet: assignmentSetDeleteRequestedAction,
     })(AssignmentSetEditorModal);

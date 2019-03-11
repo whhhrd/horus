@@ -14,3 +14,11 @@ export const getAssignmentSet = (state: ApplicationState, asid: number) => {
         (assignmentSets!.get(Number(asid)) != null ?
             assignmentSets!.get(Number(asid))! : null) : null;
 };
+
+export const getDeleteOK = (state: ApplicationState) => {
+    return state.assignmentSets != null ? state.assignmentSets.deleteOK : false;
+};
+
+export const getDeleteWarnings = (state: ApplicationState) => {
+    return state.assignmentSets != null ? state.assignmentSets.deleteCheck : null;
+};

@@ -9,6 +9,11 @@ import {
     ASSIGNMENT_SET_CREATE_REQUESTED_ACTION,
     ASSIGNMENT_SET_UPDATE_REQUEST_SUCCEEDED_ACTION,
     ASSIGNMENT_SET_CREATE_REQUEST_SUCCEEDED_ACTION,
+    ASSIGNMENTS_DELETE_CHECK_REQUESTED_ACTION,
+    ASSIGNMENTS_DELETE_CHECK_SUCCEEDED_ACTION,
+    ASSIGNMENT_SET_DELETE_REQUESTED_ACTION,
+    ASSIGNMENT_SET_DELETE_REQUEST_SUCCEEDED_ACTION,
+    RESET_DELETE_CHECK_ACTION,
 } from "./constants";
 
 import { Action } from "redux";
@@ -19,6 +24,7 @@ import {
     AssignmentSetUpdateDto,
     AssignmentSetCreateDto,
 } from "../types";
+import { AssignmentValue } from "./types";
 
 // BRIEFS
 export interface AssignmentSetsFetchAction extends Action<string> {
@@ -94,3 +100,27 @@ export const assignmentSetCreateRequestedAction = (courseId: number, assignmentS
 
 export const assignmentSetCreateSucceededAction = (assignmentSet: AssignmentSetDtoFull) =>
     ({ type: ASSIGNMENT_SET_CREATE_REQUEST_SUCCEEDED_ACTION, assignmentSet });
+
+// DELETE CHECK
+export interface AssignmentsDeleteCheckAction extends Action<string> {
+    readonly assignments: AssignmentValue[];
+}
+export const assignmentsDeleteCheckRequestedAction = (assignments: AssignmentValue[]) =>
+    ({ type: ASSIGNMENTS_DELETE_CHECK_REQUESTED_ACTION, assignments });
+
+export const assignmentssDeleteCheckSucceededAction = (assignments: AssignmentValue[]) =>
+    ({ type: ASSIGNMENTS_DELETE_CHECK_SUCCEEDED_ACTION, assignments });
+
+export const resetDeleteCheckAction = () =>
+    ({ type: RESET_DELETE_CHECK_ACTION });
+
+// DELETE Assignment Set
+export interface AssignmentSetDeleteAction extends Action<string> {
+    asid: number;
+}
+
+export const assignmentSetDeleteRequestedAction = (asid: number) =>
+    ({ type: ASSIGNMENT_SET_DELETE_REQUESTED_ACTION, asid });
+
+export const assignmentSetDeleteRequestSuccededAction = (asid: number) =>
+    ({ type: ASSIGNMENT_SET_DELETE_REQUEST_SUCCEEDED_ACTION, asid });
