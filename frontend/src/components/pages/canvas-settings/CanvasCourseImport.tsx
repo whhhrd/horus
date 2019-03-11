@@ -37,7 +37,7 @@ class CanvasCourseImport extends Component<CanvasCourseImportProps> {
         this.props.importCourse(course.courseId);
     }
     private buildContent = () => {
-        if (this.props.courses === null) {
+        if (this.props.courses == null) {
             return null;
         } else if (this.props.courses.length === 0) {
             return (

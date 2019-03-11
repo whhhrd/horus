@@ -12,7 +12,7 @@ interface NotificationListProps {
 class NotificationList extends Component<NotificationListProps> {
 
     render() {
-        if (this.props.notifications === null) {
+        if (this.props.notifications == null) {
             return null;
         }
         return (

@@ -60,14 +60,14 @@ export default function commentsReducer(
 function updateCommentsStateWithComment(state: CommentsState, comment: CommentDto) {
     const newState = {
         ...state,
-        commentThreads: state.commentThreads !== null ? state.commentThreads.slice() : null,
+        commentThreads: state.commentThreads != null ? state.commentThreads.slice() : null,
     };
 
     if (newState.commentThreads != null) {
 
         // First check if commentThread exist in state
         const commentThread = newState.commentThreads.find((t) => (t.id === comment.thread.id));
-        if (commentThread !== undefined) {
+        if (commentThread != null) {
 
             const threadIndex = newState.commentThreads.indexOf(commentThread);
 
@@ -77,7 +77,7 @@ function updateCommentsStateWithComment(state: CommentsState, comment: CommentDt
             const tempComment = newComments.find((cmnt) => cmnt.id === comment.id);
 
             // If it exists, replace it
-            if (tempComment !== undefined) {
+            if (tempComment != null) {
                 const index = newComments.indexOf(tempComment);
                 newComments[index] = comment;
             } else {
@@ -96,15 +96,15 @@ function updateCommentsStateWithComment(state: CommentsState, comment: CommentDt
 function updateCommentsStateWithThread(state: CommentsState, commentThread: CommentThreadDtoFull) {
     const newState = {
         ...state,
-        commentThreads: state.commentThreads !== null ? state.commentThreads.slice() : null,
+        commentThreads: state.commentThreads != null ? state.commentThreads.slice() : null,
     };
 
-    if (newState.commentThreads !== null) {
+    if (newState.commentThreads != null) {
         const newCommentThreads = newState.commentThreads;
 
         const tempCommentThread = newCommentThreads.find((t) => t.id === commentThread.id);
 
-        if (tempCommentThread !== undefined) {
+        if (tempCommentThread != null) {
             const index = newCommentThreads.indexOf(tempCommentThread);
             newCommentThreads[index] = commentThread;
         } else {
@@ -123,10 +123,10 @@ function updateCommentsStateWithThread(state: CommentsState, commentThread: Comm
 function updateCommentsStateWithCommentDelete(state: CommentsState, comment: CommentDto) {
     const newState = {
         ...state,
-        commentThreads: state.commentThreads !== null ? state.commentThreads.slice() : null,
+        commentThreads: state.commentThreads != null ? state.commentThreads.slice() : null,
     };
 
-    if (newState.commentThreads !== null) {
+    if (newState.commentThreads != null) {
         const newCommentThreads = newState.commentThreads;
         const thread = newCommentThreads.find((t) => t.id === comment.thread.id);
         const threadIndex = newCommentThreads.indexOf(thread!);

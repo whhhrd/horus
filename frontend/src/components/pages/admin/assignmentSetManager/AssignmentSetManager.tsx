@@ -183,7 +183,7 @@ class AssignmentSetManager extends
                         courseId={this.props.match.params.cid}
                         assignmentSet={aSetDtoBrief}
                         canEdit={canEdit}
-                        groupSets={groupSets !== undefined ? groupSets : []} />,
+                        groupSets={groupSets != null ? groupSets : []} />,
                 );
             }
         }

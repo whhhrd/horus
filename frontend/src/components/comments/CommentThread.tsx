@@ -90,8 +90,8 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
     componentDidMount() {
         const { commentThreadBrief, needToFetchThread } = this.props;
         if (needToFetchThread &&
-            commentThreadBrief !== null &&
-            this.props.commentThread(commentThreadBrief.id) === null) {
+            commentThreadBrief != null &&
+            this.props.commentThread(commentThreadBrief.id) == null) {
             this.props.fetchCommentThread(commentThreadBrief.id);
         }
     }
@@ -215,7 +215,7 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
     }
 
     buildCommentThreadContent() {
-        if (this.props.commentThreadBrief === null) {
+        if (this.props.commentThreadBrief == null) {
             return (
                 <div>
                     <Alert color="info" className="mt-3 d-flex">
@@ -237,7 +237,7 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
                         isOpen={this.state.commentThreadCreatorModalOpen} />
                 </div>
             );
-        } else if (this.props.commentThread(this.props.commentThreadBrief.id) === null) {
+        } else if (this.props.commentThread(this.props.commentThreadBrief.id) == null) {
             return (
                 <Alert color="warning" className="mt-4 d-flex">
                     <div className="my-auto mr-3">

@@ -78,22 +78,21 @@ class GroupManager extends Component<GroupManagerProps & RouteComponentProps<any
             return (
                 <Row className="flex-row justify-content-center">
                     <Col xs="12" md="8">
-                        {
-                            course.externalId !== null ?
-                                <div>
-                                    <Button
-                                        block color="primary"
-                                        size="lg"
-                                        className="mb-3"
-                                        onClick={() =>
-                                            this.props.refreshSet(this.props.match.params.cid,
-                                                this.props.match.params.gsid)}>
-                                        <FontAwesomeIcon
-                                            icon={faSync}
-                                            className="mr-2" />Sync this group set with Canvas
+                        {course.externalId != null &&
+                            <div>
+                                <Button
+                                    block color="primary"
+                                    size="lg"
+                                    className="mb-3"
+                                    onClick={() =>
+                                        this.props.refreshSet(this.props.match.params.cid,
+                                            this.props.match.params.gsid)}>
+                                    <FontAwesomeIcon
+                                        icon={faSync}
+                                        className="mr-2" />Sync this group set with Canvas
                                         </Button>
-                                    <hr />
-                                </div> : null
+                                <hr />
+                            </div>
                         }
                         <Input
                             className="form-control-lg mb-3"
@@ -176,7 +175,7 @@ class GroupManager extends Component<GroupManagerProps & RouteComponentProps<any
         const searchQuery = this.state.searchQuery;
         const groupsRender = [];
 
-        if (groups === null) {
+        if (groups == null) {
             return (
                 <Col lg="12" xs="12">
                     {centerSpinner()}

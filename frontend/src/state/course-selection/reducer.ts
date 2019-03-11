@@ -34,7 +34,7 @@ export default function coursesReducer(state: CoursesState, action: Action): Cou
         case COURSE_REQUEST_SUCCEEDED_ACTION:
             const course = (action as CourseRequestSucceededAction).course;
 
-            if (state.courses !== null) {
+            if (state.courses != null) {
                 const newCourses = state.courses.filter((c: CourseDtoSummary) => course.id !== c.id);
                 newCourses.push(course);
                 return {

@@ -55,24 +55,23 @@ class GroupSetManager extends Component<GroupSetManagerProps & RouteComponentPro
 
         const course = this.props.course(Number(this.props.match.params.cid));
 
-        if (course === null) {
+        if (course == null) {
             return null;
         } else {
             return (
                 <Row className="px-2 d-flex justify-content-center justify-content-lg-start">
-                    {
-                        course.externalId !== null ?
-                            <Col xs="12" md="12">
-                                <Row>
-                                    <Col xs="12" lg="4">
-                                        <Button block color="primary" size="lg" className="mb-3"
-                                            onClick={() => this.props.refreshSetsList(this.props.match.params.cid)}>
-                                            <FontAwesomeIcon icon={faSync} className="mr-2" />
-                                            Sync group sets with Canvas
+                    {course.externalId != null &&
+                        <Col xs="12" md="12">
+                            <Row>
+                                <Col xs="12" lg="4">
+                                    <Button block color="primary" size="lg" className="mb-3"
+                                        onClick={() => this.props.refreshSetsList(this.props.match.params.cid)}>
+                                        <FontAwesomeIcon icon={faSync} className="mr-2" />
+                                        Sync group sets with Canvas
                                         </Button>
-                                    </Col>
-                                </Row>
-                            </Col> : null
+                                </Col>
+                            </Row>
+                        </Col>
                     }
                     {groupSets != null &&
                         groupSets.map((gSet) =>

@@ -31,7 +31,7 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
     render() {
         const course = this.props.courseFull(Number(this.props.match.params.cid));
 
-        if (course === null) {
+        if (course == null) {
             return buildContent("Courses", null);
         } else {
             return buildContent(course.name, this.buildContent(course));
