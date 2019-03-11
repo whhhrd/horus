@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { CommentThreadDtoFull, CommentDto, CommentThreadDtoBrief } from "../../state/types";
+import { CommentThreadDtoFull, CommentDto, CommentThreadDtoBrief } from "../../api/types";
 
 import Comment from "../comments/Comment";
 import { connect } from "react-redux";

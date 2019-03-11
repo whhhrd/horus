@@ -25,7 +25,7 @@ import {
 } from "./constants";
 
 import { authenticatedFetchJSON } from "../../api";
-import { CommentThreadDtoFull, CommentDto } from "../types";
+import { CommentThreadDtoFull, CommentDto } from "../../api/types";
 import { CommentThreadType } from "../../components/comments/CommentThread";
 
 export function* requestCommentThreads(action: CommentThreadsRequestedAction) {

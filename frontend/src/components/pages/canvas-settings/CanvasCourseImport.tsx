@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { importCanvasCourseAction, checkTokenAndRedirectTokenAction } from "../../../state/canvas-settings/actions";
 import { ApplicationState } from "../../../state/state";
 import { getCanvasCourses, isImporting } from "../../../state/canvas-settings/selectors";
-import { CanvasCourseDto } from "../../../state/types";
+import { CanvasCourseDto } from "../../../api/types";
 import { Formik, Field } from "formik";
 import { buildContent } from "../../pagebuilder";
 import { Row, Col, Form, FormGroup, Button, Alert } from "reactstrap";

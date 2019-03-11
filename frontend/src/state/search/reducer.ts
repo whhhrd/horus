@@ -1,7 +1,7 @@
 import { GroupAssignmentSetCombination, SearchState } from "./types";
 import { SignOffSearchSucceededAction } from "./action";
 import { SIGN_OFF_SEARCH_SUCCEEDED_ACTION } from "./constants";
-import { AssignmentSetDtoBrief } from "../types";
+import { AssignmentSetDtoBrief } from "../../api/types";
 
 const initialState: SearchState = {
     searchResult: null,

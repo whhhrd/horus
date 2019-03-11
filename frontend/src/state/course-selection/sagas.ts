@@ -3,7 +3,7 @@ import { notifyError } from "../notifications/constants";
 import { put, takeEvery, call } from "redux-saga/effects";
 import { COURSES_REQUESTED_ACTION, COURSE_REQUESTED_ACTION } from "./constants";
 import { authenticatedFetchJSON } from "../../api";
-import { CourseDtoSummary, CourseDtoFull } from "../types";
+import { CourseDtoSummary, CourseDtoFull } from "../../api/types";
 import { courseRequestSucceededAction, CoursesRequestedAction } from "./action";
 
 export function* requestCourses() {

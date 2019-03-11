@@ -2,7 +2,7 @@ import {
     SignOffResultDtoCompact,
     AssignmentSetDtoFull,
     GroupDtoFull,
-} from "../types";
+} from "../../api/types";
 
 export enum SignOffChangeResult {
     Sufficient,

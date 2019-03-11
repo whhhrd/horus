@@ -1,7 +1,7 @@
 import { Component } from "react";
 import React from "react";
 import { Formik, Field } from "formik";
-import { CommentCreateDto, CommentUpdateDto, CommentDto, CommentType } from "../../state/types";
+import { CommentCreateDto, CommentUpdateDto, CommentDto, CommentType } from "../../api/types";
 import { Form, Button, Modal, ModalHeader, ModalBody, ModalFooter, Alert } from "reactstrap";
 import { ApplicationState } from "../../state/state";
 import { connect } from "react-redux";

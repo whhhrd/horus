@@ -25,7 +25,7 @@ import {
 import { notifyInfo, notifyError, notifySuccess } from "../notifications/constants";
 import { push } from "connected-react-router";
 import { PATH_CANVAS_IMPORT, PATH_CANVAS_TOKEN } from "../../routes";
-import { BooleanResultDto, CanvasCourseDto } from "../types";
+import { BooleanResultDto, CanvasCourseDto } from "../../api/types";
 
 export function* submitToken(action: TokenSubmittedAction) {
     try {

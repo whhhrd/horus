@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { CommentDto } from "../../state/types";
+import { CommentDto } from "../../api/types";
 import { ListGroupItem, Popover, PopoverHeader, PopoverBody, Button, CardTitle } from "reactstrap";
 import { getDisplayedDate } from "../util";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";

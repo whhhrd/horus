@@ -27,7 +27,7 @@ import {
 } from "./actions";
 
 import { authenticatedFetchJSON } from "../../api/sagas";
-import { AssignmentSetDtoBrief, AssignmentGroupSetsMappingDto, AssignmentSetDtoFull } from "../types";
+import { AssignmentSetDtoBrief, AssignmentGroupSetsMappingDto, AssignmentSetDtoFull } from "../../api/types";
 import { notifyError, notifySuccess } from "../notifications/constants";
 import { AssignmentValue } from "./types";
 

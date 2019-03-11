@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { CourseDtoBrief } from "../../../state/types";
+import { CourseDtoBrief } from "../../../api/types";
 import {
     COURSE_LIST_STUDENT,
     COURSE_LIST_TEACHER,

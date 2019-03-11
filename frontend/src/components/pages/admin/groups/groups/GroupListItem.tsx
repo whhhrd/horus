@@ -1,5 +1,5 @@
 import React, { PureComponent } from "react";
-import { GroupDtoFull } from "../../../../../state/types";
+import { GroupDtoFull } from "../../../../../api/types";
 import { Card, CardTitle, CardBody, Col, Badge, Button } from "reactstrap";
 
 interface GroupListItemProps {

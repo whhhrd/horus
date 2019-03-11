@@ -1,4 +1,4 @@
-import { CanvasCourseDto } from "../types";
+import { CanvasCourseDto } from "../../api/types";
 
 export interface CanvasSettingsState {
     canvasCourses: CanvasCourseDto[] | null;

@@ -7,7 +7,7 @@ import {
     COMMENT_DELETE_REQUEST_SUCCEEDED_ACTION,
 } from "./constants";
 import { CommentsState } from "./types";
-import { CommentThreadDtoFull, CommentDto } from "../types";
+import { CommentThreadDtoFull, CommentDto } from "../../api/types";
 import {
     CommentThreadsRequestSucceededAction,
     CommentCreateSucceededAction,

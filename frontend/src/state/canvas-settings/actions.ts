@@ -12,7 +12,7 @@ import {
     CANVAS_REFRESH_SET_REQUESTED_ACTION,
 } from "./constants";
 
-import { CanvasCourseDto, GroupSetDtoSummary, GroupDtoFull } from "../types";
+import { CanvasCourseDto, GroupSetDtoSummary, GroupDtoFull } from "../../api/types";
 import { Action } from "redux";
 
 // TOKEN SUBMIT AND CHECKING

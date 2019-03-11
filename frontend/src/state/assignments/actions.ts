@@ -23,7 +23,7 @@ import {
     AssignmentSetDtoFull,
     AssignmentSetUpdateDto,
     AssignmentSetCreateDto,
-} from "../types";
+} from "../../api/types";
 import { AssignmentValue } from "./types";
 
 // BRIEFS

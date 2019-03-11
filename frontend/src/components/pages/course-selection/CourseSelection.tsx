@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { ApplicationState } from "../../../state/state";
 import { getCourses } from "../../../state/course-selection/selectors";
 import { coursesRequestedAction } from "../../../state/course-selection/action";
-import { CourseDtoSummary } from "../../../state/types";
+import { CourseDtoSummary } from "../../../api/types";
 import CourseList from "./CourseList";
 import {
     COURSE_LIST_TA,

@@ -15,7 +15,13 @@ import {
     COMMENT_DELETE_REQUEST_SUCCEEDED_ACTION,
 } from "./constants";
 
-import { CommentThreadDtoFull, CommentCreateDto, CommentUpdateDto, CommentThreadCreateDto, CommentDto } from "../types";
+import {
+    CommentThreadDtoFull,
+    CommentCreateDto,
+    CommentUpdateDto,
+    CommentThreadCreateDto,
+    CommentDto,
+} from "../../api/types";
 import { CommentThreadType } from "../../components/comments/CommentThread";
 
 // COMMENT THREAD CREATE

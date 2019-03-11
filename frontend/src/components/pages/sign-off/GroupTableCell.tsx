@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import { GroupDtoFull } from "../../../state/types";
+import { GroupDtoFull } from "../../../api/types";
 
 interface GroupTableCellProps {
     group: GroupDtoFull;

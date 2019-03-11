@@ -1,4 +1,4 @@
-import { CourseDtoSummary, CourseDtoFull } from "../types";
+import { CourseDtoSummary, CourseDtoFull } from "../../api/types";
 
 export interface CoursesState {
     courses: CourseDtoSummary[] | null;

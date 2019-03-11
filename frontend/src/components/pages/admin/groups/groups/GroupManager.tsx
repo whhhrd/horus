@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Row, Col, Button, Input, Table } from "reactstrap";
 import { RouteComponentProps, withRouter } from "react-router";
-import { GroupDtoFull, CourseDtoSummary } from "../../../../../state/types";
+import { GroupDtoFull, CourseDtoSummary } from "../../../../../api/types";
 import { ApplicationState } from "../../../../../state/state";
 import { getGroups } from "../../../../../state/groups/selectors";
 import { groupsFetchRequestedAction, GroupsFetchAction } from "../../../../../state/groups/actions";

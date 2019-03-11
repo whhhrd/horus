@@ -6,7 +6,7 @@ import {
     COURSE_REQUESTED_ACTION,
     COURSE_REQUEST_SUCCEEDED_ACTION,
 } from "./constants";
-import { CourseDtoSummary, CourseDtoFull } from "../types";
+import { CourseDtoSummary, CourseDtoFull } from "../../api/types";
 
 // REQUEST COURSES
 export interface CoursesRequestedAction extends Action<string> {

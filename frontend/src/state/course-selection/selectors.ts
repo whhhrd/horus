@@ -1,5 +1,5 @@
 import { ApplicationState } from "../state";
-import { CourseDtoSummary } from "../types";
+import { CourseDtoSummary } from "../../api/types";
 
 export const getCourses = (state: ApplicationState) =>
     state.course != null ? state.course.courses : null;

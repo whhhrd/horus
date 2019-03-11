@@ -12,7 +12,7 @@ import {
 } from "reactstrap";
 import Autosuggest from "react-autosuggest";
 
-import { AssignmentSetDtoBrief } from "../../../state/types";
+import { AssignmentSetDtoBrief } from "../../../api/types";
 import { ApplicationState } from "../../../state/state";
 import { GroupAssignmentSetCombination } from "../../../state/search/types";
 

@@ -7,7 +7,7 @@ import {
 } from "./constants";
 
 import { Action } from "redux";
-import { GroupSetDtoSummary, GroupDtoFull } from "../types";
+import { GroupSetDtoSummary, GroupDtoFull } from "../../api/types";
 
 export interface GroupSetsFetchAction extends Action<string> {
     readonly courseId: number;

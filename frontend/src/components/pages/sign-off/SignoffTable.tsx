@@ -13,7 +13,7 @@ import {
     AssignmentDtoBrief,
     GroupDtoSummary,
     SignOffResultType,
-} from "../../../state/types";
+} from "../../../api/types";
 import { ApplicationState } from "../../../state/state";
 
 import {

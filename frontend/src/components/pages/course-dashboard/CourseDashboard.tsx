@@ -4,7 +4,7 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import { ApplicationState } from "../../../state/state";
 import { connect } from "react-redux";
 import { getCourseFull } from "../../../state/course-selection/selectors";
-import { CourseDtoFull, AssignmentSetDtoBrief } from "../../../state/types";
+import { CourseDtoFull, AssignmentSetDtoBrief } from "../../../api/types";
 import Row from "reactstrap/lib/Row";
 import Col from "reactstrap/lib/Col";
 import { NOTIFICATION_ACTION_CONNECTOR } from "../../../state/notifications/constants";

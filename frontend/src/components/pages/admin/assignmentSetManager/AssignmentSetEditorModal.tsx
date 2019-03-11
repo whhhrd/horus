@@ -28,7 +28,7 @@ import {
     AssignmentSetUpdateDto,
     GroupSetDtoBrief,
     AssignmentDtoBrief,
-} from "../../../../state/types";
+} from "../../../../api/types";
 import {
     assignmentSetFetchRequestedAction,
     assignmentSetUpdateRequestedAction,

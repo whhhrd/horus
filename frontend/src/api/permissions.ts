@@ -3,7 +3,7 @@ import {
     HorusResourceScope,
     HorusPermissionType,
     HorusAuthorityDto,
-} from "../state/types";
+} from "./types";
 
 function generatePermissionString(
     resource: HorusResource,

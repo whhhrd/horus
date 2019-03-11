@@ -8,7 +8,7 @@ import {
     SignOffResultDtoCompact,
     GroupDtoFull,
     AssignmentSetDtoFull,
-} from "../types";
+} from "../../api/types";
 import { Action } from "redux";
 import { SignOffDetails, SignOffChange } from "./types";
 import { SIGN_OFF_SAVE_REQUESTED_ACTION } from "./constants";

@@ -9,7 +9,7 @@ import { ApplicationState } from "../../../../state/state";
 import {
     assignmentSetCreateRequestedAction,
 } from "../../../../state/assignments/actions";
-import { AssignmentSetCreateDto } from "../../../../state/types";
+import { AssignmentSetCreateDto } from "../../../../api/types";
 import { Formik, Field } from "formik";
 
 interface AssignmentSetCreatorModalProps {

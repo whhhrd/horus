@@ -1,4 +1,4 @@
-import { AssignmentSetDtoBrief, AssignmentGroupSetsMappingDto, AssignmentSetDtoFull } from "../types";
+import { AssignmentSetDtoBrief, AssignmentGroupSetsMappingDto, AssignmentSetDtoFull } from "../../api/types";
 
 export interface AssignmentSetsState {
     assignmentSetBriefs: AssignmentSetDtoBrief[] | null;

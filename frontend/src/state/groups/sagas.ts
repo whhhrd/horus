@@ -13,7 +13,7 @@ import {
 } from "./actions";
 
 import { authenticatedFetchJSON } from "../../api/sagas";
-import { GroupSetDtoSummary, GroupDtoFull } from "../types";
+import { GroupSetDtoSummary, GroupDtoFull } from "../../api/types";
 import { notifyError } from "../notifications/constants";
 
 export function* fetchGroupSets(action: GroupSetsFetchAction) {

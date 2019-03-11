@@ -9,7 +9,7 @@ import {
     AUTHORITIES_UPDATED_ACTION,
 } from "./constants";
 import { LoginForm } from "./types";
-import { HorusAuthorityDto } from "../types";
+import { HorusAuthorityDto } from "../../api/types";
 
 export interface LoginAction extends Action<string> {
     readonly form: LoginForm | null;

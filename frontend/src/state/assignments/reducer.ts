@@ -14,7 +14,7 @@ import {
 } from "./constants";
 
 import { AssignmentSetsState } from "./types";
-import { AssignmentSetDtoFull, AssignmentSetDtoBrief } from "../types";
+import { AssignmentSetDtoFull, AssignmentSetDtoBrief } from "../../api/types";
 import {
     AssignmentSetsFetchSucceededAction,
     AssignmentGroupSetsMappingsFetchSucceededAction,

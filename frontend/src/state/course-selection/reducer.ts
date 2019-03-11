@@ -10,7 +10,7 @@ import {
     COURSES_REQUESTED_ACTION,
 } from "./constants";
 
-import { CourseDtoSummary } from "../types";
+import { CourseDtoSummary } from "../../api/types";
 import { Action } from "redux";
 import { CoursesState } from "./types";
 

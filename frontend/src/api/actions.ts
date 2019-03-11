@@ -17,7 +17,7 @@ import {
     API_AUTH_CODE_LOGIN_AUTHENTICATION_REQUESTED,
 } from "./constants";
 
-import { HorusAuthorityDto } from "../state/types";
+import { HorusAuthorityDto } from "./types";
 
 export const requestTokenLoad = () => ({ type: API_AUTH_LOAD_TOKEN_REQUESTED });
 export const requestPasswordLogin = (username: string, password: string) => ({

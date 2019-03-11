@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import { ParticipantDto } from "../../../state/types";
+import { ParticipantDto } from "../../../api/types";
 
 interface ParticipantTableCellProps {
     participant: ParticipantDto;

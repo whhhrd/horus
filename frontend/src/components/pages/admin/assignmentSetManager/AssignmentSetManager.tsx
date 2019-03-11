@@ -20,7 +20,7 @@ import {
     AssignmentSetDtoBrief,
     AssignmentGroupSetsMappingDto,
     GroupSetDtoBrief,
-} from "../../../../state/types";
+} from "../../../../api/types";
 
 import { ApplicationState } from "../../../../state/state";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

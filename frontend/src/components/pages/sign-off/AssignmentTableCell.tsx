@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { AssignmentDtoBrief } from "../../../state/types";
+import { AssignmentDtoBrief } from "../../../api/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisH } from "@fortawesome/free-solid-svg-icons";
 

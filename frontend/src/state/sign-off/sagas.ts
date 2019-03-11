@@ -1,5 +1,5 @@
 import { authenticatedFetchJSON } from "../../api";
-import { SignOffResultDtoCompact, SignOffResultPatchDto } from "../types";
+import { SignOffResultDtoCompact, SignOffResultPatchDto } from "../../api/types";
 import { put, takeEvery, call, all } from "redux-saga/effects";
 import {
     signOffResultsRequestSucceededAction,

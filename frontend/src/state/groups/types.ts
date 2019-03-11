@@ -1,4 +1,4 @@
-import { GroupSetDtoSummary, GroupDtoFull } from "../types";
+import { GroupSetDtoSummary, GroupDtoFull } from "../../api/types";
 
 export interface GroupsState {
     groupSets: GroupSetDtoSummary[] | null;

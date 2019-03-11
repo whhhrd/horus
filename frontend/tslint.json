@@ -18,7 +18,7 @@
     "rulesDirectory": [],
     "linterOptions": {
       "exclude": [
-          "src/state/types.d.ts"
+          "src/api/types.d.ts"
       ]
   }
     

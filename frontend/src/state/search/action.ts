@@ -4,7 +4,7 @@ import {
     SIGN_OFF_SEARCH_QUERY_ACTION,
     SIGN_OFF_SEARCH_SUCCEEDED_ACTION,
 } from "./constants";
-import { GroupAssignmentSetSearchResultDto } from "../types";
+import { GroupAssignmentSetSearchResultDto } from "../../api/types";
 
 export interface SignOffSearchQueryAction extends Action<string> {
     readonly courseID: number;

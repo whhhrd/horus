@@ -7,7 +7,7 @@ import { Row, Col, Button } from "reactstrap";
 import { getGroupSets } from "../../../../../state/groups/selectors";
 import { groupSetsFetchRequestedAction } from "../../../../../state/groups/actions";
 
-import { GroupSetDtoSummary, CourseDtoSummary } from "../../../../../state/types";
+import { GroupSetDtoSummary, CourseDtoSummary } from "../../../../../api/types";
 import { ApplicationState } from "../../../../../state/state";
 import CanvasCard from "../../../../CanvasCard";
 import { faUsers, faSync } from "@fortawesome/free-solid-svg-icons";
