@@ -14,11 +14,17 @@ export interface CourseDtoBrief {
     name: string;
 }
 
-type CommentType = "STAFF_ONLY" | "PUBLIC";
+export type CommentType = "STAFF_ONLY" | "PUBLIC";
 
 export interface CommentThreadDtoBrief {
     id: number;
     type: CommentType;
+}
+
+export interface LabelDto {
+    color: string;
+    id: number;
+    name: string;
 }
 
 export interface PersonDtoBrief {
@@ -41,6 +47,7 @@ export interface ParticipantDto {
     createdAt: Date;
     enabled: boolean;
     id: number;
+    labels: LabelDto[];
     person: PersonDtoBrief;
     role: RoleDtoBrief;
 }
@@ -167,6 +174,7 @@ export interface CourseDtoSummary extends CourseDtoBrief {
 export interface CourseDtoFull extends CourseDtoSummary {
     assignmentSets: AssignmentSetDtoBrief[];
     groupSets: GroupSetDtoBrief[];
+    labels: LabelDto[];
 }
 
 export interface CourseCreateDto {
@@ -221,6 +229,11 @@ export interface GroupAssignmentSetSearchResultDto {
     groups: GroupDtoSearch[];
 }
 
+export interface LabelCreateUpdateDto {
+    color: string;
+    name: string;
+}
+
 export interface ParticipantCreateDto {
     personId: number;
     roleId: number;
@@ -232,7 +245,7 @@ export interface ParticipantUpdateDto {
     roleId: number;
 }
 
-export type HorusResource = "PERSON" | "COURSE" | "COURSE_PARTICIPANT" | "COURSE_GROUPSET" | "COURSE_GROUP" | "COURSE_GROUPMEMBER" | "COURSE_ASSIGNMENTSET" | "COURSE_COMMENT_STAFFONLY" | "COURSE_COMMENT_PUBLIC" | "COURSE_SIGNOFFRESULT";
+export type HorusResource = "PERSON" | "COURSE" | "COURSE_PARTICIPANT" | "COURSE_LABEL" | "COURSE_PARTICIPANT_LABEL_MAPPING" | "COURSE_GROUPSET" | "COURSE_GROUP" | "COURSE_GROUPMEMBER" | "COURSE_ASSIGNMENTSET" | "COURSE_COMMENT_STAFFONLY" | "COURSE_COMMENT_PUBLIC" | "COURSE_SIGNOFFRESULT";
 
 export type HorusResourceScope = "OWN" | "ANY";
 

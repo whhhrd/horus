@@ -1,16 +1,13 @@
 package nl.utwente.horus.controllers.course
 
-import nl.utwente.horus.entities.assignment.AssignmentSet
-import nl.utwente.horus.entities.person.Person
-import nl.utwente.horus.exceptions.WrongCourseException
-import nl.utwente.horus.representations.assignment.AssignmentGroupSetsMappingDto
-import nl.utwente.horus.representations.assignment.AssignmentSetCreateDto
-import nl.utwente.horus.representations.assignment.AssignmentSetDtoBrief
-import nl.utwente.horus.representations.assignment.AssignmentSetDtoFull
 import nl.utwente.horus.auth.permissions.HorusPermission
 import nl.utwente.horus.auth.permissions.HorusResource
+import nl.utwente.horus.entities.assignment.AssignmentSet
+import nl.utwente.horus.entities.person.Person
+import nl.utwente.horus.exceptions.CourseMismatchException
 import nl.utwente.horus.exceptions.EmptySearchQueryException
 import nl.utwente.horus.exceptions.InsufficientPermissionsException
+import nl.utwente.horus.exceptions.WrongCourseException
 import nl.utwente.horus.representations.assignment.*
 import nl.utwente.horus.representations.auth.RoleDtoBrief
 import nl.utwente.horus.representations.course.CourseCreateDto
@@ -18,13 +15,12 @@ import nl.utwente.horus.representations.course.CourseDtoFull
 import nl.utwente.horus.representations.course.CourseDtoSummary
 import nl.utwente.horus.representations.course.CourseUpdateDto
 import nl.utwente.horus.representations.group.GroupSetDtoSummary
-import nl.utwente.horus.representations.participant.ParticipantCreateDto
-import nl.utwente.horus.representations.participant.ParticipantDto
-import nl.utwente.horus.representations.participant.ParticipantUpdateDto
+import nl.utwente.horus.representations.participant.*
 import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
 import nl.utwente.horus.services.assignment.AssignmentService
 import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.course.CourseService
+import nl.utwente.horus.services.participant.LabelService
 import nl.utwente.horus.services.participant.ParticipantService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -41,6 +37,9 @@ class CourseController {
 
     @Autowired
     lateinit var courseService: CourseService
+
+    @Autowired
+    lateinit var labelService: LabelService
 
     @Autowired
     lateinit var userDetailService: HorusUserDetailService
@@ -139,6 +138,26 @@ class CourseController {
     fun getFullCourse(@PathVariable courseId: Long): CourseDtoFull {
         val participation = participantService.getCurrentParticipationInCourse(courseId)
         return CourseDtoFull(courseService.getCourseById(courseId), RoleDtoBrief(participation.role))
+    }
+
+    @PostMapping(path = ["/{courseId}/labels"])
+    fun addLabel(@PathVariable courseId: Long, @RequestBody dto: LabelCreateUpdateDto): LabelDto {
+        val course = courseService.getCourseById(courseId)
+        return LabelDto(labelService.createLabel(course, dto))
+    }
+
+    @PutMapping(path = ["/{courseId}/labels/{labelId}"])
+    fun updateLabel(@PathVariable courseId: Long, @PathVariable labelId: Long, @RequestBody dto: LabelCreateUpdateDto): LabelDto {
+        return LabelDto(labelService.updateLabel(courseId, labelId, dto))
+    }
+
+    @DeleteMapping(path = ["/{courseId}/labels/{labelId}"])
+    fun deleteLabel(@PathVariable courseId: Long, @PathVariable labelId: Long) {
+        val label = labelService.getLabelById(labelId)
+        if (label.course.id != courseId) {
+            throw CourseMismatchException()
+        }
+        labelService.deleteLabel(label)
     }
 
     @GetMapping(path = ["/{courseId}/groups/search"])

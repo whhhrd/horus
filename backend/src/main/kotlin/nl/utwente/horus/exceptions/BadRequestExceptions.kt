@@ -9,6 +9,8 @@ class WrongCourseException : BadRequestException("This entity does not belong to
 
 class EmptySearchQueryException : BadRequestException("No search query provided.")
 
+class CourseMismatchException : BadRequestException("Multiple entities were attempted to be associated, but belong to different courses.")
+
 // Assignment-related
 class InvalidAssignmentCreateRequestException(message: String) : BadRequestException(message)
 
@@ -29,3 +31,14 @@ class ExistingThreadException : BadRequestException("This entity already has an 
 class AlreadyArchivedException : BadRequestException("This sign-off result has already been marked as archived.")
 
 class DifferentAssignmentSetException : BadRequestException("This request contains assignments which do not belong to the given set ID.")
+
+// Participant-related
+class ExistingLabelException : BadRequestException("This participant already contains the to-be-added label.")
+
+class LabelNotLinkedException : BadRequestException("Label could not be found for this participant.")
+
+class InvalidColorException: BadRequestException("Color should be six-character hex string without #-prefix.")
+
+class InvalidLabelNameException : BadRequestException("Label name can only contain (at most 15) alphanumeric characters and hyphens.")
+
+class ExistingLabelNameException : BadRequestException("Label name is already taken for this course.")

@@ -2,6 +2,7 @@ package nl.utwente.horus.entities.course
 
 import nl.utwente.horus.entities.assignment.AssignmentSet
 import nl.utwente.horus.entities.group.GroupSet
+import nl.utwente.horus.entities.participant.Label
 import nl.utwente.horus.entities.participant.Participant
 import java.time.ZonedDateTime
 import javax.persistence.*
@@ -25,6 +26,10 @@ data class Course (
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "course", cascade = [CascadeType.ALL], orphanRemoval = true)
     val participants: MutableSet<Participant> = HashSet()
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "course", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OrderBy("id ASC")
+    val labels: MutableSet<Label> = HashSet()
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "course", cascade = [CascadeType.ALL], orphanRemoval = true)
     @OrderBy("id ASC")

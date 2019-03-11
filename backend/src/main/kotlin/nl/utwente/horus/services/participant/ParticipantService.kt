@@ -2,12 +2,9 @@ package nl.utwente.horus.services.participant
 
 import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.course.Course
-import nl.utwente.horus.entities.participant.Participant
-import nl.utwente.horus.entities.participant.ParticipantRepository
+import nl.utwente.horus.entities.participant.*
 import nl.utwente.horus.entities.person.Person
-import nl.utwente.horus.exceptions.ExistingThreadException
-import nl.utwente.horus.exceptions.NoParticipantException
-import nl.utwente.horus.exceptions.ParticipantNotFoundException
+import nl.utwente.horus.exceptions.*
 import nl.utwente.horus.representations.participant.ParticipantCreateDto
 import nl.utwente.horus.representations.participant.ParticipantUpdateDto
 import nl.utwente.horus.services.auth.HorusUserDetailService
@@ -26,6 +23,9 @@ class ParticipantService {
 
     @Autowired
     lateinit var participantRepository: ParticipantRepository
+
+    @Autowired
+    lateinit var participantLabelMappingRepository: ParticipantLabelMappingRepository
 
     @Autowired
     lateinit var userDetailService: HorusUserDetailService
@@ -100,6 +100,26 @@ class ParticipantService {
         } else {
             throw ExistingThreadException()
         }
+    }
+
+    fun addLabel(participant: Participant, label: Label) {
+        if (participant.course.id != label.course.id) {
+            throw CourseMismatchException()
+        }
+        val author = getCurrentParticipationInCourse(label.course.id)
+        if (participant.labels.contains(label)) {
+            throw ExistingLabelException()
+        }
+        val mapping = participantLabelMappingRepository.save(ParticipantLabelMapping(participant, label, author))
+        participant.labelMappings.add(mapping)
+        label.participantMappings.add(mapping)
+    }
+
+    fun removeLabelMapping(participant: Participant, label: Label) {
+        val mapping = participant.labelMappings.firstOrNull { it.label.id == label.id } ?: throw LabelNotLinkedException()
+        participant.labelMappings.remove(mapping)
+        label.participantMappings.remove(mapping)
+        participantLabelMappingRepository.delete(mapping)
     }
 
 

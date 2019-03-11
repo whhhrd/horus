@@ -20,6 +20,8 @@ class AssignmentNotFoundException : EntityNotFoundException("Assignment could no
 
 class ParticipantNotFoundException : EntityNotFoundException("Participant in course could not be found.")
 
+class LabelNotFoundException : EntityNotFoundException("Label could not be found.")
+
 class GroupNotFoundException : EntityNotFoundException("Group could not be found.")
 
 class GroupSetNotFoundException : EntityNotFoundException("Group set could not be found.")

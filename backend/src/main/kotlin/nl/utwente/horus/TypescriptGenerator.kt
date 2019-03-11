@@ -15,9 +15,7 @@ import nl.utwente.horus.representations.course.CourseUpdateDto
 import nl.utwente.horus.representations.error.ErrorDto
 import nl.utwente.horus.representations.group.GroupDtoFull
 import nl.utwente.horus.representations.group.GroupSetDtoFull
-import nl.utwente.horus.representations.participant.ParticipantCreateDto
-import nl.utwente.horus.representations.participant.ParticipantDto
-import nl.utwente.horus.representations.participant.ParticipantUpdateDto
+import nl.utwente.horus.representations.participant.*
 import nl.utwente.horus.representations.person.PersonDtoFull
 import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
 import nl.utwente.horus.representations.signoff.SignOffResultPatchDto
@@ -57,6 +55,8 @@ fun generate() {
                     GroupSetDtoFull::class,
                     GroupAssignmentSetSearchResultDto::class,
 
+                    LabelCreateUpdateDto::class,
+                    LabelDto::class,
                     ParticipantDto::class,
                     ParticipantCreateDto::class,
                     ParticipantUpdateDto::class,

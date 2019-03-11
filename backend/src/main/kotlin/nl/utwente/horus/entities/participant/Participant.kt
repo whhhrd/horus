@@ -33,4 +33,10 @@ data class Participant (
 
 ) {
         constructor(person: Person, course: Course, role: Role) : this(0, person, course, role, null,true, ZonedDateTime.now())
+
+        @OneToMany(fetch = FetchType.LAZY, mappedBy = "id.participant", cascade = [CascadeType.ALL], orphanRemoval = true)
+        val labelMappings: MutableSet<ParticipantLabelMapping> = HashSet()
+
+        val labels
+                get() = labelMappings.map { it.label }.sortedBy { it.name }
 }
