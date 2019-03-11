@@ -1,27 +1,21 @@
 import React, { PureComponent } from "react";
 import { GroupDtoFull } from "../../../../../state/types";
-import { Card, CardTitle, CardBody, Col, Badge, Button, Collapse, Table } from "reactstrap";
+import { Card, CardTitle, CardBody, Col, Badge, Button } from "reactstrap";
 
 interface GroupListItemProps {
     group: GroupDtoFull;
+    onShowClick: (group: GroupDtoFull) => any;
 }
 
-interface GroupListItemState {
-    showGroupContent: boolean;
-}
-
-export default class GroupListItem extends PureComponent<GroupListItemProps, GroupListItemState> {
+export default class GroupListItem extends PureComponent<GroupListItemProps> {
 
     constructor(props: GroupListItemProps) {
         super(props);
-        this.state = {
-            showGroupContent: false,
-        };
-        this.toggleCollapse = this.toggleCollapse.bind(this);
+        this.onShowClick = this.onShowClick.bind(this);
     }
 
-    toggleCollapse() {
-        this.setState((state) => ({ showGroupContent: !state.showGroupContent }));
+    onShowClick(group: GroupDtoFull) {
+        this.props.onShowClick(group);
     }
 
     render() {
@@ -38,33 +32,11 @@ export default class GroupListItem extends PureComponent<GroupListItemProps, Gro
                             <div>
                                 <Badge pill color="light" className="mr-4 shadow-sm">
                                     {participants.length > 0 ? participants.length : "No"} students</Badge>
-                                <Button color="primary" size="sm" onClick={() => this.toggleCollapse()}>
-                                    {this.state.showGroupContent ? "Hide" : "Show"}
+                                <Button color="primary" size="sm" onClick={() => this.onShowClick(this.props.group)}>
+                                    Show
                                 </Button>
                             </div>
                         </div>
-                        <Collapse isOpen={this.state.showGroupContent}>
-                            {participants.length > 0 && <Table className="mt-3">
-                                <thead className="thead-light">
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Student number</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {
-                                        participants.map((p) =>
-                                            <tr key={p.id}>
-                                                <td>{p.person.fullName}</td>
-                                                <td>{p.person.loginId}</td>
-                                            </tr>)
-                                    }
-                                </tbody>
-                            </Table>}
-                            {participants.length === 0 &&
-                                <small className="text-muted">This group is empty.</small>
-                            }
-                        </Collapse>
                     </CardBody>
                 </Card>
             </Col>

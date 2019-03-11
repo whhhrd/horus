@@ -18,7 +18,7 @@ class CanvasCard extends Component<CanvasCardProps> {
     render() {
         const { url, cardTitle } = this.props;
         return (
-            <Card className="canvas-card" onClick={() => this.props.redirectTo(url)}>
+            <Card className="canvas-card mx-2 mb-3 shadow-sm" onClick={() => this.props.redirectTo(url)}>
                 <CardHeader
                     className="canvas-card-header d-flex vertical-center"
                     style={{ backgroundColor: randomColor(cardTitle) }}>

@@ -4,15 +4,9 @@ import { importCanvasCourseAction, checkTokenAndRedirectTokenAction } from "../.
 import { ApplicationState } from "../../../state/state";
 import { getCanvasCourses, isImporting } from "../../../state/canvas-settings/selectors";
 import { CanvasCourseDto } from "../../../state/types";
-import Container from "reactstrap/lib/Container";
-import Row from "reactstrap/lib/Row";
-import Col from "reactstrap/lib/Col";
-import Spinner from "reactstrap/lib/Spinner";
 import { Formik, Field } from "formik";
-import Form from "reactstrap/lib/Form";
-import ButtonGroup from "reactstrap/lib/ButtonGroup";
-import Button from "reactstrap/lib/Button";
-import FormGroup from "reactstrap/lib/FormGroup";
+import { buildContent } from "../../pagebuilder";
+import { Row, Col, Form, FormGroup, Button, Alert } from "reactstrap";
 
 interface CanvasCourseImportProps {
     courses: CanvasCourseDto[] | null;
@@ -36,24 +30,7 @@ class CanvasCourseImport extends Component<CanvasCourseImportProps> {
         this.props.checkToken();
     }
     render() {
-        return (
-            <div style={{ display: "flex" }}>
-                <Container fluid={true} style={{ flex: "auto" }}>
-                    <Row className="main-body-breadcrumbs px-2 pt-3">
-                        <Col md="12">
-                            Canvas Course Import {this.props.courses === undefined && <Spinner
-                                color="primary" type="grow" />}
-                            <hr />
-                        </Col>
-                    </Row>
-                    <Row className="main-body-display px-2">
-                        <Col style={{ padding: 0 }}>
-                            {this.buildContent()}
-                        </Col>
-                    </Row>
-                </Container>
-            </div>
-        );
+        return buildContent("Canvas Course Import", this.buildContent());
     }
 
     private onSubmit = (course: CanvasCourseValue) => {
@@ -63,23 +40,22 @@ class CanvasCourseImport extends Component<CanvasCourseImportProps> {
         if (this.props.courses === null) {
             return null;
         } else if (this.props.courses.length === 0) {
-            return <h4>You do not have any courses on Canvas that you can import</h4>;
+            return (
+                <Row>
+                    <Col xs="12" md="3">
+                        <Alert color="warning">You do not have any courses on Canvas that you can import</Alert>
+                    </Col>
+                </Row>
+            );
         } else {
             return (
-                <Formik
-                    initialValues={{ courseId: this.props.courses![0].canvasId }}
-                    onSubmit={this.onSubmit}
-                >
-                    {({ handleSubmit }) => (
-                        <Form style={{
-                            width: "50%",
-                            marginLeft: "auto",
-                            marginRight: "auto",
-                            padding: "1rem",
-
-                        }}>
-                            <Row>
-                                <Col>
+                <Row>
+                    <Col xs="12" md="6" className="mx-auto">
+                        <Formik
+                            initialValues={{ courseId: this.props.courses[0].canvasId }}
+                            onSubmit={this.onSubmit}>
+                            {({ handleSubmit }) => (
+                                <Form>
                                     <FormGroup>
                                         <Field className="custom-select"
                                             component="select"
@@ -96,22 +72,16 @@ class CanvasCourseImport extends Component<CanvasCourseImportProps> {
                                                 )}
                                         </Field>
                                     </FormGroup>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col>
-                                    <ButtonGroup>
-                                        <Button
-                                            onClick={() => { handleSubmit(); }}
-                                        >
-                                            Submit
-                                        </Button>
-                                    </ButtonGroup>
-                                </Col>
-                            </Row>
-                        </Form>
-                    )}
-                </Formik>
+                                    <Button block color="primary"
+                                        onClick={() => { handleSubmit(); }}>
+                                        Submit
+                            </Button>
+                                </Form>
+                            )}
+                        </Formik>
+                    </Col>
+                </Row>
+
             );
         }
     }

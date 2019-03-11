@@ -6,7 +6,7 @@ import {
     COURSE_LIST_TA,
     COURSE_LIST_ANY,
 } from "../../../state/course-selection/constants";
-import { Row } from "reactstrap";
+import { Row, Col } from "reactstrap";
 import CanvasCard from "../../CanvasCard";
 import { faBook } from "@fortawesome/free-solid-svg-icons";
 interface CourseListProps {
@@ -21,22 +21,20 @@ export default class CourseList extends Component<CourseListProps, CourseListSta
 
     render() {
         if (this.props.courses.length === 0) {
-            return <Row />;
+            return null;
         }
         return (
             <Row>
-                <div style={{ maxWidth: "100%" }}>
+                <Col>
                     {this.props.mode !== COURSE_LIST_ANY &&
-                        <div>
-                            <h5 className="course-role-heading">
-                                {this.header()}
-                            </h5>
-                        </div>
+                        <h5 className="d-block w-100 text-center text-lg-left">
+                            {this.header()}
+                        </h5>
                     }
-                    <div style={{ display: "flex", flexWrap: "wrap" }}>
+                    <Row className="px-2 d-flex justify-content-center justify-content-lg-start">
                         {this.content()}
-                    </div>
-                </div>
+                    </Row>
+                </Col>
             </Row>
         );
     }
@@ -55,10 +53,12 @@ export default class CourseList extends Component<CourseListProps, CourseListSta
     }
     private content = () => {
         return Array.from(this.props.courses!, (course: CourseDtoBrief) => {
-            return <CanvasCard watermarkIcon={faBook}
-                cardTitle={course.name}
-                key={course.id}
-                url={`/courses/${course.id}`} />;
+            return (
+                <CanvasCard watermarkIcon={faBook}
+                    cardTitle={course.name}
+                    key={course.id}
+                    url={`/courses/${course.id}`} />
+            );
         });
     }
 }

@@ -2,15 +2,59 @@ $color_blue: #007bff;
 $color_yellow: #ffc107;
 $color_red: #dc3545;
 $color_green: #28a745;
-$color_canvas: rgb(45, 59, 69);
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* HTML components
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 body {
     margin: 0;
     padding: 0;
     font-family: 'Lato', sans-serif;
 }
 
-.login-wrapper {
+label {
+    font-weight: 600;
+}
+
+button {
+    align-self: flex-end;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* General utility classes
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+.no-decoration {
+    text-decoration: none !important;
+}
+
+.no-decoration:hover {
+    text-decoration: none !important;
+}
+
+.bg-light {
+    background-color: #f7f7f7 !important;
+}
+
+.cursor-pointer:hover {
+    cursor: pointer !important;
+}
+
+.cursor-move:hover {
+    cursor: move !important;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Extended/overwritten reactstrap classes
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+.card-title {
+    font-size: 1.2em;
+    margin-bottom: 0;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Login wrappers and properties
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+.LoginWrapper {
     height: 100vh;
     width: 100vw;
     overflow-x: hidden;
@@ -31,14 +75,6 @@ body {
     top: 0;
 }
 
-.no-decoration {
-    text-decoration: none !important;
-}
-
-.no-decoration:hover {
-    text-decoration: none !important;
-}
-
 .Login {
     width: 100%;
     background-color: rgba(255,255,255,0.3);
@@ -47,125 +83,26 @@ body {
     overflow-x: hidden;
 }
 
-.form {
-    padding: 1em;
-}
-
-label {
-    display: flex;
-    font-weight: 600;
-}
-
-button {
-    justify-content: flex-end;
-    align-self: flex-end;
-    padding: 1em;
-}
-
-.card {
-    box-shadow: 1px 1px 2px 1px rgba(0,0,0,0.1);
-    margin: 1.25rem;
-    max-width: 225px;
-    min-width: 200px;
-    flex: auto;
-    flex-basis: 0;
-}
-
-.card-title {
-    font-size: 1.2em;
-    margin-bottom: 0;
-}
-
-.canvas-card:hover {
-    box-shadow: 2px 2px 5px 3px rgba(0,0,0,0.08);
-    cursor: pointer;
-}
-
-.canvas-card-header {
-    border-bottom: 0;
-    height: 150px;
-}
-
-.aset-card {
-    max-width: 250px;
-    min-width: 250px;
-}
-
-.aset-card-create {
-    max-width: 250px;
-    min-width: 250px;
-    height: 250px;
-}
-
-.aset-card-footer {
-    border-top: 0;
-    padding-top: 0;
-    background: none;
-}
-
-.dashboard-sidebar {
-    height: 100vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-.dashboard-sidebar-desktop {
-    flex: auto;
-    flex-basis: 40%;
-}
-
-.dashboard-sidebar-mobile {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: calc(90% - 84px);
-
-    // Box shadow makes the sidebar 'pop' out a bit more (support for all browsers/devices)
-    -webkit-box-shadow: -28px 0px 52px -18px rgba(0,0,0,0.75);
-    -moz-box-shadow: -28px 0px 52px -18px rgba(0,0,0,0.75);
-    box-shadow: -28px 0px 52px -18px rgba(0,0,0,0.75);
-}
-
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Navigation Bar
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 .NavigationBar {
     height: 100vh;
     width: 84px;
 }
 
-.bg-light {
-    background-color: #f7f7f7 !important;
+.NavigationBarSm {
+    position: absolute;
+    width: 84px;
+    border-top: none !important;
+    top: 56px;
+    left: 0;
 }
 
-.course-role-heading {
-    margin-left: 1.25rem;
-}
-  
-.main-body {
-    max-height: 100vh !important;
-    padding: 0px;
-    overflow-y: hidden;
-}
-
-.main-body-breadcrumbs {
-    background-color: white;
-}
-
-.main-body-display {
-    max-height: 90vh;
-    overflow-y: auto;
-}
-
-.ErrorComponent {
-    pointer-events: all;
-    display: inline-block;
-}
-
-.ErrorComponentWrapper {
-    pointer-events: none;
-    text-align: center;
+.NavigationBarSmOpen {
     position: fixed;
+    left: 0;
     top: 0;
-    width: 100%;
-    z-index: 9000;
 }
 
 .NavigationBarLogo {
@@ -194,18 +131,113 @@ button {
     font-size: 0.80rem;
 }
 
-.cursor-pointer:hover {
-    cursor: pointer !important;
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Content wrappers and bodies
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+.ContentWrapper {
+    height: 100vh;
 }
 
-.cursor-move:hover {
-    cursor: move !important;
+.ContentMainSm {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.ContentMain {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Sidebar properties
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+.Sidebar {
+    width: 30%;
+    min-width: 500px;
+    overflow-y: auto;
+}
+
+.SidebarSm {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 100vw;
+    z-index: 1000;
+}
+
+.SidebarSmOpen {
+    position: fixed;
+    top: 0;
+    right: 0;
+}
+
+.SidebarContentSm {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Canvas card properties
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+.canvas-card{
+    min-width: 260px;
+    max-width: 260px;
+}
+
+.canvas-card:hover {
+    box-shadow: 2px 2px 5px 3px rgba(0,0,0,0.08) !important;
+    cursor: pointer;
+}
+
+.canvas-card-header {
+    border-bottom: 0;
+    height: 150px;
 }
 
 .watermark-icon {
     color: rgba(255,255,255,0.12);
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Assignment set card properties
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+.aset-card {
+    min-width: 225px;
+    max-width: 225px;
+}
+
+.aset-card-create {
+    @extend .aset-card;
+    height: 225px;
+}
+
+.aset-card-footer {
+    border-top: 0;
+    padding-top: 0;
+    background: none;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Notification/error system wrappers and properties
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+.ErrorComponent {
+    pointer-events: all;
+    display: inline-block;
+}
+
+.ErrorComponentWrapper {
+    pointer-events: none;
+    text-align: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 9000;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Signo-ff table properties
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 .sign-off-table {
     table-layout: fixed;
 }
@@ -223,6 +255,9 @@ button {
     text-align: center;
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Autosuggest properties
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 .react-autosuggest__container {
     position: relative;
 }
@@ -283,6 +318,9 @@ button {
     background-color: #ddd;
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Comment thread addons/properties
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 .thread-border-participant {
     border-left: 7px solid $color_blue;
 }

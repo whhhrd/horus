@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { withRouter, RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 
-import { Container, Row, Spinner, Col, Button } from "reactstrap";
+import { Row, Col, Button } from "reactstrap";
 
 import { getGroupSets } from "../../../../../state/groups/selectors";
 import { groupSetsFetchRequestedAction } from "../../../../../state/groups/actions";
@@ -18,6 +18,7 @@ import {
 } from "../../../../../state/canvas-settings/actions";
 import { courseRequestedAction } from "../../../../../state/course-selection/action";
 import { getCourse } from "../../../../../state/course-selection/selectors";
+import { buildContent } from "../../../../pagebuilder";
 
 interface GroupSetManagerProps {
     groupSets: GroupSetDtoSummary[] | null;
@@ -46,31 +47,33 @@ class GroupSetManager extends Component<GroupSetManagerProps & RouteComponentPro
     }
 
     render() {
+        return buildContent("Group Sets Manager", this.buildContent());
+    }
+
+    buildContent() {
         const { groupSets } = this.props;
 
-        const course = this.props.course(this.props.match.params.cid);
-        return (
-            <Container fluid={true}>
-                <Row className="main-body-breadcrumbs px-2 pt-3">
-                    <Col md="12">
-                        <h3>Group Sets Manager
-                        {groupSets == null &&
-                                <Spinner color="primary" type="grow"></Spinner>
-                            }
-                        </h3>
-                        <hr />
-                    </Col>
-                </Row>
-                <Row className="main-body-display px-2 flex-row">
-                    <Col md="12" xs="12">
-                        {
-                            course !== null && course.externalId !== null ?
-                                <Button block color="primary" size="lg" className="mb-3 w-25"
-                                    onClick={() => this.props.refreshSetsList(this.props.match.params.cid)}>
-                                    <FontAwesomeIcon icon={faSync} className="mr-2" />Sync group sets with Canvas
-                                </Button> : null
-                        }
-                    </Col>
+        const course = this.props.course(Number(this.props.match.params.cid));
+
+        if (course === null) {
+            return null;
+        } else {
+            return (
+                <Row className="px-2 d-flex justify-content-center justify-content-lg-start">
+                    {
+                        course.externalId !== null ?
+                            <Col xs="12" md="12">
+                                <Row>
+                                    <Col xs="12" lg="4">
+                                        <Button block color="primary" size="lg" className="mb-3"
+                                            onClick={() => this.props.refreshSetsList(this.props.match.params.cid)}>
+                                            <FontAwesomeIcon icon={faSync} className="mr-2" />
+                                            Sync group sets with Canvas
+                                        </Button>
+                                    </Col>
+                                </Row>
+                            </Col> : null
+                    }
                     {groupSets != null &&
                         groupSets.map((gSet) =>
                             <CanvasCard
@@ -82,8 +85,8 @@ class GroupSetManager extends Component<GroupSetManagerProps & RouteComponentPro
                         )
                     }
                 </Row>
-            </Container>
-        );
+            );
+        }
     }
 }
 

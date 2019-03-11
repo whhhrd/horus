@@ -78,7 +78,7 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
     render() {
         const code = this.getLoginCode();
         return (
-            <Row className="login-wrapper d-flex align-items-center">
+            <Row className="LoginWrapper d-flex align-items-center">
                 <Col className="mx-auto" lg="5" sm="12">
                     <svg className="LoginBackground">
                         <circle cx="1%" cy="50%" r="60%" fill="#e7e7e7" fillOpacity="0.5" />
@@ -107,7 +107,7 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                                         onSubmit={this.onSubmit} >
                                         {({ handleSubmit }) => (
                                             <Form className="p-3">
-                                            <h4>External login</h4>
+                                                <h4>External login</h4>
                                                 <FormGroup>
                                                     <Label>Username</Label>
                                                     <Input

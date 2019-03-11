@@ -31,7 +31,7 @@ export default class AssignmentSetListEntry
     }
 
     toggleEditorModal() {
-        this.setState((state) => ({editorModalOpen: !state.editorModalOpen}));
+        this.setState((state) => ({ editorModalOpen: !state.editorModalOpen }));
     }
 
     render() {
@@ -39,7 +39,7 @@ export default class AssignmentSetListEntry
             <Badge color="primary" className="mx-1" key={groupSetDtoBrief.id}>{groupSetDtoBrief.name}</Badge>);
 
         return (
-            <Card className="my-3 aset-card">
+            <Card className="m-2 shadow-sm aset-card">
                 <CardHeader>
                     <CardTitle>{this.props.assignmentSet.name}</CardTitle>
                 </CardHeader>
@@ -53,13 +53,13 @@ export default class AssignmentSetListEntry
                     </p>
                 </CardBody>
                 <CardFooter className="aset-card-footer">
-                    { this.props.canEdit &&
+                    {this.props.canEdit &&
                         <Button outline block color="primary" size="md"
                             onClick={() => this.toggleEditorModal()}>
                             <FontAwesomeIcon icon={faEdit} /> Edit
                         </Button>
                     }
-                    { this.state.editorModalOpen &&
+                    {this.state.editorModalOpen &&
                         <AssignmentSetEditorModal
                             isOpen={this.state.editorModalOpen}
                             assignmentSetId={this.props.assignmentSet.id}

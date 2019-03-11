@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { withRouter, RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 
-import { Container, Row, Spinner, Col, Card, CardBody } from "reactstrap";
+import { Card, CardBody, Row } from "reactstrap";
 
 import AssignmentSetListEntry from "./AssignmentSetListEntry";
 
@@ -29,6 +29,7 @@ import AssignmentSetCreatorModal from "./AssignmentSetCreatorModal";
 import { getCoursePermissions } from "../../../../state/auth/selectors";
 import CoursePermissions from "../../../../api/permissions";
 import { assignmentSetsAnyEdit, assignmentSetsAnyCreate } from "../../../../state/auth/constants";
+import { buildContent } from "../../../pagebuilder";
 
 interface AssignmentSetManagerProps {
 
@@ -75,29 +76,24 @@ class AssignmentSetManager extends
     }
 
     render() {
-        // Prepare the mapping of assignment set with its groupsets
-        const preparedASetGroupSetsMapping: Map<number, GroupSetDtoBrief[]> =
-            this.prepareAssignmentGroupSetsMappingDtosToMap(this.props.assignmentGroupSetsMappingDtos!);
+        return buildContent("Assignment Set Manager", this.buildContent());
+    }
 
+    buildContent() {
         const assignmentSets = this.props.getAssignmentSets();
 
-        // Put the AssignmentSetListEntry elements in the following map
-        const aSetJSXs: JSX.Element[] =
-            this.composeAssignmentSetListEntries(assignmentSets, preparedASetGroupSetsMapping);
+        if (assignmentSets === null || this.props.assignmentGroupSetsMappingDtos === null) {
+            return null;
+        } else {
+            // Prepare the mapping of assignment set with its groupsets
+            const preparedASetGroupSetsMapping: Map<number, GroupSetDtoBrief[]> =
+                this.prepareAssignmentGroupSetsMappingDtosToMap(this.props.assignmentGroupSetsMappingDtos);
 
-        return (
-            <Container fluid={true}>
-                <Row className="main-body-breadcrumbs px-2 pt-3">
-                    <Col md="12">
-                        <h3>Assignment Set Manager
-                        {assignmentSets == null &&
-                                <Spinner color="primary" type="grow"></Spinner>
-                            }
-                        </h3>
-                        <hr />
-                    </Col>
-                </Row>
-                <Row className="main-body-display px-2">
+            // Put the AssignmentSetListEntry elements in the following map
+            const aSetJSXs: JSX.Element[] =
+                this.composeAssignmentSetListEntries(assignmentSets, preparedASetGroupSetsMapping);
+            return (
+                <Row className="px-2 d-flex justify-content-center justify-content-lg-start">
                     {aSetJSXs}
                     <AssignmentSetCreatorModal
                         isOpen={this.state.creatorModalOpen}
@@ -105,8 +101,8 @@ class AssignmentSetManager extends
                         key={-1}
                         onCloseModal={this.toggleCreatorModal} />
                 </Row>
-            </Container>
-        );
+            );
+        }
     }
 
     /**
@@ -119,24 +115,18 @@ class AssignmentSetManager extends
         // The prepared mapping to be returned.
         const aSetIDsToGroupSets = new Map<number, GroupSetDtoBrief[]>();
 
-        // Return an empty map if there are no mappings found
-        if (mappingDtos == null) {
-            return aSetIDsToGroupSets;
-        } else {
+        // Loop over the mappingDtos and fill the map
+        for (const mappingDto of mappingDtos) {
+            const aSetDtoBrief = mappingDto.assignmentSet;
+            const groupSetDtoBrief = mappingDto.groupSet;
 
-            // Else loop over the mappingDtos and fill the map
-            for (const mappingDto of mappingDtos) {
-                const aSetDtoBrief = mappingDto.assignmentSet;
-                const groupSetDtoBrief = mappingDto.groupSet;
-
-                // Put an empty list if there is no key yet for this aSetDtoBrief
-                if (aSetIDsToGroupSets.get(aSetDtoBrief.id) === undefined) {
-                    aSetIDsToGroupSets.set(aSetDtoBrief.id, []);
-                }
-
-                // Push the groupSetDtoBrief to the value of the corresponding key
-                aSetIDsToGroupSets.get(aSetDtoBrief.id)!.push(groupSetDtoBrief);
+            // Put an empty list if there is no key yet for this aSetDtoBrief
+            if (aSetIDsToGroupSets.get(aSetDtoBrief.id) === undefined) {
+                aSetIDsToGroupSets.set(aSetDtoBrief.id, []);
             }
+
+            // Push the groupSetDtoBrief to the value of the corresponding key
+            aSetIDsToGroupSets.get(aSetDtoBrief.id)!.push(groupSetDtoBrief);
         }
 
         return aSetIDsToGroupSets;
@@ -151,7 +141,7 @@ class AssignmentSetManager extends
      * @param preparedASetGroupSetsMapping A Map that maps assignmentSetID to a list of GroupSetDtoBriefs
      */
     private composeAssignmentSetListEntries(
-        aSetDtoBriefs: AssignmentSetDtoBrief[] | null,
+        aSetDtoBriefs: AssignmentSetDtoBrief[],
         preparedASetGroupSetsMapping: Map<number, GroupSetDtoBrief[]>,
     ) {
 
@@ -162,12 +152,24 @@ class AssignmentSetManager extends
             && assignmentSetsAnyEdit.check(this.props.match.params.cid, this.props.permissions);
 
         const canCreate = this.props.permissions != null
-        && assignmentSetsAnyCreate.check(this.props.match.params.cid, this.props.permissions);
+            && assignmentSetsAnyCreate.check(this.props.match.params.cid, this.props.permissions);
 
-        // Put entries in the list only if there are assignmentSetDtoBriefs, otherwise put an alert into the list
-        if (aSetDtoBriefs == null) {
-            aSetJSXs.push(<div key={-1} />);
-        } else if (aSetDtoBriefs.length > 0) {
+        if (canCreate) {
+            aSetJSXs.push(
+                <Card key={-1}
+                    className="m-2 shadow-sm aset-card-create" onClick={() => this.toggleCreatorModal()}>
+                    <CardBody className="d-flex vertical-center" style={{ color: "#007bff" }}>
+                        <div className="mx-auto my-auto text-center">
+                            <FontAwesomeIcon icon={faPlus} size="4x" />
+                            <br /><big className="mt-4 d-block">Create assignment set</big>
+                        </div>
+                    </CardBody>
+                </Card>,
+            );
+        }
+
+        // Put entries in the list only if there are assignmentSetDtoBriefs
+        if (aSetDtoBriefs.length > 0) {
             // Loop over each assignmentSetDtoBrief and put
             for (const aSetDtoBrief of aSetDtoBriefs) {
 
@@ -185,19 +187,6 @@ class AssignmentSetManager extends
                 );
             }
         }
-
-        if (canCreate) {
-            aSetJSXs.push(
-                <Card key={-2} className="my-3 aset-card-create canvas-card" onClick={() => this.toggleCreatorModal()}>
-                    <CardBody className="brounded d-flex vertical-center" style={{ color: "#007bff" }}>
-                        <div className="mx-auto my-auto text-center">
-                            <FontAwesomeIcon icon={faPlus} size="4x" />
-                            <br /><big className="mt-4 d-block">Create assignment set</big>
-                        </div>
-                    </CardBody>
-                </Card>);
-        }
-
         return aSetJSXs;
     }
 }

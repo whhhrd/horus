@@ -1,17 +1,9 @@
 import React, { Component } from "react";
-import { Container } from "reactstrap";
-import Row from "reactstrap/lib/Row";
-import Col from "reactstrap/lib/Col";
 import { Formik, Field } from "formik";
-import Form from "reactstrap/lib/Form";
-import FormGroup from "reactstrap/lib/FormGroup";
-import Label from "reactstrap/lib/Label";
-import Input from "reactstrap/lib/Input";
-import ButtonGroup from "reactstrap/lib/ButtonGroup";
-import Button from "reactstrap/lib/Button";
 import { connect } from "react-redux";
 import { tokenSubmitAction, checkTokenAndRedirectImportAction } from "../../../state/canvas-settings/actions";
-import Spinner from "reactstrap/lib/Spinner";
+import { buildContent } from "../../pagebuilder";
+import { Form, Spinner, FormGroup, Label, Input, Button, Row, Col } from "reactstrap";
 
 interface CanvasTokenFormProps {
     submitToken: (token: string) => {
@@ -45,28 +37,12 @@ class CanvasTokenForm extends Component<CanvasTokenFormProps, CanvasTokenFormSta
     }
 
     render() {
-        return (
-            <div style={{ display: "flex" }}>
-                <Container fluid={true} style={{ flex: "auto" }}>
-                    <Row className="main-body-breadcrumbs px-2 pt-3">
-                        <Col md="12">
-                            Canvas Token Import
-                            <hr />
-                        </Col>
-                    </Row>
-                    <Row className="main-body-display px-2">
-                        <Col style={{ padding: 0 }}>
-                            {this.buildContent()}
-                        </Col>
-                    </Row>
-                </Container>
-            </div>
-        );
+        return buildContent("Canvas Token Import", this.buildContent());
     }
 
     private onSubmit = (token: CanvasTokenValues) => {
-        this.setState({ submitted: true });
         this.props.submitToken(token.token);
+        this.setState({ submitted: true });
     }
 
     private buildContent = () => {
@@ -74,43 +50,27 @@ class CanvasTokenForm extends Component<CanvasTokenFormProps, CanvasTokenFormSta
             return <Spinner color="primary" type="grow" />;
         } else {
             return (
-                <Formik
-                    initialValues={{ token: "" }}
-                    onSubmit={this.onSubmit}>
-                    {({ handleSubmit }) => (
-                        <Form
-                            style={{
-                                width: "50%",
-                                marginLeft: "auto",
-                                marginRight: "auto",
-                                padding: "1rem",
-                            }}>
-                            <Row>
-                                <Col>
+                <Row>
+                    <Col xs="12" md="6" className="mx-auto">
+                        <Formik
+                            initialValues={{ token: "" }}
+                            onSubmit={this.onSubmit}>
+                            {({ handleSubmit }) => (
+                                <Form>
                                     <FormGroup>
                                         <Label>Token</Label>
-                                        <Input
-                                            tag={Field}
-                                            id="token"
-                                            name="token"
-                                        />
+                                        <Input tag={Field} id="token" name="token" />
                                     </FormGroup>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col>
-                                    <ButtonGroup>
-                                        <Button
-                                            onClick={() => { handleSubmit(); }}
-                                        >
-                                            Submit
-                                    </Button>
-                                    </ButtonGroup>
-                                </Col>
-                            </Row>
-                        </Form>
-                    )}
-                </Formik>
+                                    <Button block color="primary"
+                                        onClick={() => handleSubmit}>
+                                        Submit
+                            </Button>
+                                </Form>
+                            )}
+                        </Formik>
+                    </Col>
+                </Row>
+
             );
         }
     }

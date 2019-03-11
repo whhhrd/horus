@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { CommentThreadDtoFull, CommentDto } from "../../state/types";
+import { CommentThreadDtoFull, CommentDto, CommentThreadDtoBrief } from "../../state/types";
 
 import Comment from "../comments/Comment";
 import { connect } from "react-redux";
@@ -34,7 +34,7 @@ export enum CommentThreadType {
 interface CommentThreadProps {
     linkedEntityId: number;
     linkedEntityType: CommentThreadType;
-    commentThreadId: number | null;
+    commentThreadBrief: CommentThreadDtoBrief | null;
     commentThreadSubject: string;
     showCommentThreadContent: boolean;
     needToFetchThread: boolean;
@@ -55,20 +55,20 @@ interface CommentThreadState {
  * In order to use a CommentThread, you have to specify certain props, namely:
  * 1. linkedEntityId: this is the ID of the participant, group, assignment or signoff result
  * 2. linkedEntityType: this is the type of the entity. Use CommentThreadType to specify it to your needs
- * 3. commentThreadId: this is the ID that is also part of the entity (simply do commentThread!.id), I check for
- *    undefined. Do not use hardcoded Thread Ids!
+ * 3. commentThreadBrief: this is the CommentThreadDtoBrief that is also part of the entity (simply put
+ *        commentThread!), I check for null.
  * 4. commendThreadSubject: What is this comment thread about? This will be the highlighted part of the comment thread
- *    title.
+ *        title.
  * 5. showCommentThreadContent: do you want the collapse to be open or closed (when the component mounts)?
- *    'true' for open, 'false' for closed
+ *        'true' for open, 'false' for closed
  * 6. needToFetchThread: fetching the comments before making the comment thread can be more performant when you want to
- *    fetch multiple comment threads. If you have done so, you can set this to 'false'. Otherwise, if you want a
- *    seperate call for fetching this comment thread, set this to 'true'.
+ *        fetch multiple comment threads. If you have done so, you can set this to 'false'. Otherwise, if you want a
+ *        seperate call for fetching this comment thread, set this to 'true'.
  *
  * Example comment thread:
  * <CommentThread linkedEntityId={participantX.id}
  *                linkedEntityType={CommentThreadType.Participant}
- *                commentThreadId={participantX.commentThread!.id}
+ *                commentThreadBrief={participantX.commentThread}
  *                commentThreadSubject="Justin Praas"
  *                showCommentThreadContent={true}
  *                needToFetchThread={true} />
@@ -88,9 +88,11 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
     }
 
     componentDidMount() {
-        const { commentThreadId, needToFetchThread } = this.props;
-        if (needToFetchThread && commentThreadId !== null && this.props.commentThread(commentThreadId) === undefined) {
-            this.props.fetchCommentThread(commentThreadId);
+        const { commentThreadBrief, needToFetchThread } = this.props;
+        if (needToFetchThread &&
+            commentThreadBrief !== null &&
+            this.props.commentThread(commentThreadBrief.id) === null) {
+            this.props.fetchCommentThread(commentThreadBrief.id);
         }
     }
 
@@ -112,19 +114,19 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
         switch (this.props.linkedEntityType) {
             case CommentThreadType.Assignment:
                 borderColor = `thread-border-assignment`;
-                titleEntityPrefix = "Assignment: ";
+                titleEntityPrefix = "Assignment";
                 break;
             case CommentThreadType.Participant:
                 borderColor = `thread-border-participant`;
-                titleEntityPrefix = "Participant: ";
+                titleEntityPrefix = "Student";
                 break;
             case CommentThreadType.Signoff:
                 borderColor = `thread-border-signoff`;
-                titleEntityPrefix = "Signoff: ";
+                titleEntityPrefix = "Signoff";
                 break;
             case CommentThreadType.Group:
                 borderColor = `thread-border-group`;
-                titleEntityPrefix = "Group: ";
+                titleEntityPrefix = "Group";
                 break;
         }
 
@@ -132,8 +134,8 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
             <div>
                 <Card className={`m-0 my-3 mw-100 ${borderColor!}`}>
                     <CardBody>
-                        <div className="d-flex justify-content-between">
-                            <CardTitle className="my-auto">
+                        <div className="d-flex justify-content-between flex-row flex-nowrap">
+                            <CardTitle className="my-auto d-flex mr-2">
                                 {this.buildCommentThreadTitle(titleEntityPrefix!)}
                             </CardTitle>
                             <Button color="primary" size="sm" onClick={() => this.toggleCollapse()}>
@@ -158,19 +160,21 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
             case (CommentThreadType.Signoff): iconElement = faTasks; break;
         }
 
-        const numberOfComments = this.props.commentThreadId != null ?
-            (this.props.commentThread(this.props.commentThreadId) != null ?
-                this.props.commentThread(this.props.commentThreadId)!.comments.length : 0) : 0;
+        const numberOfComments = this.props.commentThreadBrief !== null ?
+            (this.props.commentThread(this.props.commentThreadBrief.id) !== null ?
+                this.props.commentThread(this.props.commentThreadBrief.id)!.comments.length : 0) : 0;
 
         return (
-            <div>
-                {titlePrefix}
-                <mark className="ml-2 px-2">
+            <mark className="px-2">
+                <abbr title={`Comment thread about ${titlePrefix}: ${this.props.commentThreadSubject}`}>
                     <FontAwesomeIcon className="mr-2" icon={iconElement!} />
                     {this.props.commentThreadSubject}
-                </mark>
-                {numberOfComments > 0 ? <Badge pill color="primary" className="ml-2">{numberOfComments}</Badge> : null}
-            </div>
+                    {numberOfComments > 0 ?
+                        <small>
+                            <Badge pill color="primary" className="ml-2">{numberOfComments}</Badge>
+                        </small> : null}
+                </abbr>
+            </mark>
         );
     }
 
@@ -211,15 +215,20 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
     }
 
     buildCommentThreadContent() {
-        if (this.props.commentThreadId === null) {
+        if (this.props.commentThreadBrief === null) {
             return (
                 <div>
-                    <Button block
+                    <Alert color="info" className="mt-3 d-flex">
+                        <div className="my-auto mr-3">
+                            <FontAwesomeIcon icon={faInfo} size="lg" />
+                        </div>
+                        <div>Empty comment thread.</div>
+                    </Alert>
+                    <Button outline block
                         color="primary"
-                        size="lg"
-                        className="mt-3"
+                        size="md"
                         onClick={() => this.toggleCreateCommentThreadModal()}>
-                        <FontAwesomeIcon icon={faPlus} className="mr-2" />Start comment thread
+                        <FontAwesomeIcon icon={faPlus} className="mr-2" />Add comment
                     </Button>
                     <CommentThreadCreatorModal
                         onCloseModal={this.toggleCreateCommentThreadModal}
@@ -228,7 +237,7 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
                         isOpen={this.state.commentThreadCreatorModalOpen} />
                 </div>
             );
-        } else if (this.props.commentThread(this.props.commentThreadId) === null) {
+        } else if (this.props.commentThread(this.props.commentThreadBrief.id) === null) {
             return (
                 <Alert color="warning" className="mt-4 d-flex">
                     <div className="my-auto mr-3">
@@ -242,7 +251,7 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
             );
 
         } else {
-            const { comments, id, type } = this.props.commentThread(this.props.commentThreadId)!;
+            const { comments, id, type } = this.props.commentThread(this.props.commentThreadBrief.id)!;
             const commentsVisible = type === "PUBLIC";
             return (
                 <div>

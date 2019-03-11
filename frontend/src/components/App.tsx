@@ -42,7 +42,6 @@ import SignoffTable from "./pages/sign-off/SignoffTable";
 import GroupManager from "./pages/admin/groups/groups/GroupManager";
 import AssignmentSetManager from "./pages/admin/assignmentSetManager/AssignmentSetManager";
 import SignoffSearch from "./pages/sign-off/SignOffSearch";
-import NavigationBar from "./navigationBar/NavigationBar";
 
 export interface AppProps {
     loadAuthentication: () => {
@@ -77,65 +76,74 @@ class App extends React.Component<AppProps & RouteComponentProps, AppState> {
     }
 
     render() {
-        return (
-            <div>
-                <NotificationList />
-                <div className="d-flex">
-                    {this.props.pathname !== PATH_LOGIN &&
-                        <NavigationBar />
-                    }
-                    <div className="main-body flex-fill">
-                        <Switch>
-                            <RouteExtension exact path={PATH_LOGIN} component={Login}
-                                setActiveTab={ActiveTabEnum.NONE} />
-
-                            <RouteExtension exact path={PATH_COURSE_ADMINISTRATION} component={CourseAdministration}
-                                setActiveTab={ActiveTabEnum.ADMINISTRATION} />
-
-                            <RouteExtension exact path={PATH_ASSIGNMENT_SET_MANAGER} component={AssignmentSetManager}
-                                setActiveTab={ActiveTabEnum.ADMINISTRATION} />
-
-                            <RouteExtension exact path={PATH_GROUP_SET_MANAGER} component={GroupSetManager}
-                                setActiveTab={ActiveTabEnum.ADMINISTRATION} />
-
-                            <RouteExtension exact path={PATH_GROUP_SET_GROUPS_MANAGER} component={GroupManager}
-                                setActiveTab={ActiveTabEnum.ADMINISTRATION} />
-
-                            <RouteExtension exact path={PATH_COURSES} component={CourseSelection}
-                                setActiveTab={ActiveTabEnum.COURSES} />
-
-                            <RouteExtension exact path={PATH_DASHBOARD} component={CourseDashboard}
-                                setActiveTab={ActiveTabEnum.DASHBOARD} />
-
-                            <RouteExtension
-                                exact
-                                path={PATH_CANVAS_TOKEN}
-                                component={CanvasTokenForm} setActiveTab={ActiveTabEnum.NONE} />
-
-                            <RouteExtension
-                                exact
-                                path={PATH_CANVAS_IMPORT}
-                                component={CanvasCourseImport}
-                                setActiveTab={ActiveTabEnum.NONE} />
-
-                            <RouteExtension exact path={PATH_CANVAS_TOKEN} component={CanvasTokenForm}
-                                setActiveTab={ActiveTabEnum.NONE} />
-
-                            <RouteExtension exact path={PATH_CANVAS_IMPORT} component={CanvasCourseImport}
-                                setActiveTab={ActiveTabEnum.NONE} />
-
-                            <RouteExtension exact path={PATH_SIGNOFF_INITIAL} component={SignoffSearch}
-                                            setActiveTab={ActiveTabEnum.SIGNOFF}/>
-
-                            <RouteExtension exact path={PATH_SIGNOFF} component={SignoffSearch}
-                                setActiveTab={ActiveTabEnum.SIGNOFF} />
-
-                            <RouteExtension exact path={PATH_SIGNOFF_TABLE} component={SignoffTable}
-                                setActiveTab={ActiveTabEnum.SIGNOFF} />
-                        </Switch>
-                    </div>
+        if (this.props.pathname !== PATH_LOGIN) {
+            return (
+                <div>
+                    <NotificationList />
+                    {this.switch()}
                 </div>
-            </div>
+            );
+        } else {
+            return <Login />;
+        }
+    }
+
+    /** Returns the Switch component. Was extracted from the render method for readability. */
+    switch() {
+        return (
+            <Switch>
+                <RouteExtension exact path={PATH_COURSE_ADMINISTRATION}
+                    component={CourseAdministration}
+                    setActiveTab={ActiveTabEnum.ADMINISTRATION} />
+
+                <RouteExtension exact path={PATH_ASSIGNMENT_SET_MANAGER}
+                    component={AssignmentSetManager}
+                    setActiveTab={ActiveTabEnum.ADMINISTRATION} />
+
+                <RouteExtension exact path={PATH_GROUP_SET_MANAGER}
+                    component={GroupSetManager}
+                    setActiveTab={ActiveTabEnum.ADMINISTRATION} />
+
+                <RouteExtension exact path={PATH_GROUP_SET_GROUPS_MANAGER}
+                    component={GroupManager}
+                    setActiveTab={ActiveTabEnum.ADMINISTRATION} />
+
+                <RouteExtension exact path={PATH_COURSES}
+                    component={CourseSelection}
+                    setActiveTab={ActiveTabEnum.COURSES} />
+
+                <RouteExtension exact path={PATH_DASHBOARD}
+                    component={CourseDashboard}
+                    setActiveTab={ActiveTabEnum.DASHBOARD} />
+
+                <RouteExtension exact path={PATH_CANVAS_TOKEN}
+                    component={CanvasTokenForm}
+                    setActiveTab={ActiveTabEnum.NONE} />
+
+                <RouteExtension exact path={PATH_CANVAS_IMPORT}
+                    component={CanvasCourseImport}
+                    setActiveTab={ActiveTabEnum.NONE} />
+
+                <RouteExtension exact path={PATH_CANVAS_TOKEN}
+                    component={CanvasTokenForm}
+                    setActiveTab={ActiveTabEnum.NONE} />
+
+                <RouteExtension exact path={PATH_CANVAS_IMPORT}
+                    component={CanvasCourseImport}
+                    setActiveTab={ActiveTabEnum.NONE} />
+
+                <RouteExtension exact path={PATH_SIGNOFF_INITIAL}
+                    component={SignoffSearch}
+                    setActiveTab={ActiveTabEnum.SIGNOFF} />
+
+                <RouteExtension exact path={PATH_SIGNOFF}
+                    component={SignoffSearch}
+                    setActiveTab={ActiveTabEnum.SIGNOFF} />
+
+                <RouteExtension exact path={PATH_SIGNOFF_TABLE}
+                    component={SignoffTable}
+                    setActiveTab={ActiveTabEnum.SIGNOFF} />
+            </Switch>
         );
     }
 }
