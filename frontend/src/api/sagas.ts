@@ -2,19 +2,15 @@ import { call, delay, fork, put, race, take } from "redux-saga/effects";
 
 import {
     API_AUTH_AUTHENTICATION_FAILED,
-
     API_AUTH_AUTHENTICATION_SUCCEEDED,
     API_AUTH_LOAD_TOKEN_REQUESTED,
     API_AUTH_LOGOUT_REQUESTED,
-
     API_AUTH_PASSWORD_LOGIN_AUTHENTICATION_REQUESTED,
     API_AUTH_CODE_LOGIN_AUTHENTICATION_REQUESTED,
     API_AUTH_TOKEN_REFRESH_COMPLETED,
     API_AUTH_TOKEN_REFRESH_FAILED,
     API_AUTH_TOKEN_REFRESH_REQUESTED,
-
     API_AUTH_TOKEN_REFRESH_SUCCEEDED,
-
     AuthenticationType,
     API_AUTH_AUTHENTICATION_COMPLETED,
     API_AUTH_AUTHENTICATION_CANCELED,
@@ -26,12 +22,10 @@ import {
     eventAuthenticationCompleted,
     eventAuthenticationFailed,
     eventAuthenticationRefreshCompleted,
-
     eventAuthenticationRefreshFailed,
     eventAuthenticationRefreshSucceeded,
     eventAuthenticationSucceeded,
     eventLogoutCompleted,
-
     requestAuthenticationRefresh,
     requestForcedLogout,
 } from "./actions";
@@ -56,8 +50,11 @@ let authenticationState: AuthenticationState = {
     refreshToken: undefined,
 };
 
-function buildAuthenticationState(authenticated: boolean, refreshToken?: string, accessToken?: string)
-: AuthenticationState {
+function buildAuthenticationState(
+    authenticated: boolean,
+    refreshToken?: string,
+    accessToken?: string,
+): AuthenticationState {
     return {
         authenticated,
         accessToken,
@@ -69,12 +66,15 @@ function loadAuthFromLocalStorage() {
     const refreshToken = localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN_KEY);
     authenticationState = {
         ...authenticationState,
-        refreshToken: refreshToken != null ?  refreshToken : undefined,
+        refreshToken: refreshToken != null ? refreshToken : undefined,
     };
 }
 
 function saveAuthTokenToStorage() {
-    localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN_KEY, authenticationState.refreshToken!);
+    localStorage.setItem(
+        LOCAL_STORAGE_REFRESH_TOKEN_KEY,
+        authenticationState.refreshToken!,
+    );
 }
 
 export function* authenticationFlow() {
@@ -85,17 +85,23 @@ export function* authenticationFlow() {
  * Main authentication loop which runs to login, refresh tokens, etc.
  */
 function* authenticationFlowLoop() {
-
     // Load refresh token from storage
     loadAuthFromLocalStorage();
 
     while (true) {
-
         // Wait for a login request or a token refresh auth action
-        const { loadTokenRequest, passwordLoginRequest, authCodeLoginRequest } = yield race({
+        const {
+            loadTokenRequest,
+            passwordLoginRequest,
+            authCodeLoginRequest,
+        } = yield race({
             loadTokenRequest: take(API_AUTH_LOAD_TOKEN_REQUESTED),
-            passwordLoginRequest: take(API_AUTH_PASSWORD_LOGIN_AUTHENTICATION_REQUESTED),
-            authCodeLoginRequest: take(API_AUTH_CODE_LOGIN_AUTHENTICATION_REQUESTED),
+            passwordLoginRequest: take(
+                API_AUTH_PASSWORD_LOGIN_AUTHENTICATION_REQUESTED,
+            ),
+            authCodeLoginRequest: take(
+                API_AUTH_CODE_LOGIN_AUTHENTICATION_REQUESTED,
+            ),
         });
 
         const authenticationType = {
@@ -106,9 +112,18 @@ function* authenticationFlowLoop() {
 
         // Load token or do auth
         if (loadTokenRequest != null) {
-            yield fork(loadToken, authenticationState.refreshToken ? authenticationState.refreshToken : "");
+            yield fork(
+                loadToken,
+                authenticationState.refreshToken
+                    ? authenticationState.refreshToken
+                    : "",
+            );
         } else if (passwordLoginRequest != null) {
-            yield fork(passwordLogin, passwordLoginRequest.username, passwordLoginRequest.password);
+            yield fork(
+                passwordLogin,
+                passwordLoginRequest.username,
+                passwordLoginRequest.password,
+            );
         } else if (authCodeLoginRequest != null) {
             yield fork(codeLogin, authCodeLoginRequest.code);
         }
@@ -128,18 +143,33 @@ function* authenticationFlowLoop() {
             );
             saveAuthTokenToStorage();
 
-            yield put(eventAuthenticationSucceeded(
-                authenticationType,
-                authenticationSuccess.refreshToken,
-                authenticationSuccess.accessToken,
-                authenticationSuccess.authorities,
-            ));
+            yield put(
+                eventAuthenticationSucceeded(
+                    authenticationType,
+                    authenticationSuccess.refreshToken,
+                    authenticationSuccess.accessToken,
+                    authenticationSuccess.authorities,
+                ),
+            );
         } else if (authenticationFailure != null) {
-            authenticationState = buildAuthenticationState(false, undefined, undefined);
+            authenticationState = buildAuthenticationState(
+                false,
+                undefined,
+                undefined,
+            );
 
-            yield put(eventAuthenticationFailed(authenticationType, authenticationFailure.error));
+            yield put(
+                eventAuthenticationFailed(
+                    authenticationType,
+                    authenticationFailure.error,
+                ),
+            );
         } else {
-            authenticationState = buildAuthenticationState(false, undefined, undefined);
+            authenticationState = buildAuthenticationState(
+                false,
+                undefined,
+                undefined,
+            );
 
             yield put(eventAuthenticationCanceled(authenticationType));
         }
@@ -155,11 +185,18 @@ function* authenticationFlowLoop() {
             });
 
             if (authRefreshRequest != null || authRefreshTimeout != null) {
-                yield fork(updateAccessToken, authenticationState.refreshToken!);
+                yield fork(
+                    updateAccessToken,
+                    authenticationState.refreshToken!,
+                );
             } else {
                 yield call(logout, authenticationState.refreshToken!);
 
-                authenticationState = buildAuthenticationState(false, undefined, undefined);
+                authenticationState = buildAuthenticationState(
+                    false,
+                    undefined,
+                    undefined,
+                );
 
                 yield put(eventLogoutCompleted());
 
@@ -173,7 +210,6 @@ function* authenticationFlowLoop() {
             });
 
             if (authRefreshSuccess != null) {
-
                 authenticationState = {
                     ...authenticationState,
                     accessToken: authRefreshSuccess.accessToken,
@@ -186,7 +222,11 @@ function* authenticationFlowLoop() {
                 try {
                     yield call(logout, authenticationState.refreshToken!);
                 } finally {
-                    authenticationState = buildAuthenticationState(false, undefined, undefined);
+                    authenticationState = buildAuthenticationState(
+                        false,
+                        undefined,
+                        undefined,
+                    );
 
                     yield put(eventAuthenticationRefreshCompleted());
 
@@ -195,7 +235,11 @@ function* authenticationFlowLoop() {
             } else {
                 yield call(logout, authenticationState.refreshToken!);
 
-                authenticationState = buildAuthenticationState(false, undefined, undefined);
+                authenticationState = buildAuthenticationState(
+                    false,
+                    undefined,
+                    undefined,
+                );
 
                 yield put(eventAuthenticationRefreshCompleted());
 
@@ -210,7 +254,15 @@ function* authenticationFlowLoop() {
  * @param refreshToken
  */
 function* fetchAccessToken(refreshToken: string) {
-    return yield call(asyncCallBackendFetch, fetchJSON, "POST", endponts.accessToken, null, null, refreshToken);
+    return yield call(
+        asyncCallBackendFetch,
+        fetchJSON,
+        "POST",
+        endponts.accessToken,
+        null,
+        null,
+        refreshToken,
+    );
 }
 
 /**
@@ -219,9 +271,13 @@ function* fetchAccessToken(refreshToken: string) {
  */
 function* updateAccessToken(refreshToken: string) {
     try {
-        const { accessToken, authorities } = yield* fetchAccessToken(refreshToken);
+        const { accessToken, authorities } = yield* fetchAccessToken(
+            refreshToken,
+        );
 
-        yield put(eventAuthenticationRefreshSucceeded(accessToken, authorities));
+        yield put(
+            eventAuthenticationRefreshSucceeded(accessToken, authorities),
+        );
     } catch (error) {
         yield put(eventAuthenticationRefreshFailed(error));
     }
@@ -233,11 +289,22 @@ function* updateAccessToken(refreshToken: string) {
  */
 function* loadToken(refreshToken: string) {
     try {
-        const { accessToken, authorities } = yield* fetchAccessToken(refreshToken);
+        const { accessToken, authorities } = yield* fetchAccessToken(
+            refreshToken,
+        );
 
-        yield put(eventAuthenticationSucceeded(AuthenticationType.SAVED_TOKEN, refreshToken, accessToken, authorities));
+        yield put(
+            eventAuthenticationSucceeded(
+                AuthenticationType.SAVED_TOKEN,
+                refreshToken,
+                accessToken,
+                authorities,
+            ),
+        );
     } catch (error) {
-        yield put(eventAuthenticationFailed(AuthenticationType.SAVED_TOKEN, error));
+        yield put(
+            eventAuthenticationFailed(AuthenticationType.SAVED_TOKEN, error),
+        );
     }
 }
 
@@ -256,11 +323,18 @@ function* passwordLogin(username: string, password: string) {
             null,
             { username, password },
         );
-        yield put(eventAuthenticationSucceeded(
-            AuthenticationType.PASSWORD_LOGIN, refreshToken, accessToken, authorities,
-        ));
+        yield put(
+            eventAuthenticationSucceeded(
+                AuthenticationType.PASSWORD_LOGIN,
+                refreshToken,
+                accessToken,
+                authorities,
+            ),
+        );
     } catch (error) {
-        yield put(eventAuthenticationFailed(AuthenticationType.PASSWORD_LOGIN, error));
+        yield put(
+            eventAuthenticationFailed(AuthenticationType.PASSWORD_LOGIN, error),
+        );
     }
 }
 
@@ -279,9 +353,18 @@ function* codeLogin(code: string) {
             {},
             code,
         );
-        yield put(eventAuthenticationSucceeded(AuthenticationType.AUTH_CODE, refreshToken, accessToken, authorities));
+        yield put(
+            eventAuthenticationSucceeded(
+                AuthenticationType.AUTH_CODE,
+                refreshToken,
+                accessToken,
+                authorities,
+            ),
+        );
     } catch (error) {
-        yield put(eventAuthenticationFailed(AuthenticationType.AUTH_CODE, error));
+        yield put(
+            eventAuthenticationFailed(AuthenticationType.AUTH_CODE, error),
+        );
     }
 }
 
@@ -291,7 +374,15 @@ function* codeLogin(code: string) {
  */
 function* logout(refreshToken: string) {
     try {
-        yield call(asyncCallBackendFetch, fetchJSON, "POST", endponts.logout, null, null, refreshToken);
+        yield call(
+            asyncCallBackendFetch,
+            fetchJSON,
+            "POST",
+            endponts.logout,
+            null,
+            null,
+            refreshToken,
+        );
     } catch (error) {
         // do nothing now
     }
@@ -312,8 +403,19 @@ export function* authenticatedFetchJSON(
     query: object | null = null,
     body: object | null = null,
     headers = {},
-    options = {}) {
-    return yield call(authenticatedFetch, fetchJSON, method, path, query, body, false, headers, options);
+    options = {},
+) {
+    return yield call(
+        authenticatedFetch,
+        fetchJSON,
+        method,
+        path,
+        query,
+        body,
+        false,
+        headers,
+        options,
+    );
 }
 
 /**
@@ -337,7 +439,6 @@ export function* authenticatedFetch(
     headers = {},
     options = {},
 ) {
-
     // If unauthenticated and if we're not using the refresh token,
     // wait for authentication or for an authentication failure
     if (!authenticationState.authenticated && !useRefreshToken) {
@@ -355,10 +456,22 @@ export function* authenticatedFetch(
         ...authenticationState,
     };
 
-    let token = (useRefreshToken ? authState.refreshToken : authState.accessToken);
+    let token = useRefreshToken
+        ? authState.refreshToken
+        : authState.accessToken;
 
     try {
-        return yield call(asyncCallBackendFetch, fetchFunction, method, path, query, body, token, headers, options);
+        return yield call(
+            asyncCallBackendFetch,
+            fetchFunction,
+            method,
+            path,
+            query,
+            body,
+            token,
+            headers,
+            options,
+        );
     } catch (error) {
         if (error.status !== 401) {
             throw error;
@@ -380,7 +493,17 @@ export function* authenticatedFetch(
     token = authState.accessToken;
 
     try {
-        return yield call(asyncCallBackendFetch, fetchFunction, method, path, query, body, token, headers, options);
+        return yield call(
+            asyncCallBackendFetch,
+            fetchFunction,
+            method,
+            path,
+            query,
+            body,
+            token,
+            headers,
+            options,
+        );
     } catch (error) {
         if (error.status === 401) {
             throw Error("js.fetch.auth.InvalidState");
@@ -409,26 +532,37 @@ async function asyncCallFetch(
     headers = {},
     options = {},
 ) {
-
     let fetchUrl = url;
     if (query) {
-        const queryString = Object.entries(query).map(([ name, value ]) => {
-            if (Array.isArray(value)) {
-                const arrayFiltered = value.filter((arrayVal) => !!arrayVal);
-                if (arrayFiltered.length > 0) {
-                    return value.filter((arrayVal) => !!arrayVal)
-                        .map(
-                            (arrayVal) => `${encodeURIComponent(name)}=${encodeURIComponent(arrayVal)}`,
-                        ).join("&");
+        const queryString = Object.entries(query)
+            .map(([name, value]) => {
+                if (Array.isArray(value)) {
+                    const arrayFiltered = value.filter(
+                        (arrayVal) => !!arrayVal,
+                    );
+                    if (arrayFiltered.length > 0) {
+                        return value
+                            .filter((arrayVal) => !!arrayVal)
+                            .map(
+                                (arrayVal) =>
+                                    `${encodeURIComponent(
+                                        name,
+                                    )}=${encodeURIComponent(arrayVal)}`,
+                            )
+                            .join("&");
+                    } else {
+                        return null;
+                    }
+                } else if (value != null) {
+                    return `${encodeURIComponent(name)}=${encodeURIComponent(
+                        value,
+                    )}`;
                 } else {
                     return null;
                 }
-            } else if (value != null) {
-                return `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
-            } else {
-                return null;
-            }
-        }).filter((e) => !!e).join("&");
+            })
+            .filter((e) => !!e)
+            .join("&");
         if (queryString !== "") {
             fetchUrl += `?${queryString}`;
         }
@@ -468,5 +602,13 @@ async function asyncCallBackendFetch(
             Authorization: `Bearer ${token}`,
         };
     }
-    return await asyncCallFetch(fetchFunction, method, backendUrl + path, query, body, newHeaders, options);
+    return await asyncCallFetch(
+        fetchFunction,
+        method,
+        backendUrl + path,
+        query,
+        body,
+        newHeaders,
+        options,
+    );
 }

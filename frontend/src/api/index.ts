@@ -19,9 +19,7 @@ export {
     requestLogout,
 } from "./actions";
 
-export {
-    fetchJSON,
-} from "./util";
+export { fetchJSON } from "./util";
 
 export {
     authenticationFlow,

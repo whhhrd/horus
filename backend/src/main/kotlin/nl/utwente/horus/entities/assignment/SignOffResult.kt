@@ -22,13 +22,13 @@ data class SignOffResult (
     var commentThread: CommentThread?,
 
     @Enumerated(EnumType.STRING)
-    val result: SignOffResultType,
+    var result: SignOffResultType,
 
     @ManyToOne
     @JoinColumn(name = "signed_by")
     val signedBy: Participant,
 
-    val signedAt: ZonedDateTime,
+    var signedAt: ZonedDateTime,
 
     @ManyToOne(optional = true)
     @JoinColumn(name = "archived_by")

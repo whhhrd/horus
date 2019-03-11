@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.time.Duration
 import java.time.ZonedDateTime
 
 @Component
@@ -43,11 +44,15 @@ class SignOffService {
     @Autowired
     lateinit var userDetailService: HorusUserDetailService
 
+    companion object {
+        val SIGNOFF_MODIFY_TIMEOUT = Duration.ofMinutes(5)
+    }
+
     fun getSignOffResultById(id: Long): SignOffResult {
         return signOffResultRepository.findByIdOrNull(id) ?: throw SignOffResultNotFoundException()
     }
 
-    fun getSignOffResults(group: Group, assignmentSet: AssignmentSet): List<SignOffResult> {
+    fun getGroupAssignmentSetSignOffResults(group: Group, assignmentSet: AssignmentSet): List<SignOffResult> {
         return signOffResultRepository.getAllByGroupAndAssignmentSet(group.id, assignmentSet.id)
     }
 
@@ -64,10 +69,15 @@ class SignOffService {
         return signOffResultRepository.getAssignmentSignOffResultByAssignment(assignment)
     }
 
+    fun getAssignmentSetSignOffResults(assignmentSet: AssignmentSet): List<SignOffResult> {
+        return signOffResultRepository.getAllByAssignmentAssignmentSetAndArchivedByIsNull(assignmentSet)
+    }
+
     fun processSignOffs(dto: SignOffResultPatchDto, setId: Long): List<SignOffResult> {
         val assignmentSet = assignmentService.getAssignmentSetById(setId)
         // Verify that all assignments belong to this course
-        val ids = dto.create.map { it.assignmentId } + dto.delete.map { it.id }
+        val deletionSignOffs = signOffResultRepository.findAllById(dto.delete.map { it.id })
+        val ids = dto.create.map { it.assignmentId } + deletionSignOffs.map { it.assignment.id }
         val assignments = assignmentService.getAssignmentsByIds(ids)
 
         if (assignments.any { it.assignmentSet.id != assignmentSet.id }) {
@@ -85,21 +95,58 @@ class SignOffService {
     }
 
     private fun createSignOffResult(dto: SignOffResultCreateDto, signer: Participant): SignOffResult {
+        val now = ZonedDateTime.now()
         val student = participantService.getParticipantById(dto.participantId)
         if (student.course.id != signer.course.id) {
             throw ParticipantNotFoundException()
         }
+
         // Archive older results if necessary
-        val existing = signOffResultRepository.getAllByParticipantIdAndAssignmentIdAndArchivedByIsNull(dto.participantId, dto.assignmentId)
+        val existing = signOffResultRepository.getAllByParticipantIdAndAssignmentId(dto.participantId, dto.assignmentId)
+        // Get last result (the last one signed or archived)
+        val last = existing.sortedByDescending { if (it.isArchived) it.archivedAt else it.signedAt }.firstOrNull()
+        val modificationDeadline = now - SIGNOFF_MODIFY_TIMEOUT
+
+        // Check if last result is modifiable
+        val modifiable = if (last != null && last.signedBy.id == signer.id) {
+                            // If last exists and the signers are the same
+                            if (last.isArchived) {
+                                // If it's archived, then the modifiable if deadline has not passed and
+                                // the archiver is also the signer
+                                last.archivedAt!!.isAfter(modificationDeadline) && last.archivedBy!!.id == signer.id
+                            } else {
+                                // If it's not archived, then modifiable is deadline has not passed
+                                last.signedAt.isAfter(modificationDeadline)
+                            }
+                        } else {
+                            false
+                        }
+
         existing.forEach { r ->
-            r.archivedAt = ZonedDateTime.now()
-            r.archivedBy = signer
+            // Auto archiving if the last existing result is not modifiable
+            // or if the last is modifiable and the element is not the last one
+            if (!modifiable || (modifiable && r != last)) {
+                r.archivedAt = ZonedDateTime.now()
+                r.archivedBy = signer
+            }
         }
-        val assignment = assignmentService.getAssignmentById(dto.assignmentId)
-        val thread = if (dto.comment == null) null else
-            commentService.createThread(CommentType.STAFF_ONLY, dto.comment, signer.person)
-        val result = SignOffResult(student, assignment, dto.result, signer, thread)
-        return signOffResultRepository.save(result)
+
+        return if (last != null && modifiable) {
+            // If a last result exists and is modifiable, change existing last result
+            // and return it
+            last.signedAt = now
+            last.result = dto.result
+            last.archivedBy = null
+            last.archivedAt = null
+            last
+        } else {
+            // Return existing result otherwise
+            val assignment = assignmentService.getAssignmentById(dto.assignmentId)
+            val thread = if (dto.comment == null) null else
+                commentService.createThread(CommentType.STAFF_ONLY, dto.comment, signer.person)
+            val result = SignOffResult(student, assignment, dto.result, signer, thread)
+            signOffResultRepository.save(result)
+        }
     }
 
     private fun archiveSignOffs(dtos: List<SignOffResultArchiveDto>, courseId: Long) {

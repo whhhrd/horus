@@ -12,6 +12,9 @@ interface SignOffResultRepository: JpaRepository<SignOffResult, Long> {
     @Query("SELECT r FROM SignOffResult r INNER JOIN GroupMember gm ON r.participant = gm.id.participant INNER JOIN Group g ON gm.id.group = g WHERE g.id = ?1 AND r.assignment.assignmentSet.id = ?2 AND r.archivedAt IS NULL")
     fun getAllByGroupAndAssignmentSet(groupId: Long, assignmentSetId: Long): List<SignOffResult>
 
+    // TODO: check performance and optimize
+    fun getAllByAssignmentAssignmentSetAndArchivedByIsNull(assignmentSet: AssignmentSet): List<SignOffResult>
+
     fun getAllByParticipantIdAndAssignmentId(participantId: Long, assignmentId: Long): List<SignOffResult>
 
     fun getAllByParticipantIdAndAssignmentIdAndArchivedByIsNull(participantId: Long, assignmentId: Long): List<SignOffResult>

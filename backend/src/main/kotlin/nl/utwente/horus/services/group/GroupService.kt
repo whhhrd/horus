@@ -73,7 +73,9 @@ class GroupService {
 
         val groupSet = groups.map { it.group.id }.toSet()
 
-        val assignmentSets = resultPairs.distinctBy { it.second.id }.filter { it.first.id in groupSet }.map { it.second }
+        val assignmentSets = resultPairs.filter { it.first.id in groupSet }.distinctBy { it.second.id }.map { it.second }
+
+        val distinct =
 
         return GroupAssignmentSetSearchResultDto(groups.map { it.group }, assignmentSets)
     }

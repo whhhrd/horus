@@ -169,7 +169,7 @@ class CourseController {
     }
 
     @GetMapping(path = ["/{courseId}/signoffresults"])
-    fun getSignOffResultsFiltered(@PathVariable courseId: Long, @RequestParam groupId: Long, @RequestParam assignmentSetId: Long): List<SignOffResultDtoCompact> {
+    fun getSignOffResultsFiltered(@PathVariable courseId: Long, @RequestParam groupId: Long?, @RequestParam assignmentSetId: Long): List<SignOffResultDtoCompact> {
         return courseService.getSignOffResultsFilteredInCourse(courseId, groupId, assignmentSetId).map { SignOffResultDtoCompact(it) }
     }
 

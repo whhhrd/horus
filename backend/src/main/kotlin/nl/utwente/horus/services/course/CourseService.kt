@@ -122,15 +122,19 @@ class CourseService {
         return groupService.getGroupSignOffSearchResults(courseId, query)
     }
 
-    fun getSignOffResultsFilteredInCourse(courseId: Long, groupId: Long, assignmentSetId: Long): List<SignOffResult> {
-        val group = groupService.getGroupById(groupId)
+    fun getSignOffResultsFilteredInCourse(courseId: Long, groupId: Long?, assignmentSetId: Long): List<SignOffResult> {
         val assignmentSet = assignmentService.getAssignmentSetById(assignmentSetId)
-        if (group.groupSet.course.id != courseId) {
-            throw GroupNotFoundException()
-        }
         if (assignmentSet.course.id != courseId) {
             throw AssignmentSetNotFoundException()
         }
-        return signOffService.getSignOffResults(group, assignmentSet)
+        if (groupId != null) {
+            val group = groupService.getGroupById(groupId)
+            if (group.groupSet.course.id != courseId) {
+                throw GroupNotFoundException()
+            }
+            return signOffService.getGroupAssignmentSetSignOffResults(group, assignmentSet)
+        } else {
+            return signOffService.getAssignmentSetSignOffResults(assignmentSet)
+        }
     }
 }

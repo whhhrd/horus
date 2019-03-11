@@ -1,46 +1,74 @@
-import { HorusResource, HorusResourceScope, HorusPermissionType, HorusAuthorityDto } from "../state/types";
+import {
+    HorusResource,
+    HorusResourceScope,
+    HorusPermissionType,
+    HorusAuthorityDto,
+} from "../state/types";
 
 function generatePermissionString(
     resource: HorusResource,
     scope: HorusResourceScope,
-    type: HorusPermissionType): string {
+    type: HorusPermissionType,
+): string {
     return `${resource}/${scope}/${type}`;
 }
 
 export default class CoursePermissions {
-
     private map: Map<number, Set<string>>;
 
     constructor(authorities: HorusAuthorityDto[]) {
         this.map = new Map<number, Set<string>>();
-        authorities.forEach( (authority) => {
+        authorities.forEach((authority) => {
             if (authority.courseIds == null) {
                 return;
             }
-            authority.courseIds.forEach( (id) => {
+            authority.courseIds.forEach((id) => {
                 if (!this.map.has(id)) {
                     this.map.set(id, new Set());
                 }
-                this.map.get(id)!.add(generatePermissionString(
-                        authority.permission.resource,
-                        authority.permission.scope,
-                        authority.permission.type,
-                    ),
-                );
+                this.map
+                    .get(id)!
+                    .add(
+                        generatePermissionString(
+                            authority.permission.resource,
+                            authority.permission.scope,
+                            authority.permission.type,
+                        ),
+                    );
             });
         });
     }
 
-    allows(courseId: number, resource: HorusResource, scope: HorusResourceScope, type: HorusPermissionType): boolean {
-        return this.map.has(Number(courseId))
-            && this.map.get(Number(courseId))!.has(generatePermissionString(resource, scope, type));
+    allows(
+        courseId: number,
+        resource: HorusResource,
+        scope: HorusResourceScope,
+        type: HorusPermissionType,
+    ): boolean {
+        return (
+            this.map.has(Number(courseId)) &&
+            this.map
+                .get(Number(courseId))!
+                .has(generatePermissionString(resource, scope, type))
+        );
     }
 
-    allowsOwn(courseId: number, resource: HorusResource, type: HorusPermissionType): boolean {
-        return this.allows(courseId, resource, "OWN", type) || this.allows(courseId, resource, "ANY", type);
+    allowsOwn(
+        courseId: number,
+        resource: HorusResource,
+        type: HorusPermissionType,
+    ): boolean {
+        return (
+            this.allows(courseId, resource, "OWN", type) ||
+            this.allows(courseId, resource, "ANY", type)
+        );
     }
 
-    allowsAny(courseId: number, resource: HorusResource, type: HorusPermissionType): boolean {
+    allowsAny(
+        courseId: number,
+        resource: HorusResource,
+        type: HorusPermissionType,
+    ): boolean {
         return this.allows(courseId, resource, "ANY", type);
     }
 }
@@ -54,9 +82,12 @@ interface CourseAuthSchemeNode {
 }
 // tslint:disable: max-classes-per-file
 export class CourseAuthScheme {
-
-    static one(resource: HorusResource, scope: HorusResourceScope, type: HorusPermissionType): CourseAuthScheme {
-        return new CourseAuthScheme({resource, scope, type});
+    static one(
+        resource: HorusResource,
+        scope: HorusResourceScope,
+        type: HorusPermissionType,
+    ): CourseAuthScheme {
+        return new CourseAuthScheme({ resource, scope, type });
     }
 
     static some(...children: CourseAuthScheme[]) {
@@ -114,7 +145,8 @@ export class CourseAuthScheme {
     private constructor(
         node: CourseAuthSchemeNode | null = null,
         op: CourseAuthSchemeOp = "EVERY",
-        ...children: CourseAuthScheme[]) {
+        ...children: CourseAuthScheme[]
+    ) {
         this.node = node;
         this.op = op;
         this.children = children;
@@ -126,20 +158,36 @@ export class CourseAuthScheme {
         if (this.node != null) {
             switch (this.node.scope) {
                 case "ANY":
-                    valid = permissions.allowsAny(courseId, this.node.resource, this.node.type);
+                    valid = permissions.allowsAny(
+                        courseId,
+                        this.node.resource,
+                        this.node.type,
+                    );
                     break;
                 case "OWN":
-                    valid = permissions.allowsOwn(courseId, this.node.resource, this.node.type);
+                    valid = permissions.allowsOwn(
+                        courseId,
+                        this.node.resource,
+                        this.node.type,
+                    );
             }
         }
 
         if (this.children.length > 0) {
             switch (this.op) {
                 case "EVERY":
-                    valid = valid && this.children.every((child) => child.check(courseId, permissions));
+                    valid =
+                        valid &&
+                        this.children.every((child) =>
+                            child.check(courseId, permissions),
+                        );
                     break;
                 case "SOME":
-                    valid = valid && this.children.some((child) => child.check(courseId, permissions));
+                    valid =
+                        valid &&
+                        this.children.some((child) =>
+                            child.check(courseId, permissions),
+                        );
             }
         }
 

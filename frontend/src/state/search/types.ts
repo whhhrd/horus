@@ -1,4 +1,4 @@
-import {AssignmentSetDtoBrief} from "../types";
+import { AssignmentSetDtoBrief } from "../types";
 
 export interface SearchState {
     searchResult: GroupAssignmentSetCombination[] | null;

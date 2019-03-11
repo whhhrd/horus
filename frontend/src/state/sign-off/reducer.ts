@@ -1,78 +1,70 @@
-import { SignOffState, SignOffChange, SignOff } from "./types";
-import { SignOffResultsRequestSucceededAction, ChangeLocalSignoffAction } from "./actions";
+import { SignOffState } from "./types";
+import {
+    SignOffResultsRequestSucceededAction,
+    SignOffSaveSucceededction,
+} from "./actions";
 import {
     SIGN_OFF_RESULTS_REQUEST_SUCCEEDED_ACTION,
-    CHANGE_LOCAL_SIGNOFF_ACTION,
-    SIGN_OFF_SAVE_REQUESTED_ACTION,
+    SIGN_OFF_RESULTS_REQUESTED_ACTION,
     SIGN_OFF_SAVE_REQUEST_SUCCEEDED_ACTION,
 } from "./constants";
-import { Action } from "redux";
-import { SignOffResultDtoCompact } from "../types";
 
 const initialState: SignOffState = {
-    localChanges: [],
-    remoteResults: null,
-    saving: false,
+    signOffs: null,
 };
 
-export default function signOffReducer(state: SignOffState, action: Action): SignOffState {
+export default function signOffReducer(
+    state: SignOffState,
+    action: SignOffResultsRequestSucceededAction | SignOffSaveSucceededction,
+): SignOffState {
     if (state == null) {
         return initialState;
     }
+
     switch (action.type) {
         case SIGN_OFF_RESULTS_REQUEST_SUCCEEDED_ACTION:
             const signOffResultRequestSucceededAction = action as SignOffResultsRequestSucceededAction;
             return {
                 ...state,
-                localChanges: [],
-                remoteResults: {
+                signOffs: {
                     signOffs: signOffResultRequestSucceededAction.signOffs,
                     group: signOffResultRequestSucceededAction.group,
-                    assignmentSet: signOffResultRequestSucceededAction.assignmentSet,
+                    assignmentSet:
+                        signOffResultRequestSucceededAction.assignmentSet,
                 },
             };
-        case CHANGE_LOCAL_SIGNOFF_ACTION:
-            const localSignOffAction = action as ChangeLocalSignoffAction;
-            const newState = state.localChanges!.filter((signOffChange: SignOffChange) => (
-                signOffChange.aid !== localSignOffAction.aid || signOffChange.pid !== localSignOffAction.pid
-            ));
-            if (changed(state, localSignOffAction)) {
-                if (localSignOffAction.result === SignOff.Unattempted) {
-                    localSignOffAction.remoteId = state.remoteResults!.signOffs.find(
-                        (signOff: SignOffResultDtoCompact) => (
-                            signOff.assignmentId === localSignOffAction.aid
-                            && signOff.participantId === localSignOffAction.pid
-                        ))!.id;
-                }
-                newState.push(localSignOffAction);
-            }
+        case SIGN_OFF_RESULTS_REQUESTED_ACTION:
             return {
                 ...state,
-                localChanges: newState,
+                signOffs: null,
             };
         case SIGN_OFF_SAVE_REQUEST_SUCCEEDED_ACTION:
+            let signOffResults =
+                state.signOffs != null ? [...state.signOffs.signOffs] : [];
+            const successAction = action as SignOffSaveSucceededction;
+            const deletions = successAction.deletions;
+            signOffResults.forEach((current) => {
+                successAction.signoffs.forEach((updated) => {
+                    if (
+                        current.assignmentId === updated.assignmentId &&
+                        current.participantId === updated.participantId
+                    ) {
+                        deletions.push(current.id);
+                    }
+                });
+            });
+            signOffResults = signOffResults.filter((s) => {
+                return successAction.deletions.indexOf(s.id) < 0;
+            });
+            signOffResults = signOffResults.concat(successAction.signoffs);
             return {
                 ...state,
-                saving: false,
-            };
-        case SIGN_OFF_SAVE_REQUESTED_ACTION:
-            return {
-                ...state,
-                saving: true,
+                signOffs: {
+                    ...state.signOffs!,
+                    signOffs: signOffResults,
+                },
             };
         default:
             return state;
     }
 }
-const changed = (state: SignOffState, action: ChangeLocalSignoffAction) => {
-    const remoteSignOffState = state.remoteResults!.signOffs.find((signOff: SignOffResultDtoCompact) => (
-        signOff.assignmentId === action.aid && signOff.participantId === action.pid
-    ));
-
-    if (remoteSignOffState === undefined) {
-        return action.result !== SignOff.Unattempted;
-    } else {
-        return !(remoteSignOffState.result === "COMPLETE" && action.result === SignOff.Complete) &&
-            !(remoteSignOffState.result === "INSUFFICIENT" && action.result === SignOff.Incomplete);
-    }
-};

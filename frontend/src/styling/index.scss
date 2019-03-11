@@ -239,20 +239,76 @@ button {
 * Signo-ff table properties
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 .sign-off-table {
+    border: 0.25px solid rgba(0, 0, 0, 0.25);
     table-layout: fixed;
+    align-self: center;
+    margin-bottom: 80px;
+}
+
+.sign-off-table {
+    td, th {
+        border-top: 0.25px solid rgba(0, 0, 0, 0.25);
+        padding: 0.75em;
+        min-height: 50px;
+    }
+}
+
+.sign-off-table-row {
+    border: 0.25px solid rgba(0, 0, 0, 0.25);
 }
 
 .sign-off-table-heading {
     background-color: #f7f7f7;
-    font-weight: bold;
+    border: 0.25px solid rgba(0, 0, 0, 0.25);
+    text-align: center;
+    min-width: 100px;
 }
 
-.sign-off-table-entry-enabled {
-    width: 100%;
-    height: 100%;
-    overflow: hidden; 
-    float: left; 
+.sign-off-table-top-row {
+    position: sticky;
+    position: -webkit-sticky;
+    top: 0;
+}
+
+.sign-off-table-left-column {
+    position: sticky;
+    position: -webkit-sticky;
+    left: 0;
+}
+
+.sign-off-table-left-column::selection {
+    background: transparent;
+}
+
+.sign-off-table-top-left-cell {
+    @extend .sign-off-table-top-row;
+    @extend .sign-off-table-left-column;
+    z-index: 25 !important;
+}
+
+.sign-off-table-cell {
+    border: 0.25px solid rgba(0, 0, 0, 0.25);
     text-align: center;
+    padding: 15px;
+    min-width: 150px;
+}
+
+.sign-off-table-cell::selection {
+    background: transparent;
+}
+
+.sign-off-table-cell-blank {
+    @extend .sign-off-table-cell;
+}
+
+.sign-off-table-cell-complete {
+    @extend .sign-off-table-cell;
+    background-color: $color_green;
+}
+
+.sign-off-table-cell-insufficient {
+    @extend .sign-off-table-cell;
+    background-color: $color_yellow;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -265,7 +321,6 @@ button {
 .react-autosuggest__input {
     width: 600px;
     height: 60px;
-    margin: 16px;
     padding: 10px 20px;
     font-family: Helvetica, sans-serif;
     font-weight: 300;
@@ -300,7 +355,7 @@ button {
     font-size: 14px;
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
-    z-index: 2;
+    z-index: 50;
 }
 
 .react-autosuggest__suggestions-list {

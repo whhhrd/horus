@@ -1,53 +1,81 @@
 import { authenticatedFetchJSON } from "../../api";
-import { SignOffResultDtoCompact, AssignmentSetDtoFull, GroupDtoFull, SignOffResultPatchDto } from "../types";
-import { put, takeEvery, call } from "redux-saga/effects";
+import { SignOffResultDtoCompact, SignOffResultPatchDto } from "../types";
+import { put, takeEvery, call, all } from "redux-saga/effects";
 import {
     signOffResultsRequestSucceededAction,
     SignOffResultsRequestedAction,
     signOffSaveRequestSucceededAction,
-    SignOffSaveRequestedAction,
 } from "./actions";
-import { notifyError, notifySuccess } from "../notifications/constants";
-import { SIGN_OFF_RESULTS_REQUESTED_ACTION, SIGN_OFF_SAVE_REQUESTED_ACTION } from "./constants";
-import { SignOffChange, SignOff } from "./types";
+import { notifyError } from "../notifications/constants";
+import {
+    SIGN_OFF_RESULTS_REQUESTED_ACTION,
+    SIGN_OFF_SAVE_REQUESTED_ACTION,
+} from "./constants";
+import { SignOffChangeResult, SignOffChange } from "./types";
+import { SignOffSaveRequestedAction } from "./actions";
 
 export function* requestSignoffs(action: SignOffResultsRequestedAction) {
     try {
-        const signoffs: SignOffResultDtoCompact[] = yield call(authenticatedFetchJSON, "GET",
-            `courses/${action.cid}/signoffresults`, { groupId: action.gid, assignmentSetId: action.asid });
-        const group: GroupDtoFull = yield call(authenticatedFetchJSON, "GET", `groups/${action.gid}`);
-        const assignmentSet: AssignmentSetDtoFull = yield call(authenticatedFetchJSON, "GET",
-            `assignmentSets/${action.asid}`);
-        yield put(signOffResultsRequestSucceededAction(signoffs, group, assignmentSet));
+        const [signoffs, group, assignmentSet] = yield all([
+            call(
+                authenticatedFetchJSON,
+                "GET",
+                `courses/${action.cid}/signoffresults`,
+                { groupId: action.gid, assignmentSetId: action.asid },
+            ),
+            call(authenticatedFetchJSON, "GET", `groups/${action.gid}`),
+            call(
+                authenticatedFetchJSON,
+                "GET",
+                `assignmentSets/${action.asid}`,
+            ),
+        ]);
+
+        yield put(
+            signOffResultsRequestSucceededAction(
+                signoffs,
+                group,
+                assignmentSet,
+            ),
+        );
     } catch (e) {
         yield put(notifyError("Failed to fetch signoffs"));
     }
 }
 
 export function* pushChanges(action: SignOffSaveRequestedAction) {
-    const changes: SignOffResultPatchDto = {
+    const dto: SignOffResultPatchDto = {
         create: [],
         delete: [],
     };
     action.changes.map((change: SignOffChange) => {
-        if (change.result === SignOff.Unattempted) {
-            changes.delete.push({
-                comment: null,
-                id: change.remoteId,
+        if (change.result === SignOffChangeResult.Unattempted) {
+            dto.delete.push({
+                comment: change.comment,
+                id: change.id!,
             });
         } else {
-            changes.create.push({
+            dto.create.push({
                 assignmentId: change.aid,
                 participantId: change.pid,
-                comment: null,
-                result: change.result === SignOff.Complete ? "COMPLETE" : "INSUFFICIENT",
+                comment: change.comment,
+                result:
+                    change.result === SignOffChangeResult.Sufficient
+                        ? "COMPLETE"
+                        : "INSUFFICIENT",
             });
         }
     });
     try {
-        yield call(authenticatedFetchJSON, "PATCH", `signoff/${action.asid}`, null, changes);
-        yield put(notifySuccess("Changes saved successfully"));
-        yield put(signOffSaveRequestSucceededAction());
+        const signoffs: SignOffResultDtoCompact[] = yield call(
+            authenticatedFetchJSON,
+            "PATCH",
+            `signoff/${action.asid}`,
+            undefined,
+            dto,
+        );
+        const deletions = dto.delete.map((c) => c.id);
+        yield put(signOffSaveRequestSucceededAction(signoffs, deletions));
     } catch (e) {
         yield put(notifyError("Saving signoff changes failed"));
     }

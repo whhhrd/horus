@@ -13,7 +13,7 @@
         "quotemark": [true, "double"], 
         "triple-equals": [true, "allow-undefined-check", "allow-null-check"],
         "no-consecutive-blank-lines": true,
-        "trailing-comma": [true, {"multiline": "always", "singleline": "never"}]
+        "trailing-comma": [true, {"multiline": "always", "singleline": "never", "esSpecCompliant": true}]
     },
     "rulesDirectory": [],
     "linterOptions": {

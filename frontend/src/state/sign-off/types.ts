@@ -1,12 +1,17 @@
-import { SignOffResultDtoCompact, AssignmentSetDtoFull, GroupDtoFull } from "../types";
+import {
+    SignOffResultDtoCompact,
+    AssignmentSetDtoFull,
+    GroupDtoFull,
+} from "../types";
 
-export enum SignOff {
-    Complete, Incomplete, Unattempted,
+export enum SignOffChangeResult {
+    Sufficient,
+    Insufficient,
+    Unattempted,
 }
+
 export interface SignOffState {
-    remoteResults: SignOffDetails | null;
-    localChanges: SignOffChange[] | null;
-    saving: boolean;
+    signOffs: SignOffDetails | null;
 }
 
 export interface SignOffDetails {
@@ -16,8 +21,9 @@ export interface SignOffDetails {
 }
 
 export interface SignOffChange {
+    id: number | null;
     pid: number;
     aid: number;
-    result: SignOff;
-    remoteId: number;
+    result: SignOffChangeResult;
+    comment: string | null;
 }

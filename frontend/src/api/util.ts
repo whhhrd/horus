@@ -6,7 +6,10 @@ export interface RequestOptions {
     method: string;
 }
 
-export type FetchFunction = (url: string, options: RequestOptions) => Promise<any>;
+export type FetchFunction = (
+    url: string,
+    options: RequestOptions,
+) => Promise<any>;
 
 /**
  * Fetch JSON from a URL

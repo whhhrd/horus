@@ -15,7 +15,10 @@ export interface SignOffSearchSucceededAction extends Action<string> {
     readonly searchResult: GroupAssignmentSetSearchResultDto;
 }
 
-export const signOffSearchQueryAction = (courseID: number, searchQuery: string) =>
-    ({ type: SIGN_OFF_SEARCH_QUERY_ACTION, courseID, searchQuery });
-export const signOffSearchSucceededAction = (searchResult: GroupAssignmentSetSearchResultDto) =>
-    ({ type: SIGN_OFF_SEARCH_SUCCEEDED_ACTION, searchResult });
+export const signOffSearchQueryAction = (
+    courseID: number,
+    searchQuery: string,
+) => ({ type: SIGN_OFF_SEARCH_QUERY_ACTION, courseID, searchQuery });
+export const signOffSearchSucceededAction = (
+    searchResult: GroupAssignmentSetSearchResultDto,
+) => ({ type: SIGN_OFF_SEARCH_SUCCEEDED_ACTION, searchResult });
