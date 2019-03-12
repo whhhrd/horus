@@ -11,6 +11,7 @@ import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.person.Person
 import nl.utwente.horus.exceptions.*
+import nl.utwente.horus.representations.assignment.AssignmentCreateUpdateDto
 import nl.utwente.horus.representations.assignment.AssignmentSetCreateDto
 import nl.utwente.horus.representations.assignment.AssignmentSetUpdateDto
 import nl.utwente.horus.services.comment.CommentService
@@ -91,32 +92,10 @@ class AssignmentService {
         }
 
         assignmentSet.name = dto.name
+
         // Update included assignments
         if (dto.assignments != null) {
-            if (dto.assignments.any { it.name.isBlank() }) {
-                throw InvalidAssignmentUpdateRequestException("Assignment name too short.")
-            }
-
-            val deletionIdSet: Set<Long> = HashSet(assignmentSet.assignments.map { a -> a.id } - dto.assignments.filter { a -> a.id != null }.map { a -> a.id!! })
-            val deletionSet = assignmentSet.assignments.filter { a -> deletionIdSet.contains(a.id) }
-            deletionSet.forEach(this::deleteAssignment)
-            assignmentSet.assignments.removeAll(deletionSet)
-
-            val idAssignmentMap = HashMap<Long, Assignment>()
-            assignmentSet.assignments.forEach { a -> idAssignmentMap[a.id] = a }
-
-            for ((index, a) in dto.assignments.withIndex()) {
-                if (a.id == null) {
-                    val assignment = Assignment(assignmentSet, a.name, participant, index.toLong())
-                    assignmentRepository.save(assignment)
-                    assignmentSet.assignments.add(assignment)
-                } else {
-                    val existing = idAssignmentMap[a.id] ?: throw InvalidAssignmentUpdateRequestException("Assignment with ID " +
-                            "${a.id} was requested to be updated, but the original does not exist in the set.")
-                    existing.name = a.name
-                    existing.orderKey = index.toLong()
-                }
-            }
+            updateAssignmentsInSet(dto.assignments, assignmentSet, participant)
         }
 
         // Update related group sets
@@ -141,6 +120,34 @@ class AssignmentService {
         return assignmentSet
     }
 
+    private fun updateAssignmentsInSet(dtos: List<AssignmentCreateUpdateDto>, assignmentSet: AssignmentSet, participant: Participant) {
+        if (dtos.any { it.name.isBlank() }) {
+            throw InvalidAssignmentUpdateRequestException("Assignment name too short.")
+        }
+
+        val deletionIdSet: Set<Long> = HashSet(assignmentSet.assignments.map { a -> a.id } - dtos.filter { a -> a.id != null }.map { a -> a.id!! })
+        val deletionSet = assignmentSet.assignments.filter { a -> deletionIdSet.contains(a.id) }
+        deletionSet.forEach(this::deleteAssignment)
+        assignmentSet.assignments.removeAll(deletionSet)
+
+        val idAssignmentMap = HashMap<Long, Assignment>()
+        assignmentSet.assignments.forEach { a -> idAssignmentMap[a.id] = a }
+
+        for ((index, a) in dtos.withIndex()) {
+            if (a.id == null) {
+                val assignment = Assignment(assignmentSet, a.name, participant, index.toLong())
+                assignmentRepository.save(assignment)
+                assignmentSet.assignments.add(assignment)
+            } else {
+                val existing = idAssignmentMap[a.id]
+                        ?: throw InvalidAssignmentUpdateRequestException("Assignment with ID " +
+                                "${a.id} was requested to be updated, but the original does not exist in the set.")
+                existing.name = a.name
+                existing.orderKey = index.toLong()
+            }
+        }
+    }
+
     fun isPersonMappedToAssignmentSet(person: Person, assignmentSet: AssignmentSet): Boolean {
         return assignmentSetRepository.isAssignmentSetMappedToPerson(assignmentSet, person)
     }
@@ -160,10 +167,10 @@ class AssignmentService {
     }
 
     fun deleteAssignmentSet(assignmentSet: AssignmentSet) {
-        assignmentSet.assignments.forEach(this::deleteAssignment)
+        assignmentSet.assignments.toList().forEach(this::deleteAssignment)
         assignmentSet.assignments.clear()
 
-        assignmentSet.groupSetMappings.forEach(this::deleteMapping)
+        assignmentSet.groupSetMappings.toList().forEach(this::deleteMapping)
         assignmentSet.groupSetMappings.clear()
 
         assignmentSet.course.assignmentSets.remove(assignmentSet)
@@ -177,9 +184,7 @@ class AssignmentService {
         }
         signOffService.getAssignmentSignOffResults(assignment).forEach { signOffService.deleteSignOffResult(it) }
 
-        // NOT removing from assignment set here: this will cause a ConcurrentModificationException
-        // due to the usage of this function in deleteAssignmentSet()
-        // assignment.assignmentSet.assignments.remove(assignment)
+        assignment.assignmentSet.assignments.remove(assignment)
 
         assignmentRepository.delete(assignment)
     }

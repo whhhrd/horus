@@ -141,7 +141,7 @@ class GroupService {
     }
 
     fun deleteGroupSet(gs: GroupSet) {
-        gs.groups.forEach { deleteGroup(it) }
+        gs.groups.toList().forEach { deleteGroup(it) }
         // Delete all associations
         gs.assignmentSetMappings.removeIf { m -> m.groupSet.id == gs.id }
         gs.course.groupSets.remove(gs)
@@ -151,6 +151,7 @@ class GroupService {
 
 
     fun deleteGroup(g: Group) {
+        g.groupSet.groups.remove(g)
         groupRepository.delete(g)
     }
 
