@@ -91,7 +91,7 @@ const initialState = {
 class SignoffTable extends Component<
     SignoffTableProps & RouteComponentProps<any>,
     SignoffTableState
-    > {
+> {
     /**
      * @override
      */
@@ -134,8 +134,13 @@ class SignoffTable extends Component<
             queryString.parse(this.props.location.search).as!,
         );
 
-        if (!isNaN(newGroup) && !isNaN(newAssignmentSet) &&
-            (oldGroup !== newGroup || oldAssignmentSet !== newAssignmentSet ||
+        if (
+            !isNaN(newGroup) &&
+            newGroup > 0 &&
+            !isNaN(newAssignmentSet) &&
+            newAssignmentSet > 0 &&
+            (oldGroup !== newGroup ||
+                oldAssignmentSet !== newAssignmentSet ||
                 oldParams.cid !== newParams.cid)
         ) {
             this.setState({ ...initialState }, () => this.reloadData());
@@ -155,9 +160,7 @@ class SignoffTable extends Component<
         return (
             <div>
                 <SignOffSearch
-                    searchQuery={
-                        group != null ? group.name : undefined
-                    }
+                    searchQuery={group != null ? group.name : undefined}
                 />
                 <Row className="px-2 flex-row justify-content-center">
                     <Col className="col-md-6 col-xs-12">
@@ -176,7 +179,22 @@ class SignoffTable extends Component<
      */
     private buildTable() {
         const { group, assignmentSet } = this.props;
-        if (group == null || assignmentSet == null) {
+        const newGroup = Number(
+            queryString.parse(this.props.location.search).g!,
+        );
+
+        const newAssignmentSet = Number(
+            queryString.parse(this.props.location.search).as!,
+        );
+
+        if (
+            group == null ||
+            assignmentSet == null ||
+            isNaN(newGroup) ||
+            isNaN(newAssignmentSet) ||
+            newGroup <= 0 ||
+            newAssignmentSet <= 0
+        ) {
             return null;
         } else {
             return (
@@ -571,8 +589,12 @@ class SignoffTable extends Component<
      * Reloads component data.
      */
     private reloadData() {
-        const groupId = Number(queryString.parse(this.props.location.search).g!);
-        const assignmentSetId = Number(queryString.parse(this.props.location.search).as!);
+        const groupId = Number(
+            queryString.parse(this.props.location.search).g!,
+        );
+        const assignmentSetId = Number(
+            queryString.parse(this.props.location.search).as!,
+        );
         const courseId = Number(this.props.match.params.cid);
         if (!(isNaN(groupId) || isNaN(assignmentSetId) || isNaN(courseId))) {
             this.props.fetchSignOffs(assignmentSetId, courseId, groupId);
