@@ -13,6 +13,7 @@ data class CommentThread(
 ) {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "thread", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OrderBy("createdAt ASC")
     val comments: MutableSet<Comment> = HashSet()
 
     constructor(type: CommentType) : this(0, type)

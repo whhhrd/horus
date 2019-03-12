@@ -1,7 +1,7 @@
 package nl.utwente.horus.controllers.comment
 
 import nl.utwente.horus.representations.comment.CommentCreateDto
-import nl.utwente.horus.representations.comment.CommentDto
+import nl.utwente.horus.representations.comment.CommentThreadDtoFull
 import nl.utwente.horus.representations.comment.CommentUpdateDto
 import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.comment.CommentService
@@ -20,18 +20,25 @@ class CommentController {
     lateinit var userDetailsService: HorusUserDetailService
 
     @PostMapping(path = ["", "/"])
-    fun createComment(@RequestBody dto: CommentCreateDto) : CommentDto {
+    fun createComment(@RequestBody dto: CommentCreateDto) : CommentThreadDtoFull {
         val author = userDetailsService.getCurrentPerson()
-        return CommentDto(commentService.createComment(dto, author))
+        val comment = commentService.createComment(dto, author)
+        return CommentThreadDtoFull(comment.thread)
     }
 
     @PutMapping(path = ["/{commentId}"])
-    fun updateComment(@PathVariable commentId: Long, @RequestBody dto: CommentUpdateDto): CommentDto {
-        return CommentDto(commentService.updateComment(commentId, dto))
+    fun updateComment(@PathVariable commentId: Long, @RequestBody dto: CommentUpdateDto): CommentThreadDtoFull {
+        val comment = commentService.updateComment(commentId, dto)
+        return CommentThreadDtoFull(comment.thread)
     }
 
+    /**
+     * Deletes comment and possibly the whole thread, if this comment was the last one of the thread.
+     * In the last case, the return value is null.
+     */
     @DeleteMapping(path = ["/{commentId}"])
-    fun deleteComment(@PathVariable commentId: Long) {
-        commentService.deleteComment(commentService.getCommentById(commentId))
+    fun deleteComment(@PathVariable commentId: Long): CommentThreadDtoFull? {
+        val thread = commentService.deleteComment(commentService.getCommentById(commentId))
+        return thread?.let { CommentThreadDtoFull(it) }
     }
 }

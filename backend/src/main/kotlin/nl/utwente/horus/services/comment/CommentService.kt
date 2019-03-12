@@ -50,8 +50,9 @@ class CommentService {
 
     fun createComment(threadId: Long, content: String, author: Person): Comment {
         val thread = getThreadById(threadId)
-        val comment = Comment(author, thread, content)
-        return commentRepository.save(comment)
+        val comment = commentRepository.save(Comment(author, thread, content))
+        thread.comments.add(comment)
+        return comment
     }
 
     fun updateComment(id: Long, dto: CommentUpdateDto): Comment {
@@ -75,12 +76,14 @@ class CommentService {
         commentThreadRepository.delete(thread)
     }
 
-    fun deleteComment(comment: Comment) {
+    fun deleteComment(comment: Comment): CommentThread? {
         if (comment.thread.comments.size <= 1) {
             deleteCommentsThread(comment.thread)
+            return null
         } else {
             comment.thread.comments.remove(comment)
             commentRepository.delete(comment)
+            return comment.thread
         }
 
     }
