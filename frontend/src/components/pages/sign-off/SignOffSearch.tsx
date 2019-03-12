@@ -51,7 +51,7 @@ interface SignOffSearchState {
 class SignOffSearch extends Component<
     SignOffSearchProps & RouteComponentProps<any>,
     SignOffSearchState
-    > {
+> {
     constructor(props: SignOffSearchProps & RouteComponentProps<any>) {
         super(props);
         const { searchQuery } = this.props;
@@ -75,9 +75,9 @@ class SignOffSearch extends Component<
 
     render() {
         return (
-            <div>
-                {this.renderAssignmentSetSelector()}
+            <div className="d-flex flex-row">
                 {this.renderSearchBar()}
+                {this.renderAssignmentSetSelector()}
             </div>
         );
     }
@@ -124,10 +124,10 @@ class SignOffSearch extends Component<
 
         return (
             <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
-                <DropdownToggle caret>
-                    {selectedAssignmentSet != null
+                <DropdownToggle color="primary" outline className="h-100 px-3" caret>
+                    <span className="mr-3">{selectedAssignmentSet != null
                         ? selectedAssignmentSet.name
-                        : "Select an assignment set"}
+                        : "Select an assignment set"}</span>
                 </DropdownToggle>
                 <DropdownMenu>{assignmentSetOptions}</DropdownMenu>
             </Dropdown>
@@ -204,7 +204,7 @@ class SignOffSearch extends Component<
                 inputProps={{
                     autoFocus: true,
                     onFocus: (e) => e.target.select(),
-                    placeholder: "Input something",
+                    placeholder: "Group number, student name/number",
                     value: this.state.searchQuery,
                     onChange: (_: SyntheticEvent, newValue: any) => {
                         this.setState(() => ({

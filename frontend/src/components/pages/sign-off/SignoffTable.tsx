@@ -3,7 +3,7 @@ import { RouteComponentProps, withRouter } from "react-router";
 import { connect } from "react-redux";
 import queryString from "query-string";
 
-import { Row, Col } from "reactstrap";
+import { Row, Col, Table } from "reactstrap";
 
 import {
     SignOffResultDtoCompact,
@@ -158,19 +158,18 @@ class SignoffTable extends Component<
         const { group, signoffs } = this.props;
 
         return (
-            <div>
-                <SignOffSearch
-                    searchQuery={group != null ? group.name : undefined}
-                />
-                <Row className="px-2 flex-row justify-content-center">
-                    <Col className="col-md-6 col-xs-12">
-                        {signoffs != null && this.buildTable()}
-                    </Col>
-                    <Col className="col-md-6 col-xs-12" />
+            <Row className="px-2 flex-row justify-content-center">
+                <Col lg="12" xs="12">
+                    <SignOffSearch
+                        searchQuery={group != null ? group.name : undefined}
+                    />
+                </Col>
+                <Col lg="12" xs="12" className="SignoffTableWrapper">
+                    {signoffs != null && this.buildTable()}
+                </Col>
 
-                    {this.state.modal && <CommentModal {...this.state.modal} />}
-                </Row>
-            </div>
+                {this.state.modal && <CommentModal {...this.state.modal} />}
+            </Row>
         );
     }
 
@@ -198,65 +197,58 @@ class SignoffTable extends Component<
             return null;
         } else {
             return (
-                <div>
-                    <table className="sign-off-table">
-                        <thead>
-                            <tr>
-                                <GroupTableCell group={group} />
-                                {group.participants.map((p) => (
-                                    <ParticipantTableCell
-                                        key={`p:${p.id}`}
-                                        participant={p}
-                                    />
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {assignmentSet.assignments.map((a) => (
-                                <tr
-                                    key={`a:${a.id}`}
-                                    className="sign-off-table-row"
-                                >
-                                    <AssignmentTableCell
-                                        assignment={a}
-                                        disabled={
-                                            !this.isAssignmentBatchSignable(
-                                                a.id,
-                                            )
-                                        }
-                                        onClick={() =>
-                                            this.onAssignmentSignOffClick(a.id)
-                                        }
-                                    />
-                                    {group.participants.map((p) => {
-                                        const cellType = this.getLocalTypeForSignOff(
-                                            p.id,
-                                            a.id,
-                                        );
-                                        const unsaved = this.isCellUnsaved(
-                                            p.id,
-                                            a.id,
-                                        );
-                                        return (
-                                            <SignoffResultTableCell
-                                                key={`a:${a.id}:p:${p.id}`}
-                                                signOffState={cellType}
-                                                disabled={unsaved}
-                                                unsaved={unsaved}
-                                                onClick={() =>
-                                                    this.onSignOffClick(
-                                                        a.id,
-                                                        p.id,
-                                                    )
-                                                }
-                                            />
-                                        );
-                                    })}
-                                </tr>
+                <Table className="sign-off-table mt-4 table-bordered">
+                    <thead>
+                        <tr>
+                            <GroupTableCell group={group} />
+                            {group.participants.map((p) => (
+                                <ParticipantTableCell
+                                    key={`p:${p.id}`}
+                                    participant={p}
+                                />
                             ))}
-                        </tbody>
-                    </table>
-                </div>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {assignmentSet.assignments.map((a) => (
+                            <tr
+                                key={`a:${a.id}`}
+                                className="sign-off-table-row"
+                            >
+                                <AssignmentTableCell
+                                    assignment={a}
+                                    disabled={
+                                        !this.isAssignmentBatchSignable(a.id)
+                                    }
+                                    onClick={() =>
+                                        this.onAssignmentSignOffClick(a.id)
+                                    }
+                                />
+                                {group.participants.map((p) => {
+                                    const cellType = this.getLocalTypeForSignOff(
+                                        p.id,
+                                        a.id,
+                                    );
+                                    const unsaved = this.isCellUnsaved(
+                                        p.id,
+                                        a.id,
+                                    );
+                                    return (
+                                        <SignoffResultTableCell
+                                            key={`a:${a.id}:p:${p.id}`}
+                                            signOffState={cellType}
+                                            disabled={unsaved}
+                                            unsaved={unsaved}
+                                            onClick={() =>
+                                                this.onSignOffClick(a.id, p.id)
+                                            }
+                                        />
+                                    );
+                                })}
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
             );
         }
     }

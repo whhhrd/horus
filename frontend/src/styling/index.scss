@@ -1,7 +1,16 @@
 $color_blue: #007bff;
+$color_blue_light: #cce5ff;
+$color_blue_text: #004085;
+
 $color_yellow: #ffc107;
+$color_yellow_light: #fff3cd;
+$color_yellow_text: #856404;
+
 $color_red: #dc3545;
+
 $color_green: #28a745;
+$color_green_light: #d4edda;
+$color_green_text: #155724;
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * HTML components
@@ -9,7 +18,7 @@ $color_green: #28a745;
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Lato', sans-serif;
+    font-family: "Lato", sans-serif;
 }
 
 label {
@@ -77,7 +86,7 @@ button {
 
 .Login {
     width: 100%;
-    background-color: rgba(255,255,255,0.3);
+    background-color: rgba(255, 255, 255, 0.3);
     flex: none;
     flex-basis: inherit !important;
     overflow-x: hidden;
@@ -114,12 +123,13 @@ button {
     width: 100%;
 }
 
-.navigation-bar-item-link, .navigation-bar-item-link:hover {
+.navigation-bar-item-link,
+.navigation-bar-item-link:hover {
     text-decoration: none !important;
-    color: black
+    color: black;
 }
 
-.navigation-bar-item-link-active  {
+.navigation-bar-item-link-active {
     color: white !important;
 }
 
@@ -128,7 +138,7 @@ button {
 }
 
 .navigation-bar-item-text {
-    font-size: 0.80rem;
+    font-size: 0.8rem;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -180,13 +190,13 @@ button {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * Canvas card properties
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-.canvas-card{
+.canvas-card {
     min-width: 260px;
     max-width: 260px;
 }
 
 .canvas-card:hover {
-    box-shadow: 2px 2px 5px 3px rgba(0,0,0,0.08) !important;
+    box-shadow: 2px 2px 5px 3px rgba(0, 0, 0, 0.08) !important;
     cursor: pointer;
 }
 
@@ -196,7 +206,7 @@ button {
 }
 
 .watermark-icon {
-    color: rgba(255,255,255,0.12);
+    color: rgba(255, 255, 255, 0.12);
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -236,44 +246,39 @@ button {
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-* Signo-ff table properties
+* Sign-off table properties
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-.sign-off-table {
-    border: 0.25px solid rgba(0, 0, 0, 0.25);
-    table-layout: fixed;
-    align-self: center;
-    margin-bottom: 80px;
-}
+
 
 .sign-off-table {
-    td, th {
-        border-top: 0.25px solid rgba(0, 0, 0, 0.25);
+    td,
+    th {
         padding: 0.75em;
         min-height: 50px;
+        border-color: #b1bcc3;
+        background-clip: padding-box;
     }
-}
-
-.sign-off-table-row {
-    border: 0.25px solid rgba(0, 0, 0, 0.25);
 }
 
 .sign-off-table-heading {
     background-color: #f7f7f7;
-    border: 0.25px solid rgba(0, 0, 0, 0.25);
+    border-color: #b1bcc3;
     text-align: center;
     min-width: 100px;
+    border-bottom-width: 1px !important;
 }
 
 .sign-off-table-top-row {
     position: sticky;
     position: -webkit-sticky;
-    top: 0;
+    top: -20px;
 }
 
 .sign-off-table-left-column {
     position: sticky;
     position: -webkit-sticky;
-    left: 0;
+    left: -20px;
+    // border-right-width: 2px !important;
 }
 
 .sign-off-table-left-column::selection {
@@ -287,7 +292,6 @@ button {
 }
 
 .sign-off-table-cell {
-    border: 0.25px solid rgba(0, 0, 0, 0.25);
     text-align: center;
     padding: 15px;
     min-width: 150px;
@@ -303,34 +307,45 @@ button {
 
 .sign-off-table-cell-complete {
     @extend .sign-off-table-cell;
-    background-color: $color_green;
+    background-color: $color_green_light;
+    color: $color_green_text;
 }
 
 .sign-off-table-cell-insufficient {
     @extend .sign-off-table-cell;
-    background-color: $color_yellow;
+    background-color: $color_yellow_light;
+    color: $color_yellow_text;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * Autosuggest properties
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 .react-autosuggest__container {
-    position: relative;
+    flex: 1 1 0 !important;
+    margin-right: 1rem !important;
 }
 
 .react-autosuggest__input {
-    width: 600px;
-    height: 60px;
-    padding: 10px 20px;
-    font-family: Helvetica, sans-serif;
-    font-weight: 300;
-    font-size: 32px;
-    border: 1px solid #aaa;
-    border-radius: 4px;
+    width: 100%;
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.5;
+    height: calc(1.5em + 1.15rem + 2px);
+    padding: 0.375rem 0.75rem;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
 .react-autosuggest__input--focused {
-    outline: none;
+    color: #495057;
+    background-color: #fff;
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);  
 }
 
 .react-autosuggest__input--open {
@@ -345,9 +360,11 @@ button {
 .react-autosuggest__suggestions-container--open {
     display: block;
     position: absolute;
-    top: 75px;
+    top: 49px;
     left: 16px;
-    width: 600px;
+    height: 500px;
+    width: 90%;
+    overflow-y: auto;
     border: 1px solid #aaa;
     background-color: #fff;
     font-family: Helvetica, sans-serif;
@@ -370,7 +387,7 @@ button {
 }
 
 .react-autosuggest__suggestion--highlighted {
-    background-color: #ddd;
+    background-color: $color_blue_light;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

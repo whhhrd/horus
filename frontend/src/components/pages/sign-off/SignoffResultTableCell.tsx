@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 
 import { SignOffChangeResult } from "../../../state/sign-off/types";
+import { faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface SignoffResultTableCellProps {
     signOffState: SignOffChangeResult;
@@ -15,12 +17,15 @@ export default class SignoffResultTableCell extends Component<
     render() {
         const { signOffState, unsaved, disabled } = this.props;
         let className;
+        let icon;
         switch (signOffState) {
             case SignOffChangeResult.Sufficient:
                 className = "sign-off-table-cell-complete";
+                icon = faCheck;
                 break;
             case SignOffChangeResult.Insufficient:
                 className = "sign-off-table-cell-insufficient";
+                icon = faTimes;
                 break;
             default:
                 className = "sign-off-table-cell-blank";
@@ -31,6 +36,7 @@ export default class SignoffResultTableCell extends Component<
                 onDoubleClick={() => this.onClick()}
                 style={{ cursor: disabled ? "default" : "pointer" }}
             >
+                {!unsaved && icon != null && <FontAwesomeIcon icon={icon} size="lg"/>}
                 {unsaved && "SAVING..."}
             </td>
         );

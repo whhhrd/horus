@@ -34,13 +34,13 @@ class DesktopComponent extends Component<DesktopComponentProps> {
                             {/* The content header box displaying the 'headerTitle' argument */}
                             <div className="ContentHeader px-3 pt-3 w-100">
                                 <h2>{headerTitle}</h2>
-                                <hr />
+                                <hr className="mb-0"/>
                             </div>
 
                             {/* The main content box, displaying the elements from the 'content' argument or
                                 the center spinner if the content is Null. */}
-                            <div className="ContentMain px-3 pb-3 w-100">
-                                {content !== null ? content : centerSpinner()}
+                            <div className="ContentMain px-3 pt-3 pb-3 w-100">
+                                {content != null ? content : centerSpinner()}
                             </div>
                         </div>
 
