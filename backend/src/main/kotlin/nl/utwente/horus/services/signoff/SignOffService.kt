@@ -4,13 +4,11 @@ import nl.utwente.horus.entities.assignment.Assignment
 import nl.utwente.horus.entities.assignment.AssignmentSet
 import nl.utwente.horus.entities.assignment.SignOffResult
 import nl.utwente.horus.entities.assignment.SignOffResultRepository
+import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.comment.CommentType
 import nl.utwente.horus.entities.group.Group
 import nl.utwente.horus.entities.participant.Participant
-import nl.utwente.horus.exceptions.AlreadyArchivedException
-import nl.utwente.horus.exceptions.DifferentAssignmentSetException
-import nl.utwente.horus.exceptions.ParticipantNotFoundException
-import nl.utwente.horus.exceptions.SignOffResultNotFoundException
+import nl.utwente.horus.exceptions.*
 import nl.utwente.horus.representations.signoff.SignOffResultArchiveDto
 import nl.utwente.horus.representations.signoff.SignOffResultCreateDto
 import nl.utwente.horus.representations.signoff.SignOffResultPatchDto
@@ -163,6 +161,14 @@ class SignOffService {
                 val comment = commentService.createThread(CommentType.STAFF_ONLY, dto.comment, archiver.person)
                 existing.commentThread = comment
             }
+        }
+    }
+
+    fun addThreadToSignOffResult(result: SignOffResult, thread: CommentThread) {
+        if (result.commentThread == null) {
+            result.commentThread = thread
+        } else {
+            throw ExistingThreadException()
         }
     }
 
