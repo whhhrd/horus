@@ -12,4 +12,7 @@ data class Permission (
 ) {
     @OneToMany(mappedBy = "id.permission", cascade = [CascadeType.ALL], orphanRemoval = true)
     val rolePermissions: MutableSet<RolePermission> = HashSet()
+
+    @OneToMany(mappedBy = "id.permission", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val supplementaryRolePermissions: MutableSet<SupplementaryRolePermission> = HashSet()
 }

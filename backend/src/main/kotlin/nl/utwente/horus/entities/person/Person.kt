@@ -24,7 +24,9 @@ data class Person(
     constructor(loginId: String, fullName: String, shortName: String, email: String?): this(id = 0, loginId = loginId, shortName = shortName, fullName = fullName, email = email, createdAt = ZonedDateTime.now())
 
     fun getAuthorities(): Collection<HorusAuthority> {
-        val authorities = participations.map { part -> part.role.permissions.map { perm -> HorusAuthority(listOf(part.course), perm) } }.flatten()
+        // Convert both "normal" roles (TA/teacher
+        val authorities = participations.map { part -> part.role.permissions.map { perm -> HorusAuthority(listOf(part.course), perm) } }.flatten() +
+                participations.map { it.supplementaryRoles }.flatten().map { role -> role.permissions.map { HorusAuthority(listOf(role.course), it) } }.flatten()
         val permissionCourseMap = HashMap<HorusPermission, MutableSet<Long>>()
         authorities.forEach {
             if (permissionCourseMap.containsKey(it.permission)) {

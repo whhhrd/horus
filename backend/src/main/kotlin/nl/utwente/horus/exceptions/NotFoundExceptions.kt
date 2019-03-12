@@ -27,3 +27,7 @@ class GroupNotFoundException : EntityNotFoundException("Group could not be found
 class GroupSetNotFoundException : EntityNotFoundException("Group set could not be found.")
 
 class SignOffResultNotFoundException : EntityNotFoundException("Sign off result could not be found.")
+
+class SupplementaryRoleNotFoundException : EntityNotFoundException("Supplementary role could not be found.")
+
+class PermissionNotFoundException: EntityNotFoundException("Permission string was well-formed, but does not exist as an entity.")

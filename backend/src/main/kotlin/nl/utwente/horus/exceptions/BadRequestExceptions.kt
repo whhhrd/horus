@@ -4,6 +4,9 @@ import org.springframework.http.HttpStatus
 
 abstract class BadRequestException(message: String, code: String? = null) : HorusException(message, HttpStatus.BAD_REQUEST, code)
 
+// General exception
+class EmptyStringException : BadRequestException("A string used for creation/updating of this entity was found to be empty, which is illegal.")
+
 // Course-related
 class WrongCourseException : BadRequestException("This entity does not belong to the indicated course.")
 
@@ -42,3 +45,10 @@ class InvalidColorException: BadRequestException("Color should be six-character 
 class InvalidLabelNameException : BadRequestException("Label name can only contain (at most 15) alphanumeric characters and hyphens.")
 
 class ExistingLabelNameException : BadRequestException("Label name is already taken for this course.")
+
+// Roles/permissions related
+class AssignedSupplementaryRoleException: BadRequestException("Supplementary role is already assigned.")
+
+class SupplementaryRoleNotAssignedException : BadRequestException("Supplementary role was requested to be removed, but no assignment was found.")
+
+class PermissionAlreadyGrantedException : BadRequestException("This permission was already granted to this (supplementary) role.")

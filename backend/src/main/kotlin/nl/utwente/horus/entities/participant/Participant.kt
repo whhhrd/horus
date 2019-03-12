@@ -1,5 +1,6 @@
 package nl.utwente.horus.entities.participant
 
+import nl.utwente.horus.entities.auth.ParticipantSupplementaryRoleMapping
 import nl.utwente.horus.entities.auth.Role
 import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.course.Course
@@ -37,6 +38,12 @@ data class Participant (
         @OneToMany(fetch = FetchType.LAZY, mappedBy = "id.participant", cascade = [CascadeType.ALL], orphanRemoval = true)
         val labelMappings: MutableSet<ParticipantLabelMapping> = HashSet()
 
+        @OneToMany(mappedBy = "id.participant", cascade = [CascadeType.ALL], orphanRemoval = true)
+        val supplementaryRoleMappings: MutableSet<ParticipantSupplementaryRoleMapping> = HashSet()
+
         val labels
                 get() = labelMappings.map { it.label }.sortedBy { it.name }
+
+        val supplementaryRoles
+                get() = supplementaryRoleMappings.map { it.supplementaryRole }.sortedBy { it.id }
 }
