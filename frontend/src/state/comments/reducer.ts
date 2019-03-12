@@ -1,147 +1,143 @@
 import {
-    COMMENT_THREADS_REQUEST_SUCCEEDED_ACTION,
     COMMENT_CREATE_REQUEST_SUCCEEDED_ACTION,
     COMMENT_UPDATE_REQUEST_SUCCEEDED_ACTION,
     COMMENT_THREAD_CREATE_REQUEST_SUCCEEDED_ACTION,
     COMMENT_THREAD_REQUEST_SUCCEEDED_ACTION,
     COMMENT_DELETE_REQUEST_SUCCEEDED_ACTION,
+    COMMENT_THREAD_REQUESTED_ACTION,
 } from "./constants";
-import { CommentsState } from "./types";
-import { CommentThreadDtoFull, CommentDto } from "../../api/types";
+import { CommentsState, EntityType } from "./types";
+import { CommentThreadDtoFull } from "../../api/types";
 import {
-    CommentThreadsRequestSucceededAction,
     CommentCreateSucceededAction,
     CommentThreadCreateSucceededAction,
     CommentUpdateSucceededAction,
     CommentThreadRequestSucceededAction,
     CommentDeleteSucceededAction,
+    CommentThreadRequestedAction,
 } from "./action";
+import { Action } from "redux";
 
 const initialState: CommentsState = {
-    commentThreads: null,
+    participantThreads: null,
+    groupThreads: null,
+    signoffThreads: null,
+    assignmentThreads: null,
 };
 
 export default function commentsReducer(
     state: CommentsState,
-    action: CommentThreadsRequestSucceededAction |
-        CommentThreadsRequestSucceededAction |
-        CommentThreadRequestSucceededAction |
-        CommentUpdateSucceededAction |
-        CommentCreateSucceededAction |
-        CommentDeleteSucceededAction): CommentsState {
-
+    action: Action,
+): CommentsState {
     if (state == null) {
         return initialState;
     }
 
     switch (action.type) {
-        case COMMENT_THREADS_REQUEST_SUCCEEDED_ACTION:
-            return { ...state, commentThreads: (action as CommentThreadsRequestSucceededAction).commentThreads };
-        case COMMENT_THREAD_REQUEST_SUCCEEDED_ACTION:
-            const commentThread = (action as CommentThreadRequestSucceededAction).commentThread;
-            return updateCommentsStateWithThread(state, commentThread);
-        case COMMENT_CREATE_REQUEST_SUCCEEDED_ACTION:
-            const createdComment = (action as CommentCreateSucceededAction).comment;
-            return updateCommentsStateWithComment(state, createdComment);
-        case COMMENT_UPDATE_REQUEST_SUCCEEDED_ACTION:
-            const updatedComment = (action as CommentUpdateSucceededAction).comment;
-            return updateCommentsStateWithComment(state, updatedComment);
-        case COMMENT_THREAD_CREATE_REQUEST_SUCCEEDED_ACTION:
-            const createdCommentThread = (action as CommentThreadCreateSucceededAction).commentThread;
-            return updateCommentsStateWithThread(state, createdCommentThread);
-        case COMMENT_DELETE_REQUEST_SUCCEEDED_ACTION:
-            const commentId = (action as CommentDeleteSucceededAction).comment;
-            return updateCommentsStateWithCommentDelete(state, commentId);
+        case COMMENT_THREAD_REQUEST_SUCCEEDED_ACTION: {
+            const {
+                entityId,
+                entityType,
+                commentThread,
+            } = action as CommentThreadRequestSucceededAction;
+            return setCommentThread(state, entityId, entityType, commentThread);
+        }
+
+        case COMMENT_CREATE_REQUEST_SUCCEEDED_ACTION: {
+            const {
+                entityId,
+                entityType,
+                commentThread,
+            } = action as CommentCreateSucceededAction;
+            return setCommentThread(state, entityId, entityType, commentThread);
+        }
+
+        case COMMENT_UPDATE_REQUEST_SUCCEEDED_ACTION: {
+            const {
+                entityId,
+                entityType,
+                commentThread,
+            } = action as CommentUpdateSucceededAction;
+            return setCommentThread(state, entityId, entityType, commentThread);
+        }
+
+        case COMMENT_THREAD_CREATE_REQUEST_SUCCEEDED_ACTION: {
+            const {
+                entityId,
+                entityType,
+                commentThread,
+            } = action as CommentThreadCreateSucceededAction;
+            return setCommentThread(state, entityId, entityType, commentThread);
+        }
+
+        case COMMENT_DELETE_REQUEST_SUCCEEDED_ACTION: {
+            const {
+                entityId,
+                entityType,
+                commentThread,
+            } = action as CommentDeleteSucceededAction;
+            return setCommentThread(state, entityId, entityType, commentThread);
+        }
+
+        case COMMENT_THREAD_REQUESTED_ACTION: {
+            const {
+                entityId,
+                entityType,
+            } = action as CommentThreadRequestedAction;
+            return setCommentThread(state, entityId, entityType, null);
+        }
+
         default:
             return state;
     }
 }
 
-function updateCommentsStateWithComment(state: CommentsState, comment: CommentDto) {
+function setCommentThread(
+    state: CommentsState,
+    entityId: number,
+    entityType: EntityType,
+    commentThread: CommentThreadDtoFull | null,
+) {
     const newState = {
         ...state,
-        commentThreads: state.commentThreads != null ? state.commentThreads.slice() : null,
     };
 
-    if (newState.commentThreads != null) {
+    switch (entityType) {
+        case EntityType.Participant:
 
-        // First check if commentThread exist in state
-        const commentThread = newState.commentThreads.find((t) => (t.id === comment.thread.id));
-        if (commentThread != null) {
-
-            const threadIndex = newState.commentThreads.indexOf(commentThread);
-
-            const newComments = commentThread.comments.slice();
-
-            // Check if the comment with this ID is already there (in case we are editing a comment)
-            const tempComment = newComments.find((cmnt) => cmnt.id === comment.id);
-
-            // If it exists, replace it
-            if (tempComment != null) {
-                const index = newComments.indexOf(tempComment);
-                newComments[index] = comment;
-            } else {
-                newComments.push(comment);
+            if (newState.participantThreads == null) {
+                newState.participantThreads = new Map<
+                    number,
+                    CommentThreadDtoFull
+                >();
             }
-
-            commentThread.comments = newComments;
-            newState.commentThreads[threadIndex] = commentThread;
-        } else {
+            newState.participantThreads.set(entityId, commentThread);
             return newState;
-        }
+        case EntityType.Group:
+            if (newState.groupThreads == null) {
+                newState.groupThreads = new Map<number, CommentThreadDtoFull>();
+            }
+            newState.groupThreads.set(entityId, commentThread);
+            return newState;
+        case EntityType.Assignment:
+            if (newState.assignmentThreads == null) {
+                newState.assignmentThreads = new Map<
+                    number,
+                    CommentThreadDtoFull
+                >();
+            }
+            newState.assignmentThreads.set(entityId, commentThread);
+            return newState;
+        case EntityType.Signoff:
+            if (newState.signoffThreads == null) {
+                newState.signoffThreads = new Map<
+                    number,
+                    CommentThreadDtoFull
+                >();
+            }
+            newState.signoffThreads.set(entityId, commentThread);
+            return newState;
+        default:
+            return newState;
     }
-    return newState;
-}
-
-function updateCommentsStateWithThread(state: CommentsState, commentThread: CommentThreadDtoFull) {
-    const newState = {
-        ...state,
-        commentThreads: state.commentThreads != null ? state.commentThreads.slice() : null,
-    };
-
-    if (newState.commentThreads != null) {
-        const newCommentThreads = newState.commentThreads;
-
-        const tempCommentThread = newCommentThreads.find((t) => t.id === commentThread.id);
-
-        if (tempCommentThread != null) {
-            const index = newCommentThreads.indexOf(tempCommentThread);
-            newCommentThreads[index] = commentThread;
-        } else {
-            newCommentThreads.push(commentThread);
-        }
-        newState.commentThreads = newCommentThreads;
-    } else {
-        const newCommentThreads: CommentThreadDtoFull[] = [];
-        newCommentThreads.push(commentThread);
-        newState.commentThreads = newCommentThreads;
-    }
-
-    return newState;
-}
-
-function updateCommentsStateWithCommentDelete(state: CommentsState, comment: CommentDto) {
-    const newState = {
-        ...state,
-        commentThreads: state.commentThreads != null ? state.commentThreads.slice() : null,
-    };
-
-    if (newState.commentThreads != null) {
-        const newCommentThreads = newState.commentThreads;
-        const thread = newCommentThreads.find((t) => t.id === comment.thread.id);
-        const threadIndex = newCommentThreads.indexOf(thread!);
-
-        const oldComment = thread!.comments.find((c) => c.id === comment.id);
-        const oldCommentIndex = thread!.comments.indexOf(oldComment!);
-
-        thread!.comments.splice(oldCommentIndex, 1);
-
-        if (thread!.comments.length !== 0) {
-            newState.commentThreads = newCommentThreads;
-        } else {
-            newState.commentThreads.splice(threadIndex, 1);
-        }
-    }
-
-    return newState;
 }

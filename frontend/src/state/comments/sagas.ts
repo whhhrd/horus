@@ -4,12 +4,14 @@ import {
     CommentUpdateRequestAction,
     CommentThreadCreateAction,
     commentThreadCreateRequestSucceededAction,
-    CommentThreadsRequestedAction,
-    commentThreadsRequestSucceededAction,
+    // CommentThreadsRequestedAction,
+    // commentThreadsRequestSucceededAction,
     CommentThreadRequestedAction,
     commentThreadRequestSucceededAction,
     CommentDeleteRequestAction,
     commentDeleteRequestSucceededAction,
+    commentUpdateRequestSucceededAction,
+    // commentThreadUpdateAction,
 } from "./action";
 
 import { notifyError, notifySuccess } from "../notifications/constants";
@@ -19,31 +21,59 @@ import {
     COMMENT_CREATE_REQUESTED_ACTION,
     COMMENT_UPDATE_REQUESTED_ACTION,
     COMMENT_THREAD_CREATE_REQUESTED_ACTION,
-    COMMENT_THREADS_REQUESTED_ACTION,
+    // COMMENT_THREADS_REQUESTED_ACTION,
     COMMENT_THREAD_REQUESTED_ACTION,
     COMMENT_DELETE_REQUESTED_ACTION,
 } from "./constants";
 
 import { authenticatedFetchJSON } from "../../api";
-import { CommentThreadDtoFull, CommentDto } from "../../api/types";
-import { CommentThreadType } from "../../components/comments/CommentThread";
+import { CommentThreadDtoFull } from "../../api/types";
+import { EntityType } from "./types";
 
-export function* requestCommentThreads(action: CommentThreadsRequestedAction) {
-    try {
-        const threadIds = action.ctids;
-        const commentThreads: CommentThreadDtoFull[] =
-            yield call(authenticatedFetchJSON, "GET", `threads`, { threadIds });
-        yield put(commentThreadsRequestSucceededAction(commentThreads));
-    } catch (e) {
-        yield put(notifyError("Could not fetch comment thread"));
+// export function* requestCommentThreads(action: CommentThreadsRequestedAction) {
+//     try {
+//         const threadIds = action.ctids;
+//         const commentThreads: CommentThreadDtoFull[] = yield call(
+//             authenticatedFetchJSON,
+//             "GET",
+//             `threads`,
+//             { threadIds },
+//         );
+//         yield put(commentThreadsRequestSucceededAction(commentThreads));
+//     } catch (e) {
+//         yield put(notifyError("Could not fetch comment thread"));
+//     }
+// }
+
+function getEntityTypePrefix(entityType: EntityType) {
+    switch (entityType) {
+        case EntityType.Assignment:
+            return "assignments";
+        case EntityType.Group:
+            return "groups";
+        case EntityType.Participant:
+            return "participants";
+        case EntityType.Signoff:
+            return "signoff";
     }
 }
 
 export function* requestCommentThread(action: CommentThreadRequestedAction) {
     try {
-        const commentThreads: CommentThreadDtoFull[] =
-            yield call(authenticatedFetchJSON, "GET", `threads?threadIds=${action.ctid}`);
-        yield put(commentThreadRequestSucceededAction(commentThreads[0]));
+        const { entityId, entityType } = action;
+        const urlPrefix = getEntityTypePrefix(entityType);
+        const result: CommentThreadDtoFull = yield call(
+            authenticatedFetchJSON,
+            "GET",
+            `${urlPrefix}/${entityId}/comments`,
+        );
+        yield put(
+            commentThreadRequestSucceededAction(
+                entityId,
+                entityType,
+                result,
+            ),
+        );
     } catch (e) {
         yield put(notifyError("Could not fetch comment thread"));
     }
@@ -51,31 +81,25 @@ export function* requestCommentThread(action: CommentThreadRequestedAction) {
 
 export function* createCommentThread(action: CommentThreadCreateAction) {
     try {
-        const { linkedEntityId, linkedEntityType, commentThreadCreate } = action;
+        const { entityId, entityType, commentThreadCreate } = action;
 
-        let urlPrefix = "";
+        const urlPrefix = getEntityTypePrefix(entityType);
 
-        switch (linkedEntityType) {
-            case CommentThreadType.Assignment:
-                urlPrefix = "assignments";
-                break;
-            case CommentThreadType.Group:
-                urlPrefix = "groups";
-                break;
-            case CommentThreadType.Participant:
-                urlPrefix = "participants";
-                break;
-            case CommentThreadType.Signoff:
-                urlPrefix = "signoff"; // TODO adapt to API call (Rick)
-                break;
-            default:
-                break;
-        }
+        const result: CommentThreadDtoFull = yield call(
+            authenticatedFetchJSON,
+            "POST",
+            `${urlPrefix}/${entityId}/comments`,
+            null,
+            commentThreadCreate,
+        );
 
-        const result = yield call(authenticatedFetchJSON, "POST",
-            `${urlPrefix}/${linkedEntityId}/comments`, null, commentThreadCreate);
-
-        yield put(commentThreadCreateRequestSucceededAction(result));
+        yield put(
+            commentThreadCreateRequestSucceededAction(
+                entityId,
+                entityType,
+                result,
+            ),
+        );
         yield put(notifySuccess("Succesfully created comment thread"));
     } catch (e) {
         yield put(notifyError("Could not create comment thread"));
@@ -84,9 +108,17 @@ export function* createCommentThread(action: CommentThreadCreateAction) {
 
 export function* createComment(action: CommentCreateRequestAction) {
     try {
-        const result: CommentDto = yield call(authenticatedFetchJSON, "POST",
-            `comments`, null, action.commentCreate);
-        yield put(commentCreateRequestSucceededAction(result));
+        const { entityId, entityType } = action;
+        const result: CommentThreadDtoFull = yield call(
+            authenticatedFetchJSON,
+            "POST",
+            `comments`,
+            null,
+            action.commentCreate,
+        );
+        yield put(
+            commentCreateRequestSucceededAction(entityId, entityType, result),
+        );
         yield put(notifySuccess("Comment created"));
     } catch (e) {
         yield put(notifyError("Could not create comment"));
@@ -95,9 +127,15 @@ export function* createComment(action: CommentCreateRequestAction) {
 
 export function* deleteComment(action: CommentDeleteRequestAction) {
     try {
-        yield call(authenticatedFetchJSON, "DELETE",
-            `comments/${action.comment.id}`);
-        yield put(commentDeleteRequestSucceededAction(action.comment));
+        const { entityId, entityType, comment } = action;
+        const result: CommentThreadDtoFull = yield call(
+            authenticatedFetchJSON,
+            "DELETE",
+            `comments/${comment.id}`,
+        );
+        yield put(
+            commentDeleteRequestSucceededAction(entityId, entityType, result),
+        );
         yield put(notifySuccess("Comment deleted"));
     } catch (e) {
         yield put(notifyError("Could not delete comment"));
@@ -106,9 +144,17 @@ export function* deleteComment(action: CommentDeleteRequestAction) {
 
 export function* updateComment(action: CommentUpdateRequestAction) {
     try {
-        const result: CommentDto = yield call(authenticatedFetchJSON, "PUT",
-            `comments/${action.commentId}`, null, action.commentUpdate);
-        yield put(commentCreateRequestSucceededAction(result));
+        const { entityId, entityType, commentUpdate, commentId } = action;
+        const result: CommentThreadDtoFull = yield call(
+            authenticatedFetchJSON,
+            "PUT",
+            `comments/${commentId}`,
+            null,
+            commentUpdate,
+        );
+        yield put(
+            commentUpdateRequestSucceededAction(entityId, entityType, result),
+        );
         yield put(notifySuccess("Comment updated"));
     } catch (e) {
         yield put(notifyError("Could not edit comment"));
@@ -116,10 +162,12 @@ export function* updateComment(action: CommentUpdateRequestAction) {
 }
 
 export default function* commentsSagas() {
-    yield takeEvery(COMMENT_THREADS_REQUESTED_ACTION, requestCommentThreads);
     yield takeEvery(COMMENT_THREAD_REQUESTED_ACTION, requestCommentThread);
     yield takeEvery(COMMENT_CREATE_REQUESTED_ACTION, createComment);
     yield takeEvery(COMMENT_UPDATE_REQUESTED_ACTION, updateComment);
-    yield takeEvery(COMMENT_THREAD_CREATE_REQUESTED_ACTION, createCommentThread);
+    yield takeEvery(
+        COMMENT_THREAD_CREATE_REQUESTED_ACTION,
+        createCommentThread,
+    );
     yield takeEvery(COMMENT_DELETE_REQUESTED_ACTION, deleteComment);
 }

@@ -1,47 +1,61 @@
 import React, { Component } from "react";
 import { CommentDto } from "../../api/types";
-import { ListGroupItem, Popover, PopoverHeader, PopoverBody, Button, CardTitle } from "reactstrap";
+import {
+    ListGroupItem,
+} from "reactstrap";
 import { getDisplayedDate } from "../util";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import CommentUpdateModal from "./CommentUpdateModal";
-import { CommentDeleteRequestAction, commentDeleteRequestedAction } from "../../state/comments/action";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../state/state";
+import { EntityType } from "../../state/comments/types";
+import CommentDeleteModal from "./CommentDeleteModal";
 
 interface CommentProps {
+    entityId: number;
+    entityType: EntityType;
     comment: CommentDto;
-
-    deleteComment: (comment: CommentDto) => CommentDeleteRequestAction;
 }
 
 interface CommentState {
     editorModalOpen: boolean;
-    deleteCommentPopover: boolean;
+    deleteModalOpen: boolean;
 }
 
 export class Comment extends Component<CommentProps, CommentState> {
-
     constructor(props: CommentProps) {
         super(props);
         this.state = {
             editorModalOpen: false,
-            deleteCommentPopover: false,
+            deleteModalOpen: false,
         };
         this.toggleEditorModal = this.toggleEditorModal.bind(this);
-        this.toggleDeleteCommentPopover = this.toggleDeleteCommentPopover.bind(this);
+        this.toggleDeleteCommentModal = this.toggleDeleteCommentModal.bind(
+            this,
+        );
     }
 
     toggleEditorModal() {
         this.setState((state) => ({ editorModalOpen: !state.editorModalOpen }));
     }
 
-    toggleDeleteCommentPopover() {
-        this.setState((state) => ({ deleteCommentPopover: !state.deleteCommentPopover }));
+    toggleDeleteCommentModal() {
+        this.setState((state) => ({
+            deleteModalOpen: !state.deleteModalOpen,
+        }));
     }
 
     render() {
-        const { content, createdAt, id, lastEditedAt, person, thread } = this.props.comment;
+        const {
+            content,
+            createdAt,
+            lastEditedAt,
+            person,
+            thread,
+        } = this.props.comment;
+
+        const { entityId, entityType } = this.props;
 
         const createdAtDate: Date = new Date(createdAt);
         const lastEditedAtDate: Date = new Date(lastEditedAt);
@@ -57,63 +71,59 @@ export class Comment extends Component<CommentProps, CommentState> {
                                 <mark>{person.fullName}</mark>
                             </div>
                             <div className="flex-shrink-0">
-                                <small className="text-muted">{getDisplayedDate(createdAtDate)}</small>
+                                <small className="text-muted">
+                                    {getDisplayedDate(createdAtDate)}
+                                </small>
                             </div>
                         </div>
                         <div className="flex-shrink-0">
                             <span onClick={() => this.toggleEditorModal()}>
-                                <FontAwesomeIcon className="ml-3 cursor-pointer" icon={faEdit} size="sm" />
+                                <FontAwesomeIcon
+                                    className="ml-3 cursor-pointer"
+                                    icon={faEdit}
+                                    size="sm"
+                                />
                             </span>
                             <span
-                                id={`DeletePopoverTarget-${this.props.comment.id}`}
-                                onClick={() => this.toggleDeleteCommentPopover()}>
-                                <FontAwesomeIcon className="ml-3 cursor-pointer" icon={faTrash} size="sm" />
+                                onClick={() => this.toggleDeleteCommentModal()}
+                            >
+                                <FontAwesomeIcon
+                                    className="ml-3 cursor-pointer"
+                                    icon={faTrash}
+                                    size="sm"
+                                />
                             </span>
-                            <Popover placement="left"
-                                className="shadow"
-                                isOpen={this.state.deleteCommentPopover}
-                                target={`DeletePopoverTarget-${this.props.comment.id}`}
-                                toggle={this.toggleDeleteCommentPopover}>
-                                <PopoverHeader>
-                                    <CardTitle>Delete this comment?</CardTitle>
-                                </PopoverHeader>
-                                <PopoverBody>
-                                    <span>Are you sure you want to delete this comment?</span>
-                                    <div className="d-flex flex-row">
-                                        <Button block
-                                            className="mr-3"
-                                            color="secondary"
-                                            onClick={this.toggleDeleteCommentPopover}>
-                                            No
-                                        </Button>
-                                        <Button block
-                                            color="primary"
-                                            onClick={() => this.props.deleteComment(this.props.comment)}>
-                                            Yes
-                                        </Button>
-                                    </div>
-                                </PopoverBody>
-                            </Popover>
+                            <CommentDeleteModal
+                                isOpen={this.state.deleteModalOpen}
+                                entityId={entityId}
+                                entityType={entityType}
+                                comment={this.props.comment}
+                                onCloseModal={this.toggleDeleteCommentModal}
+                            />
                         </div>
                     </div>
                     {content}
-                    {isModified ?
-                        <small
-                            className="text-muted"><br />
+                    {isModified ? (
+                        <small className="text-muted">
+                            <br />
                             (last edited {getDisplayedDate(lastEditedAtDate)})
-                        </small> : null}
+                        </small>
+                    ) : null}
                 </div>
                 <CommentUpdateModal
-                    commentThreadID={id}
+                    entityId={entityId}
+                    entityType={entityType}
                     commentThreadType={thread.type}
                     comment={this.props.comment}
                     onCloseModal={this.toggleEditorModal}
-                    isOpen={this.state.editorModalOpen} />
+                    isOpen={this.state.editorModalOpen}
+                />
             </ListGroupItem>
         );
     }
 }
 
-export default connect((_: ApplicationState) => ({}), {
-    deleteComment: (comment: CommentDto) => commentDeleteRequestedAction(comment),
-})(Comment);
+export default connect(
+    (_: ApplicationState) => ({}),
+    {},
+)(Comment);

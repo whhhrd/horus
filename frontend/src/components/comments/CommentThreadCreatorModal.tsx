@@ -6,16 +6,16 @@ import { Form, Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reacts
 import { ApplicationState } from "../../state/state";
 import { connect } from "react-redux";
 import { commentThreadCreateRequestedAction, CommentThreadCreateAction } from "../../state/comments/action";
-import { CommentThreadType } from "./CommentThread";
+import { EntityType } from "../../state/comments/types";
 
 interface CommentThreadCreatorModalProps {
     isOpen: boolean;
     linkedEntityId: number;
-    linkedEntityType: CommentThreadType;
+    linkedEntityType: EntityType;
 
     createCommentThread: (
         linkedEntityId: number,
-        linkedEntityType: CommentThreadType,
+        linkedEntityType: EntityType,
         commentThreadCreate: CommentThreadCreateDto) => CommentThreadCreateAction;
 
     onCloseModal: () => void;

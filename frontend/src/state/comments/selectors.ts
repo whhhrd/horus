@@ -1,10 +1,30 @@
 import { ApplicationState } from "../state";
-export const getCommentThreads = (state: ApplicationState) =>
-    state.comments != null ? state.comments!.commentThreads : null;
+import { EntityType } from "./types";
 
-export const getCommentThread = (state: ApplicationState, id: number) => {
-    const commentThreads = getCommentThreads(state);
-    const commentThread = commentThreads != null ? commentThreads.find((t) => t.id === Number(id)) : null;
+export const getCommentThreads = (
+    state: ApplicationState,
+    entityType: EntityType,
+) => {
+    if (state.comments != null) {
+        switch (entityType) {
+            case EntityType.Participant:
+                return state.comments.participantThreads;
+            case EntityType.Group:
+                return state.comments.groupThreads;
+            case EntityType.Assignment:
+                return state.comments.assignmentThreads;
+            case EntityType.Signoff:
+                return state.comments.signoffThreads;
+            default:
+                return null;
+        }
+    } else {
+        return null;
+    }
+};
+
+export const getCommentThread = (state: ApplicationState, entityId: number, entityType: EntityType) => {
+    const commentThreads = getCommentThreads(state, entityType);
+    const commentThread = commentThreads != null ? commentThreads.get(entityId) : null;
     return commentThread != null ? commentThread : null;
-    // Ask me for the logic if you don't get what's happening in this getter
 };

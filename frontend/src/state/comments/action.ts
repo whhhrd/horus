@@ -1,8 +1,6 @@
 import { Action } from "redux";
 
 import {
-    COMMENT_THREADS_REQUESTED_ACTION,
-    COMMENT_THREADS_REQUEST_SUCCEEDED_ACTION,
     COMMENT_CREATE_REQUESTED_ACTION,
     COMMENT_CREATE_REQUEST_SUCCEEDED_ACTION,
     COMMENT_UPDATE_REQUESTED_ACTION,
@@ -22,100 +20,215 @@ import {
     CommentThreadCreateDto,
     CommentDto,
 } from "../../api/types";
-import { CommentThreadType } from "../../components/comments/CommentThread";
+import { EntityType } from "./types";
 
 // COMMENT THREAD CREATE
 export interface CommentThreadCreateAction extends Action<string> {
-    readonly linkedEntityId: number;
-    readonly linkedEntityType: CommentThreadType;
+    readonly entityId: number;
+    readonly entityType: EntityType;
     readonly commentThreadCreate: CommentThreadCreateDto;
 }
 
 export interface CommentThreadCreateSucceededAction extends Action<string> {
+    readonly entityId: number;
+    readonly entityType: EntityType;
     readonly commentThread: CommentThreadDtoFull;
 }
 
 export const commentThreadCreateRequestedAction = (
-    linkedEntityId: number,
-    linkedEntityType: CommentThreadType,
-    commentThreadCreate: CommentThreadCreateDto) =>
-    ({ type: COMMENT_THREAD_CREATE_REQUESTED_ACTION, linkedEntityId, linkedEntityType, commentThreadCreate });
+    entityId: number,
+    entityType: EntityType,
+    commentThreadCreate: CommentThreadCreateDto,
+) => ({
+    type: COMMENT_THREAD_CREATE_REQUESTED_ACTION,
+    entityId,
+    entityType,
+    commentThreadCreate,
+});
 
-export const commentThreadCreateRequestSucceededAction = (commentThread: CommentThreadDtoFull) =>
-    ({ type: COMMENT_THREAD_CREATE_REQUEST_SUCCEEDED_ACTION, commentThread });
+export const commentThreadCreateRequestSucceededAction = (
+    entityId: number,
+    entityType: EntityType,
+    commentThread: CommentThreadDtoFull,
+) => ({
+    type: COMMENT_THREAD_CREATE_REQUEST_SUCCEEDED_ACTION,
+    entityId,
+    entityType,
+    commentThread,
+});
 
-// COMMENT THREADS FETCH
-export interface CommentThreadsRequestedAction extends Action<string> {
-    readonly ctids: number[];
-}
+// // COMMENT THREAD UPDATE
+// export interface CommendThreadUpdateAction extends Action<string> {
+//     entityId: number;
+//     entityType: EntityType;
+//     commentThreadId: number | null;
+// }
 
-export interface CommentThreadsRequestSucceededAction extends Action<string> {
-    readonly commentThreads: CommentThreadDtoFull[];
-}
+// export const commentThreadUpdateAction = (
+//     entityId: number,
+//     entityType: EntityType,
+//     commentThreadId: number | null,
+// ) => ({
+//     type: COMMENT_THREAD_UPDATE_ACTION,
+//     entityId,
+//     entityType,
+//     commentThreadId,
+// });
 
-export const commentThreadsRequestedAction = (ctids: number[]) =>
-    ({ type: COMMENT_THREADS_REQUESTED_ACTION, ctids });
+// // COMMENT THREADS FETCH
+// export interface CommentThreadsRequestedAction extends Action<string> {
+//     readonly ctids: number[];
+// }
 
-export const commentThreadsRequestSucceededAction = (commentThreads: CommentThreadDtoFull[]) =>
-    ({ type: COMMENT_THREADS_REQUEST_SUCCEEDED_ACTION, commentThreads });
+// export interface CommentThreadsRequestSucceededAction extends Action<string> {
+//     readonly commentThreads: CommentThreadDtoFull[];
+// }
+
+// export const commentThreadsRequestedAction = (ctids: number[]) => ({
+//     type: COMMENT_THREADS_REQUESTED_ACTION,
+//     ctids,
+// });
+
+// export const commentThreadsRequestSucceededAction = (
+//     commentThreads: CommentThreadDtoFull[],
+// ) => ({ type: COMMENT_THREADS_REQUEST_SUCCEEDED_ACTION, commentThreads });
 
 // COMMENT THREAD FETCH
 export interface CommentThreadRequestedAction extends Action<string> {
-    readonly ctid: number;
+    entityId: number;
+    entityType: EntityType;
 }
 
 export interface CommentThreadRequestSucceededAction extends Action<string> {
+    readonly entityId: number;
+    readonly entityType: EntityType;
     readonly commentThread: CommentThreadDtoFull;
 }
 
-export const commentThreadRequestedAction = (ctid: number) =>
-    ({ type: COMMENT_THREAD_REQUESTED_ACTION, ctid });
+export const commentThreadRequestedAction = (
+    entityId: number,
+    entityType: EntityType,
+) => ({
+    type: COMMENT_THREAD_REQUESTED_ACTION,
+    entityId,
+    entityType,
+});
 
-export const commentThreadRequestSucceededAction = (commentThread: CommentThreadDtoFull) =>
-    ({ type: COMMENT_THREAD_REQUEST_SUCCEEDED_ACTION, commentThread });
+export const commentThreadRequestSucceededAction = (
+    entityId: number,
+    entityType: EntityType,
+    commentThread: CommentThreadDtoFull,
+) => ({
+    type: COMMENT_THREAD_REQUEST_SUCCEEDED_ACTION,
+    entityId,
+    entityType,
+    commentThread,
+});
 
 // COMMENT CREATE
 export interface CommentCreateRequestAction extends Action<string> {
-    readonly commentCreate: CommentCreateDto;
+    entityId: number;
+    entityType: EntityType;
+    commentCreate: CommentCreateDto;
 }
 
 export interface CommentCreateSucceededAction extends Action<string> {
-    readonly comment: CommentDto;
+    entityId: number;
+    entityType: EntityType;
+    commentThread: CommentThreadDtoFull;
 }
 
-export const commentCreateRequestedAction = (commentCreate: CommentCreateDto) =>
-    ({ type: COMMENT_CREATE_REQUESTED_ACTION, commentCreate });
+export const commentCreateRequestedAction = (
+    entityId: number,
+    entityType: EntityType,
+    commentCreate: CommentCreateDto,
+) => ({
+    type: COMMENT_CREATE_REQUESTED_ACTION,
+    entityId,
+    entityType,
+    commentCreate,
+});
 
-export const commentCreateRequestSucceededAction = (comment: CommentDto) =>
-    ({ type: COMMENT_CREATE_REQUEST_SUCCEEDED_ACTION, comment });
+export const commentCreateRequestSucceededAction = (
+    entityId: number,
+    entityType: EntityType,
+    commentThread: CommentThreadDtoFull,
+) => ({
+    type: COMMENT_CREATE_REQUEST_SUCCEEDED_ACTION,
+    entityId,
+    entityType,
+    commentThread,
+});
 
 // COMMENT UPDATE
 export interface CommentUpdateRequestAction extends Action<string> {
-    readonly commentId: number;
-    readonly commentUpdate: CommentUpdateDto;
+    entityId: number;
+    entityType: EntityType;
+    commentId: number;
+    commentUpdate: CommentUpdateDto;
 }
 
 export interface CommentUpdateSucceededAction extends Action<string> {
-    readonly comment: CommentDto;
+    entityId: number;
+    entityType: EntityType;
+    commentThread: CommentThreadDtoFull;
 }
 
-export const commentUpdateRequestedAction = (commentId: number, commentUpdate: CommentUpdateDto) =>
-    ({ type: COMMENT_UPDATE_REQUESTED_ACTION, commentId, commentUpdate });
+export const commentUpdateRequestedAction = (
+    entityId: number,
+    entityType: EntityType,
+    commentId: number,
+    commentUpdate: CommentUpdateDto,
+) => ({
+    type: COMMENT_UPDATE_REQUESTED_ACTION,
+    entityId,
+    entityType,
+    commentId,
+    commentUpdate,
+});
 
-export const commentUpdateRequestSucceededAction = () =>
-    ({ type: COMMENT_UPDATE_REQUEST_SUCCEEDED_ACTION });
+export const commentUpdateRequestSucceededAction = (
+    entityId: number,
+    entityType: EntityType,
+    commentThread: CommentThreadDtoFull,
+) => ({
+    type: COMMENT_UPDATE_REQUEST_SUCCEEDED_ACTION,
+    entityId,
+    entityType,
+    commentThread,
+});
 
 // COMMENT DELETE
 export interface CommentDeleteRequestAction extends Action<string> {
-    readonly comment: CommentDto;
+    entityId: number;
+    entityType: EntityType;
+    comment: CommentDto;
 }
 
 export interface CommentDeleteSucceededAction extends Action<string> {
-    readonly comment: CommentDto;
+    entityId: number;
+    entityType: EntityType;
+    commentThread: CommentThreadDtoFull;
 }
 
-export const commentDeleteRequestedAction = (comment: CommentDto) =>
-    ({ type: COMMENT_DELETE_REQUESTED_ACTION, comment });
+export const commentDeleteRequestedAction = (
+    entityId: number,
+    entityType: EntityType,
+    comment: CommentDto,
+) => ({
+    type: COMMENT_DELETE_REQUESTED_ACTION,
+    entityId,
+    entityType,
+    comment,
+});
 
-export const commentDeleteRequestSucceededAction = (comment: CommentDto) =>
-    ({ type: COMMENT_DELETE_REQUEST_SUCCEEDED_ACTION, comment });
+export const commentDeleteRequestSucceededAction = (
+    entityId: number,
+    entityType: EntityType,
+    commentThread: CommentThreadDtoFull,
+) => ({
+    type: COMMENT_DELETE_REQUEST_SUCCEEDED_ACTION,
+    entityId,
+    entityType,
+    commentThread,
+});
