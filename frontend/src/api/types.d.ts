@@ -58,6 +58,7 @@ export interface AssignmentSetDtoSummary extends AssignmentSetDtoBrief {
 }
 
 export interface AssignmentDtoBrief {
+    commentThreadId: number | null;
     createdAt: Date;
     id: number;
     name: string;
@@ -82,7 +83,6 @@ export interface AssignmentSetDtoFull extends AssignmentSetDtoSummary {
 
 export interface AssignmentDtoSummary extends AssignmentDtoBrief {
     assignmentSet: AssignmentSetDtoBrief;
-    commentThread: CommentThreadDtoBrief | null;
     createdBy: ParticipantDto;
 }
 
