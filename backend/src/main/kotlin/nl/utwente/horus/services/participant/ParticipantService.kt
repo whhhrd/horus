@@ -46,6 +46,10 @@ class ParticipantService {
         return participantRepository.findByIdOrNull(id) ?: throw ParticipantNotFoundException()
     }
 
+    fun doesParticipantExist(personId: Long, courseId: Long): Boolean {
+        return participantRepository.findParticipantByPersonIdAndCourseId(personId, courseId) != null
+    }
+
     fun getCurrentParticipationInCourse(courseId: Long) : Participant {
         val person: Person = userDetailService.getCurrentPerson()
         return participantRepository.findParticipantByPersonIdAndCourseId(person.id, courseId) ?: throw ParticipantNotFoundException()

@@ -4,6 +4,7 @@ import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.group.*
 import nl.utwente.horus.entities.participant.Participant
+import nl.utwente.horus.entities.person.Person
 import nl.utwente.horus.exceptions.ExistingThreadException
 import nl.utwente.horus.exceptions.GroupNotFoundException
 import nl.utwente.horus.exceptions.GroupSetNotFoundException
@@ -59,6 +60,10 @@ class GroupService {
 
     fun getGroupByExternalId(externalId: String): List<Group> {
         return groupRepository.findByExternalId(externalId)
+    }
+
+    fun isPersonMemberOfGroup(person: Person, group: Group): Boolean {
+        return groupRepository.isPersonMemberOfGroup(person, group)
     }
 
     fun getGroupSignOffSearchResults(courseId: Long, query: String): GroupAssignmentSetSearchResultDto {
