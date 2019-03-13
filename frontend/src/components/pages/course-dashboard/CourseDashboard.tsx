@@ -47,7 +47,7 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
                             watermarkIcon={faTasks}
                             key={aSet.id}
                             cardTitle={aSet.name}
-                            url={`/courses/${course.id}/assignmentset/${aSet.id}`} />;
+                            url={`/courses/${course.id}/assignmentsets/${aSet.id}`} />;
                     }) :
                     <Col xs="12" lg="3">
                         <Alert className="text-center" color="info">Nothing to display here.</Alert>
