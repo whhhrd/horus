@@ -19,6 +19,7 @@ import nl.utwente.horus.representations.participant.*
 import nl.utwente.horus.representations.person.PersonDtoFull
 import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
 import nl.utwente.horus.representations.signoff.SignOffResultPatchDto
+import org.springframework.data.domain.Page
 import java.io.File
 import java.time.ZonedDateTime
 
@@ -57,7 +58,8 @@ fun generate() {
 
                     LabelCreateUpdateDto::class,
                     LabelDto::class,
-                    ParticipantDto::class,
+                    ParticipantDtoBrief::class,
+                    ParticipantDtoFull::class,
                     ParticipantCreateDto::class,
                     ParticipantUpdateDto::class,
 

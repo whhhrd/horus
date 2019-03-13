@@ -25,6 +25,6 @@ class GroupSetsController {
 
     @GetMapping("/{groupSetId}/groups")
     fun getGroupSetGroups(@PathVariable groupSetId: Long): List<GroupDtoFull> {
-        return groupService.getGroupSetById(groupSetId).groups.filter { !it.archived }.map { GroupDtoFull(it) }
+        return groupService.getByGroupSetId(groupSetId).map { GroupDtoFull(it) }
     }
 }

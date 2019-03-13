@@ -10,6 +10,7 @@ import { SignOffState } from "./sign-off/types";
 import { CommentsState } from "./comments/types";
 import { SearchState } from "./search/types";
 import { SidebarPhoneState } from "./sidebar/types";
+import { SignOffOverviewState } from "./overview/types";
 
 export interface ApplicationState {
     router?: RouterState;
@@ -24,4 +25,5 @@ export interface ApplicationState {
     signOffs?: SignOffState;
     search?: SearchState;
     sidebar?: SidebarPhoneState;
+    overview?: SignOffOverviewState;
 }

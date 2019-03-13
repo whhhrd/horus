@@ -7,6 +7,7 @@ import groupSagas from "./groups/sagas";
 import signOffSagas from "./sign-off/sagas";
 import commentsSagas from "./comments/sagas";
 import searchSaga from "./search/sagas";
+import overviewSagas from "./overview/saga";
 
 export default function* rootSaga() {
     yield* authSagas();
@@ -18,4 +19,5 @@ export default function* rootSaga() {
     yield* canvasSaga();
     yield* signOffSagas();
     yield* searchSaga();
+    yield* overviewSagas();
 }

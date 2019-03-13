@@ -14,17 +14,11 @@ export interface CourseDtoBrief {
     name: string;
 }
 
-export type CommentType = "STAFF_ONLY" | "PUBLIC";
+type CommentType = "STAFF_ONLY" | "PUBLIC";
 
 export interface CommentThreadDtoBrief {
     id: number;
     type: CommentType;
-}
-
-export interface LabelDto {
-    color: string;
-    id: number;
-    name: string;
 }
 
 export interface PersonDtoBrief {
@@ -41,20 +35,29 @@ export interface RoleDtoBrief {
     name: string;
 }
 
-export interface ParticipantDto {
+export interface ParticipantDtoBrief {
     commentThread: CommentThreadDtoBrief | null;
-    courseCode: number;
-    createdAt: Date;
-    enabled: boolean;
+    courseId: number;
     id: number;
-    labels: LabelDto[];
     person: PersonDtoBrief;
     role: RoleDtoBrief;
 }
 
+export interface LabelDto {
+    color: string;
+    id: number;
+    name: string;
+}
+
+export interface ParticipantDtoFull extends ParticipantDtoBrief {
+    createdAt: Date;
+    enabled: boolean;
+    labels: LabelDto[];
+}
+
 export interface AssignmentSetDtoSummary extends AssignmentSetDtoBrief {
     course: CourseDtoBrief;
-    createdBy: ParticipantDto;
+    createdBy: ParticipantDtoFull;
 }
 
 export interface AssignmentDtoBrief {
@@ -83,18 +86,18 @@ export interface AssignmentSetDtoFull extends AssignmentSetDtoSummary {
 
 export interface AssignmentDtoSummary extends AssignmentDtoBrief {
     assignmentSet: AssignmentSetDtoBrief;
-    createdBy: ParticipantDto;
+    createdBy: ParticipantDtoBrief;
 }
 
-export type SignOffResultType = "COMPLETE" | "INSUFFICIENT";
+type SignOffResultType = "COMPLETE" | "INSUFFICIENT";
 
 export interface SignOffResultDtoSummary {
     assignment: AssignmentDtoBrief;
     commentThread: CommentThreadDtoBrief | null;
-    participant: ParticipantDto;
+    participant: ParticipantDtoFull;
     result: SignOffResultType;
     signedAt: Date;
-    signer: ParticipantDto;
+    signer: ParticipantDtoFull;
 }
 
 export interface AssignmentCreateUpdateDto {
@@ -199,12 +202,12 @@ export interface GroupDtoBrief {
 
 export interface GroupDtoSummary extends GroupDtoBrief {
     commentThread: CommentThreadDtoBrief | null;
-    createdBy: ParticipantDto;
+    createdBy: ParticipantDtoFull;
     groupSet: GroupSetDtoBrief;
 }
 
 export interface GroupDtoFull extends GroupDtoSummary {
-    participants: ParticipantDto[];
+    participants: ParticipantDtoBrief[];
 }
 
 export interface GroupSetDtoSummary extends GroupSetDtoBrief {
@@ -245,11 +248,11 @@ export interface ParticipantUpdateDto {
     roleId: number;
 }
 
-export type HorusResource = "PERSON" | "COURSE" | "COURSE_PARTICIPANT" | "COURSE_LABEL" | "COURSE_PARTICIPANT_LABEL_MAPPING" | "COURSE_GROUPSET" | "COURSE_GROUP" | "COURSE_GROUPMEMBER" | "COURSE_ASSIGNMENTSET" | "COURSE_COMMENT_STAFFONLY" | "COURSE_COMMENT_PUBLIC" | "COURSE_SIGNOFFRESULT";
+type HorusResource = "PERSON" | "COURSE" | "COURSE_PARTICIPANT" | "COURSE_LABEL" | "COURSE_PARTICIPANT_LABEL_MAPPING" | "COURSE_GROUPSET" | "COURSE_GROUP" | "COURSE_GROUPMEMBER" | "COURSE_ASSIGNMENTSET" | "COURSE_COMMENT_STAFFONLY" | "COURSE_COMMENT_PUBLIC" | "COURSE_SIGNOFFRESULT";
 
-export type HorusResourceScope = "OWN" | "ANY";
+type HorusResourceScope = "OWN" | "ANY";
 
-export type HorusPermissionType = "LIST" | "VIEW" | "CREATE" | "EDIT" | "DELETE";
+type HorusPermissionType = "LIST" | "VIEW" | "CREATE" | "EDIT" | "DELETE";
 
 export interface HorusPermissionDto {
     resource: HorusResource;
@@ -264,7 +267,7 @@ export interface HorusAuthorityDto {
 
 export interface PersonDtoFull extends PersonDtoBrief {
     authorities: HorusAuthorityDto[];
-    participations: ParticipantDto[];
+    participations: ParticipantDtoFull[];
 }
 
 export interface SignOffResultCreateDto {

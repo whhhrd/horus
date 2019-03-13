@@ -7,6 +7,9 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "\"group\"")
+@NamedEntityGraph(name = "allGroupMembers",
+        attributeNodes = [NamedAttributeNode("members")],
+        subgraphs = [NamedSubgraph(name = "members", attributeNodes = [NamedAttributeNode("participant")])])
 data class Group (
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)

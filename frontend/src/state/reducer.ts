@@ -14,6 +14,7 @@ import signOffReducer from "./sign-off/reducer";
 import commentsReducer from "./comments/reducer";
 import searchReducer from "./search/reducer";
 import sidebarPhoneReducer from "./sidebar/reducer";
+import overviewReducer from "./overview/reducer";
 
 // TODO: implement cleaning the state on log out.
 export const rootReducer = (history: History) => combineReducers<ApplicationState>({
@@ -29,4 +30,5 @@ export const rootReducer = (history: History) => combineReducers<ApplicationStat
     signOffs: signOffReducer,
     search: searchReducer,
     sidebar: sidebarPhoneReducer,
+    overview: overviewReducer,
 } as any);

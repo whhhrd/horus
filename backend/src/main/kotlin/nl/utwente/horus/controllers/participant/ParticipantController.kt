@@ -3,7 +3,7 @@ package nl.utwente.horus.controllers.participant
 import nl.utwente.horus.exceptions.CommentThreadNotFoundException
 import nl.utwente.horus.representations.comment.CommentThreadCreateDto
 import nl.utwente.horus.representations.comment.CommentThreadDtoFull
-import nl.utwente.horus.representations.participant.ParticipantDto
+import nl.utwente.horus.representations.participant.ParticipantDtoFull
 import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.comment.CommentService
 import nl.utwente.horus.services.participant.LabelService
@@ -48,19 +48,19 @@ class ParticipantController {
     }
 
     @PostMapping(path = ["/{pId}/labels/{labelId}"])
-    fun addLabelMapping(@PathVariable pId: Long, @PathVariable labelId: Long): ParticipantDto {
+    fun addLabelMapping(@PathVariable pId: Long, @PathVariable labelId: Long): ParticipantDtoFull {
         val participant = participantService.getParticipantById(pId)
         val label = labelService.getLabelById(labelId)
         participantService.addLabel(participant, label)
-        return ParticipantDto(participant)
+        return ParticipantDtoFull(participant)
     }
 
     @DeleteMapping(path = ["/{pId}/labels/{labelId}"])
-    fun deleteLabelMapping(@PathVariable pId: Long, @PathVariable labelId: Long): ParticipantDto {
+    fun deleteLabelMapping(@PathVariable pId: Long, @PathVariable labelId: Long): ParticipantDtoFull {
         val participant = participantService.getParticipantById(pId)
         val label = labelService.getLabelById(labelId)
         participantService.removeLabelMapping(participant, label)
-        return ParticipantDto(participant)
+        return ParticipantDtoFull(participant)
     }
 
 

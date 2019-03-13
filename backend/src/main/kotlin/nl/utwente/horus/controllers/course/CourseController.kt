@@ -106,32 +106,32 @@ class CourseController {
     }
 
     @GetMapping(path = ["/{courseId}/participants"])
-    fun listParticipantsOfCourse(@PathVariable courseId: Long) : List<ParticipantDto> {
-        return courseService.getParticipantsOfCourse(courseId).map { ParticipantDto(it) }
+    fun listParticipantsOfCourse(@PathVariable courseId: Long) : List<ParticipantDtoFull> {
+        return courseService.getParticipantsOfCourse(courseId).map { ParticipantDtoFull(it) }
     }
 
     @PostMapping(path = ["/{courseId}/participants"])
-    fun createParticipant(@PathVariable courseId: Long, @RequestBody dto: ParticipantCreateDto) : ParticipantDto {
-        return ParticipantDto(participantService.createParticipant(courseId, dto))
+    fun createParticipant(@PathVariable courseId: Long, @RequestBody dto: ParticipantCreateDto) : ParticipantDtoFull {
+        return ParticipantDtoFull(participantService.createParticipant(courseId, dto))
     }
 
     @GetMapping(path = ["/{courseId}/participants/{pid}"])
-    fun getSingleParticipant(@PathVariable courseId: Long, @PathVariable pid: Long): ParticipantDto {
+    fun getSingleParticipant(@PathVariable courseId: Long, @PathVariable pid: Long): ParticipantDtoFull {
         val participant = participantService.getParticipantById(pid)
         if (participant.course.id != courseId) {
             throw WrongCourseException()
         }
-        return ParticipantDto(participant)
+        return ParticipantDtoFull(participant)
     }
 
     @PutMapping(path = ["/{courseId}/participants/{pid}"])
     fun updateParticipant(@PathVariable courseId: Long, @PathVariable pid: Long,
-                          @RequestBody dto: ParticipantUpdateDto) : ParticipantDto {
+                          @RequestBody dto: ParticipantUpdateDto) : ParticipantDtoFull {
         val participant = participantService.getParticipantById(pid)
         if (participant.course.id != courseId) {
             throw WrongCourseException()
         }
-        return ParticipantDto(participantService.updateParticipant(pid, dto))
+        return ParticipantDtoFull(participantService.updateParticipant(pid, dto))
     }
 
     @GetMapping(path = ["/{courseId}"])

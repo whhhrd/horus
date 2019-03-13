@@ -8,6 +8,7 @@ import nl.utwente.horus.entities.assignmentgroupmapping.AssignmentGroupSetsMappi
 import nl.utwente.horus.entities.assignmentgroupmapping.AssignmentGroupSetsMappingRepository
 import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.course.Course
+import nl.utwente.horus.entities.group.Group
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.person.Person
 import nl.utwente.horus.exceptions.*
@@ -20,6 +21,8 @@ import nl.utwente.horus.services.group.GroupService
 import nl.utwente.horus.services.participant.ParticipantService
 import nl.utwente.horus.services.signoff.SignOffService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -187,6 +190,13 @@ class AssignmentService {
         assignment.assignmentSet.assignments.remove(assignment)
 
         assignmentRepository.delete(assignment)
+    }
+
+    fun getGroupsMappedToAssignmentSetByAssignmentSetId(pageable: Pageable, assignmentSetId: Long): Page<Group> {
+        if (!assignmentSetRepository.existsById(assignmentSetId)) {
+            throw AssignmentSetNotFoundException()
+        }
+        return groupService.getGroupsByAssignmentSetId(pageable, assignmentSetId)
     }
 
 }

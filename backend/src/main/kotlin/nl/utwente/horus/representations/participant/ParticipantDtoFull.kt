@@ -6,22 +6,12 @@ import nl.utwente.horus.representations.comment.CommentThreadDtoBrief
 import nl.utwente.horus.representations.person.PersonDtoBrief
 import java.time.ZonedDateTime
 
-open class ParticipantDto {
-    val id: Long
-    val person: PersonDtoBrief
-    val courseCode: Long
-    val role: RoleDtoBrief
-    val commentThread: CommentThreadDtoBrief?
+open class ParticipantDtoFull: ParticipantDtoBrief {
     val labels: List<LabelDto>
     val enabled: Boolean
     val createdAt: ZonedDateTime
 
-    constructor(id: Long, person: PersonDtoBrief, courseCode: Long, role: RoleDtoBrief, commentThread: CommentThreadDtoBrief?, labels: List<LabelDto>, enabled: Boolean, createdAt: ZonedDateTime) {
-        this.id = id
-        this.person = person
-        this.courseCode = courseCode
-        this.role = role
-        this.commentThread = commentThread
+    constructor(id: Long, person: PersonDtoBrief, courseId: Long, role: RoleDtoBrief, commentThread: CommentThreadDtoBrief?, labels: List<LabelDto>, enabled: Boolean, createdAt: ZonedDateTime): super(id, person, courseId, role, commentThread) {
         this.labels = labels
         this.enabled = enabled
         this.createdAt = createdAt

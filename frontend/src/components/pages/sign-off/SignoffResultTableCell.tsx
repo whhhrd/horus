@@ -11,7 +11,7 @@ import {
     SignOffResultDtoCompact,
     AssignmentDtoBrief,
     GroupDtoSummary,
-    ParticipantDto,
+    ParticipantDtoBrief,
     CommentThreadDtoFull,
 } from "../../../api/types";
 import CommentThread from "../../comments/CommentThread";
@@ -30,7 +30,7 @@ interface SignoffResultTableCellProps {
     signOff: SignOffResultDtoCompact | null;
     assignment: AssignmentDtoBrief;
     group: GroupDtoSummary;
-    participant: ParticipantDto;
+    participant: ParticipantDtoBrief;
     onCommentClick: (comments: JSX.Element) => void;
 
     commentThread: (

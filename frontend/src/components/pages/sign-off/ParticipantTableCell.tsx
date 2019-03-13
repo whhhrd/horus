@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 
 import {
-    ParticipantDto,
+    ParticipantDtoBrief,
     GroupDtoSummary,
     CommentThreadDtoFull,
 } from "../../../api/types";
@@ -14,7 +14,7 @@ import { ApplicationState } from "../../../state/state";
 import { connect } from "react-redux";
 
 interface ParticipantTableCellProps {
-    participant: ParticipantDto;
+    participant: ParticipantDtoBrief;
     group: GroupDtoSummary;
     onCommentClick: (comments: JSX.Element) => void;
 

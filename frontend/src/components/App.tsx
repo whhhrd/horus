@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Switch, withRouter, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
@@ -8,7 +7,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 import "../styling/index.scss";
 
-import { loadAuthenticationAction, setLoginRedirectAction } from "../state/auth/actions";
+import {
+    loadAuthenticationAction,
+    setLoginRedirectAction,
+} from "../state/auth/actions";
 import { isLoggedIn } from "../state/auth/selectors";
 
 import Login from "./pages/login/Login";
@@ -35,17 +37,21 @@ import {
     PATH_CANVAS_TOKEN,
     PATH_CANVAS_IMPORT,
     PATH_SIGNOFF,
+    PATH_SIGNOFF_OVERVIEW,
 } from "../routes";
 import SignoffTable from "./pages/sign-off/SignoffTable";
 import GroupManager from "./pages/admin/groups/groups/GroupManager";
 import AssignmentSetManager from "./pages/admin/assignmentSetManager/AssignmentSetManager";
+import SignOffOverview from "./pages/sign-off-overview/SignOffOverview";
 
 export interface AppProps {
     loadAuthentication: () => {
-        type: string,
+        type: string;
     };
-    setLoginRedirect: (redirectUrl: string) => {
-        type: string,
+    setLoginRedirect: (
+        redirectUrl: string,
+    ) => {
+        type: string;
     };
     push: Push;
     pathname: string;
@@ -57,12 +63,11 @@ export interface AppState {
 }
 
 class App extends React.Component<AppProps & RouteComponentProps, AppState> {
-
     static HOME_PATH = PATH_COURSES;
 
     componentDidMount() {
         let pathname = this.props.pathname;
-        const { hash, search }  = this.props.location;
+        const { hash, search } = this.props.location;
         if (pathname === "/") {
             this.props.push(App.HOME_PATH);
             pathname = App.HOME_PATH;
@@ -90,60 +95,105 @@ class App extends React.Component<AppProps & RouteComponentProps, AppState> {
     switch() {
         return (
             <Switch>
-                <RouteExtension exact path={PATH_COURSE_ADMINISTRATION}
+                <RouteExtension
+                    exact
+                    path={PATH_COURSE_ADMINISTRATION}
                     component={CourseAdministration}
-                    setActiveTab={ActiveTabEnum.ADMINISTRATION} />
+                    setActiveTab={ActiveTabEnum.ADMINISTRATION}
+                />
 
-                <RouteExtension exact path={PATH_ASSIGNMENT_SET_MANAGER}
+                <RouteExtension
+                    exact
+                    path={PATH_ASSIGNMENT_SET_MANAGER}
                     component={AssignmentSetManager}
-                    setActiveTab={ActiveTabEnum.ADMINISTRATION} />
+                    setActiveTab={ActiveTabEnum.ADMINISTRATION}
+                />
 
-                <RouteExtension exact path={PATH_GROUP_SET_MANAGER}
+                <RouteExtension
+                    exact
+                    path={PATH_GROUP_SET_MANAGER}
                     component={GroupSetManager}
-                    setActiveTab={ActiveTabEnum.ADMINISTRATION} />
+                    setActiveTab={ActiveTabEnum.ADMINISTRATION}
+                />
 
-                <RouteExtension exact path={PATH_GROUP_SET_GROUPS_MANAGER}
+                <RouteExtension
+                    exact
+                    path={PATH_GROUP_SET_GROUPS_MANAGER}
                     component={GroupManager}
-                    setActiveTab={ActiveTabEnum.ADMINISTRATION} />
+                    setActiveTab={ActiveTabEnum.ADMINISTRATION}
+                />
 
-                <RouteExtension exact path={PATH_COURSES}
+                <RouteExtension
+                    exact
+                    path={PATH_COURSES}
                     component={CourseSelection}
-                    setActiveTab={ActiveTabEnum.COURSES} />
+                    setActiveTab={ActiveTabEnum.COURSES}
+                />
 
-                <RouteExtension exact path={PATH_DASHBOARD}
+                <RouteExtension
+                    exact
+                    path={PATH_DASHBOARD}
                     component={CourseDashboard}
-                    setActiveTab={ActiveTabEnum.DASHBOARD} />
+                    setActiveTab={ActiveTabEnum.DASHBOARD}
+                />
 
-                <RouteExtension exact path={PATH_CANVAS_TOKEN}
+                <RouteExtension
+                    exact
+                    path={PATH_CANVAS_TOKEN}
                     component={CanvasTokenForm}
-                    setActiveTab={ActiveTabEnum.NONE} />
+                    setActiveTab={ActiveTabEnum.NONE}
+                />
 
-                <RouteExtension exact path={PATH_CANVAS_IMPORT}
+                <RouteExtension
+                    exact
+                    path={PATH_CANVAS_IMPORT}
                     component={CanvasCourseImport}
-                    setActiveTab={ActiveTabEnum.NONE} />
+                    setActiveTab={ActiveTabEnum.NONE}
+                />
 
-                <RouteExtension exact path={PATH_CANVAS_TOKEN}
+                <RouteExtension
+                    exact
+                    path={PATH_CANVAS_TOKEN}
                     component={CanvasTokenForm}
-                    setActiveTab={ActiveTabEnum.NONE} />
+                    setActiveTab={ActiveTabEnum.NONE}
+                />
 
-                <RouteExtension exact path={PATH_CANVAS_IMPORT}
+                <RouteExtension
+                    exact
+                    path={PATH_CANVAS_IMPORT}
                     component={CanvasCourseImport}
-                    setActiveTab={ActiveTabEnum.NONE} />
+                    setActiveTab={ActiveTabEnum.NONE}
+                />
 
-                <RouteExtension exact path={PATH_SIGNOFF}
+                <RouteExtension
+                    exact
+                    path={PATH_SIGNOFF}
                     component={SignoffTable}
-                    setActiveTab={ActiveTabEnum.SIGNOFF} />
+                    setActiveTab={ActiveTabEnum.SIGNOFF}
+                />
+
+                <RouteExtension
+                    exact
+                    path={PATH_SIGNOFF_OVERVIEW}
+                    component={SignOffOverview}
+                    setActiveTab={ActiveTabEnum.DASHBOARD}
+                />
             </Switch>
         );
     }
 }
 
-export default withRouter(connect((state: ApplicationState) => ({
-    loggedIn: isLoggedIn(state),
-    pathname: state.router!.location.pathname,
-    search: state.router!.location.search,
-}), {
-        loadAuthentication: loadAuthenticationAction,
-        setLoginRedirect: setLoginRedirectAction,
-        push,
-    })(App));
+export default withRouter(
+    connect(
+        (state: ApplicationState) => ({
+            loggedIn: isLoggedIn(state),
+            pathname: state.router!.location.pathname,
+            search: state.router!.location.search,
+        }),
+        {
+            loadAuthentication: loadAuthenticationAction,
+            setLoginRedirect: setLoginRedirectAction,
+            push,
+        },
+    )(App),
+);

@@ -425,3 +425,30 @@ button {
 .thread-border-signoff {
     border-left: 7px solid $color_yellow;
 }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Sign off overview properties
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+.sign-off-overview-cell {
+    font-size: 10pt;
+    border: 1px solid #dee2e6;
+}
+
+.sign-off-overview-heading-cell {
+    @extend .sign-off-overview-cell;
+    background: #f5f5f5;
+    padding: 0.35rem;
+    text-align: center;
+}
+
+.sign-off-overview-content-cell-complete {
+    @extend .sign-off-overview-cell;
+    background: $color_green_light;
+    border: 1px solid $color_green;
+}
+
+.sign-off-overview-content-cell-insufficient {
+    @extend .sign-off-overview-cell;
+    background: $color_yellow_light;
+    border: 1px solid $color_yellow;
+}

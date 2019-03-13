@@ -1,14 +1,14 @@
 package nl.utwente.horus.representations.assignment
 
 import nl.utwente.horus.entities.assignment.Assignment
-import nl.utwente.horus.representations.participant.ParticipantDto
+import nl.utwente.horus.representations.participant.ParticipantDtoBrief
 
 class AssignmentDtoSummary : AssignmentDtoBrief {
     val assignmentSet : AssignmentSetDtoBrief
-    val createdBy: ParticipantDto
+    val createdBy: ParticipantDtoBrief
 
     constructor(a: Assignment) : super(a) {
         this.assignmentSet = AssignmentSetDtoBrief(a.assignmentSet)
-        this.createdBy = ParticipantDto(a.createdBy)
+        this.createdBy = ParticipantDtoBrief(a.createdBy)
     }
 }

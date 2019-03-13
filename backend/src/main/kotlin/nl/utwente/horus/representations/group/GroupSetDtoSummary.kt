@@ -2,7 +2,6 @@ package nl.utwente.horus.representations.group
 
 import nl.utwente.horus.entities.group.GroupSet
 import nl.utwente.horus.representations.course.CourseDtoBrief
-import nl.utwente.horus.representations.participant.ParticipantDto
 import nl.utwente.horus.representations.person.PersonDtoBrief
 
 open class GroupSetDtoSummary : GroupSetDtoBrief {

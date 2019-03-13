@@ -5,10 +5,15 @@ import nl.utwente.horus.representations.assignment.AssignmentSetDtoFull
 import nl.utwente.horus.representations.assignment.AssignmentSetUpdateDto
 import nl.utwente.horus.auth.permissions.HorusPermission
 import nl.utwente.horus.auth.permissions.HorusResource
+import nl.utwente.horus.entities.group.Group
 import nl.utwente.horus.exceptions.InsufficientPermissionsException
+import nl.utwente.horus.representations.group.GroupDtoFull
+import nl.utwente.horus.representations.group.GroupDtoSummary
 import nl.utwente.horus.services.assignment.AssignmentService
 import nl.utwente.horus.services.auth.HorusUserDetailService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 
@@ -52,5 +57,10 @@ class AssignmentSetsController {
     @DeleteMapping(path = ["/{assignmentSetId}"])
     fun deleteAssignmentSet(@PathVariable assignmentSetId: Long) {
         assignmentService.deleteAssignmentSet(assignmentService.getAssignmentSetById(assignmentSetId))
+    }
+
+    @GetMapping(path = ["/{assignmentSetId}/groups"])
+    fun getMappedGroups(pageable: Pageable, @PathVariable assignmentSetId: Long): Page<GroupDtoFull> {
+        return assignmentService.getGroupsMappedToAssignmentSetByAssignmentSetId(pageable, assignmentSetId).map{group -> GroupDtoFull(group)}
     }
 }

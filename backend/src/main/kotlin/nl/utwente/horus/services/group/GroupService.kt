@@ -12,6 +12,9 @@ import nl.utwente.horus.representations.group.GroupDtoBrief
 import nl.utwente.horus.representations.group.GroupDtoSearch
 import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -75,13 +78,22 @@ class GroupService {
 
         val assignmentSets = resultPairs.filter { it.first.id in groupSet }.distinctBy { it.second.id }.map { it.second }
 
-        val distinct =
-
         return GroupAssignmentSetSearchResultDto(groups.map { it.group }, assignmentSets)
     }
 
     fun getGroupById(id: Long): Group {
         return groupRepository.findByIdOrNull(id) ?: throw GroupNotFoundException()
+    }
+
+    fun getByGroupSetId(groupSetId: Long): List<Group> {
+        if (!groupSetRepository.existsById(groupSetId)) {
+            throw GroupSetNotFoundException()
+        }
+        return groupRepository.findAllByGroupSetIdAndAndArchivedAtIsNull(groupSetId)
+    }
+
+    fun getGroupsByAssignmentSetId(pageable: Pageable, assignmentSetId: Long): Page<Group> {
+        return groupRepository.findAllByMappedAssignmentSetId(pageable, assignmentSetId)
     }
 
     fun addParticipantToGroup(group: Group, p: Participant) {
@@ -148,7 +160,6 @@ class GroupService {
 
         groupSetRepository.delete(gs)
     }
-
 
     fun deleteGroup(g: Group) {
         g.groupSet.groups.remove(g)
