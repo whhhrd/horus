@@ -98,6 +98,7 @@ button {
 .NavigationBar {
     height: 100vh;
     width: 84px;
+    z-index: 500;
 }
 
 .NavigationBarSm {
@@ -106,6 +107,7 @@ button {
     border-top: none !important;
     top: 56px;
     left: 0;
+    z-index: 500;
 }
 
 .NavigationBarSmOpen {
@@ -248,8 +250,6 @@ button {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * Sign-off table properties
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
 .sign-off-table {
     td,
     th {
@@ -317,6 +317,23 @@ button {
     color: $color_yellow_text;
 }
 
+.table-cell-comment-button {
+    float: right;
+    width: 25px;
+    height: 25px;
+    padding: 0.2rem;
+    color: rgba(0, 0, 0, 0.1);
+}
+
+.table-cell-comment-button:hover {
+    cursor: pointer;
+    color: inherit;
+}
+
+.icon-highlighted {
+    color: inherit;
+}
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * Autosuggest properties
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -345,7 +362,7 @@ button {
     background-color: #fff;
     border-color: #80bdff;
     outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);  
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
 .react-autosuggest__input--open {

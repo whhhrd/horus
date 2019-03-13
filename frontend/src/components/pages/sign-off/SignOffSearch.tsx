@@ -195,11 +195,13 @@ class SignOffSearch extends Component<
                     }
                     const groupAssignmentSetCombination: GroupAssignmentSetCombination =
                         suggestion.suggestion;
-                    this.pushURL(
-                        this.props.match.params.cid,
-                        groupAssignmentSetCombination.assignmentSet.id,
-                        groupAssignmentSetCombination.id,
-                    );
+                    this.setState({searchQuery: ""}, () => {
+                        this.pushURL(
+                            this.props.match.params.cid,
+                            groupAssignmentSetCombination.assignmentSet.id,
+                            groupAssignmentSetCombination.id,
+                        );
+                    });
                 }}
                 inputProps={{
                     autoFocus: true,

@@ -107,18 +107,18 @@ class SignOffService {
 
         // Check if last result is modifiable
         val modifiable = if (last != null && last.signedBy.id == signer.id) {
-                            // If last exists and the signers are the same
-                            if (last.isArchived) {
-                                // If it's archived, then the modifiable if deadline has not passed and
-                                // the archiver is also the signer
-                                last.archivedAt!!.isAfter(modificationDeadline) && last.archivedBy!!.id == signer.id
-                            } else {
-                                // If it's not archived, then modifiable is deadline has not passed
-                                last.signedAt.isAfter(modificationDeadline)
-                            }
-                        } else {
-                            false
-                        }
+            // If last exists and the signers are the same
+            if (last.isArchived) {
+                // If it's archived, then the modifiable if deadline has not passed and
+                // the archiver is also the signer
+                last.archivedAt!!.isAfter(modificationDeadline) && last.archivedBy!!.id == signer.id
+            } else {
+                // If it's not archived, then modifiable is deadline has not passed
+                last.signedAt.isAfter(modificationDeadline)
+            }
+        } else {
+            false
+        }
 
         existing.forEach { r ->
             // Auto archiving if the last existing result is not modifiable
@@ -129,6 +129,8 @@ class SignOffService {
             }
         }
 
+        val newThread = dto.comment?.let { commentService.createThread(CommentType.STAFF_ONLY, it, signer.person) }
+
         return if (last != null && modifiable) {
             // If a last result exists and is modifiable, change existing last result
             // and return it
@@ -136,13 +138,19 @@ class SignOffService {
             last.result = dto.result
             last.archivedBy = null
             last.archivedAt = null
+            if (last.commentThread != null) {
+                // Delete old thread first
+                val oldThread = last.commentThread!!
+                last.commentThread = null
+                commentService.deleteCommentsThread(oldThread)
+            }
+            last.commentThread = newThread
+
             last
         } else {
             // Return existing result otherwise
             val assignment = assignmentService.getAssignmentById(dto.assignmentId)
-            val thread = if (dto.comment == null) null else
-                commentService.createThread(CommentType.STAFF_ONLY, dto.comment, signer.person)
-            val result = SignOffResult(student, assignment, dto.result, signer, thread)
+            val result = SignOffResult(student, assignment, dto.result, signer, newThread)
             signOffResultRepository.save(result)
         }
     }

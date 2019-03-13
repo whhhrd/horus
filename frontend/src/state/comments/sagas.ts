@@ -4,14 +4,11 @@ import {
     CommentUpdateRequestAction,
     CommentThreadCreateAction,
     commentThreadCreateRequestSucceededAction,
-    // CommentThreadsRequestedAction,
-    // commentThreadsRequestSucceededAction,
     CommentThreadRequestedAction,
     commentThreadRequestSucceededAction,
     CommentDeleteRequestAction,
     commentDeleteRequestSucceededAction,
     commentUpdateRequestSucceededAction,
-    // commentThreadUpdateAction,
 } from "./action";
 
 import { notifyError, notifySuccess } from "../notifications/constants";
@@ -21,7 +18,6 @@ import {
     COMMENT_CREATE_REQUESTED_ACTION,
     COMMENT_UPDATE_REQUESTED_ACTION,
     COMMENT_THREAD_CREATE_REQUESTED_ACTION,
-    // COMMENT_THREADS_REQUESTED_ACTION,
     COMMENT_THREAD_REQUESTED_ACTION,
     COMMENT_DELETE_REQUESTED_ACTION,
 } from "./constants";
@@ -29,21 +25,6 @@ import {
 import { authenticatedFetchJSON } from "../../api";
 import { CommentThreadDtoFull } from "../../api/types";
 import { EntityType } from "./types";
-
-// export function* requestCommentThreads(action: CommentThreadsRequestedAction) {
-//     try {
-//         const threadIds = action.ctids;
-//         const commentThreads: CommentThreadDtoFull[] = yield call(
-//             authenticatedFetchJSON,
-//             "GET",
-//             `threads`,
-//             { threadIds },
-//         );
-//         yield put(commentThreadsRequestSucceededAction(commentThreads));
-//     } catch (e) {
-//         yield put(notifyError("Could not fetch comment thread"));
-//     }
-// }
 
 function getEntityTypePrefix(entityType: EntityType) {
     switch (entityType) {

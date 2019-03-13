@@ -9,9 +9,6 @@ import {
     SignOffResultDtoCompact,
     GroupDtoFull,
     AssignmentSetDtoFull,
-    ParticipantDto,
-    AssignmentDtoBrief,
-    GroupDtoSummary,
     SignOffResultType,
 } from "../../../api/types";
 import { ApplicationState } from "../../../state/state";
@@ -41,6 +38,8 @@ import ParticipantTableCell from "./ParticipantTableCell";
 import AssignmentTableCell from "./AssignmentTableCell";
 import SignoffResultTableCell from "./SignoffResultTableCell";
 import { buildContent } from "../../pagebuilder";
+import { openSidebarPhoneAction } from "../../../state/sidebar/actions";
+import { Action } from "redux";
 
 interface SignoffTableProps {
     signoffs: SignOffResultDtoCompact[] | null;
@@ -52,20 +51,18 @@ interface SignoffTableProps {
         cid: number,
         gid: number,
     ) => SignOffResultsRequestedAction;
+
     saveChanges: (
         localChanges: SignOffChange[],
         asid: number,
     ) => SignOffSaveRequestedAction;
+
+    openSideBarPhone: () => Action;
 }
 
 interface SignoffTableState {
     changes: SignOffChange[];
-    comment: {
-        group: GroupDtoSummary | null;
-        participant: ParticipantDto | null;
-        assignment: AssignmentDtoBrief | null;
-        signOffResult: SignOffResultDtoCompact | null;
-    };
+    comments: JSX.Element | null;
     modal: CommentModalProps | null;
 }
 
@@ -77,12 +74,7 @@ interface SignOffChangeRequest {
 
 const initialState = {
     changes: [],
-    comment: {
-        group: null,
-        participant: null,
-        assignment: null,
-        signOffResult: null,
-    },
+    comments: null,
     modal: null,
 };
 /**
@@ -100,6 +92,7 @@ class SignoffTable extends Component<
         this.state = {
             ...initialState,
         };
+        this.setComments = this.setComments.bind(this);
     }
 
     /**
@@ -151,7 +144,11 @@ class SignoffTable extends Component<
      * @override
      */
     render() {
-        return buildContent("Sign-off", this.buildContent());
+        return buildContent("Sign-off", this.buildContent(), this.buildSidebar());
+    }
+
+    private buildSidebar() {
+        return this.state.comments;
     }
 
     private buildContent() {
@@ -200,11 +197,16 @@ class SignoffTable extends Component<
                 <Table className="sign-off-table mt-4 table-bordered">
                     <thead>
                         <tr>
-                            <GroupTableCell group={group} />
+                            <GroupTableCell
+                                group={group}
+                                onCommentClick={this.setComments}
+                            />
                             {group.participants.map((p) => (
                                 <ParticipantTableCell
                                     key={`p:${p.id}`}
                                     participant={p}
+                                    group={group}
+                                    onCommentClick={this.setComments}
                                 />
                             ))}
                         </tr>
@@ -223,6 +225,7 @@ class SignoffTable extends Component<
                                     onClick={() =>
                                         this.onAssignmentSignOffClick(a.id)
                                     }
+                                    onCommentClick={this.setComments}
                                 />
                                 {group.participants.map((p) => {
                                     const cellType = this.getLocalTypeForSignOff(
@@ -233,15 +236,26 @@ class SignoffTable extends Component<
                                         p.id,
                                         a.id,
                                     );
+
+                                    const signOff = this.findSignOff(
+                                        p.id,
+                                        a.id,
+                                    );
+
                                     return (
                                         <SignoffResultTableCell
                                             key={`a:${a.id}:p:${p.id}`}
+                                            group={group}
+                                            assignment={a}
+                                            participant={p}
+                                            signOff={signOff!}
                                             signOffState={cellType}
                                             disabled={unsaved}
                                             unsaved={unsaved}
                                             onClick={() =>
                                                 this.onSignOffClick(a.id, p.id)
                                             }
+                                            onCommentClick={this.setComments}
                                         />
                                     );
                                 })}
@@ -251,6 +265,11 @@ class SignoffTable extends Component<
                 </Table>
             );
         }
+    }
+
+    private setComments(comments: JSX.Element) {
+        this.setState((_) => ({ comments }));
+        this.props.openSideBarPhone();
     }
 
     /**
@@ -495,7 +514,7 @@ class SignoffTable extends Component<
     }
 
     /**
-     * Check sif an assignment signoff is changeable for all participants at once.
+     * Checks if an assignment signoff is changeable for all participants at once.
      * @param aid Assignment ID.
      */
     private isAssignmentBatchSignable(aid: number): boolean {
@@ -604,6 +623,7 @@ export default withRouter(
         {
             fetchSignOffs: signOffResultsRequestedAction,
             saveChanges: signOffSaveRequestedAction,
+            openSideBarPhone: openSidebarPhoneAction,
         },
     )(SignoffTable),
 );
