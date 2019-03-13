@@ -61,8 +61,8 @@ class CanvasTokenForm extends Component<CanvasTokenFormProps, CanvasTokenFormSta
                                         <Label>Token</Label>
                                         <Input tag={Field} id="token" name="token" />
                                     </FormGroup>
-                                    <Button block color="primary"
-                                        onClick={() => handleSubmit}>
+                                    <Button color="primary"
+                                        onClick={() => handleSubmit()}>
                                         Submit
                             </Button>
                                 </Form>

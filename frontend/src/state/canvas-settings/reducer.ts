@@ -19,20 +19,20 @@ export default function canvasReducer(state: CanvasSettingsState, action: Canvas
     switch (action.type) {
         case IMPORT_CANVAS_COURSE_FINISHED_ACTION:
             return {
+                ...state,
                 currentlyImporting: state.currentlyImporting.filter((id: number) =>
                     id !== (action as CanvasImportAction).courseId),
-                ...state,
             };
         case CANVAS_COURSES_REQUEST_SUCCEEDED_ACTION:
             return {
-                canvasCourses: (action as CanvasCoursesReceivedAction).courses,
                 ...state,
+                canvasCourses: (action as CanvasCoursesReceivedAction).courses,
             };
         case IMPORT_CANVAS_COURSE_REQUESTED_ACTION:
             state.currentlyImporting.push((action as CanvasImportAction).courseId);
             return {
-                currentlyImporting: state.currentlyImporting,
                 ...state,
+                currentlyImporting: state.currentlyImporting,
             };
         default:
             return state;
