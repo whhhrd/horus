@@ -99,6 +99,7 @@ class SignoffResultTableCell extends Component<SignoffResultTableCellProps> {
         } else {
             return (
                 <div>
+                    <h4>Comments:</h4>
                     <CommentThread
                         commentThreadId={
                             signOff.commentThreadId != null

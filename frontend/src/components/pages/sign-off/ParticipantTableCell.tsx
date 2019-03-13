@@ -51,6 +51,7 @@ class ParticipantTableCell extends Component<ParticipantTableCellProps> {
         const { participant, group } = this.props;
         return (
             <div>
+                <h4>Comments:</h4>
                 <CommentThread
                     commentThreadId={
                         participant.commentThread != null

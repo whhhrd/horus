@@ -119,6 +119,18 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
         }
     }
 
+    componentDidUpdate(prevProps: CommentThreadProps) {
+        const {
+            linkedEntityId,
+            linkedEntityType,
+            commentThreadId,
+        } = this.props;
+
+        if (commentThreadId != null && prevProps.linkedEntityId !== linkedEntityId) {
+            this.props.fetchCommentThread(linkedEntityId, linkedEntityType);
+        }
+    }
+
     toggleCreateCommentModal() {
         this.setState((state) => ({
             commentCreatorModalOpen: !state.commentCreatorModalOpen,

@@ -46,6 +46,7 @@ class GroupTableCell extends Component<GroupTableCellProps> {
         const { group } = this.props;
         return (
             <div>
+                <h4>Comments:</h4>
                 <CommentThread
                     commentThreadId={
                         group.commentThread != null

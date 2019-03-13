@@ -60,6 +60,7 @@ class AssignmentTableCell extends Component<AssignmentTableCellProps> {
         const { assignment } = this.props;
         return (
             <div>
+                <h4>Comments:</h4>
                 <CommentThread
                     commentThreadId={
                         assignment.commentThreadId != null

@@ -144,11 +144,25 @@ class SignoffTable extends Component<
      * @override
      */
     render() {
-        return buildContent("Sign-off", this.buildContent(), this.buildSidebar());
+        return buildContent(
+            "Sign-off",
+            this.buildContent(),
+            this.buildSidebar(),
+        );
     }
 
     private buildSidebar() {
-        return this.state.comments;
+        if (this.state.comments != null) {
+            return this.state.comments;
+        } else {
+            return (
+                <div className="d-flex w-100 h-100 align-items-center">
+                    <h4 className="d-block w-100 text-center">
+                        Nothing to show here.
+                    </h4>
+                </div>
+            );
+        }
     }
 
     private buildContent() {
