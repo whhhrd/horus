@@ -23,6 +23,8 @@ body {
 
 label {
     font-weight: 600;
+    display: block !important;
+    width: 100% !important;
 }
 
 button {
@@ -222,6 +224,11 @@ button {
 .aset-card-create {
     @extend .aset-card;
     height: 225px;
+}
+
+.aset-card-create:hover {
+    cursor: pointer;
+    box-shadow: 0 2px 5px 3px rgba(0, 0, 0, 0.08) !important;
 }
 
 .aset-card-footer {
