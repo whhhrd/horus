@@ -51,7 +51,7 @@ class SignOffResultController {
 
     @GetMapping(path = ["/history"])
     fun getSignOffHistory(@RequestParam participantId: Long, @RequestParam assignmentId: Long): List<SignOffResultDtoSummary> {
-        return signOffService.getSignOffHistory(participantId, assignmentId).map { SignOffResultDtoSummary(it) }
+        return signOffService.getSignOffHistory(participantId, assignmentId).sortedByDescending { it.signedAt }.map { SignOffResultDtoSummary(it) }
     }
 
 }

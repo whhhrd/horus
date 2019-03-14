@@ -25,7 +25,7 @@ class SignOffResultDtoSummary {
     }
 
     constructor(asr: SignOffResult) : this(ParticipantDtoFull(asr.participant),
-            ParticipantDtoFull(asr.participant), asr.signedAt,
+            ParticipantDtoFull(asr.signedBy), asr.signedAt,
             asr.commentThread?.let { CommentThreadDtoBrief(it) }, asr.result,
             AssignmentDtoBrief(asr.assignment))
 }
