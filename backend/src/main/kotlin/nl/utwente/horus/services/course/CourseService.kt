@@ -10,6 +10,7 @@ import nl.utwente.horus.entities.person.Person
 import nl.utwente.horus.exceptions.AssignmentSetNotFoundException
 import nl.utwente.horus.exceptions.CourseNotFoundException
 import nl.utwente.horus.exceptions.GroupNotFoundException
+import nl.utwente.horus.exceptions.ParticipantNotFoundException
 import nl.utwente.horus.representations.assignment.AssignmentSetCreateDto
 import nl.utwente.horus.representations.course.CourseCreateDto
 import nl.utwente.horus.representations.course.CourseUpdateDto
@@ -86,7 +87,7 @@ class CourseService {
 
     fun getCurrentParticipationInCourse(course: Course): Participant {
         val user = userDetailService.getCurrentPerson()
-        return course.participants.first { it.person.id == user.id }
+        return course.participants.firstOrNull { it.person.id == user.id } ?: throw ParticipantNotFoundException()
     }
 
     fun createAssignmentSetInCourse(creator: Person, courseId: Long, dto: AssignmentSetCreateDto): AssignmentSet {
