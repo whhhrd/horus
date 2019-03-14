@@ -2,6 +2,7 @@ package nl.utwente.horus.controllers.signoff
 
 import nl.utwente.horus.exceptions.CommentThreadNotFoundException
 import nl.utwente.horus.representations.assignment.SignOffResultDtoCompact
+import nl.utwente.horus.representations.assignment.SignOffResultDtoSummary
 import nl.utwente.horus.representations.comment.CommentThreadCreateDto
 import nl.utwente.horus.representations.comment.CommentThreadDtoFull
 import nl.utwente.horus.representations.signoff.SignOffResultPatchDto
@@ -46,6 +47,11 @@ class SignOffResultController {
         val result = signOffService.getSignOffResultById(signOffId)
         signOffService.addThreadToSignOffResult(result, thread)
         return CommentThreadDtoFull(thread)
+    }
+
+    @GetMapping(path = ["/history"])
+    fun getSignOffHistory(@RequestParam participantId: Long, @RequestParam assignmentId: Long): List<SignOffResultDtoSummary> {
+        return signOffService.getSignOffHistory(participantId, assignmentId).map { SignOffResultDtoSummary(it) }
     }
 
 }

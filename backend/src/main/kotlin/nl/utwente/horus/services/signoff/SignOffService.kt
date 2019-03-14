@@ -71,6 +71,10 @@ class SignOffService {
         return signOffResultRepository.getAllByAssignmentAssignmentSetAndArchivedByIsNull(assignmentSet)
     }
 
+    fun getSignOffHistory(participantId: Long, assignmentId: Long): List<SignOffResult> {
+        return signOffResultRepository.getAllByParticipantIdAndAssignmentId(participantId, assignmentId)
+    }
+
     fun processSignOffs(dto: SignOffResultPatchDto, setId: Long): List<SignOffResult> {
         val assignmentSet = assignmentService.getAssignmentSetById(setId)
         // Verify that all assignments belong to this course
@@ -100,7 +104,7 @@ class SignOffService {
         }
 
         // Archive older results if necessary
-        val existing = signOffResultRepository.getAllByParticipantIdAndAssignmentId(dto.participantId, dto.assignmentId)
+        val existing = getSignOffHistory(dto.participantId, dto.assignmentId)
         // Get last result (the last one signed or archived)
         val last = existing.sortedByDescending { if (it.isArchived) it.archivedAt else it.signedAt }.firstOrNull()
         val modificationDeadline = now - SIGNOFF_MODIFY_TIMEOUT
