@@ -70,6 +70,7 @@ class SignOffSearch extends Component<
     }
 
     componentDidMount() {
+        this.setState((_) => ({searchQuery: ""}));
         this.props.fetchAssignmentSets(this.props.match.params.cid);
     }
 
@@ -124,10 +125,17 @@ class SignOffSearch extends Component<
 
         return (
             <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
-                <DropdownToggle color="primary" outline className="h-100 px-3" caret>
-                    <span className="mr-3">{selectedAssignmentSet != null
-                        ? selectedAssignmentSet.name
-                        : "Select an assignment set"}</span>
+                <DropdownToggle
+                    color="primary"
+                    outline
+                    className="h-100 px-3"
+                    caret
+                >
+                    <span className="mr-3">
+                        {selectedAssignmentSet != null
+                            ? selectedAssignmentSet.name
+                            : "Select an assignment set"}
+                    </span>
                 </DropdownToggle>
                 <DropdownMenu>{assignmentSetOptions}</DropdownMenu>
             </Dropdown>
@@ -195,7 +203,7 @@ class SignOffSearch extends Component<
                     }
                     const groupAssignmentSetCombination: GroupAssignmentSetCombination =
                         suggestion.suggestion;
-                    this.setState({searchQuery: ""}, () => {
+                    this.setState({ searchQuery: "" }, () => {
                         this.pushURL(
                             this.props.match.params.cid,
                             groupAssignmentSetCombination.assignmentSet.id,
@@ -257,10 +265,19 @@ class SignOffSearch extends Component<
         asid: number | null,
         selectedGroupID: number | null,
     ) {
-        let newURL: string = "/courses/" + cid + "/signoff";
-        if (asid != null && selectedGroupID != null) {
-            newURL += `?g=${selectedGroupID}&as=${asid}`;
+        let newURL: string = "/courses/" + cid + "/signoff?";
+        const searchParams: string[] = [];
+
+        if (asid != null) {
+            searchParams.push(`as=${asid}`);
         }
+
+        if (selectedGroupID != null) {
+            searchParams.push(`g=${selectedGroupID}`);
+        }
+
+        newURL += searchParams.join("&");
+
         this.props.redirectTo(newURL);
     }
 }
