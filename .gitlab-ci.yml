@@ -54,6 +54,6 @@ deploy:
         # Copy over file
         - scp -P22 'backend/build/libs/horus.jar' $SSH_DESTINATION:/home/s1843141/horus.jar
         # Restart server in new screen instance (same name!)
-        - ssh $SSH_DESTINATION 'screen -S horus -d -m sudo java -jar /home/s1843141/horus.jar'
+        - ssh $SSH_DESTINATION 'screen -S horus -d -L -m sudo java -jar /home/s1843141/horus.jar'
 
         
