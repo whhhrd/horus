@@ -23,13 +23,25 @@ class SAML2SSOAuthenticationProvider: AuthenticationProvider {
     override fun authenticate(authentication: Authentication?): Authentication {
         if (authentication is SAML2AuthenticationCredentials) {
             // Fetch the person and create a RefreshToken
-            val person = personService.getPersonByLoginId(authentication.userId) ?:
-            personService.createPerson(
-                    authentication.userId,
-                    authentication.givenName + " " + authentication.surName,
-                    authentication.givenName,
-                    authentication.mail
-            )
+            var person = personService.getPersonByLoginId(authentication.userId)
+            if (person == null) {
+                // Create Person instance
+                person = personService.createPerson(
+                        authentication.userId,
+                        authentication.givenName + " " + authentication.surName,
+                        authentication.givenName,
+                        // "Recreated" sortable name, will be replaced by real value when importing from Canvas.
+                        authentication.surName + ", " + authentication.givenName,
+                        authentication.mail
+                )
+            } else {
+                // Update existing with correct shortName if not updated yet
+                // Only do update if really different: don't want to cause
+                // unnecessary DB writes since login is used often.
+                if (person.shortName != authentication.givenName) {
+                    person.shortName = authentication.givenName
+                }
+            }
             return tokenFactory.generateAuthCodeToken(person)
         }
         throw BadCredentialsException("Invalid credentials")

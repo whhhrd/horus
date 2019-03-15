@@ -166,13 +166,15 @@ class CanvasService {
             val enrollment = user.enrollments[0]
             var person = personService.getPersonByLoginId(user.loginId)
             if (person == null) {
-                person = personService.createPerson(user.loginId, user.name, user.shortName, user.email)
+                person = personService.createPerson(user.loginId, user.name, user.shortName, user.sortableName, user.email)
+            } else {
+                // Sortable name might be "out of date" or inconsistent due to having SAML as source
+                person.sortableName = user.sortableName
             }
             // Check and update user participation
             val participant = person.participations.firstOrNull { it.course.id == course.id }
             if (participant == null) {
                 participantService.createParticipant(person, course, toHorusRole(enrollment))
-
             } else {
                 participant.role = roleService.getRoleById(toHorusRole(enrollment))
                 participant.enabled = true
@@ -207,7 +209,7 @@ class CanvasService {
         val compositions = ConcurrentHashMap<edu.ksu.canvas.model.Group, Set<String>>()
 
         // Parallel fetching due to slow I/O
-        val executor = Executors.newCachedThreadPool()
+        val executor = Executors.newFixedThreadPool(4)
         groups.forEach {group -> executor.execute {
                 compositions[group] = reader.getGroupUsers(group.groupId.toString()).map { it.loginId }.toSet()
             }

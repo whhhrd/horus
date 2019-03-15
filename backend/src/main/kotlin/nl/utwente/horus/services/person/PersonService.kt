@@ -21,8 +21,8 @@ class PersonService {
         return personRepository.findById(id).orElseThrow()
     }
 
-    fun createPerson(loginId: String, fullName: String, shortName: String, email: String): Person {
-        val person = Person(loginId, fullName, shortName, email)
+    fun createPerson(loginId: String, fullName: String, shortName: String, sortableName: String, email: String): Person {
+        val person = Person(loginId, fullName, shortName, sortableName, email)
         personRepository.save(person)
         return person
     }
