@@ -39,7 +39,7 @@ class DatabasePopulator {
                     "7_groups.sql",
                     "8_group_members.sql",
                     "9_group_assignment_mapping.sql",
-                    "10_pp_mock.sql"
+                    "10_pp_ss_mock.sql"
             )
             scriptNames.forEach {script: String ->
                 try {

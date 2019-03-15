@@ -490,3 +490,6 @@ insert into person (id, login_id, email, full_name, short_name, created_at) valu
 insert into person (id, login_id, email, full_name, short_name, created_at) values (DEFAULT, 's1779350', 'rbenoixdj@guardian.co.uk', 'Ronny Benoix', 'Märta', '2018-05-26 02:04:08');
 insert into person (id, login_id, email, full_name, short_name, created_at) values (DEFAULT, 's9791639', 'zcusworthdk@webnode.com', 'Zelma Cusworth', 'Garçon', '2018-03-25 06:04:11');
 insert into person (id, login_id, email, full_name, short_name, created_at) values (DEFAULT, 's4189857', 'nkirkamdl@slideshare.net', 'Nathanial Kirkam', 'Marie-thérèse', '2018-08-19 16:53:46');
+
+-- Set sortable names into well-formed sortable string (based on some good guessing of the lastname-part)
+UPDATE person SET sortable_name = concat(substring(full_name from (char_length(full_name) - position(' ' IN reverse(full_name)) + 2) for position(' ' IN reverse(full_name))), ', ', substring(full_name from 1 for (char_length(full_name) - position(' ' IN reverse(full_name))))) WHERE sortable_name = '';
