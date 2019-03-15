@@ -18,7 +18,10 @@ import {
 } from "reactstrap";
 import { ApplicationState } from "../../state/state";
 import { connect } from "react-redux";
-import { commentUpdateRequestedAction, CommentUpdateRequestAction } from "../../state/comments/action";
+import {
+    commentUpdateRequestedAction,
+    CommentUpdateRequestAction,
+} from "../../state/comments/action";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 import { EntityType } from "../../state/comments/types";
@@ -47,7 +50,12 @@ class CommentUpdateModal extends Component<CommentUpdateModalProps> {
     }
 
     onSubmit = (commentUpdate: CommentCreateDto) => {
-        this.props.updateComment(this.props.entityId, this.props.entityType, this.props.comment.id, commentUpdate);
+        this.props.updateComment(
+            this.props.entityId,
+            this.props.entityType,
+            this.props.comment.id,
+            commentUpdate,
+        );
         this.onCloseModal();
     }
 
@@ -57,7 +65,7 @@ class CommentUpdateModal extends Component<CommentUpdateModalProps> {
 
     render() {
         return (
-            <Modal isOpen={this.props.isOpen}>
+            <Modal autoFocus={false} isOpen={this.props.isOpen}>
                 <ModalHeader toggle={this.onCloseModal}>
                     {"Editing comment"}
                 </ModalHeader>
@@ -69,7 +77,7 @@ class CommentUpdateModal extends Component<CommentUpdateModalProps> {
                         }}
                         onSubmit={this.onSubmit}
                     >
-                        {({ handleSubmit }) => (
+                        {({ handleSubmit, values, isValid  }) => (
                             <div>
                                 <ModalBody>
                                     <Form>
@@ -85,9 +93,24 @@ class CommentUpdateModal extends Component<CommentUpdateModalProps> {
                                             </Alert>
                                         ) : null}
                                         <Field
+                                            autoFocus={true}
                                             component="textarea"
                                             className="p-2 w-100"
                                             name="content"
+                                            isvalid={
+                                                String((values.content.trim().length > 0))
+                                            }
+                                            onKeyDown={(event: KeyboardEvent) => {
+                                                if (
+                                                    event.key === "Enter" &&
+                                                    !event.shiftKey
+                                                ) {
+                                                    event.preventDefault();
+                                                    if (isValid) {
+                                                        handleSubmit();
+                                                    }
+                                                }
+                                            }}
                                         />
                                     </Form>
                                 </ModalBody>
@@ -105,6 +128,7 @@ class CommentUpdateModal extends Component<CommentUpdateModalProps> {
                                         block
                                         size="md"
                                         color="primary"
+                                        disabled={!isValid}
                                         onClick={() => {
                                             handleSubmit();
                                         }}

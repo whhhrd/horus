@@ -4,7 +4,7 @@ import { Card, CardTitle, CardBody, Col, Badge, Button } from "reactstrap";
 
 interface GroupListItemProps {
     group: GroupDtoFull;
-    onShowClick: (group: GroupDtoFull) => any;
+    onShowClick: (gid: number) => any;
 }
 
 export default class GroupListItem extends PureComponent<GroupListItemProps> {
@@ -14,8 +14,8 @@ export default class GroupListItem extends PureComponent<GroupListItemProps> {
         this.onShowClick = this.onShowClick.bind(this);
     }
 
-    onShowClick(group: GroupDtoFull) {
-        this.props.onShowClick(group);
+    onShowClick(gid: number) {
+        this.props.onShowClick(gid);
     }
 
     render() {
@@ -32,7 +32,7 @@ export default class GroupListItem extends PureComponent<GroupListItemProps> {
                             <div>
                                 <Badge pill color="light" className="mr-4 shadow-sm">
                                     {participants.length > 0 ? participants.length : "No"} students</Badge>
-                                <Button color="primary" size="sm" onClick={() => this.onShowClick(this.props.group)}>
+                                <Button color="primary" size="sm" onClick={() => this.onShowClick(this.props.group.id)}>
                                     Show
                                 </Button>
                             </div>

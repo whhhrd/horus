@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Row, Col, Button, Input, Table } from "reactstrap";
 import { RouteComponentProps, withRouter } from "react-router";
+import { push } from "connected-react-router";
+import queryString from "query-string";
 import { GroupDtoFull, CourseDtoSummary } from "../../../../../api/types";
 import { ApplicationState } from "../../../../../state/state";
 import { getGroups } from "../../../../../state/groups/selectors";
@@ -39,11 +41,12 @@ interface GroupManagerProps {
         courseId: number,
         groupSetId: number,
     ) => CanvasRefreshSetRequestedAction;
+
+    redirectTo: (url: string) => {};
 }
 
 interface GroupManagerState {
     searchQuery: string;
-    currentlyShownGroup: GroupDtoFull | null;
 }
 
 class GroupManager extends Component<
@@ -55,7 +58,6 @@ class GroupManager extends Component<
 
         this.state = {
             searchQuery: "",
-            currentlyShownGroup: null,
         };
         this.onShowClick = this.onShowClick.bind(this);
     }
@@ -75,8 +77,10 @@ class GroupManager extends Component<
         );
     }
 
-    onShowClick(group: GroupDtoFull) {
-        this.setState((_) => ({ currentlyShownGroup: group }));
+    onShowClick(gid: number) {
+        const { cid, gsid } = this.props.match.params;
+        const URL = `/courses/${cid}/administration/groupsets/${gsid}?gid=${gid}`;
+        this.props.redirectTo(URL);
         this.props.openSidebarPhone();
     }
 
@@ -130,10 +134,22 @@ class GroupManager extends Component<
     }
 
     buildSidebar() {
-        const { currentlyShownGroup } = this.state;
+        const gid = Number(queryString.parse(this.props.location.search).gid);
 
-        if (currentlyShownGroup === null) {
-            return null;
+        let currentlyShownGroup = null;
+
+        if (gid != null && this.props.groups != null) {
+            currentlyShownGroup = this.props.groups.find((g) => g.id === gid);
+        }
+
+        if (currentlyShownGroup == null) {
+            return (
+                <div className="d-flex w-100 h-100 align-items-center">
+                    <h4 className="d-block w-100 text-center">
+                        Nothing to show here.
+                    </h4>
+                </div>
+            );
         } else {
             const participants = currentlyShownGroup.participants;
             return (
@@ -256,6 +272,7 @@ export default withRouter(
             refreshSet: canvasRefreshSetRequestedAction,
             openSidebarPhone: openSidebarPhoneAction,
             fetchCourse: (id: number) => courseRequestedAction(id),
+            redirectTo: (url: string) => push(url),
         },
     )(GroupManager),
 );

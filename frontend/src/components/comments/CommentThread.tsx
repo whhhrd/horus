@@ -15,9 +15,8 @@ import {
     faUsers,
     faTasks,
     faPlus,
-    faEye,
-    faEyeSlash,
     faInfo,
+    faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
@@ -126,7 +125,10 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
             commentThreadId,
         } = this.props;
 
-        if (commentThreadId != null && prevProps.linkedEntityId !== linkedEntityId) {
+        if (
+            commentThreadId != null &&
+            prevProps.linkedEntityId !== linkedEntityId
+        ) {
             this.props.fetchCommentThread(linkedEntityId, linkedEntityType);
         }
     }
@@ -155,19 +157,19 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
         switch (this.props.linkedEntityType) {
             case EntityType.Assignment:
                 borderColor = `thread-border-assignment`;
-                titleEntityPrefix = "Assignment";
+                titleEntityPrefix = "Assignment: ";
                 break;
             case EntityType.Participant:
                 borderColor = `thread-border-participant`;
-                titleEntityPrefix = "Student";
+                titleEntityPrefix = "Student: ";
                 break;
             case EntityType.Signoff:
                 borderColor = `thread-border-signoff`;
-                titleEntityPrefix = "Signoff";
+                titleEntityPrefix = "";
                 break;
             case EntityType.Group:
                 borderColor = `thread-border-group`;
-                titleEntityPrefix = "Group";
+                titleEntityPrefix = "Group: ";
                 break;
         }
 
@@ -175,21 +177,26 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
             <div>
                 <Card className={`m-0 my-3 mw-100 ${borderColor!}`}>
                     <CardBody>
-                        <div className="d-flex justify-content-between flex-row flex-nowrap">
+                        <div
+                            className="d-flex justify-content-between
+                                align-items-center flex-row flex-nowrap cursor-pointer"
+                            onClick={this.toggleCollapse}
+                        >
                             <CardTitle className="my-auto d-flex mr-2">
                                 {this.buildCommentThreadTitle(
                                     titleEntityPrefix!,
                                 )}
                             </CardTitle>
-                            <Button
-                                color="primary"
-                                size="sm"
-                                onClick={() => this.toggleCollapse()}
+
+                            <div
+                                className={`chevron ${
+                                    this.state.showCommentThreadContent
+                                        ? "chevron-open"
+                                        : ""
+                                }`}
                             >
-                                {this.state.showCommentThreadContent
-                                    ? "Hide"
-                                    : "Show"}
-                            </Button>
+                                <FontAwesomeIcon icon={faChevronDown} />
+                            </div>
                         </div>
                         <Collapse isOpen={this.state.showCommentThreadContent}>
                             {this.buildCommentThreadContent()}
@@ -231,51 +238,30 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
         return (
             <mark className="px-2">
                 <abbr
-                    title={`Comment thread about ${titlePrefix}: ${
+                    title={`Comment thread about ${titlePrefix}${
                         this.props.commentThreadSubject
                     }`}
                 >
                     <FontAwesomeIcon className="mr-2" icon={iconElement!} />
                     {this.props.commentThreadSubject}
-                    {numberOfComments > 0 ? (
-                        <small>
-                            <Badge pill color="primary" className="ml-2">
-                                {numberOfComments}
-                            </Badge>
-                        </small>
-                    ) : null}
                 </abbr>
+                {numberOfComments > 0 ? (
+                    <small>
+                        <Badge pill color="primary" className="ml-2">
+                            {numberOfComments}
+                        </Badge>
+                    </small>
+                ) : null}
             </mark>
         );
     }
 
-    buildComments(comments: CommentDto[], commentsVisible: boolean) {
+    buildComments(comments: CommentDto[]) {
         const { linkedEntityId, linkedEntityType } = this.props;
-
-        const visibilityIcon = commentsVisible ? (
-            <FontAwesomeIcon icon={faEye} size="lg" />
-        ) : (
-            <FontAwesomeIcon icon={faEyeSlash} size="lg" />
-        );
 
         if (comments.length > 0) {
             return (
                 <div>
-                    <Alert
-                        color={commentsVisible ? "warning" : "success"}
-                        className="my-3 d-flex"
-                    >
-                        <div className="my-auto mr-3">
-                            <span>{visibilityIcon}</span>
-                        </div>
-                        <div>
-                            Comments in this thread are{" "}
-                            {commentsVisible
-                                ? "visible to designated students"
-                                : "hidden from students"}
-                            .
-                        </div>
-                    </Alert>
                     <ListGroup className="my-3">
                         {comments.map((comment) => (
                             <Comment
@@ -346,10 +332,9 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
                 linkedEntityId,
                 linkedEntityType,
             )!;
-            const commentsVisible = type === "PUBLIC";
             return (
                 <div>
-                    {this.buildComments(comments, commentsVisible)}
+                    {this.buildComments(comments)}
                     <Button
                         outline
                         block

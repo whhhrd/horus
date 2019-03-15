@@ -54,6 +54,14 @@ button {
     cursor: move !important;
 }
 
+.chevron {
+    transition: transform 0.3s ease;
+}
+
+.chevron-open {
+    transform: rotateX(180deg);
+}
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * Extended/overwritten reactstrap classes
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
