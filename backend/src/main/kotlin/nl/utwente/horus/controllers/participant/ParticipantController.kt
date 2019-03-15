@@ -1,5 +1,8 @@
 package nl.utwente.horus.controllers.participant
 
+import nl.utwente.horus.auth.permissions.HorusPermissionType
+import nl.utwente.horus.controllers.BaseController
+import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.exceptions.CommentThreadNotFoundException
 import nl.utwente.horus.representations.comment.CommentThreadCreateDto
 import nl.utwente.horus.representations.comment.CommentThreadDtoFull
@@ -15,7 +18,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping(path=["/api/participants"])
 @Transactional
-class ParticipantController {
+class ParticipantController: BaseController() {
 
     @Autowired
     lateinit var userDetailService: HorusUserDetailService
@@ -28,6 +31,15 @@ class ParticipantController {
 
     @Autowired
     lateinit var labelService: LabelService
+
+    @GetMapping(path = ["/", ""])
+    fun getParticipants(@RequestParam participantIds: List<Long>): List<ParticipantDtoFull> {
+        participantIds.forEach {
+            // TODO: Remove comments/labels when request issued by students (e.g. no view permissions for those)
+            verifyCoursePermission(Participant::class, it, HorusPermissionType.VIEW)
+        }
+        return participantService.getParticipantsById(participantIds).map { ParticipantDtoFull(it) }
+    }
 
     @GetMapping(path = ["/{pId}/comments"])
     fun getCommentsOfParticipant(@PathVariable pId: Long): CommentThreadDtoFull {

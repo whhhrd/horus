@@ -42,6 +42,19 @@ class ParticipantService {
     @Autowired
     lateinit var roleService: RoleService
 
+    fun getParticipantsById(ids: Collection<Long>): List<Participant> {
+        // Prevent duplications in request
+        val set = ids.toSet()
+        if (ids.size != set.size) {
+            throw DuplicateEntityRequestException()
+        }
+        val result = participantRepository.findAllById(ids)
+        if (result.size != set.size) {
+            throw ParticipantNotFoundException() // One of ID's wasn't found, since there were no duplicates
+        }
+        return result
+    }
+
     fun getParticipantById(id: Long): Participant {
         return participantRepository.findByIdOrNull(id) ?: throw ParticipantNotFoundException()
     }

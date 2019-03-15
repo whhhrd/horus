@@ -7,6 +7,7 @@ abstract class BadRequestException(message: String, code: String? = null) : Horu
 // General exception
 class EmptyStringException : BadRequestException("A string used for creation/updating of this entity was found to be empty, which is illegal.")
 
+class DuplicateEntityRequestException : BadRequestException("The same entity was requested multiple times in the same request.")
 // Course-related
 class WrongCourseException : BadRequestException("This entity does not belong to the indicated course.")
 

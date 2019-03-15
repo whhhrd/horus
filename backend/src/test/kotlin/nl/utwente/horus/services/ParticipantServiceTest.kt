@@ -31,5 +31,14 @@ class ParticipantServiceTest : HorusAbstractTest() {
         assertFalse(student in label.participants)
     }
 
+    @WithLoginId(TEACHER_LOGIN)
+    @Test
+    fun testGetByList() {
+        val amount = 153
+        val ids = PP_PARTICIPANT_IDS.take(amount)
+        val participants = participantService.getParticipantsById(ids)
+        assertEquals(ids.toSet(), participants.map { it.id }.toSet())
+    }
+
 
 }

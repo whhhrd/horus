@@ -134,7 +134,7 @@ class CourseServiceTest : HorusAbstractTest() {
 
         // Check if a new person has no participating courses
         val otherPerson = personService.createPerson("t9128734",
-                "Test123 Person", "Test123", "test123person@te.st")
+                "Test123 Person", "Test123", "Person, Test123","test123person@te.st")
         val otherParticipatingCourses = courseService.getAllParticipatingCourses(otherPerson)
         assertEquals(0, otherParticipatingCourses.size)
     }
