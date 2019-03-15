@@ -58,7 +58,7 @@ class CommentCreatorModal extends Component<CommentCreatorModalProps> {
 
     render() {
         return (
-            <Modal isOpen={this.props.isOpen}>
+            <Modal autoFocus={false} isOpen={this.props.isOpen}>
                 <ModalHeader toggle={this.onCloseModal}>
                     {"Creating comment"}
                 </ModalHeader>
@@ -70,7 +70,7 @@ class CommentCreatorModal extends Component<CommentCreatorModalProps> {
                         }}
                         onSubmit={this.onSubmit}
                     >
-                        {({ handleSubmit }) => (
+                        {({ handleSubmit, values, isValid  }) => (
                             <div>
                                 <ModalBody>
                                     <Form>
@@ -86,9 +86,24 @@ class CommentCreatorModal extends Component<CommentCreatorModalProps> {
                                             </Alert>
                                         ) : null}
                                         <Field
+                                            autoFocus={true}
                                             component="textarea"
                                             className="p-2 w-100"
                                             name="content"
+                                            isvalid={
+                                                String((values.content.trim().length > 0))
+                                            }
+                                            onKeyDown={(event: KeyboardEvent) => {
+                                                if (
+                                                    event.key === "Enter" &&
+                                                    !event.shiftKey
+                                                ) {
+                                                    event.preventDefault();
+                                                    if (isValid) {
+                                                        handleSubmit();
+                                                    }
+                                                }
+                                            }}
                                             placeholder="Comment text..."
                                         />
                                     </Form>
@@ -107,6 +122,7 @@ class CommentCreatorModal extends Component<CommentCreatorModalProps> {
                                         block
                                         size="md"
                                         color="primary"
+                                        disabled={!isValid}
                                         onClick={() => {
                                             handleSubmit();
                                         }}

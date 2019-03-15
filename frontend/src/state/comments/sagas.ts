@@ -11,7 +11,7 @@ import {
     commentUpdateRequestSucceededAction,
 } from "./action";
 
-import { notifyError, notifySuccess } from "../notifications/constants";
+import { notifyError } from "../notifications/constants";
 import { put, takeEvery, call } from "redux-saga/effects";
 
 import {
@@ -81,7 +81,6 @@ export function* createCommentThread(action: CommentThreadCreateAction) {
                 result,
             ),
         );
-        yield put(notifySuccess("Succesfully created comment thread"));
     } catch (e) {
         yield put(notifyError("Could not create comment thread"));
     }
@@ -100,7 +99,6 @@ export function* createComment(action: CommentCreateRequestAction) {
         yield put(
             commentCreateRequestSucceededAction(entityId, entityType, result),
         );
-        yield put(notifySuccess("Comment created"));
     } catch (e) {
         yield put(notifyError("Could not create comment"));
     }
@@ -117,7 +115,6 @@ export function* deleteComment(action: CommentDeleteRequestAction) {
         yield put(
             commentDeleteRequestSucceededAction(entityId, entityType, result),
         );
-        yield put(notifySuccess("Comment deleted"));
     } catch (e) {
         yield put(notifyError("Could not delete comment"));
     }
@@ -136,7 +133,6 @@ export function* updateComment(action: CommentUpdateRequestAction) {
         yield put(
             commentUpdateRequestSucceededAction(entityId, entityType, result),
         );
-        yield put(notifySuccess("Comment updated"));
     } catch (e) {
         yield put(notifyError("Could not edit comment"));
     }

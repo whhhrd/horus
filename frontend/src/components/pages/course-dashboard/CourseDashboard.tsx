@@ -32,7 +32,7 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
         const course = this.props.courseFull(Number(this.props.match.params.cid));
 
         if (course == null) {
-            return buildContent("Courses", null);
+            return buildContent("Course Dashboard", null);
         } else {
             return buildContent(course.name, this.buildContent(course));
         }
@@ -41,6 +41,9 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
     buildContent(course: CourseDtoFull) {
         return (
             <Row className="px-2 d-flex justify-content-center justify-content-lg-start">
+                <Col xs="12">
+                    <h3>Sign-off overviews</h3>
+                </Col>
                 {course.assignmentSets.length > 0 ?
                     course.assignmentSets.map((aSet: AssignmentSetDtoBrief) => {
                         return <CanvasCard
