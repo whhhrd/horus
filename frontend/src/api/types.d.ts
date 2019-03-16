@@ -210,10 +210,18 @@ export interface GroupDtoFull extends GroupDtoSummary {
     participants: ParticipantDtoBrief[];
 }
 
+export interface SignOffResultDtoStudent {
+    assignmentId: number;
+    participantId: number;
+    result: SignOffResultType;
+    signedAt: Date;
+    signerName: string;
+}
+
 export interface StudentDashboardDto {
     assignmentSets: AssignmentSetDtoFull[];
     groups: GroupDtoFull[];
-    results: SignOffResultDtoCompact[];
+    results: SignOffResultDtoStudent[];
 }
 
 export interface GroupSetDtoSummary extends GroupSetDtoBrief {
