@@ -15,7 +15,6 @@ import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDt
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -60,6 +59,10 @@ class GroupService {
 
     fun getGroupByExternalId(externalId: String): List<Group> {
         return groupRepository.findByExternalId(externalId)
+    }
+
+    fun getGroupsByParticipant(participant: Participant): List<Group> {
+        return groupRepository.findAllByParticipantMember(participant)
     }
 
     fun isPersonMemberOfGroup(person: Person, group: Group): Boolean {

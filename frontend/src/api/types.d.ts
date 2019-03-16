@@ -14,7 +14,7 @@ export interface CourseDtoBrief {
     name: string;
 }
 
-type CommentType = "STAFF_ONLY" | "PUBLIC";
+export type CommentType = "STAFF_ONLY" | "PUBLIC";
 
 export interface CommentThreadDtoBrief {
     id: number;
@@ -89,7 +89,7 @@ export interface AssignmentDtoSummary extends AssignmentDtoBrief {
     createdBy: ParticipantDtoBrief;
 }
 
-type SignOffResultType = "COMPLETE" | "INSUFFICIENT";
+export type SignOffResultType = "COMPLETE" | "INSUFFICIENT";
 
 export interface SignOffResultDtoSummary {
     assignment: AssignmentDtoBrief;
@@ -210,6 +210,12 @@ export interface GroupDtoFull extends GroupDtoSummary {
     participants: ParticipantDtoBrief[];
 }
 
+export interface StudentDashboardDto {
+    assignmentSets: AssignmentSetDtoFull[];
+    groups: GroupDtoFull[];
+    results: SignOffResultDtoCompact[];
+}
+
 export interface GroupSetDtoSummary extends GroupSetDtoBrief {
     course: CourseDtoBrief;
     createdBy: PersonDtoBrief;
@@ -248,11 +254,11 @@ export interface ParticipantUpdateDto {
     roleId: number;
 }
 
-type HorusResource = "PERSON" | "COURSE" | "COURSE_PARTICIPANT" | "COURSE_LABEL" | "COURSE_PARTICIPANT_LABEL_MAPPING" | "COURSE_GROUPSET" | "COURSE_GROUP" | "COURSE_GROUPMEMBER" | "COURSE_ASSIGNMENTSET" | "COURSE_COMMENT_STAFFONLY" | "COURSE_COMMENT_PUBLIC" | "COURSE_SIGNOFFRESULT";
+export type HorusResource = "PERSON" | "COURSE" | "COURSE_PARTICIPANT" | "COURSE_LABEL" | "COURSE_PARTICIPANT_LABEL_MAPPING" | "COURSE_GROUPSET" | "COURSE_GROUP" | "COURSE_GROUPMEMBER" | "COURSE_ASSIGNMENTSET" | "COURSE_COMMENT_STAFFONLY" | "COURSE_COMMENT_PUBLIC" | "COURSE_SIGNOFFRESULT";
 
-type HorusResourceScope = "OWN" | "ANY";
+export type HorusResourceScope = "OWN" | "ANY";
 
-type HorusPermissionType = "LIST" | "VIEW" | "CREATE" | "EDIT" | "DELETE";
+export type HorusPermissionType = "LIST" | "VIEW" | "CREATE" | "EDIT" | "DELETE";
 
 export interface HorusPermissionDto {
     resource: HorusResource;

@@ -59,7 +59,7 @@ class AssignmentService {
     }
 
     fun getAssignmentSetsByParticipant(participant: Participant): List<AssignmentSet> {
-        return assignmentSetRepository.getAssignmentSetsMappedToParticipant(participant);
+        return assignmentSetRepository.getAssignmentSetsMappedToParticipant(participant)
     }
 
     fun getAssignmentById(id: Long): Assignment {

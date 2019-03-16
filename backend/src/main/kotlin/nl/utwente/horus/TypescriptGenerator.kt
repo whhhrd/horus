@@ -12,6 +12,7 @@ import nl.utwente.horus.representations.comment.*
 import nl.utwente.horus.representations.course.CourseCreateDto
 import nl.utwente.horus.representations.course.CourseDtoFull
 import nl.utwente.horus.representations.course.CourseUpdateDto
+import nl.utwente.horus.representations.dashboard.StudentDashboardDto
 import nl.utwente.horus.representations.error.ErrorDto
 import nl.utwente.horus.representations.group.GroupDtoFull
 import nl.utwente.horus.representations.group.GroupSetDtoFull
@@ -19,7 +20,6 @@ import nl.utwente.horus.representations.participant.*
 import nl.utwente.horus.representations.person.PersonDtoFull
 import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
 import nl.utwente.horus.representations.signoff.SignOffResultPatchDto
-import org.springframework.data.domain.Page
 import java.io.File
 import java.time.ZonedDateTime
 
@@ -51,6 +51,8 @@ fun generate() {
                     CourseDtoFull::class,
                     CourseCreateDto::class,
                     CourseUpdateDto::class,
+
+                    StudentDashboardDto::class,
 
                     GroupDtoFull::class,
                     GroupSetDtoFull::class,

@@ -1,9 +1,9 @@
 package nl.utwente.horus.entities.group
 
+import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.person.Person
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -26,6 +26,9 @@ interface GroupRepository: JpaRepository<Group, Long> {
 
     @Query("SELECT g FROM Group g INNER JOIN AssignmentGroupSetsMapping ags ON g.groupSet = ags.id.groupSet WHERE ags.id.assignmentSet.id = ?1 AND g.archivedAt IS NULL")
     fun findAllByMappedAssignmentSetId(pageable: Pageable, assignmentSetId: Long): Page<Group>
+
+    @Query("SELECT g FROM Group g INNER JOIN GroupMember m ON g = m.id.group WHERE m.id.participant = ?1 AND g.archivedAt IS NULL")
+    fun findAllByParticipantMember(participant: Participant): List<Group>
 
     fun findAllByGroupSetIdAndAndArchivedAtIsNull(groupSetId: Long): List<Group>
 }

@@ -75,6 +75,10 @@ class SignOffService {
         return signOffResultRepository.getAllByParticipantIdAndAssignmentId(participantId, assignmentId)
     }
 
+    fun getSignOffsByParticipant(participant: Participant): List<SignOffResult> {
+        return signOffResultRepository.getAllByParticipant(participant)
+    }
+
     fun processSignOffs(dto: SignOffResultPatchDto, setId: Long): List<SignOffResult> {
         val assignmentSet = assignmentService.getAssignmentSetById(setId)
         // Verify that all assignments belong to this course

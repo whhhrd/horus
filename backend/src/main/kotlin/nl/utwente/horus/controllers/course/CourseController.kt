@@ -19,14 +19,17 @@ import nl.utwente.horus.representations.course.CourseCreateDto
 import nl.utwente.horus.representations.course.CourseDtoFull
 import nl.utwente.horus.representations.course.CourseDtoSummary
 import nl.utwente.horus.representations.course.CourseUpdateDto
+import nl.utwente.horus.representations.dashboard.StudentDashboardDto
 import nl.utwente.horus.representations.group.GroupSetDtoSummary
 import nl.utwente.horus.representations.participant.*
 import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
 import nl.utwente.horus.services.assignment.AssignmentService
 import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.course.CourseService
+import nl.utwente.horus.services.group.GroupService
 import nl.utwente.horus.services.participant.LabelService
 import nl.utwente.horus.services.participant.ParticipantService
+import nl.utwente.horus.services.signoff.SignOffService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.transaction.annotation.Transactional
@@ -42,6 +45,12 @@ class CourseController: BaseController() {
 
     @Autowired
     lateinit var courseService: CourseService
+
+    @Autowired
+    lateinit var groupService: GroupService
+
+    @Autowired
+    lateinit var signOffService: SignOffService
 
     @Autowired
     lateinit var labelService: LabelService
@@ -195,6 +204,15 @@ class CourseController: BaseController() {
     @GetMapping(path = ["/{courseId}/signoffresults"])
     fun getSignOffResultsFiltered(@PathVariable courseId: Long, @RequestParam groupId: Long?, @RequestParam assignmentSetId: Long): List<SignOffResultDtoCompact> {
         return courseService.getSignOffResultsFilteredInCourse(courseId, groupId, assignmentSetId).map { SignOffResultDtoCompact(it) }
+    }
+
+    @GetMapping(path = ["/{courseId}/studentDashboard"])
+    fun getStudentDashboard(@PathVariable courseId: Long): StudentDashboardDto {
+        val participant = participantService.getCurrentParticipationInCourse(courseId)
+        val sets = assignmentService.getAssignmentSetsByParticipant(participant)
+        val results = signOffService.getSignOffsByParticipant(participant)
+        val groups = groupService.getGroupsByParticipant(participant)
+        return StudentDashboardDto(groups, sets, results)
     }
 
 }
