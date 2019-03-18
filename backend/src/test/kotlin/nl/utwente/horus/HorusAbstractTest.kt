@@ -1,5 +1,7 @@
 package nl.utwente.horus
 
+import junit.framework.Assert.assertTrue
+import junit.framework.Assert.fail
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.participant.Label
 import nl.utwente.horus.entities.participant.Participant
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.transaction.annotation.Transactional
+import kotlin.reflect.KClass
 
 @RunWith(SpringRunner::class)
 @SpringBootTest
@@ -67,6 +70,16 @@ abstract class HorusAbstractTest {
 
     fun getFreshLabel(): Label {
         return labelService.createLabel(getPPCourse(), "test-label", COLOR_STR)
+    }
+
+    fun <T: Exception> assertThrows(eClass: KClass<T>, function: () -> Unit) {
+        try {
+            function()
+            fail()
+        } catch (e: Exception) {
+            assertTrue("Found exception ${e::class.simpleName} is no instance of ${eClass.simpleName}",
+                    eClass.isInstance(e))
+        }
     }
 
 

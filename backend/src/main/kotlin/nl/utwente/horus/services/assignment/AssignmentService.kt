@@ -71,8 +71,12 @@ class AssignmentService {
                 .findMappingsInCourse(courseService.getCourseById(courseId))
     }
 
+    /**
+     * Retrieves all assignments by their IDs in the given list.
+     * Elements will be ordered by their orderKey.
+     */
     fun getAssignmentsByIds(ids: List<Long>): List<Assignment> {
-        return assignmentRepository.findAllByIdIn(ids)
+        return assignmentRepository.findAllByIdInOrderByOrderKey(ids)
     }
 
     fun createAssignmentSet(creator: Participant, course: Course, dto: AssignmentSetCreateDto): AssignmentSet {

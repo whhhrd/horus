@@ -7,5 +7,5 @@ import org.springframework.transaction.annotation.Transactional
 @Repository
 @Transactional
 interface AssignmentRepository: JpaRepository<Assignment, Long> {
-    fun findAllByIdIn(ids: List<Long>): List<Assignment>
+    fun findAllByIdInOrderByOrderKey(ids: List<Long>): List<Assignment>
 }
