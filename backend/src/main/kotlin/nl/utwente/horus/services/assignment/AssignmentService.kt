@@ -84,11 +84,7 @@ class AssignmentService {
             throw InvalidAssignmentCreateRequestException("Assignment set name too short.")
         }
 
-        val assignmentSet = AssignmentSet(course, dto.name, creator)
-
-        assignmentSetRepository.save(assignmentSet)
-
-        return assignmentSet
+        return assignmentSetRepository.save(AssignmentSet(course, dto.name, creator))
     }
 
     fun updateAssignmentSet(creator: Person, id: Long, dto: AssignmentSetUpdateDto): AssignmentSet {

@@ -43,21 +43,9 @@ export interface ParticipantDtoBrief {
     role: RoleDtoBrief;
 }
 
-export interface LabelDto {
-    color: string;
-    id: number;
-    name: string;
-}
-
-export interface ParticipantDtoFull extends ParticipantDtoBrief {
-    createdAt: Date;
-    enabled: boolean;
-    labels: LabelDto[];
-}
-
 export interface AssignmentSetDtoSummary extends AssignmentSetDtoBrief {
     course: CourseDtoBrief;
-    createdBy: ParticipantDtoFull;
+    createdBy: ParticipantDtoBrief;
 }
 
 export interface AssignmentDtoBrief {
@@ -94,10 +82,10 @@ export type SignOffResultType = "COMPLETE" | "INSUFFICIENT";
 export interface SignOffResultDtoSummary {
     assignment: AssignmentDtoBrief;
     commentThread: CommentThreadDtoBrief | null;
-    participant: ParticipantDtoFull;
+    participant: ParticipantDtoBrief;
     result: SignOffResultType;
     signedAt: Date;
-    signer: ParticipantDtoFull;
+    signer: ParticipantDtoBrief;
 }
 
 export interface AssignmentCreateUpdateDto {
@@ -174,6 +162,12 @@ export interface CourseDtoSummary extends CourseDtoBrief {
     role: RoleDtoBrief;
 }
 
+export interface LabelDto {
+    color: string;
+    id: number;
+    name: string;
+}
+
 export interface CourseDtoFull extends CourseDtoSummary {
     assignmentSets: AssignmentSetDtoBrief[];
     groupSets: GroupSetDtoBrief[];
@@ -202,7 +196,7 @@ export interface GroupDtoBrief {
 
 export interface GroupDtoSummary extends GroupDtoBrief {
     commentThread: CommentThreadDtoBrief | null;
-    createdBy: ParticipantDtoFull;
+    createdBy: ParticipantDtoBrief;
     groupSet: GroupSetDtoBrief;
 }
 
@@ -249,6 +243,12 @@ export interface GroupAssignmentSetSearchResultDto {
 export interface LabelCreateUpdateDto {
     color: string;
     name: string;
+}
+
+export interface ParticipantDtoFull extends ParticipantDtoBrief {
+    createdAt: Date;
+    enabled: boolean;
+    labels: LabelDto[];
 }
 
 export interface ParticipantCreateDto {
