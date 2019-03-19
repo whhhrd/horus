@@ -16,8 +16,8 @@ import {
     canvasRefreshSetsListRequestedAction,
     CanvasRefreshSetsListRequestedAction,
 } from "../../../../../state/canvas-settings/actions";
-import { courseRequestedAction } from "../../../../../state/course-selection/action";
-import { getCourse } from "../../../../../state/course-selection/selectors";
+import { courseRequestedAction } from "../../../../../state/courses/action";
+import { getCourse } from "../../../../../state/courses/selectors";
 import { buildContent } from "../../../../pagebuilder";
 
 interface GroupSetManagerProps {

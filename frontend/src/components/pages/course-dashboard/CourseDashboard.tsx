@@ -3,7 +3,7 @@ import { Alert } from "reactstrap";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { ApplicationState } from "../../../state/state";
 import { connect } from "react-redux";
-import { getCourseFull } from "../../../state/course-selection/selectors";
+import { getCourseFull } from "../../../state/courses/selectors";
 import { CourseDtoFull, AssignmentSetDtoBrief } from "../../../api/types";
 import Row from "reactstrap/lib/Row";
 import Col from "reactstrap/lib/Col";
@@ -11,7 +11,7 @@ import { NOTIFICATION_ACTION_CONNECTOR } from "../../../state/notifications/cons
 import { NotificationProps } from "../../../state/notifications/types";
 import { faTasks } from "@fortawesome/free-solid-svg-icons";
 import CanvasCard from "../../CanvasCard";
-import { courseRequestedAction } from "../../../state/course-selection/action";
+import { courseRequestedAction } from "../../../state/courses/action";
 import { buildContent } from "../../pagebuilder";
 
 interface CourseDashboardProps {

@@ -8,7 +8,11 @@ import { courseRequestSucceededAction, CoursesRequestedAction } from "./action";
 
 export function* requestCourses() {
     try {
-        const result: CourseDtoSummary[] = yield call(authenticatedFetchJSON, "GET", "courses");
+        const result: CourseDtoSummary[] = yield call(
+            authenticatedFetchJSON,
+            "GET",
+            "courses",
+        );
         yield put(coursesRequestSucceededAction(result));
     } catch (e) {
         yield put(notifyError("Failed to fetch courses"));
@@ -17,7 +21,11 @@ export function* requestCourses() {
 
 export function* requestCourse(action: CoursesRequestedAction) {
     try {
-        const result: CourseDtoFull = yield call(authenticatedFetchJSON, "GET", `courses/${action.id}`);
+        const result: CourseDtoFull = yield call(
+            authenticatedFetchJSON,
+            "GET",
+            `courses/${action.id}`,
+        );
         yield put(courseRequestSucceededAction(result));
     } catch (e) {
         yield put(notifyError("Failed to fetch courseDtoFull"));

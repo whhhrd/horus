@@ -5,7 +5,7 @@ import {
     COURSE_LIST_TEACHER,
     COURSE_LIST_TA,
     COURSE_LIST_ANY,
-} from "../../../state/course-selection/constants";
+} from "../../../state/courses/constants";
 import { Row, Col } from "reactstrap";
 import CanvasCard from "../../CanvasCard";
 import { faBook } from "@fortawesome/free-solid-svg-icons";

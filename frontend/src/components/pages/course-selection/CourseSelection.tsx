@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../state/state";
-import { getCourses } from "../../../state/course-selection/selectors";
-import { coursesRequestedAction } from "../../../state/course-selection/action";
+import { getCourses } from "../../../state/courses/selectors";
+import { coursesRequestedAction } from "../../../state/courses/action";
 import { CourseDtoSummary } from "../../../api/types";
 import CourseList from "./CourseList";
 import {
@@ -13,7 +13,7 @@ import {
     API_TA_ROLE,
     API_TEACHER_ROLE,
     COURSE_LIST_STUDENT,
-} from "../../../state/course-selection/constants";
+} from "../../../state/courses/constants";
 import { buildContent } from "../../pagebuilder";
 
 interface CourseSelectionProps {

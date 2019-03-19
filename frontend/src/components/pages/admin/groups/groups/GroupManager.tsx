@@ -18,8 +18,8 @@ import {
     canvasRefreshSetRequestedAction,
     CanvasRefreshSetRequestedAction,
 } from "../../../../../state/canvas-settings/actions";
-import { courseRequestedAction } from "../../../../../state/course-selection/action";
-import { getCourse } from "../../../../../state/course-selection/selectors";
+import { courseRequestedAction } from "../../../../../state/courses/action";
+import { getCourse } from "../../../../../state/courses/selectors";
 import { buildContent, centerSpinner } from "../../../../pagebuilder";
 import CommentThread from "../../../../comments/CommentThread";
 import { openSidebarPhoneAction } from "../../../../../state/sidebar/actions";

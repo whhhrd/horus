@@ -12,10 +12,41 @@ interface DesktopComponentProps {
     sidebarContent: JSX.Element | null;
 }
 
-class DesktopComponent extends Component<DesktopComponentProps> {
+interface DesktopComponentState {
+    width: number;
+}
+
+class DesktopComponent extends Component<DesktopComponentProps, DesktopComponentState> {
+
+    constructor(props: DesktopComponentProps) {
+        super(props);
+        this.state = { width: window.innerWidth};
+        this.updateDimensions = this.updateDimensions.bind(this);
+    }
+
+    updateDimensions() {
+        this.setState({width: window.innerWidth});
+    }
+
+    componentWillMount() {
+        this.updateDimensions();
+    }
+
+    componentDidMount() {
+        window.addEventListener("resize", this.updateDimensions);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateDimensions);
+    }
 
     render() {
         const { headerTitle, content, sidebarContent } = this.props;
+
+        if (this.state.width < 992) {
+            return <div style={{display: "none"}}/>;
+        }
+
         return (
             // A flexible body for the navigation bar, content (including sidebar)
             <div className="d-none d-lg-flex">

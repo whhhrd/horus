@@ -480,6 +480,26 @@ button {
     border: 1px solid $color_yellow;
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Label properties
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+.p-label {
+    font-size: 10pt;
+}
+
+.label-add-button {
+    @extend .bg-light;
+    border: 1px solid $color_blue;
+    color: $color_blue;
+}
+
+.label-add-button:hover {
+    background-color: $color_blue_light !important;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Overview table cell properties
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 .overview-table-cell-comment-button {
     float: right;
     color: rgba(0, 0, 0, 0.1);    

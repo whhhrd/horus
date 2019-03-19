@@ -3,18 +3,20 @@ import { combineReducers } from "redux";
 
 import authReducer from "./auth/reducer";
 import assignmentSetsReducer from "./assignments/reducer";
-import coursesReducer from "./course-selection/reducer";
+import coursesReducer from "./courses/reducer";
 import { ApplicationState } from "./state";
 import { connectRouter } from "connected-react-router";
 import notificationsReducer from "./notifications/reducers";
 import canvasReducer from "./canvas-settings/reducer";
 import navigationBarReducer from "./navigationBar/reducer";
 import groupsReducer from "./groups/reducer";
+import participantsReducer from "./participants/reducer";
 import signOffReducer from "./sign-off/reducer";
 import commentsReducer from "./comments/reducer";
 import searchReducer from "./search/reducer";
 import sidebarPhoneReducer from "./sidebar/reducer";
 import overviewReducer from "./overview/reducer";
+import labelsReducer from "./labels/reducer";
 
 // TODO: implement cleaning the state on log out.
 export const rootReducer = (history: History) => combineReducers<ApplicationState>({
@@ -31,4 +33,6 @@ export const rootReducer = (history: History) => combineReducers<ApplicationStat
     search: searchReducer,
     sidebar: sidebarPhoneReducer,
     overview: overviewReducer,
+    participants: participantsReducer,
+    labels: labelsReducer,
 } as any);

@@ -20,6 +20,7 @@ interface PhoneComponentProps {
 
 interface PhoneComponentState {
     navigationBarOpen: boolean;
+    width: number;
 }
 
 class PhoneComponent extends Component<PhoneComponentProps, PhoneComponentState> {
@@ -28,16 +29,38 @@ class PhoneComponent extends Component<PhoneComponentProps, PhoneComponentState>
         super(props);
         this.state = {
             navigationBarOpen: false,
+            width: window.innerWidth,
         };
         this.toggleNavigationBar = this.toggleNavigationBar.bind(this);
+        this.updateDimensions = this.updateDimensions.bind(this);
+    }
+
+    updateDimensions() {
+        this.setState({width: window.innerWidth});
+    }
+
+    componentWillMount() {
+        this.updateDimensions();
+    }
+
+    componentDidMount() {
+        window.addEventListener("resize", this.updateDimensions);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateDimensions);
     }
 
     toggleNavigationBar() {
         this.setState((state) => ({ navigationBarOpen: !state.navigationBarOpen }));
+        this.forceUpdate();
     }
 
     render() {
         const { headerTitle, content, sidebarContent } = this.props;
+        if (this.state.width >= 992) {
+            return <div style={{display: "none"}}/>;
+        }
         return (
             // A flexible wrapper column for the mobile content
             <div className="d-flex ContentWrapper d-lg-none flex-column">

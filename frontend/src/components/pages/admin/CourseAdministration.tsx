@@ -24,6 +24,10 @@ class CourseAdministration extends PureComponent<RouteComponentProps<any>> {
                         to={`/courses/${this.props.match.params.cid}/administration/groupsets`}>
                         <h5>Manage Group Sets</h5>
                     </Link>
+                    <Link
+                        to={`/courses/${this.props.match.params.cid}/administration/labels`}>
+                        <h5>Manage Course Labels</h5>
+                    </Link>
                 </Col>
             </Row>
         );
