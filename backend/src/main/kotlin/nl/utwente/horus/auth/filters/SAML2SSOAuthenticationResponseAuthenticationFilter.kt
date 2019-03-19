@@ -6,6 +6,7 @@ import nl.utwente.horus.auth.tokens.AuthCodeToken
 import org.pac4j.core.context.J2EContext
 import org.pac4j.saml.client.SAML2Client
 import org.pac4j.saml.credentials.SAML2Credentials
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
 import org.springframework.security.web.util.matcher.RequestMatcher
@@ -27,11 +28,15 @@ class SAML2SSOAuthenticationResponseAuthenticationFilter: AbstractAuthentication
     }
 
     override fun attemptAuthentication(request: HttpServletRequest?, response: HttpServletResponse?): Authentication {
-        val context = saml2Client.contextProvider.buildContext(J2EContext(request, response))
-        val credentials = saml2Client.profileHandler.receive(context) as SAML2Credentials
+        try {
+            val context = saml2Client.contextProvider.buildContext(J2EContext(request, response))
+            val credentials = saml2Client.profileHandler.receive(context) as SAML2Credentials
 
-        val auth = attributeExtractor.extractSAMLCredentialsToAuthCredentials(credentials)
-        return authenticationManager.authenticate(auth)
+            val auth = attributeExtractor.extractSAMLCredentialsToAuthCredentials(credentials)
+            return authenticationManager.authenticate(auth)
+        } catch (e: Exception) {
+            throw BadCredentialsException("Invalid credentials")
+        }
     }
 
     override fun successfulAuthentication(request: HttpServletRequest?, response: HttpServletResponse?, chain: FilterChain?, authResult: Authentication?) {
