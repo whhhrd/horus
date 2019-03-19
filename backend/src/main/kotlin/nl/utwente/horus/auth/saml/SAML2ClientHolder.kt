@@ -26,6 +26,8 @@ class SAML2ClientHolder: InitializingBean {
         // Forces re-authentication instead of using a previous session; used to stop the UT
         // sending authentication responses that have been generated in the past.
         configuration.isForceAuth = true
+        // Accept the last authentication to be a day old
+        configuration.maximumAuthenticationLifetime = 60 * 60 * 24
         saml2Client = SAML2Client(configuration)
         saml2Client!!.callbackUrl = configurationProperties.applicationBaseURL+HorusWebSecurityConfiguration.AUTH_LOGIN_SAML_RESPONSE_PATTERN
         if (configurationProperties.enableSamlAuth) {
