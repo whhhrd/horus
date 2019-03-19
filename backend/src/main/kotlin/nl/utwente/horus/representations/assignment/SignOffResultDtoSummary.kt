@@ -7,6 +7,7 @@ import nl.utwente.horus.representations.participant.ParticipantDtoBrief
 import java.time.ZonedDateTime
 
 class SignOffResultDtoSummary {
+    val id: Long
     val participant: ParticipantDtoBrief
     val signer: ParticipantDtoBrief
     val signedAt: ZonedDateTime
@@ -14,8 +15,9 @@ class SignOffResultDtoSummary {
     val result: SignOffResultType
     val assignment: AssignmentDtoBrief
 
-    constructor(participant: ParticipantDtoBrief, signer: ParticipantDtoBrief, signedAt: ZonedDateTime,
+    constructor(id: Long, participant: ParticipantDtoBrief, signer: ParticipantDtoBrief, signedAt: ZonedDateTime,
                 commentThread: CommentThreadDtoBrief?, result: SignOffResultType, assignment: AssignmentDtoBrief) {
+        this.id = id
         this.participant = participant
         this.signer = signer
         this.signedAt = signedAt
@@ -24,7 +26,7 @@ class SignOffResultDtoSummary {
         this.assignment = assignment
     }
 
-    constructor(asr: SignOffResult) : this(ParticipantDtoBrief(asr.participant),
+    constructor(asr: SignOffResult) : this(asr.id, ParticipantDtoBrief(asr.participant),
             ParticipantDtoBrief(asr.signedBy), asr.signedAt,
             asr.commentThread?.let { CommentThreadDtoBrief(it) }, asr.result,
             AssignmentDtoBrief(asr.assignment))

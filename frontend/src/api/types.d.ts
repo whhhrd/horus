@@ -82,6 +82,7 @@ export type SignOffResultType = "COMPLETE" | "INSUFFICIENT";
 export interface SignOffResultDtoSummary {
     assignment: AssignmentDtoBrief;
     commentThread: CommentThreadDtoBrief | null;
+    id: number;
     participant: ParticipantDtoBrief;
     result: SignOffResultType;
     signedAt: Date;

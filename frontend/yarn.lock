@@ -3270,11 +3270,6 @@ immutable@^3.8.1:
   resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.2.tgz#c2439951455bb39913daf281376f1530e104adf3"
   integrity sha1-wkOZUUVbs5kT2vKBN28VMOEErfM=
 
-immutable@^4.0.0-rc.12:
-  version "4.0.0-rc.12"
-  resolved "https://registry.yarnpkg.com/immutable/-/immutable-4.0.0-rc.12.tgz#ca59a7e4c19ae8d9bf74a97bdf0f6e2f2a5d0217"
-  integrity sha512-0M2XxkZLx/mi3t8NVwIm1g8nHoEmM9p9UBl/G9k4+hm0kBgOVdMV/B3CY5dQ8qG8qc80NN4gDV4HQv6FTJ5q7A==
-
 import-local@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/import-local/-/import-local-2.0.0.tgz#55070be38a5993cf18ef6db7e961f5bee5c5a09d"
@@ -4752,6 +4747,11 @@ pkg-dir@^3.0.0:
   integrity sha512-/E57AYkoeQ25qkxMj5PBOVgF8Kiu/h7cYS30Z5+R7WaiCCBfLq58ZI/dSeaEKb9WVJV5n/03QwrN3IeWIFllvw==
   dependencies:
     find-up "^3.0.0"
+
+placeholder-loading@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/placeholder-loading/-/placeholder-loading-0.2.0.tgz#b9e111ab773d0a9697c11ebfb2b08404a7b1ecd0"
+  integrity sha512-HAQyV3E+7WGpeuA0cYVIpC9dy9TFUSkdhW1zrUDhQDzcdGNy0ZrpY1LNokIjthI+FNTAUtot7kfpB5rknE304A==
 
 popper.js@^1.14.1:
   version "1.14.7"

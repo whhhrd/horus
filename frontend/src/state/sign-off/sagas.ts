@@ -1,15 +1,21 @@
 import { authenticatedFetchJSON } from "../../api";
-import { SignOffResultDtoCompact, SignOffResultPatchDto } from "../../api/types";
+import {
+    SignOffResultPatchDto,
+    SignOffResultDtoSummary,
+} from "../../api/types";
 import { put, takeEvery, call, all } from "redux-saga/effects";
 import {
     signOffResultsRequestSucceededAction,
     SignOffResultsRequestedAction,
     signOffSaveRequestSucceededAction,
+    SignOffHistoryRequestedAction,
+    signOffHistoryRequestSucceededAction,
 } from "./actions";
 import { notifyError } from "../notifications/constants";
 import {
     SIGN_OFF_RESULTS_REQUESTED_ACTION,
     SIGN_OFF_SAVE_REQUESTED_ACTION,
+    SIGN_OFF_HISTORY_REQUESTED_ACTION,
 } from "./constants";
 import { SignOffChangeResult, SignOffChange } from "./types";
 import { SignOffSaveRequestedAction } from "./actions";
@@ -43,11 +49,29 @@ export function* requestSignoffs(action: SignOffResultsRequestedAction) {
     }
 }
 
+export function* requestSignOffHistory(action: SignOffHistoryRequestedAction) {
+    try {
+        const result: SignOffResultDtoSummary[] = yield call(
+            authenticatedFetchJSON,
+            "GET",
+            `signoff/history`,
+            {
+                participantId: action.participantId,
+                assignmentId: action.assignmentId,
+            },
+        );
+        yield put(signOffHistoryRequestSucceededAction(result));
+    } catch (e) {
+        yield put(notifyError("Failed to fetch signoff history"));
+    }
+}
+
 export function* pushChanges(action: SignOffSaveRequestedAction) {
     const dto: SignOffResultPatchDto = {
         create: [],
         delete: [],
     };
+
     action.changes.map((change: SignOffChange) => {
         if (change.result === SignOffChangeResult.Unattempted) {
             dto.delete.push({
@@ -66,8 +90,9 @@ export function* pushChanges(action: SignOffSaveRequestedAction) {
             });
         }
     });
+
     try {
-        const signoffs: SignOffResultDtoCompact[] = yield call(
+        const signoffs: SignOffResultDtoSummary[] = yield call(
             authenticatedFetchJSON,
             "PATCH",
             `signoff/${action.asid}`,
@@ -84,4 +109,5 @@ export function* pushChanges(action: SignOffSaveRequestedAction) {
 export default function* signOffSagas() {
     yield takeEvery(SIGN_OFF_RESULTS_REQUESTED_ACTION, requestSignoffs);
     yield takeEvery(SIGN_OFF_SAVE_REQUESTED_ACTION, pushChanges);
+    yield takeEvery(SIGN_OFF_HISTORY_REQUESTED_ACTION, requestSignOffHistory);
 }

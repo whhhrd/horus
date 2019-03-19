@@ -20,6 +20,7 @@ import { centerSpinner } from "../../pagebuilder";
 import { ApplicationState } from "../../../state/state";
 import { connect } from "react-redux";
 import { getCommentThread } from "../../../state/comments/selectors";
+import SignOffDetails from "./SignOffDetails";
 
 interface SignoffResultTableCellProps {
     signOffState: SignOffChangeResult;
@@ -112,6 +113,8 @@ class SignoffResultTableCell extends Component<SignoffResultTableCellProps> {
         } else {
             return (
                 <div>
+                    <h4>Sign-off details:</h4>
+                    <SignOffDetails participantId={participant.id} assignmentId={assignment.id} />
                     <h4>Comments:</h4>
                     <CommentThread
                         commentThreadId={

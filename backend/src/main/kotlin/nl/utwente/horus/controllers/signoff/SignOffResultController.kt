@@ -28,8 +28,8 @@ class SignOffResultController {
     lateinit var userDetailService: HorusUserDetailService
 
     @PatchMapping(path = ["/{assignmentSetId}"])
-    fun createSignOff(@PathVariable assignmentSetId: Long, @RequestBody dto: SignOffResultPatchDto): List<SignOffResultDtoCompact> {
-        return signOffService.processSignOffs(dto, assignmentSetId).map { SignOffResultDtoCompact(it) }
+    fun createSignOff(@PathVariable assignmentSetId: Long, @RequestBody dto: SignOffResultPatchDto): List<SignOffResultDtoSummary> {
+        return signOffService.processSignOffs(dto, assignmentSetId).map { SignOffResultDtoSummary(it) }
 
     }
 

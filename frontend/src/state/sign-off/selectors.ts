@@ -15,3 +15,6 @@ export const getRemoteSignoffs = (state: ApplicationState) =>
     getSignoffDetails(state) == null
         ? null
         : getSignoffDetails(state)!.signOffs;
+
+export const getSignOffHistory = (state: ApplicationState) =>
+    state.signOffs == null ? null : state.signOffs.signOffHistory;

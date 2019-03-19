@@ -2,6 +2,7 @@ import {
     SignOffResultDtoCompact,
     AssignmentSetDtoFull,
     GroupDtoFull,
+    SignOffResultDtoSummary,
 } from "../../api/types";
 
 export enum SignOffChangeResult {
@@ -12,6 +13,7 @@ export enum SignOffChangeResult {
 
 export interface SignOffState {
     signOffs: SignOffDetails | null;
+    signOffHistory: SignOffResultDtoSummary[] | null;
 }
 
 export interface SignOffDetails {
