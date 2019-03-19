@@ -40,6 +40,14 @@ interface SignoffResultTableCellProps {
 }
 
 class SignoffResultTableCell extends Component<SignoffResultTableCellProps> {
+
+    lastClick: number;
+
+    constructor(props: SignoffResultTableCellProps)  {
+        super(props);
+        this.lastClick = 0;
+    }
+
     render() {
         const { signOffState, unsaved, disabled } = this.props;
         let className;
@@ -59,14 +67,13 @@ class SignoffResultTableCell extends Component<SignoffResultTableCellProps> {
         return (
             <td
                 className={className}
-                onDoubleClick={() => this.onClick()}
+                onClick={() => this.onClick()}
                 style={{ cursor: disabled ? "default" : "pointer" }}
             >
                 {!unsaved && icon != null && (
                     <FontAwesomeIcon icon={icon} size="lg" />
                 )}
                 {unsaved && "SAVING..."}
-
                 {this.props.onCommentClick && this.props.signOff != null && (
                     <div
                         onClick={() =>
@@ -83,12 +90,18 @@ class SignoffResultTableCell extends Component<SignoffResultTableCellProps> {
         );
     }
 
+     /**
+      * This non-standard complicated double click detection is there because
+      * at the time of writing, Safari on iOS (and also Chrome on the same) did
+      * not support the ondblclick event, and hence React's onDoubleClick didn't work.
+      */
     private onClick() {
         const { onClick, disabled } = this.props;
-
-        if (!disabled && onClick != null) {
+        const time  = (new Date()).getTime();
+        if (!disabled && onClick != null && (time - this.lastClick) < 300) {
             onClick();
         }
+        this.lastClick = time;
     }
 
     private buildComments() {

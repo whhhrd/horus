@@ -22,12 +22,20 @@ interface AssignmentTableCellProps {
 }
 
 class AssignmentTableCell extends Component<AssignmentTableCellProps> {
+
+    lastClick: number;
+
+    constructor(props: AssignmentTableCellProps)  {
+        super(props);
+        this.lastClick = 0;
+    }
+
     render() {
         const { name } = this.props.assignment;
         const { disabled } = this.props;
         return (
             <td
-                onDoubleClick={() => this.onClick()}
+                onClick={() => this.onClick()}
                 className="sign-off-table-heading sign-off-table-left-column"
                 style={{ cursor: disabled ? "default" : "pointer" }}
             >
@@ -48,12 +56,18 @@ class AssignmentTableCell extends Component<AssignmentTableCellProps> {
         );
     }
 
+    /**
+     * This non-standard complicated double click detection is there because
+     * at the time of writing, Safari on iOS (and also Chrome on the same) did
+     * not support the ondblclick event, and hence React's onDoubleClick didn't work.
+     */
     private onClick() {
         const { onClick, disabled } = this.props;
-
-        if (!disabled && onClick != null) {
+        const time  = (new Date()).getTime();
+        if (!disabled && onClick != null && (time - this.lastClick) < 300) {
             onClick();
         }
+        this.lastClick = time;
     }
 
     private buildComments() {
