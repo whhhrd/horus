@@ -62,6 +62,17 @@ button {
     transform: rotateX(180deg);
 }
 
+.unselectable {
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    /*
+      Introduced in IE 10.
+    */
+    -ms-user-select: none;
+    user-select: none;
+ }
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * Extended/overwritten reactstrap classes
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -290,6 +301,7 @@ button {
 }
 
 .sign-off-table-left-column {
+    @extend .unselectable;
     position: sticky;
     position: -webkit-sticky;
     left: -20px;
