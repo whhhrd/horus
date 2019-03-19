@@ -1,4 +1,4 @@
-import React, { PureComponent, ReactNode } from "react";
+import React, { ReactNode, Component } from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import { buildContent } from "../../pagebuilder";
@@ -29,6 +29,12 @@ import {
     SignOffOverviewResultsFetchRequestedAction,
 } from "../../../state/overview/types";
 import { getAssignmentSet } from "../../../state/assignments/selectors";
+import { Action } from "redux";
+import { openSidebarPhoneAction } from "../../../state/sidebar/actions";
+import GroupTableCell from "./GroupTableCell";
+import ParticipantTableCell from "./ParticipantTableCell";
+import AssignmentTableCell from "./AssignmentTableCell";
+import SignoffResultTableCell from "./SignoffResultTableCell";
 
 interface SignOffOverviewProps {
     results: SignOffResultsMap | null;
@@ -45,21 +51,40 @@ interface SignOffOverviewProps {
         courseId: number,
         assignmentSetId: number,
     ) => SignOffOverviewResultsFetchRequestedAction;
+    openSideBarPhone: () => Action;
+}
+
+interface SignOffOverviewState {
+    comments: JSX.Element | null;
 }
 
 interface Row {
-    group?: GroupDtoFull;
+    metaGroup?: GroupDtoFull;
     participant?: ParticipantDtoBrief;
+    group?: GroupDtoFull;
 }
 
-class SignOffOverview extends PureComponent<
-    SignOffOverviewProps & RouteComponentProps<any>
+class SignOffOverview extends Component<
+    SignOffOverviewProps & RouteComponentProps<any>,
+    SignOffOverviewState
 > {
     static rowHeight = 30;
     static columnWidth = 50;
 
+    constructor(props: SignOffOverviewProps & RouteComponentProps<any>) {
+        super(props);
+        this.state = {
+            comments: null,
+        };
+        this.setComments = this.setComments.bind(this);
+    }
+
     render() {
-        return buildContent("Sign-Off Overview", this.buildContent());
+        return buildContent(
+            "Sign-Off Overview",
+            this.buildContent(),
+            this.buildSidebar(),
+        );
     }
 
     componentDidMount() {
@@ -73,9 +98,11 @@ class SignOffOverview extends PureComponent<
 
     private buildContent(): JSX.Element | null {
         const assignmentSetId = Number(this.props.match.params.asid);
+
         if (this.props.assignmentSet(assignmentSetId) == null) {
             return null;
         }
+
         const assignmentSet = this.props.assignmentSet(assignmentSetId);
         const rowArray = this.groupsToRowArray(this.props.groups);
         return (
@@ -107,6 +134,20 @@ class SignOffOverview extends PureComponent<
         );
     }
 
+    private buildSidebar() {
+        if (this.state.comments != null) {
+            return this.state.comments;
+        } else {
+            return (
+                <div className="d-flex w-100 h-100 align-items-center">
+                    <h4 className="d-block w-100 text-center">
+                        Nothing to show here.
+                    </h4>
+                </div>
+            );
+        }
+    }
+
     private getRowHeight(rowArray: Row[], { index }: Index): number {
         if (index === 0) {
             return 70;
@@ -120,9 +161,9 @@ class SignOffOverview extends PureComponent<
     private getColumnWidth({ index }: Index): number {
         switch (index) {
             case 0:
-                return 80;
+                return 100;
             case 1:
-                return 150;
+                return 160;
             default:
                 return SignOffOverview.columnWidth;
         }
@@ -131,7 +172,7 @@ class SignOffOverview extends PureComponent<
     private isSeparatorRow(rows: Row[], index: number): boolean {
         return (
             index > 0 &&
-            (rows[index].participant == null && rows[index].group == null)
+            (rows[index].participant == null && rows[index].metaGroup == null)
         );
     }
 
@@ -151,21 +192,21 @@ class SignOffOverview extends PureComponent<
         } else {
             className = "sign-off-overview-cell";
         }
-        if (row.group != null && columnIndex === 0) {
+        if (row.group != null && columnIndex === 0 && row.metaGroup != null) {
             return (
-                <div
+                <GroupTableCell
                     style={{
                         ...style,
                         height:
-                            row.group.participants.length *
+                            row.metaGroup.participants.length *
                             SignOffOverview.rowHeight,
                         zIndex: 50,
                     }}
+                    group={row.group}
                     key={key}
                     className={className}
-                >
-                    {row.group.name}
-                </div>
+                    onCommentClick={this.setComments}
+                />
             );
         }
         if (columnIndex === 0 && rowIndex === 0) {
@@ -174,30 +215,55 @@ class SignOffOverview extends PureComponent<
         if (columnIndex === 1 && rowIndex === 0) {
             content = "Name";
         }
-        if (columnIndex === 1 && row.participant != null) {
-            content = row.participant.person.fullName;
+        if (columnIndex === 1 && row.participant != null && row.group != null) {
+            // return row.participant.person.fullName;
+            return (
+                <ParticipantTableCell
+                    key={key}
+                    style={style}
+                    className={className}
+                    participant={row.participant}
+                    onCommentClick={this.setComments}
+                    group={row.group}
+                />
+            );
         }
         if (rowIndex === 0 && columnIndex > 1) {
-            content = assignments[columnIndex - 2].name;
+            const assignment = assignments[columnIndex - 2];
+            return (
+                <AssignmentTableCell
+                    assignment={assignment}
+                    key={key}
+                    onCommentClick={this.setComments}
+                    style={style}
+                    className={className}
+                />
+            );
         }
         if (
             row.participant != null &&
+            row.group != null &&
             columnIndex > 1 &&
             this.props.results != null
         ) {
             const pMap = this.props.results.get(row.participant.id);
+            const assignment = assignments[columnIndex - 2];
             const result =
-                pMap != null ? pMap.get(assignments[columnIndex - 2].id) : null;
+                pMap != null ? pMap.get(assignment.id) : null;
             if (result != null) {
-                switch (result.result) {
-                    case "COMPLETE":
-                        className = "sign-off-overview-content-cell-complete";
-                        break;
-                    case "INSUFFICIENT":
-                        className =
-                            "sign-off-overview-content-cell-insufficient";
-                        break;
-                }
+                return (
+                    <SignoffResultTableCell
+                        style={style}
+                        className={className}
+                        assignment={assignment}
+                        group={row.group}
+                        key={`res-${result.id}`}
+                        onCommentClick={this.setComments}
+                        participant={row.participant}
+                        signOff={result}
+                        signOffState={result.result}
+                    />
+                );
             }
         }
         return (
@@ -207,6 +273,11 @@ class SignOffOverview extends PureComponent<
         );
     }
 
+    private setComments(comments: JSX.Element) {
+        this.setState((_) => ({ comments }));
+        this.props.openSideBarPhone();
+    }
+
     private groupsToRowArray(groups: GroupDtoFull[]): Row[] {
         const arr: Row[] = [{}];
         groups
@@ -214,9 +285,9 @@ class SignOffOverview extends PureComponent<
             .forEach((group) => {
                 group.participants.forEach((participant, pIndex) => {
                     if (pIndex === 0) {
-                        arr.push({ group, participant });
+                        arr.push({ metaGroup: group, group, participant });
                     } else {
-                        arr.push({ participant });
+                        arr.push({ group, participant });
                     }
                 });
                 arr.push({});
@@ -237,6 +308,7 @@ export default withRouter(
             fetchAssignmentSet: assignmentSetFetchRequestedAction,
             fetchOverviewGroups: overviewGroupsFetchRequestedAction,
             fetchOverviewResults: overviewSignOffResultsRequestedAction,
+            openSideBarPhone: openSidebarPhoneAction,
         },
     )(SignOffOverview),
 );

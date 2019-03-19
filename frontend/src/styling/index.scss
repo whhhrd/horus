@@ -358,7 +358,7 @@ button {
 }
 
 .icon-highlighted {
-    color: inherit;
+    color: inherit !important;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -477,5 +477,36 @@ button {
 .sign-off-overview-content-cell-insufficient {
     @extend .sign-off-overview-cell;
     background: $color_yellow_light;
+    border: 1px solid $color_yellow;
+}
+
+.overview-table-cell-comment-button {
+    float: right;
+    color: rgba(0, 0, 0, 0.1);    
+}
+
+.overview-table-cell-comment-button:hover {
+    cursor: pointer;
+    color: inherit;
+}
+
+.overview-table-cell-sign-off-comment-button {
+    @extend .overview-table-cell-comment-button;
+    float: none !important;
+}
+
+.overview-table-cell-sign-off-comment-button:hover {
+    @extend .overview-table-cell-comment-button:hover;
+}
+
+.overview-table-cell-complete {
+    background-color: $color_green_light;
+    color: $color_green_text;
+    border: 1px solid $color_green;
+}
+
+.overview-table-cell-insufficient {
+    background-color: $color_yellow_light;
+    color: $color_yellow_text;
     border: 1px solid $color_yellow;
 }
