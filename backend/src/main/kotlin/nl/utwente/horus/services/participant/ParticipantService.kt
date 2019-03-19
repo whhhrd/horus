@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.util.stream.Stream
 
 @Component
 @Transactional
@@ -79,6 +80,11 @@ class ParticipantService {
         }
         return result
     }
+
+    fun getCourseParticipationsStream(course: Course): Stream<Participant> {
+        return participantRepository.findAllByCourseSorted(course)
+    }
+
     fun createParticipant(courseId: Long, dto: ParticipantCreateDto): Participant {
         return createParticipant(personService.getPersonById(dto.personId),
                 courseService.getCourseById(courseId), dto.roleId)

@@ -1,9 +1,6 @@
 package nl.utwente.horus.services.signoff
 
-import nl.utwente.horus.entities.assignment.Assignment
-import nl.utwente.horus.entities.assignment.AssignmentSet
-import nl.utwente.horus.entities.assignment.SignOffResult
-import nl.utwente.horus.entities.assignment.SignOffResultRepository
+import nl.utwente.horus.entities.assignment.*
 import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.comment.CommentType
 import nl.utwente.horus.entities.group.Group
@@ -68,11 +65,15 @@ class SignOffService {
     }
 
     fun getAssignmentSetSignOffResults(assignmentSet: AssignmentSet): List<SignOffResult> {
-        return signOffResultRepository.getAllByAssignmentAssignmentSetAndArchivedByIsNull(assignmentSet)
+        return signOffResultRepository.getAllByAssignmentAssignmentSetAndArchivedByIsNullOrderByAssignmentOrderKey(assignmentSet)
     }
 
     fun getSignOffHistory(participantId: Long, assignmentId: Long): List<SignOffResult> {
         return signOffResultRepository.getAllByParticipantIdAndAssignmentId(participantId, assignmentId)
+    }
+
+    fun getUnarchivedByParticipantAndAssignmentSet(participant: Participant, assignmentSet: AssignmentSet): List<SignOffResultType?> {
+        return signOffResultRepository.getUnarchivedByParticipantAndAssignmentSet(participant, assignmentSet)
     }
 
     fun getSignOffsByParticipant(participant: Participant): List<SignOffResult> {

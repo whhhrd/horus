@@ -15,8 +15,11 @@ interface SignOffResultRepository: JpaRepository<SignOffResult, Long> {
 
     fun getAllByParticipant(participant: Participant): List<SignOffResult>
 
+    @Query("SELECT r.result FROM Assignment a LEFT JOIN SignOffResult r ON r.assignment = a.id AND r.participant = ?1 AND r.archivedAt IS NULL WHERE a.assignmentSet = ?2 ORDER BY a.orderKey")
+    fun getUnarchivedByParticipantAndAssignmentSet(participant: Participant, assignmentSet: AssignmentSet): List<SignOffResultType?>
+
     // TODO: check performance and optimize
-    fun getAllByAssignmentAssignmentSetAndArchivedByIsNull(assignmentSet: AssignmentSet): List<SignOffResult>
+    fun getAllByAssignmentAssignmentSetAndArchivedByIsNullOrderByAssignmentOrderKey(assignmentSet: AssignmentSet): List<SignOffResult>
 
     fun getAllByParticipantIdAndAssignmentId(participantId: Long, assignmentId: Long): List<SignOffResult>
 

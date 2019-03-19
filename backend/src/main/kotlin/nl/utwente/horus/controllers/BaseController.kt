@@ -22,8 +22,11 @@ import nl.utwente.horus.services.group.GroupService
 import nl.utwente.horus.services.participant.LabelService
 import nl.utwente.horus.services.participant.ParticipantService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.io.OutputStream
+import javax.servlet.http.HttpServletResponse
 import kotlin.reflect.KClass
 
 typealias EntityFetcher<T> = (id: Long) -> T
@@ -59,6 +62,8 @@ abstract class BaseController {
     )
 
     companion object {
+        const val XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
         val TYPES_MAP = mapOf(
                 AssignmentSet::class to HorusResource.COURSE_ASSIGNMENTSET,
                 Comment::class to HorusResource.COURSE_COMMENT_STAFFONLY,
@@ -175,5 +180,14 @@ abstract class BaseController {
             ) as EntityBundle<T>
         }
         return null
+    }
+
+    fun sendFile(response: HttpServletResponse, byteWriter: (OutputStream) -> Unit, mime: String, fileName: String) {
+        response.contentType = mime
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=$fileName")
+        byteWriter(response.outputStream)
+        response.outputStream.flush()
+        response.outputStream.close()
+
     }
 }

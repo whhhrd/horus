@@ -29,11 +29,15 @@ import nl.utwente.horus.services.course.CourseService
 import nl.utwente.horus.services.group.GroupService
 import nl.utwente.horus.services.participant.LabelService
 import nl.utwente.horus.services.participant.ParticipantService
+import nl.utwente.horus.services.sheets.ExportService
 import nl.utwente.horus.services.signoff.SignOffService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+import javax.servlet.http.HttpServletResponse
 
 @RestController
 @RequestMapping(path=["/api/courses"])
@@ -60,6 +64,9 @@ class CourseController: BaseController() {
 
     @Autowired
     lateinit var participantService: ParticipantService
+
+    @Autowired
+    lateinit var exportService: ExportService
 
     @GetMapping(path = ["", "/"], produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
     fun listCourses(): List<CourseDtoSummary> {
@@ -164,6 +171,14 @@ class CourseController: BaseController() {
 
         val participation = participantService.getCurrentParticipationInCourse(courseId)
         return CourseDtoFull(courseService.getCourseById(courseId), RoleDtoBrief(participation.role))
+    }
+
+    @GetMapping(path = ["/{courseId}/export"])
+    fun getCourseSheet(@PathVariable courseId: Long, response: HttpServletResponse) {
+        val course = courseService.getCourseById(courseId)
+        val book = exportService.createCourseBook(course)
+        val fileName = "${course.name}-${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}.xlsx"
+        sendFile(response, book::write, BaseController.XLSX_MIME, fileName)
     }
 
     @PostMapping(path = ["/{courseId}/labels"])
