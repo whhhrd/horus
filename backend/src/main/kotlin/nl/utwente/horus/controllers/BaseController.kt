@@ -269,7 +269,7 @@ abstract class BaseController {
 
     fun sendFile(response: HttpServletResponse, byteWriter: (OutputStream) -> Unit, mime: String, fileName: String) {
         response.contentType = mime
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=$fileName")
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$fileName\"")
         byteWriter(response.outputStream)
         response.outputStream.flush()
         response.outputStream.close()
