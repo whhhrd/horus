@@ -42,19 +42,19 @@ const LOCAL_STORAGE_REFRESH_TOKEN_KEY = "refreshToken";
 
 interface AuthenticationState {
     authenticated: boolean;
-    accessToken?: string;
-    refreshToken?: string;
+    accessToken: string | null;
+    refreshToken: string | null;
 }
 let authenticationState: AuthenticationState = {
     authenticated: false,
-    accessToken: undefined,
-    refreshToken: undefined,
+    accessToken: null,
+    refreshToken: null,
 };
 
 function buildAuthenticationState(
     authenticated: boolean,
-    refreshToken?: string,
-    accessToken?: string,
+    refreshToken: string | null = null,
+    accessToken: string | null = null,
 ): AuthenticationState {
     return {
         authenticated,
@@ -67,7 +67,7 @@ function loadAuthFromLocalStorage() {
     const refreshToken = localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN_KEY);
     authenticationState = {
         ...authenticationState,
-        refreshToken: refreshToken != null ? refreshToken : undefined,
+        refreshToken: refreshToken != null ? refreshToken : null,
     };
 }
 
@@ -82,6 +82,10 @@ function clearAuthTokenFromStorage() {
     localStorage.removeItem(
         LOCAL_STORAGE_REFRESH_TOKEN_KEY,
     );
+}
+
+export function getCurrentAccessToken(): string | null {
+    return authenticationState.accessToken;
 }
 
 export function* authenticationFlow() {
@@ -159,11 +163,7 @@ function* authenticationFlowLoop() {
                 ),
             );
         } else if (authenticationFailure != null) {
-            authenticationState = buildAuthenticationState(
-                false,
-                undefined,
-                undefined,
-            );
+            authenticationState = buildAuthenticationState(false);
 
             yield put(
                 eventAuthenticationFailed(
@@ -172,11 +172,7 @@ function* authenticationFlowLoop() {
                 ),
             );
         } else {
-            authenticationState = buildAuthenticationState(
-                false,
-                undefined,
-                undefined,
-            );
+            authenticationState = buildAuthenticationState(false);
 
             yield put(eventAuthenticationCanceled(authenticationType));
         }
@@ -200,11 +196,7 @@ function* authenticationFlowLoop() {
                 clearAuthTokenFromStorage();
                 yield fork(logout, authenticationState.refreshToken!);
 
-                authenticationState = buildAuthenticationState(
-                    false,
-                    undefined,
-                    undefined,
-                );
+                authenticationState = buildAuthenticationState(false);
 
                 yield put(eventLogoutCompleted());
 
@@ -231,11 +223,7 @@ function* authenticationFlowLoop() {
                 try {
                     yield fork(logout, authenticationState.refreshToken!);
                 } finally {
-                    authenticationState = buildAuthenticationState(
-                        false,
-                        undefined,
-                        undefined,
-                    );
+                    authenticationState = buildAuthenticationState(false);
 
                     yield put(eventAuthenticationRefreshCompleted());
 
@@ -245,11 +233,7 @@ function* authenticationFlowLoop() {
                 clearAuthTokenFromStorage();
                 yield fork(logout, authenticationState.refreshToken!);
 
-                authenticationState = buildAuthenticationState(
-                    false,
-                    undefined,
-                    undefined,
-                );
+                authenticationState = buildAuthenticationState(false);
 
                 yield put(eventAuthenticationRefreshCompleted());
 

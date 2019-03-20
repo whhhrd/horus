@@ -25,4 +25,5 @@ export {
     authenticationFlow,
     authenticatedFetch,
     authenticatedFetchJSON,
+    getCurrentAccessToken,
 } from "./sagas";
