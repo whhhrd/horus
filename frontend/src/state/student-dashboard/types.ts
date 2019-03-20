@@ -1,3 +1,5 @@
 import { StudentDashboardDto } from "../../api/types";
 
-export type StudentDashboardState = StudentDashboardDto;
+export interface StudentDashboardState {
+    dashboard: StudentDashboardDto | null;
+}
