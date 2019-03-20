@@ -58,25 +58,33 @@ export interface AppProps {
     push: Push;
     pathname: string;
     search: string;
-}
-
-export interface AppState {
     loggedIn: boolean;
 }
 
-class App extends React.Component<AppProps & RouteComponentProps, AppState> {
+class App extends React.Component<AppProps & RouteComponentProps> {
     static HOME_PATH = PATH_COURSES;
 
     componentDidMount() {
         let pathname = this.props.pathname;
-        const { hash, search } = this.props.location;
+        const { setLoginRedirect, loadAuthentication, location: { hash, search } } = this.props;
         if (pathname === "/") {
             this.props.push(App.HOME_PATH);
             pathname = App.HOME_PATH;
         }
         if (pathname !== PATH_LOGIN) {
-            this.props.setLoginRedirect(`${pathname}${search}${hash}`);
-            this.props.loadAuthentication();
+            setLoginRedirect(`${pathname}${search}${hash}`);
+        }
+        loadAuthentication();
+    }
+
+    componentDidUpdate() {
+        const {  pathname, setLoginRedirect, loggedIn, location: { hash, search } } = this.props;
+        if ( !loggedIn && pathname !== PATH_LOGIN ) {
+            setLoginRedirect(`${pathname}${search}${hash}`);
+            this.props.push(PATH_LOGIN);
+        }
+        if (loggedIn && pathname === PATH_LOGIN) {
+            this.props.push(App.HOME_PATH);
         }
     }
 
@@ -89,7 +97,12 @@ class App extends React.Component<AppProps & RouteComponentProps, AppState> {
                 </div>
             );
         } else {
-            return <Login />;
+            return (
+                <div>
+                    <NotificationList />
+                    <Login />
+                </div>
+            );
         }
     }
 

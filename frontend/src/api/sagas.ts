@@ -14,6 +14,7 @@ import {
     AuthenticationType,
     API_AUTH_AUTHENTICATION_COMPLETED,
     API_AUTH_AUTHENTICATION_CANCELED,
+    APIError,
 } from "./constants";
 import { FetchFunction, fetchJSON } from "./util";
 
@@ -74,6 +75,12 @@ function saveAuthTokenToStorage() {
     localStorage.setItem(
         LOCAL_STORAGE_REFRESH_TOKEN_KEY,
         authenticationState.refreshToken!,
+    );
+}
+
+function clearAuthTokenFromStorage() {
+    localStorage.removeItem(
+        LOCAL_STORAGE_REFRESH_TOKEN_KEY,
     );
 }
 
@@ -190,7 +197,8 @@ function* authenticationFlowLoop() {
                     authenticationState.refreshToken!,
                 );
             } else {
-                yield call(logout, authenticationState.refreshToken!);
+                clearAuthTokenFromStorage();
+                yield fork(logout, authenticationState.refreshToken!);
 
                 authenticationState = buildAuthenticationState(
                     false,
@@ -217,10 +225,11 @@ function* authenticationFlowLoop() {
 
                 yield put(eventAuthenticationRefreshCompleted());
             } else if (authRefreshFailure != null) {
+                clearAuthTokenFromStorage();
                 yield put(requestForcedLogout(authRefreshFailure.error));
 
                 try {
-                    yield call(logout, authenticationState.refreshToken!);
+                    yield fork(logout, authenticationState.refreshToken!);
                 } finally {
                     authenticationState = buildAuthenticationState(
                         false,
@@ -233,7 +242,8 @@ function* authenticationFlowLoop() {
                     yield put(eventLogoutCompleted());
                 }
             } else {
-                yield call(logout, authenticationState.refreshToken!);
+                clearAuthTokenFromStorage();
+                yield fork(logout, authenticationState.refreshToken!);
 
                 authenticationState = buildAuthenticationState(
                     false,
@@ -473,7 +483,7 @@ export function* authenticatedFetch(
             options,
         );
     } catch (error) {
-        if (error.status !== 401) {
+        if (!(error instanceof APIError && error.code === 401)) {
             throw error;
         }
     }
@@ -485,9 +495,9 @@ export function* authenticatedFetch(
     authState = { ...authenticationState };
 
     if (!authState.authenticated) {
-        throw Error("js.fetch.auth.Unauthorized");
+        throw Error("Current API state is unauthenticated");
     } else if (useRefreshToken) {
-        throw Error("js.fetch.auth.InvalidState");
+        throw Error("Invalid state");
     }
 
     token = authState.accessToken;
@@ -505,8 +515,8 @@ export function* authenticatedFetch(
             options,
         );
     } catch (error) {
-        if (error.status === 401) {
-            throw Error("js.fetch.auth.InvalidState");
+        if (error instanceof APIError && error.code === 401) {
+            throw Error("Invalid state");
         } else {
             throw error;
         }

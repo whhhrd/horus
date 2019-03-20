@@ -31,3 +31,12 @@ export enum AuthenticationType {
     PASSWORD_LOGIN,
     AUTH_CODE,
 }
+
+export class APIError extends Error {
+    code: number | null;
+    constructor(message: string, code: number | null = null) {
+        super(message);
+        this.name = "APIError";
+        this.code = code;
+    }
+}

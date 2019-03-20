@@ -3,6 +3,7 @@ import { notificationAction } from "./actions";
 
 export const NOTIFICATION_REQUESTED_ACTION: string = "notifications/NOTIFICATION_REQUESTED_ACTION";
 export const NOTIFICATION_DISMISSED_ACTION: string = "notifications/NOTIFICATION_DISMISSED_ACTION";
+export const NOTIFICATIONS_RESET_ACTION: string = "notifications/NOTIFICATIONS_RESET";
 
 export const NOTIFICATION_TIMEOUT = 4000;
 

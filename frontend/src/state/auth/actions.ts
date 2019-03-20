@@ -7,6 +7,8 @@ import {
     LOGIN_SUCCEEDED_ACTION,
     SET_LOGIN_REDIRECT_REQUESTED_ACTION,
     AUTHORITIES_UPDATED_ACTION,
+    LOGOUT_COMPLETED_ACTION,
+    LOGOUT_REQUESTED_ACTION,
 } from "./constants";
 import { LoginForm } from "./types";
 import { HorusAuthorityDto } from "../../api/types";
@@ -43,3 +45,11 @@ export const loadAuthenticationAction = () => ({ type: LOAD_AUTHENTICATION_REQUE
 
 export const authoritiesUpdatedAction = (authorities: HorusAuthorityDto[]) => (
     { type: AUTHORITIES_UPDATED_ACTION, authorities});
+
+export const logoutCompletedAction = () => (
+    { type: LOGOUT_COMPLETED_ACTION }
+);
+
+export const logoutRequestedAction = () => (
+    { type: LOGOUT_REQUESTED_ACTION }
+);

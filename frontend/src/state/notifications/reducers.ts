@@ -1,6 +1,10 @@
 import { NotificationsState, NotificationState } from "./types";
 import { NotificationAction } from "./actions";
-import { NOTIFICATION_DISMISSED_ACTION, NOTIFICATION_REQUESTED_ACTION } from "./constants";
+import {
+    NOTIFICATION_DISMISSED_ACTION,
+    NOTIFICATION_REQUESTED_ACTION,
+    NOTIFICATIONS_RESET_ACTION,
+} from "./constants";
 const initialState: NotificationsState = {
     notifications: [],
     nextId: 0,
@@ -12,6 +16,8 @@ export default function notificationsReducer(state: NotificationsState,
         return initialState;
     }
     switch (action.type) {
+        case NOTIFICATIONS_RESET_ACTION:
+            return initialState;
         case NOTIFICATION_DISMISSED_ACTION:
             return {
                 notifications: state.notifications.filter((notification: NotificationState) =>

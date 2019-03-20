@@ -1,26 +1,40 @@
-import React, { Component } from "react";
+import React, { Component, KeyboardEvent } from "react";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
 import queryString from "query-string";
-import { Row, Col, Form, Button, Input, Label, FormGroup, Jumbotron, Modal } from "reactstrap";
+import {
+    Row,
+    Col,
+    Form,
+    Button,
+    Input,
+    Label,
+    FormGroup,
+    Jumbotron,
+    Modal,
+} from "reactstrap";
 import { Formik, Field } from "formik";
 
 import { LoginForm } from "../../../state/auth/types";
-import { isLoggedIn } from "../../../state/auth/selectors";
+import { isLoggedIn, getLoginError } from "../../../state/auth/selectors";
 import { ApplicationState } from "../../../state/state";
 import { loginAction } from "../../../state/auth/actions";
 import Spinner from "reactstrap/lib/Spinner";
 
 export interface LoginProps {
-    logIn: (form: LoginForm | null, code: string | null) => {
+    logIn: (
+        form: LoginForm | null,
+        code: string | null,
+    ) => {
         type: string;
         form: LoginForm | null;
-        code: string | null
+        code: string | null;
     };
+    error: Error | null;
+    loggedIn: boolean;
 }
 
 export interface LoginState {
-    loggedIn: boolean;
     loginCode: string | null;
     showExternalLogin: boolean;
 }
@@ -31,19 +45,21 @@ interface LoginValues {
 }
 
 class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
-
     constructor(props: LoginProps & RouteComponentProps) {
         super(props);
         this.state = {
-            loggedIn: false,
             loginCode: null,
             showExternalLogin: false,
         };
-        this.toggleExternalLoginCollapse = this.toggleExternalLoginCollapse.bind(this);
+        this.toggleExternalLoginCollapse = this.toggleExternalLoginCollapse.bind(
+            this,
+        );
     }
 
     toggleExternalLoginCollapse() {
-        this.setState((state) => ({ showExternalLogin: !state.showExternalLogin }));
+        this.setState((state) => ({
+            showExternalLogin: !state.showExternalLogin,
+        }));
     }
 
     onSubmit = (values: LoginValues) => {
@@ -77,34 +93,74 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
 
     render() {
         const code = this.getLoginCode();
+        const loginError = this.props.error;
         return (
             <Row className="LoginWrapper d-flex align-items-center">
                 <Col className="mx-auto" lg="5" sm="12">
                     <svg className="LoginBackground">
-                        <circle cx="1%" cy="50%" r="60%" fill="#e7e7e7" fillOpacity="0.5" />
-                        <circle cx="70%" cy="10%" r="70%" fill="#e7e7e7" fillOpacity="0.5" />
-                        <circle cx="20%" cy="20%" r="60%" fill="#e7e7e7" fillOpacity="0.5" />
-                        <circle cx="80%" cy="70%" r="50%" fill="#e7e7e7" fillOpacity="0.5" />
+                        <circle
+                            cx="1%"
+                            cy="50%"
+                            r="60%"
+                            fill="#e7e7e7"
+                            fillOpacity="0.5"
+                        />
+                        <circle
+                            cx="70%"
+                            cy="10%"
+                            r="70%"
+                            fill="#e7e7e7"
+                            fillOpacity="0.5"
+                        />
+                        <circle
+                            cx="20%"
+                            cy="20%"
+                            r="60%"
+                            fill="#e7e7e7"
+                            fillOpacity="0.5"
+                        />
+                        <circle
+                            cx="80%"
+                            cy="70%"
+                            r="50%"
+                            fill="#e7e7e7"
+                            fillOpacity="0.5"
+                        />
                     </svg>
                     <Jumbotron className="Login mx-auto">
-                        <h1 className="display-5">Horus, TA administration system</h1>
+                        <h1 className="display-5">
+                            Horus, TA administration system
+                        </h1>
                         <p className="lead">Description of the system here</p>
                         <p className="lead mt-5 mb-0">
-                            <a className="no-decoration mb-4" href="/api/auth/saml/request">
-                                <Button size="lg" color="primary">Log in with UT</Button>
-                            </a>
+                            {(code == null || loginError != null) && (
+                                <a
+                                    className="no-decoration mb-4"
+                                    href="/api/auth/saml/request"
+                                >
+                                    <Button size="lg" color="primary">
+                                        Log in with UT
+                                    </Button>
+                                </a>
+                            )}
 
-                            {code != null &&
-                                <Spinner />
-                            }
+                            {code != null && loginError == null && <Spinner />}
 
-                            {code == null &&
-                                <Modal isOpen={this.state.showExternalLogin}
-                                    toggle={() => this.toggleExternalLoginCollapse()}>
+                            {(code == null || loginError != null) && (
+                                <Modal
+                                    isOpen={this.state.showExternalLogin}
+                                    toggle={() =>
+                                        this.toggleExternalLoginCollapse()
+                                    }
+                                >
                                     <Formik
-                                        initialValues={{ username: "", password: "" }}
+                                        initialValues={{
+                                            username: "",
+                                            password: "",
+                                        }}
                                         validate={this.validate}
-                                        onSubmit={this.onSubmit} >
+                                        onSubmit={this.onSubmit}
+                                    >
                                         {({ handleSubmit }) => (
                                             <Form className="p-3">
                                                 <h4>External login</h4>
@@ -115,6 +171,19 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                                                         id="username"
                                                         name="username"
                                                         placeholder="s1234567/m1234567"
+                                                        onKeyDown={(
+                                                            event: KeyboardEvent,
+                                                        ) => {
+                                                            if (
+                                                                event.key ===
+                                                                "Enter"
+                                                            ) {
+                                                                event.preventDefault();
+                                                                handleSubmit();
+                                                            } else {
+                                                                return;
+                                                            }
+                                                        }}
                                                     />
                                                 </FormGroup>
                                                 <FormGroup>
@@ -125,28 +194,58 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                                                         name="password"
                                                         placeholder="*********"
                                                         type="password"
+                                                        onKeyDown={(
+                                                            event: KeyboardEvent,
+                                                        ) => {
+                                                            if (
+                                                                event.key ===
+                                                                "Enter"
+                                                            ) {
+                                                                event.preventDefault();
+                                                                handleSubmit();
+                                                            } else {
+                                                                return;
+                                                            }
+                                                        }}
                                                     />
                                                 </FormGroup>
-                                                <Button block color="primary"
-                                                    outline onClick={() => { handleSubmit(); }}>
+                                                <Button
+                                                    block
+                                                    color="primary"
+                                                    outline
+                                                    onClick={() => {
+                                                        handleSubmit();
+                                                    }}
+                                                >
                                                     Log in
                                                 </Button>
                                             </Form>
                                         )}
                                     </Formik>
                                 </Modal>
-                            }
+                            )}
                         </p>
                     </Jumbotron>
-                    <a className="ExternalLoginToggle"
-                        onClick={() => this.toggleExternalLoginCollapse()}><small>External login</small>
+                    <a
+                        className="ExternalLoginToggle"
+                        onClick={() => this.toggleExternalLoginCollapse()}
+                    >
+                        <small>External login</small>
                     </a>
                 </Col>
-            </Row >
+            </Row>
         );
     }
 }
 
-export default withRouter(connect((state: ApplicationState) => ({ loggedIn: isLoggedIn(state) }), {
-    logIn: loginAction,
-})(Login));
+export default withRouter(
+    connect(
+        (state: ApplicationState) => ({
+            loggedIn: isLoggedIn(state),
+            error: getLoginError(state),
+        }),
+        {
+            logIn: loginAction,
+        },
+    )(Login),
+);

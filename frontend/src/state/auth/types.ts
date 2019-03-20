@@ -8,5 +8,5 @@ export interface LoginForm {
 export interface AuthState {
     loggedIn: boolean;
     coursePermissions: CoursePermissions;
-    error?: Error;
+    error: Error | null;
 }

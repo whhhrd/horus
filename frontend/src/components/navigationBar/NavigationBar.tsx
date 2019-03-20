@@ -12,6 +12,8 @@ import { ApplicationState } from "../../state/state";
 import { getActiveTab } from "../../state/navigationBar/selectors";
 import { getCoursePermissions } from "../../state/auth/selectors";
 import { courseAdmin } from "../../state/auth/constants";
+import { logoutRequestedAction } from "../../state/auth/actions";
+import { Action } from "redux";
 
 interface NavigationBarProps {
     // userPermissions: boolean | null; // TODO
@@ -19,6 +21,7 @@ interface NavigationBarProps {
     coursePermissions: CoursePermissions | null;
     onPhone: boolean;
     visibleOnPhone: boolean;
+    requestLogout: () => Action<string>;
 }
 
 export class NavigationBar extends Component<NavigationBarProps & RouteComponentProps<any>> {
@@ -69,7 +72,9 @@ export class NavigationBar extends Component<NavigationBarProps & RouteComponent
                                 <ListGroup flush className={!onPhone ? "border-top" : ""}>
                                     <NavigationBarItem title="Courses" icon={faBook}
                                         active={activeTab === ActiveTabEnum.COURSES} url="/courses" />
-                                    <NavigationBarItem title="Logout" icon={faSignOutAlt} active={false} url="/login" />
+                                    <NavigationBarItem title="Logout" icon={faSignOutAlt}
+                                        onClick={() => this.props.requestLogout()}
+                                        active={false} url="/login" />
                                 </ListGroup>
                             </div>
                         </div>
@@ -90,4 +95,5 @@ export default withRouter(connect((state: ApplicationState) => ({
     activeTab: getActiveTab(state),
     coursePermissions: getCoursePermissions(state),
 }), {
+    requestLogout: logoutRequestedAction,
     })(NavigationBar));

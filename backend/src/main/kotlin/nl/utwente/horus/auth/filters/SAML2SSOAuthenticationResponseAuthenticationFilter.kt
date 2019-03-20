@@ -8,6 +8,7 @@ import org.pac4j.saml.client.SAML2Client
 import org.pac4j.saml.credentials.SAML2Credentials
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
 import org.springframework.security.web.util.matcher.RequestMatcher
 import javax.servlet.FilterChain
@@ -35,7 +36,7 @@ class SAML2SSOAuthenticationResponseAuthenticationFilter: AbstractAuthentication
             val auth = attributeExtractor.extractSAMLCredentialsToAuthCredentials(credentials)
             return authenticationManager.authenticate(auth)
         } catch (e: Exception) {
-            throw BadCredentialsException("Invalid credentials")
+            throw BadCredentialsException("Bad credentials")
         }
     }
 
@@ -43,4 +44,7 @@ class SAML2SSOAuthenticationResponseAuthenticationFilter: AbstractAuthentication
         response!!.sendRedirect(redirectURL+"?code="+(authResult as AuthCodeToken).code)
     }
 
+    override fun unsuccessfulAuthentication(request: HttpServletRequest?, response: HttpServletResponse?, failed: AuthenticationException?) {
+        response!!.sendRedirect("$redirectURL?code=fail")
+    }
 }

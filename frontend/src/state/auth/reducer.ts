@@ -3,6 +3,7 @@ import {
     LOGIN_REQUESTED_ACTION,
     LOGIN_SUCCEEDED_ACTION,
     AUTHORITIES_UPDATED_ACTION,
+    LOGOUT_COMPLETED_ACTION,
 } from "./constants";
 
 import {
@@ -14,7 +15,7 @@ import CoursePermissions from "../../api/permissions";
 const initialState: AuthState = {
     loggedIn: false,
     coursePermissions: new CoursePermissions([]),
-    error: undefined,
+    error: null,
 };
 
 function authReducer(state: AuthState, action: LoginAction): AuthState {
@@ -23,17 +24,18 @@ function authReducer(state: AuthState, action: LoginAction): AuthState {
     }
     switch (action.type) {
         case LOGIN_REQUESTED_ACTION:
+        case LOGOUT_COMPLETED_ACTION:
             return initialState;
         case LOGIN_SUCCEEDED_ACTION:
             return {
                 loggedIn: true,
                 coursePermissions: new CoursePermissions(action.authorities),
-                error: undefined,
+                error: null,
             };
         case LOGIN_FAILED_ACTION:
             return {
                 ...initialState,
-                error: action.error,
+                error: action.error != null ? action.error : null,
             };
         case AUTHORITIES_UPDATED_ACTION:
             return {

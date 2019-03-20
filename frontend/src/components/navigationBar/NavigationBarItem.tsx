@@ -10,6 +10,7 @@ interface NavigationBarItemProps {
     icon: IconDefinition;
     title: string;
     url: string;
+    onClick?: () => {};
 }
 
 export class NavigationBarItem extends Component<NavigationBarItemProps> {
@@ -18,7 +19,7 @@ export class NavigationBarItem extends Component<NavigationBarItemProps> {
             (this.props.active ? " navigation-bar-item-link-active" : "");
 
         return (
-            <Link to={this.props.url} className={classes}>
+            <Link onClick={this.props.onClick} to={this.props.url} className={classes}>
                 <ListGroupItem className="text-center bg-light w-100 px-0">
 
                     <FontAwesomeIcon icon={this.props.icon} size="2x" /> <br />

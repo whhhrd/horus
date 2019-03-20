@@ -1,4 +1,5 @@
 import "isomorphic-fetch";
+import { APIError } from "./constants";
 
 export interface RequestOptions {
     body: object | null;
@@ -27,13 +28,9 @@ export async function fetchJSON(url: string, options: RequestOptions) {
         };
     }
     const response = await fetch(url, newOptions);
-    try {
-        const content = await response.text();
-        if (!response.ok) {
-            throw Error("js.fetch.response.NotOK");
-        }
-        return content.length > 0 ? JSON.parse(content) : null;
-    } catch (ex) {
-        throw Error("js.fetch.response.json.InvalidJSON");
+    const content = await response.text();
+    if (!response.ok) {
+        throw new APIError("Error while fetching from backend", response.status);
     }
+    return content.length > 0 ? JSON.parse(content) : null;
 }
