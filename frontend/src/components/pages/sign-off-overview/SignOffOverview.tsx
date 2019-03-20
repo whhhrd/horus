@@ -22,6 +22,7 @@ import {
     ParticipantDtoBrief,
     AssignmentSetDtoFull,
     AssignmentDtoBrief,
+    SignOffResultDtoCompact,
 } from "../../../api/types";
 import {
     SignOffResultsMap,
@@ -34,6 +35,7 @@ import { openSidebarPhoneAction } from "../../../state/sidebar/actions";
 import GroupTableCell from "./GroupTableCell";
 import ParticipantTableCell from "./ParticipantTableCell";
 import AssignmentTableCell from "./AssignmentTableCell";
+import ProgressTableCell from "./ProgressTableCell";
 import SignoffResultTableCell from "./SignoffResultTableCell";
 
 interface SignOffOverviewProps {
@@ -103,21 +105,27 @@ class SignOffOverview extends Component<
             return null;
         }
 
-        const assignmentSet = this.props.assignmentSet(assignmentSetId);
+        const assignmentSet = this.props.assignmentSet(assignmentSetId)!;
         const rowArray = this.groupsToRowArray(this.props.groups);
+        const milestoneData = this.getMilestoneData(assignmentSet.assignments);
         return (
             <AutoSizer>
                 {({ width, height }) => (
                     <MultiGrid
                         cellRenderer={(cellProps) =>
                             this.renderCell(
-                                assignmentSet!.assignments,
+                                assignmentSet.assignments,
                                 rowArray,
+                                milestoneData,
                                 cellProps,
                             )
                         }
                         columnWidth={this.getColumnWidth.bind(this)}
-                        columnCount={assignmentSet!.assignments.length + 2}
+                        columnCount={
+                            assignmentSet!.assignments.length +
+                            milestoneData.length +
+                            2
+                        }
                         fixedColumnCount={2}
                         fixedRowCount={1}
                         height={height}
@@ -179,6 +187,7 @@ class SignOffOverview extends Component<
     private renderCell(
         assignments: AssignmentDtoBrief[],
         rows: Row[],
+        milestoneData: AssignmentDtoBrief[][],
         cellProps: GridCellProps,
     ): ReactNode | null {
         let className;
@@ -228,8 +237,9 @@ class SignOffOverview extends Component<
                 />
             );
         }
-        if (rowIndex === 0 && columnIndex > 1) {
-            const assignment = assignments[columnIndex - 2];
+        if (rowIndex === 0 && columnIndex > 1 + milestoneData.length) {
+            const assignment =
+                assignments[columnIndex - milestoneData.length - 2];
             return (
                 <AssignmentTableCell
                     assignment={assignment}
@@ -241,15 +251,46 @@ class SignOffOverview extends Component<
             );
         }
         if (
+            this.props != null &&
+            row.participant != null &&
+            columnIndex > 1 &&
+            columnIndex <= 1 + milestoneData.length
+        ) {
+            const milestone = milestoneData[columnIndex - 2];
+            const signoffs = this.props.results!.get(row.participant.id);
+            return (
+                <ProgressTableCell
+                    style={style}
+                    className={className}
+                    progress={
+                        signoffs != null
+                            ? this.getCompletionPercentage(milestone, signoffs)
+                            : 0
+                    }
+                />
+            );
+        }
+        if (
+            rowIndex === 0 &&
+            columnIndex > 1 &&
+            columnIndex <= 1 + milestoneData.length
+        ) {
+            if (columnIndex === 2) {
+                content = "Total";
+            } else {
+                content = "MS " + String(columnIndex - 2);
+            }
+        }
+        if (
             row.participant != null &&
             row.group != null &&
-            columnIndex > 1 &&
+            columnIndex > 1 + milestoneData.length &&
             this.props.results != null
         ) {
             const pMap = this.props.results.get(row.participant.id);
-            const assignment = assignments[columnIndex - 2];
-            const result =
-                pMap != null ? pMap.get(assignment.id) : null;
+            const assignment =
+                assignments[columnIndex - milestoneData.length - 2];
+            const result = pMap != null ? pMap.get(assignment.id) : null;
             if (result != null) {
                 return (
                     <SignoffResultTableCell
@@ -274,7 +315,7 @@ class SignOffOverview extends Component<
     }
 
     private setComments(comments: JSX.Element) {
-        this.setState((_) => ({ comments }));
+        this.setState(() => ({ comments }));
         this.props.openSideBarPhone();
     }
 
@@ -293,6 +334,39 @@ class SignOffOverview extends Component<
                 arr.push({});
             });
         return arr;
+    }
+
+    private getMilestoneData(assignments: AssignmentDtoBrief[]) {
+        const milestoneData: AssignmentDtoBrief[][] = [assignments];
+        let milestone: AssignmentDtoBrief[] = [];
+        assignments.forEach((assignment) => {
+            milestone.push(assignment);
+            if (assignment.milestone) {
+                milestoneData.push(milestone);
+                milestone = [];
+            }
+        });
+        return milestoneData;
+    }
+
+    private getCompletionPercentage(
+        milestone: AssignmentDtoBrief[],
+        signoffs: Map<number, SignOffResultDtoCompact>,
+    ) {
+        if (milestone.length === 0) {
+            return 100;
+        }
+
+        let completed = 0;
+        milestone.forEach((ass) => {
+            if (
+                signoffs.get(ass.id) != null &&
+                signoffs.get(ass.id)!.result === "COMPLETE"
+            ) {
+                completed++;
+            }
+        });
+        return (completed * 100) / milestone.length;
     }
 }
 

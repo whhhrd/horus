@@ -138,7 +138,7 @@ class AssignmentService {
 
         for ((index, a) in dtos.withIndex()) {
             if (a.id == null) {
-                val assignment = Assignment(assignmentSet, a.name, participant, index.toLong())
+                val assignment = Assignment(assignmentSet, a.name, participant, index.toLong(), a.milestone)
                 assignmentRepository.save(assignment)
                 assignmentSet.assignments.add(assignment)
             } else {
@@ -146,6 +146,7 @@ class AssignmentService {
                         ?: throw InvalidAssignmentUpdateRequestException("Assignment with ID " +
                                 "${a.id} was requested to be updated, but the original does not exist in the set.")
                 existing.name = a.name
+                existing.milestone = a.milestone
                 existing.orderKey = index.toLong()
             }
         }

@@ -10,4 +10,5 @@ export interface AssignmentSetsState {
 export interface AssignmentValue {
     id: number;
     name: string;
+    milestone: boolean;
 }

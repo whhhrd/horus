@@ -43,7 +43,12 @@ import { getGroupSets } from "../../../../state/groups/selectors";
 import { ApplicationState } from "../../../../state/state";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes, faPlus, faArrowsAltV } from "@fortawesome/free-solid-svg-icons";
+import {
+    faTimes,
+    faPlus,
+    faArrowsAltV,
+    faFlag,
+} from "@fortawesome/free-solid-svg-icons";
 import ListGroupItem from "reactstrap/lib/ListGroupItem";
 import { AssignmentValue } from "../../../../state/assignments/types";
 import ButtonGroup from "reactstrap/lib/ButtonGroup";
@@ -114,11 +119,11 @@ class AssignmentSetEditorModal extends Component<AssignmentSetEditorModalProps, 
 
             // Fill already existing assignment values into the form
             const assignmentValues = props.assignmentSet(props.assignmentSetId)!.assignments.map((assignment) => {
-                return { id: assignment.id, name: assignment.name };
+                return { id: assignment.id, name: assignment.name, milestone: assignment.milestone };
             });
 
             // Add a fake assignment set for new entries
-            assignmentValues.push({ id: -1, name: "" });
+            assignmentValues.push({ id: -1, name: "", milestone: false });
 
             // Fill already assigned groupsets into the form
             const assignedGroupSetDtoBriefs: GroupSetDtoBrief[] = [];
@@ -174,7 +179,7 @@ class AssignmentSetEditorModal extends Component<AssignmentSetEditorModalProps, 
         }
 
         const assignmentTextBoxes = this.state.assignmentValues.map((assignmentValue: AssignmentValue) =>
-            this.createAssignmentListGroupItem(assignmentValue.id, assignmentValue.name));
+            this.createAssignmentListGroupItem(assignmentValue.id, assignmentValue.name, assignmentValue.milestone));
 
         const assignedGroupsBadges: JSX.Element[] = this.state.assignedGroupSetDtoBriefs.map((groupSet) => {
             return (
@@ -299,6 +304,7 @@ class AssignmentSetEditorModal extends Component<AssignmentSetEditorModalProps, 
             .assignments.map((assignment: AssignmentDtoBrief) => ({
                 name: assignment.name,
                 id: assignment.id,
+                milestone: assignment.milestone,
             })));
     }
     private safeDelete() {
@@ -372,9 +378,14 @@ class AssignmentSetEditorModal extends Component<AssignmentSetEditorModalProps, 
         });
     }
     // TODO: to be reworked later
-    private createAssignmentListGroupItem(id: number, name: string) {
+    private createAssignmentListGroupItem(id: number, name: string, milestone: boolean) {
         const isNewAssignmentSetItem = id === this.state.newAssignmentId;
         const invisibleString = isNewAssignmentSetItem ? " invisible" : "";
+
+        const milestoneButtonClassName = milestone ? "rounded bg-primary text-white" : "rounded";
+        const milestoneButtonTooltip = milestone ? "Remove milestone from assignment" : "Add milestone to assignment";
+        const textboxClassName = milestone ? "milestone-textbox" : "";
+
         return (
             <ListGroupItem className="border-0 p-1" key={id} data-id={id}>
                 <InputGroup>
@@ -389,11 +400,24 @@ class AssignmentSetEditorModal extends Component<AssignmentSetEditorModalProps, 
                     </InputGroupAddon>
                     <Input
                         valid={!(id < 0 && name === "") && this.isAssignmentValid(id, name)}
-                        className="" key={id} defaultValue={name} onInput={(e) => {
+                        className={textboxClassName} key={id} defaultValue={name} onInput={(e) => {
                             // @ts-ignore
                             const value = e.target.value;
                             this.onAssignmentInput(id, value);
                         }} />
+
+                    <InputGroupAddon title={milestoneButtonTooltip}
+                                     className={`ml-2${invisibleString}`}
+                                     addonType="append">
+                        <Button disabled={isNewAssignmentSetItem}
+                            onClick={() => this.setMilestone(id, !milestone) }
+                            outline color={"primary"}
+                            className={milestoneButtonClassName}
+                            tabIndex={-1} >
+                            <FontAwesomeIcon icon={faFlag} />
+                        </Button>
+                    </InputGroupAddon>
+
                     <InputGroupAddon className={`ml-2${invisibleString}`}
                         addonType="append">
                         <InputGroupText disabled={isNewAssignmentSetItem}
@@ -434,21 +458,31 @@ class AssignmentSetEditorModal extends Component<AssignmentSetEditorModalProps, 
         }
     }
 
+    private setMilestone(goalId: number, milestone: boolean) {
+        const newAssignmentValues = this.state.assignmentValues.slice();
+        const assignment = newAssignmentValues.find((a) => (a.id === goalId));
+        if (assignment != null) {
+            assignment.milestone = milestone;
+            newAssignmentValues[newAssignmentValues.indexOf(assignment)] = assignment;
+            this.setState(() => ({ assignmentValues: newAssignmentValues }));
+        }
+    }
+
     private onAssignmentInput(goalId: number, newValue: string) {
         const assignmentValues = [...(this.state.assignmentValues)];
         let lastAssignmentId = this.state.lastAssignmentId;
         let newAssignmentId = this.state.newAssignmentId;
         let index = 0;
-        assignmentValues.forEach(({ id }) => {
+        assignmentValues.forEach(({ id, milestone }) => {
             if (id === goalId) {
-                assignmentValues[index] = { id, name: newValue };
+                assignmentValues[index] = { id, name: newValue, milestone };
             }
             index++;
         });
 
         if (assignmentValues[assignmentValues.length - 1].name.length > 0) {
             newAssignmentId = newAssignmentId - 1;
-            const newAssignment = { id: newAssignmentId, name: "" };
+            const newAssignment = { id: newAssignmentId, name: "", milestone: false };
             assignmentValues.push(newAssignment);
             lastAssignmentId = newAssignment.id;
         }
@@ -494,7 +528,7 @@ class AssignmentSetEditorModal extends Component<AssignmentSetEditorModalProps, 
             }
 
             if (id != null || assignmentValue.name.trim().length > 0) {
-                assignments.push({ id, name: assignmentValue.name });
+                assignments.push({ id, name: assignmentValue.name, milestone: assignmentValue.milestone });
             }
         });
 

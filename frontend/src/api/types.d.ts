@@ -52,6 +52,7 @@ export interface AssignmentDtoBrief {
     commentThreadId: number | null;
     createdAt: Date;
     id: number;
+    milestone: boolean;
     name: string;
 }
 
@@ -91,6 +92,7 @@ export interface SignOffResultDtoSummary {
 
 export interface AssignmentCreateUpdateDto {
     id: number | null;
+    milestone: boolean;
     name: string;
 }
 

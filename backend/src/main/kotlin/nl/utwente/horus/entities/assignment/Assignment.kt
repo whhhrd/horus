@@ -26,8 +26,10 @@ data class Assignment (
         @JoinColumn(name = "created_by")
         val createdBy: Participant,
 
-        val createdAt: ZonedDateTime
+        val createdAt: ZonedDateTime,
+
+        var milestone: Boolean
 ) {
 
-        constructor(assignmentSet: AssignmentSet, name: String, createdBy: Participant, orderKey: Long): this(0, assignmentSet, name, null, orderKey, createdBy, ZonedDateTime.now())
+        constructor(assignmentSet: AssignmentSet, name: String, createdBy: Participant, orderKey: Long, milestone: Boolean): this(0, assignmentSet, name, null, orderKey, createdBy, ZonedDateTime.now(), milestone)
 }

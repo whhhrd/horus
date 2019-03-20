@@ -7,6 +7,8 @@ $color_yellow_light: #fff3cd;
 $color_yellow_text: #856404;
 
 $color_red: #dc3545;
+$color_red_light: #f8d7da;
+$color_red_text: #721c24;
 
 $color_green: #28a745;
 $color_green_light: #d4edda;
@@ -254,6 +256,14 @@ button {
     border-top: 0;
     padding-top: 0;
     background: none;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Assignment set editor properties
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+.milestone-textbox {
+    border-bottom: 5px solid $color_blue !important;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

@@ -232,7 +232,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
 
         // First update the name of the assignment set, keeping the other properties the same
         val groupSetIDs = assignmentSet.groupSetMappings.map { it.groupSet.id }
-        val assignments = assignmentSet.assignments.map { AssignmentCreateUpdateDto(it.id, it.name) }
+        val assignments = assignmentSet.assignments.map(this::assignmentToCreateUpdateDto)
 
         val updateAssignmentSet = AssignmentSetUpdateDto("STC-AS-000", groupSetIDs, assignments)
         val updatedAssignmentSet = assignmentService.updateAssignmentSet(
@@ -249,13 +249,34 @@ class AssignmentServiceTest : HorusAbstractTest() {
 
     @Test
     @WithLoginId(TEACHER_LOGIN)
+    fun testUpdateAssignmentMilestone() {
+        val (_, _, set) = createSampleTestAssignmentSet()
+        val first = set.assignments.first()
+        val oldMilestone = first.milestone
+        val newMilestone = !oldMilestone
+        val dto = AssignmentCreateUpdateDto(first.id, first.name, newMilestone)
+
+        // Reconstruct DTO update for whole set, except for first assignment
+        val groupSetIDs = set.groupSetMappings.map { it.groupSet.id }
+        val assignments = listOf(dto) + set.assignments.drop(1).map(this::assignmentToCreateUpdateDto)
+
+        val updateAssignmentSet = AssignmentSetUpdateDto(set.name , groupSetIDs, assignments)
+        assignmentService.updateAssignmentSet(
+                getCurrentPerson(), set.id, updateAssignmentSet)
+
+
+        assertEquals(newMilestone, assignmentService.getAssignmentById(first.id).milestone)
+    }
+
+    @Test
+    @WithLoginId(TEACHER_LOGIN)
     fun testUpdateAssignmentSetNameEmpty() {
         val creatorPerson = getCurrentPerson()
         val (_, _, assignmentSet) = createSampleTestAssignmentSet()
 
         // First update the name of the assignment set to be empty, keeping the other properties the same
         val groupSetIDs = assignmentSet.groupSetMappings.map { it.groupSet.id }
-        val assignments = assignmentSet.assignments.map { AssignmentCreateUpdateDto(it.id, it.name) }
+        val assignments = assignmentSet.assignments.map(this::assignmentToCreateUpdateDto)
 
         val updateAssignmentSet = AssignmentSetUpdateDto("", groupSetIDs, assignments)
         assertThrows(InvalidAssignmentUpdateRequestException::class) { assignmentService.updateAssignmentSet(creatorPerson, assignmentSet.id, updateAssignmentSet) }
@@ -275,7 +296,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
         val newGroupSet = groupService.addGroupSet("STC-EID-111", course, "STC-GS-111", participant)
         val groupSetIDs = assignmentSet.groupSetMappings.map { it.groupSet.id }.toMutableList()
         groupSetIDs.add(newGroupSet.id)
-        val assignments = assignmentSet.assignments.map { AssignmentCreateUpdateDto(it.id, it.name) }
+        val assignments = assignmentSet.assignments.map(this::assignmentToCreateUpdateDto)
 
         val updateAssignmentSet = AssignmentSetUpdateDto(assignmentSet.name, groupSetIDs, assignments)
         val updatedAssignmentSet = assignmentService.updateAssignmentSet(
@@ -299,7 +320,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
         // First remove one of the group sets from the assignment set mapping
         val groupSetIDs = assignmentSet.groupSetMappings.map { it.groupSet.id }.toMutableList()
         groupSetIDs.remove(0)
-        val assignments = assignmentSet.assignments.map { AssignmentCreateUpdateDto(it.id, it.name) }
+        val assignments = assignmentSet.assignments.map(this::assignmentToCreateUpdateDto)
 
         val updateAssignmentSet = AssignmentSetUpdateDto(assignmentSet.name, groupSetIDs, assignments)
         val updatedAssignmentSet = assignmentService.updateAssignmentSet(
@@ -326,7 +347,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
         val groupSetIDs = assignmentSet.groupSetMappings.map { it.groupSet.id }.toMutableList()
         groupSetIDs.removeAt(0)
         groupSetIDs.add(newGroupSet.id)
-        val assignments = assignmentSet.assignments.map { AssignmentCreateUpdateDto(it.id, it.name) }
+        val assignments = assignmentSet.assignments.map(this::assignmentToCreateUpdateDto)
 
         val updateAssignmentSet = AssignmentSetUpdateDto(assignmentSet.name, groupSetIDs, assignments)
         val updatedAssignmentSet = assignmentService.updateAssignmentSet(
@@ -349,7 +370,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
 
         // Update the assignment set such that no group sets are linked to it
         val groupSetIDs = listOf<Long>()
-        val assignments = assignmentSet.assignments.map { AssignmentCreateUpdateDto(it.id, it.name) }
+        val assignments = assignmentSet.assignments.map(this::assignmentToCreateUpdateDto)
 
         val updateAssignmentSet = AssignmentSetUpdateDto(assignmentSet.name, groupSetIDs, assignments)
         val updatedAssignmentSet = assignmentService.updateAssignmentSet(
@@ -372,8 +393,8 @@ class AssignmentServiceTest : HorusAbstractTest() {
 
         // First add a new assignment to the assignment set
         val groupSetIDs = assignmentSet.groupSetMappings.map { it.groupSet.id }
-        val assignments = assignmentSet.assignments.map { AssignmentCreateUpdateDto(it.id, it.name) }.toMutableList()
-        assignments.add(AssignmentCreateUpdateDto(null, "STC-ASS-111"))
+        val assignments = assignmentSet.assignments.map(this::assignmentToCreateUpdateDto).toMutableList()
+        assignments.add(AssignmentCreateUpdateDto(null, "STC-ASS-111", false))
 
         val updateAssignmentSet = AssignmentSetUpdateDto(assignmentSet.name, groupSetIDs, assignments)
         val updatedAssignmentSet = assignmentService.updateAssignmentSet(
@@ -406,7 +427,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
 
         // First delete an assignment from the assignment set
         val groupSetIDs = assignmentSet.groupSetMappings.map { it.groupSet.id }
-        val assignments = assignmentSet.assignments.map { AssignmentCreateUpdateDto(it.id, it.name) }.toMutableList()
+        val assignments = assignmentSet.assignments.map(this::assignmentToCreateUpdateDto).toMutableList()
         assignments.removeAt(0)
 
         val updateAssignmentSet = AssignmentSetUpdateDto(assignmentSet.name, groupSetIDs, assignments)
@@ -440,9 +461,9 @@ class AssignmentServiceTest : HorusAbstractTest() {
 
         // First delete an assignment from the assignment set and add a new assignment to the assignment set
         val groupSetIDs = assignmentSet.groupSetMappings.map { it.groupSet.id }
-        val assignments = assignmentSet.assignments.map { AssignmentCreateUpdateDto(it.id, it.name) }.toMutableList()
+        val assignments = assignmentSet.assignments.map(this::assignmentToCreateUpdateDto).toMutableList()
         assignments.removeAt(0)
-        assignments.add(AssignmentCreateUpdateDto(null, "STC-ASS-111"))
+        assignments.add(AssignmentCreateUpdateDto(null, "STC-ASS-111", false))
 
         val updateAssignmentSet = AssignmentSetUpdateDto(assignmentSet.name, groupSetIDs, assignments)
         val updatedAssignmentSet = assignmentService.updateAssignmentSet(
@@ -475,8 +496,8 @@ class AssignmentServiceTest : HorusAbstractTest() {
 
         // First add an assignment with an empty name to the assignment set
         val groupSetIDs = assignmentSet.groupSetMappings.map { it.groupSet.id }
-        val assignments = assignmentSet.assignments.map { AssignmentCreateUpdateDto(it.id, it.name) }.toMutableList()
-        assignments.add(AssignmentCreateUpdateDto(null, ""))
+        val assignments = assignmentSet.assignments.map(this::assignmentToCreateUpdateDto).toMutableList()
+        assignments.add(AssignmentCreateUpdateDto(null, "", false))
 
         val updateAssignmentSet = AssignmentSetUpdateDto(assignmentSet.name, groupSetIDs, assignments)
         assertThrows(InvalidAssignmentUpdateRequestException::class) { assignmentService.updateAssignmentSet(creatorPerson, assignmentSet.id, updateAssignmentSet) }
@@ -639,8 +660,8 @@ class AssignmentServiceTest : HorusAbstractTest() {
         val groupSet1 = groupService.addGroupSet("STC-EID-999", course, "STC-GS-999", participant)
         val groupSet2 = groupService.addGroupSet("STC-EID-000", course, "STC-GS-000", participant)
         val groupSetIDs = listOf(groupSet1.id, groupSet2.id)
-        val assignment1 = AssignmentCreateUpdateDto(null, "STC-ASS-999")
-        val assignment2 = AssignmentCreateUpdateDto(null, "STC-ASS-000")
+        val assignment1 = AssignmentCreateUpdateDto(null, "STC-ASS-999", true)
+        val assignment2 = AssignmentCreateUpdateDto(null, "STC-ASS-000", false)
         val assignments = listOf(assignment1, assignment2)
         val updateAssignmentSet = AssignmentSetUpdateDto(assignmentSet.name, groupSetIDs, assignments)
         assignmentService.updateAssignmentSet(creatorPerson, assignmentSet.id, updateAssignmentSet)
@@ -657,6 +678,10 @@ class AssignmentServiceTest : HorusAbstractTest() {
 
         // Return the created course, participant and assignment set in the form of a triple
         return Triple(course, participant, updatedAssignmentSet)
+    }
+
+    private fun assignmentToCreateUpdateDto(a: Assignment): AssignmentCreateUpdateDto {
+        return AssignmentCreateUpdateDto(a.id, a.name, a.milestone)
     }
 
 }
