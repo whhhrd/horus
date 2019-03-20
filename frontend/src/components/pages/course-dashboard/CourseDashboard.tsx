@@ -1,18 +1,14 @@
 import React, { Component } from "react";
-import { Alert } from "reactstrap";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { ApplicationState } from "../../../state/state";
 import { connect } from "react-redux";
 import { getCourseFull } from "../../../state/courses/selectors";
-import { CourseDtoFull, AssignmentSetDtoBrief } from "../../../api/types";
-import Row from "reactstrap/lib/Row";
-import Col from "reactstrap/lib/Col";
-import { NOTIFICATION_ACTION_CONNECTOR } from "../../../state/notifications/constants";
-import { NotificationProps } from "../../../state/notifications/types";
-import { faTasks } from "@fortawesome/free-solid-svg-icons";
-import CanvasCard from "../../CanvasCard";
+import { CourseDtoFull } from "../../../api/types";
 import { courseRequestedAction } from "../../../state/courses/action";
 import { buildContent } from "../../pagebuilder";
+import { API_STUDENT_ROLE } from "../../../state/courses/constants";
+import CourseTATeacherDashboard from "./CourseTATeacherDashboard";
+import CourseStudentDashboard from "./CourseStudentDashboard";
 
 interface CourseDashboardProps {
     courseFull: (id: number) => CourseDtoFull | null;
@@ -22,7 +18,7 @@ interface CourseDashboardProps {
     };
 }
 
-class CourseDashboard extends Component<CourseDashboardProps & RouteComponentProps<any> & NotificationProps> {
+class CourseDashboard extends Component<CourseDashboardProps & RouteComponentProps<any>> {
 
     componentDidMount() {
         this.props.requestCourse(Number(this.props.match.params.cid));
@@ -30,33 +26,13 @@ class CourseDashboard extends Component<CourseDashboardProps & RouteComponentPro
 
     render() {
         const course = this.props.courseFull(Number(this.props.match.params.cid));
-
         if (course == null) {
-            return buildContent("Course Dashboard", null);
+            return buildContent("Loading...", null);
+        } else if (course.role.name === API_STUDENT_ROLE) {
+            return <CourseStudentDashboard course={course} />;
         } else {
-            return buildContent(course.name, this.buildContent(course));
+            return <CourseTATeacherDashboard course={course} />;
         }
-    }
-
-    buildContent(course: CourseDtoFull) {
-        return (
-            <Row className="px-2 d-flex justify-content-center justify-content-lg-start">
-                <Col xs="12">
-                    <h3>Sign-off overviews</h3>
-                </Col>
-                {course.assignmentSets.length > 0 ?
-                    course.assignmentSets.map((aSet: AssignmentSetDtoBrief) => {
-                        return <CanvasCard
-                            watermarkIcon={faTasks}
-                            key={aSet.id}
-                            cardTitle={aSet.name}
-                            url={`/courses/${course.id}/assignmentsets/${aSet.id}`} />;
-                    }) :
-                    <Col xs="12" lg="3">
-                        <Alert className="text-center" color="info">Nothing to display here.</Alert>
-                    </Col>}
-            </Row>
-        );
     }
 }
 
@@ -64,5 +40,4 @@ export default withRouter(connect((state: ApplicationState) => ({
     courseFull: (id: number) => getCourseFull(state, id),
 }), {
         requestCourse: (id: number) => courseRequestedAction(id),
-        ...NOTIFICATION_ACTION_CONNECTOR,
     })(CourseDashboard));

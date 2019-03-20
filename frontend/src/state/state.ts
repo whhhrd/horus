@@ -11,6 +11,7 @@ import { CommentsState } from "./comments/types";
 import { SearchState } from "./search/types";
 import { SidebarPhoneState } from "./sidebar/types";
 import { SignOffOverviewState } from "./overview/types";
+import { StudentDashboardState } from "./student-dashboard/types";
 import { ParticipantsState } from "./participants/types";
 import { LabelsState } from "./labels/types";
 
@@ -28,6 +29,7 @@ export interface ApplicationState {
     search?: SearchState;
     sidebar?: SidebarPhoneState;
     overview?: SignOffOverviewState;
+    studentDashboard?: StudentDashboardState;
     labels?: LabelsState;
     participants?: ParticipantsState;
 }

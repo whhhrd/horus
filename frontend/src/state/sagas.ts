@@ -8,6 +8,7 @@ import signOffSagas from "./sign-off/sagas";
 import commentsSagas from "./comments/sagas";
 import searchSaga from "./search/sagas";
 import overviewSagas from "./overview/saga";
+import studentDashboardSagas from "./student-dashboard/sagas";
 import participantSagas from "./participants/sagas";
 import labelsSaga from "./labels/sagas";
 
@@ -22,6 +23,7 @@ export default function* rootSaga() {
     yield* signOffSagas();
     yield* searchSaga();
     yield* overviewSagas();
+    yield* studentDashboardSagas();
     yield* participantSagas();
     yield* labelsSaga();
 }

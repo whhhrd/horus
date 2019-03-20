@@ -16,6 +16,7 @@ import commentsReducer from "./comments/reducer";
 import searchReducer from "./search/reducer";
 import sidebarPhoneReducer from "./sidebar/reducer";
 import overviewReducer from "./overview/reducer";
+import studentDashboardReducer from "./student-dashboard/reducer";
 import labelsReducer from "./labels/reducer";
 
 // TODO: implement cleaning the state on log out.
@@ -33,6 +34,7 @@ export const rootReducer = (history: History) => combineReducers<ApplicationStat
     search: searchReducer,
     sidebar: sidebarPhoneReducer,
     overview: overviewReducer,
+    studentDashboard: studentDashboardReducer,
     participants: participantsReducer,
     labels: labelsReducer,
 } as any);
