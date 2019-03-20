@@ -3,12 +3,12 @@ package nl.utwente.horus.auth.filters
 import nl.utwente.horus.auth.tokens.RawToken
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
 import org.springframework.security.web.util.matcher.RequestMatcher
 import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import org.springframework.security.core.context.SecurityContextHolder
 
 /**
  * JWTAuthenticationFilter checks for an appropriate token header with token data,
@@ -20,20 +20,24 @@ import org.springframework.security.core.context.SecurityContextHolder
 class JWTAuthenticationFilter(requiresAuthenticationRequestMatcher: RequestMatcher?) : AbstractAuthenticationProcessingFilter(requiresAuthenticationRequestMatcher) {
 
     companion object {
+        const val AUTHORIZATION_PARAMETER_NAME = "token"
         const val AUTHORIZATION_HEADER_NAME = "Authorization"
         const val AUTHORIZATION_HEADER_PREFIX = "Bearer "
     }
 
     override fun attemptAuthentication(request: HttpServletRequest?, response: HttpServletResponse?): Authentication {
         // Check and extract header
-        val authHeader = request!!.getHeader(AUTHORIZATION_HEADER_NAME)
-        if (authHeader == null || authHeader.length < AUTHORIZATION_HEADER_PREFIX.length || !authHeader.startsWith(AUTHORIZATION_HEADER_PREFIX)) {
+        val authHeader: String? = request!!.getHeader(AUTHORIZATION_HEADER_NAME)
+        val authParam: String? = request.getParameter(AUTHORIZATION_PARAMETER_NAME)
+        if (authParam == null && (authHeader == null || authHeader.length < AUTHORIZATION_HEADER_PREFIX.length ||
+                        !authHeader.startsWith(AUTHORIZATION_HEADER_PREFIX))) {
             throw BadCredentialsException("Token not provided")
         }
 
         // Authenticates the token with the AuthenticationManager,
         // which calls the JWTAuthenticationProvider to perform the checks
-        return authenticationManager.authenticate(RawToken(authHeader.substring(AUTHORIZATION_HEADER_PREFIX.length)))
+        val token = authParam ?: authHeader!!.substring(AUTHORIZATION_HEADER_PREFIX.length)
+        return authenticationManager.authenticate(RawToken(token))
     }
 
     override fun successfulAuthentication(request: HttpServletRequest?, response: HttpServletResponse?, chain: FilterChain?, authResult: Authentication?) {
