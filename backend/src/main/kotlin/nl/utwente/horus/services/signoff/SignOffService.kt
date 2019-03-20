@@ -82,14 +82,21 @@ class SignOffService {
 
     fun processSignOffs(dto: SignOffResultPatchDto, setId: Long): List<SignOffResult> {
         val assignmentSet = assignmentService.getAssignmentSetById(setId)
-        // Verify that all assignments belong to this course
+        val course = assignmentSet.course
+        // Verify that all assignments belong to this set
         val deletionSignOffs = signOffResultRepository.findAllById(dto.delete.map { it.id })
-        val ids = dto.create.map { it.assignmentId } + deletionSignOffs.map { it.assignment.id }
-        val assignments = assignmentService.getAssignmentsByIds(ids)
-
+        val assignmentIds = dto.create.map { it.assignmentId } + deletionSignOffs.map { it.assignment.id }
+        val assignments = assignmentService.getAssignmentsByIds(assignmentIds)
         if (assignments.any { it.assignmentSet.id != assignmentSet.id }) {
             throw DifferentAssignmentSetException()
         }
+        // Verify that all participants belong to the same course as the set
+        val participantIds = dto.create.map { it.participantId } + deletionSignOffs.map { it.participant.id }
+        val participants = participantService.getParticipantsById(participantIds)
+        if (participants.any { it.course.id != course.id }) {
+            throw CourseMismatchException()
+        }
+
         archiveSignOffs(dto.delete, assignmentSet.course.id)
         return createSignOffs(dto.create, assignmentSet.course.id)
     }

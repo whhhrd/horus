@@ -69,6 +69,10 @@ class GroupService {
         return groupRepository.isPersonMemberOfGroup(person, group)
     }
 
+    fun isPersonMemberOfGroupSet(person: Person, gs: GroupSet): Boolean {
+        return groupSetRepository.isPersonMemberOfGroupSet(person, gs)
+    }
+
     fun getGroupSignOffSearchResults(courseId: Long, query: String): GroupAssignmentSetSearchResultDto {
         val resultPairs = groupRepository.findDistinctTopByNameOrMemberName(courseId, query)
                 .map { Pair(GroupDtoBrief(it[0] as Long, null, it[1] as String, it[2] as ZonedDateTime, null),

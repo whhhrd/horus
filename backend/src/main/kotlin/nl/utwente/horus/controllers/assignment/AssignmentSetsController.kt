@@ -33,7 +33,7 @@ class AssignmentSetsController: BaseController() {
 
     @Autowired
     lateinit var userDetailService: HorusUserDetailService
-    
+
     @Autowired
     lateinit var exportService: ExportService
 
@@ -66,7 +66,10 @@ class AssignmentSetsController: BaseController() {
 
     @GetMapping(path = ["/{assignmentSetId}/groups"])
     fun getMappedGroups(pageable: Pageable, @PathVariable assignmentSetId: Long): Page<GroupDtoFull> {
-        return assignmentService.getGroupsMappedToAssignmentSetByAssignmentSetId(pageable, assignmentSetId).map{group -> GroupDtoFull(group)}
+        requireAnyPermission(AssignmentSet::class, assignmentSetId, HorusPermissionType.VIEW, HorusResource.COURSE_GROUP)
+
+        val groups = assignmentService.getGroupsMappedToAssignmentSetByAssignmentSetId(pageable, assignmentSetId)
+        return groups.map{ group -> GroupDtoFull(group)}
     }
 
     @GetMapping(path = ["/export"])

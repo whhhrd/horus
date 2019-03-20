@@ -1,5 +1,9 @@
 package nl.utwente.horus.controllers.canvas
 
+import nl.utwente.horus.auth.permissions.HorusPermissionType
+import nl.utwente.horus.auth.permissions.HorusResource
+import nl.utwente.horus.controllers.BaseController
+import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.representations.BooleanResultDto
 import nl.utwente.horus.representations.auth.RoleDtoBrief
 import nl.utwente.horus.representations.canvas.CanvasCourseDto
@@ -18,7 +22,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping(path=["/api/canvas"])
 @Transactional
-class CanvasController {
+class CanvasController: BaseController() {
     @Autowired
     lateinit var canvasService: CanvasService
 
@@ -57,6 +61,8 @@ class CanvasController {
 
     @PostMapping(path = ["/{canvasId}"])
     fun addCourse(@PathVariable canvasId: String): CourseDtoFull {
+        checkGlobalPermission(Course::class, HorusPermissionType.CREATE)
+
         val user = userDetailService.getCurrentPerson()
         val course = canvasService.addCanvasCourse(user, canvasId)
         val participant = courseService.getCurrentParticipationInCourse(course)
@@ -65,6 +71,19 @@ class CanvasController {
 
     @PutMapping(path = ["/{courseId}/all"])
     fun syncAll(@PathVariable courseId: Long): CourseDtoFull {
+        // TODO: Check global person create permission
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.CREATE, HorusResource.COURSE_PARTICIPANT)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.EDIT, HorusResource.COURSE_PARTICIPANT)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.DELETE, HorusResource.COURSE_PARTICIPANT)
+
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.CREATE, HorusResource.COURSE_GROUPSET)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.EDIT, HorusResource.COURSE_GROUPSET)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.DELETE, HorusResource.COURSE_GROUPSET)
+
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.CREATE, HorusResource.COURSE_GROUP)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.EDIT, HorusResource.COURSE_GROUP)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.DELETE, HorusResource.COURSE_GROUP)
+
         val course = courseService.getCourseById(courseId)
         val participant = courseService.getCurrentParticipationInCourse(course)
         canvasService.doFullCanvasSync(participant.person, course)
@@ -73,6 +92,10 @@ class CanvasController {
 
     @PutMapping(path = ["/{courseId}/persons"])
     fun syncPersons(@PathVariable courseId: Long): CourseDtoFull {
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.CREATE, HorusResource.COURSE_PARTICIPANT)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.EDIT, HorusResource.COURSE_PARTICIPANT)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.DELETE, HorusResource.COURSE_PARTICIPANT)
+
         val course = courseService.getCourseById(courseId)
         canvasService.doCanvasPersonSync(course)
         val participant = courseService.getCurrentParticipationInCourse(course)
@@ -81,6 +104,10 @@ class CanvasController {
 
     @PutMapping(path = ["/{courseId}/sets"])
     fun syncSets(@PathVariable courseId: Long): List<GroupSetDtoSummary> {
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.CREATE, HorusResource.COURSE_GROUPSET)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.EDIT, HorusResource.COURSE_GROUPSET)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.DELETE, HorusResource.COURSE_GROUPSET)
+
         val course = courseService.getCourseById(courseId)
         val participant = courseService.getCurrentParticipationInCourse(course)
         canvasService.doCanvasGroupCategoriesFetch(course, participant)
@@ -89,6 +116,10 @@ class CanvasController {
 
     @PutMapping(path = ["/{courseId}/sets/{setId}"])
     fun syncGroupsInSet(@PathVariable courseId: Long, @PathVariable setId: Long): List<GroupDtoFull> {
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.CREATE, HorusResource.COURSE_GROUP)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.EDIT, HorusResource.COURSE_GROUP)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.DELETE, HorusResource.COURSE_GROUP)
+
         val course = courseService.getCourseById(courseId)
         val participant = courseService.getCurrentParticipationInCourse(course)
         val set = groupService.getGroupSetById(setId)

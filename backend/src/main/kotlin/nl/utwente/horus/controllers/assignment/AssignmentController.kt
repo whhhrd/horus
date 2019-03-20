@@ -4,6 +4,7 @@ import nl.utwente.horus.auth.permissions.HorusPermissionType
 import nl.utwente.horus.auth.permissions.HorusResource
 import nl.utwente.horus.controllers.BaseController
 import nl.utwente.horus.entities.assignment.Assignment
+import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.exceptions.CommentThreadNotFoundException
 import nl.utwente.horus.representations.comment.CommentThreadCreateDto
 import nl.utwente.horus.representations.comment.CommentThreadDtoFull
@@ -34,7 +35,9 @@ class AssignmentController: BaseController() {
 
     @GetMapping(path = ["/deletable"])
     fun canDeleteAssignments(@RequestParam assignmentIds: List<Long>): List<Boolean>  {
-        assignmentIds.forEach { verifyCoursePermission(Assignment::class, it, HorusPermissionType.VIEW, HorusResource.COURSE_SIGNOFFRESULT) }
+        assignmentIds.forEach {
+            verifyCoursePermission(Assignment::class, it, HorusPermissionType.VIEW, HorusResource.COURSE_SIGNOFFRESULT)
+        }
 
         val result = signOffService.getSignOffResultCounts(assignmentIds).mapKeys { it.key.id }
         return assignmentIds.map { result[it] == 0L }
@@ -53,11 +56,11 @@ class AssignmentController: BaseController() {
     fun addCommentThread(@PathVariable assignmentId: Long, @RequestBody dto: CommentThreadCreateDto): CommentThreadDtoFull {
         val user = userDetailService.getCurrentPerson()
         val thread = commentService.createThread(dto, user)
-
-        verifyCoursePermission(Assignment::class, assignmentId, HorusPermissionType.CREATE, toHorusResource(thread))
-
         val assignment = assignmentService.getAssignmentById(assignmentId)
         assignmentService.addThreadToAssignment(assignment, thread)
+
+        verifyCoursePermission(CommentThread::class, thread.id, HorusPermissionType.CREATE, toHorusResource(thread))
+
         return CommentThreadDtoFull(thread)
     }
 }

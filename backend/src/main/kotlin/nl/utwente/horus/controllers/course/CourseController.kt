@@ -4,7 +4,6 @@ import nl.utwente.horus.auth.permissions.HorusPermission
 import nl.utwente.horus.auth.permissions.HorusPermissionType
 import nl.utwente.horus.auth.permissions.HorusResource
 import nl.utwente.horus.controllers.BaseController
-import nl.utwente.horus.entities.assignment.AssignmentSet
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.participant.Label
 import nl.utwente.horus.entities.participant.Participant
@@ -96,17 +95,11 @@ class CourseController: BaseController() {
 
     @GetMapping(path = ["/{courseId}/assignmentSets"])
     fun listAssignmentSetsOfCourse(@PathVariable courseId: Long) : List<AssignmentSetDtoBrief> {
-        val assignmentSets: List<AssignmentSet>
-        when {
-            userDetailService.hasCoursePermission(courseId, HorusPermission.anyList(HorusResource.COURSE_ASSIGNMENTSET)) -> {
-                assignmentSets = courseService.getAssignmentSetsOfCourse(courseId)
-            }
-            userDetailService.hasCoursePermission(courseId, HorusPermission.ownList(HorusResource.COURSE_ASSIGNMENTSET)) -> {
-                assignmentSets = courseService.getAssignmentSetsOfCourseByPerson(courseId, userDetailService.getCurrentPerson())
-            }
-            else -> throw InsufficientPermissionsException()
-        }
-        return assignmentSets.map { AssignmentSetDtoBrief(it) }
+        return anyOwnResult(Course::class, courseId, HorusPermissionType.LIST, HorusResource.COURSE_ASSIGNMENTSET,
+                { courseService.getAssignmentSetsOfCourse(courseId) },
+                {person -> courseService.getAssignmentSetsOfCourseByPerson(courseId, person)}
+        ).map { AssignmentSetDtoBrief(it) }
+
     }
 
     @PostMapping(path = ["/{courseId}/assignmentSets"])
@@ -121,19 +114,24 @@ class CourseController: BaseController() {
         return AssignmentSetDtoFull(courseService.createAssignmentSetInCourse(creator, courseId, dto))
     }
 
-    // TODO: Handle permissions of list-functions below.
     @GetMapping(path = ["/{courseId}/groupSets"])
     fun listGroupSetsOfCourse(@PathVariable courseId: Long) : List<GroupSetDtoSummary> {
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.LIST, HorusResource.COURSE_GROUPSET)
         return courseService.getGroupSetsOfCourse(courseId).map { GroupSetDtoSummary(it) }
     }
 
     @GetMapping(path = ["/{courseId}/assignmentgroupsetsmappings"])
     fun listAssignmentGroupSetsMappings(@PathVariable courseId: Long) : List<AssignmentGroupSetsMappingDto> {
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.LIST, HorusResource.COURSE_ASSIGNMENTSET)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.LIST, HorusResource.COURSE_GROUPSET)
+
         return assignmentService.getAssignmentGroupSetsMappingsInCourse(courseId).map { AssignmentGroupSetsMappingDto(it) }
     }
 
     @GetMapping(path = ["/{courseId}/participants"])
     fun listParticipantsOfCourse(@PathVariable courseId: Long) : List<ParticipantDtoFull> {
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_PARTICIPANT)
+
         return courseService.getParticipantsOfCourse(courseId).map { ParticipantDtoFull(it) }
     }
 
@@ -207,9 +205,11 @@ class CourseController: BaseController() {
         labelService.deleteLabel(label)
     }
 
-    // TODO: Fill in permissions for both below
     @GetMapping(path = ["/{courseId}/groups/search"])
     fun getSignOffGroupSearchResults(@PathVariable courseId: Long, @RequestParam query: String?): GroupAssignmentSetSearchResultDto {
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_GROUP)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.LIST, HorusResource.COURSE_GROUPSET)
+
         if (query == null || query.trim().isEmpty()) {
             throw EmptySearchQueryException()
         }
@@ -218,11 +218,14 @@ class CourseController: BaseController() {
 
     @GetMapping(path = ["/{courseId}/signoffresults"])
     fun getSignOffResultsFiltered(@PathVariable courseId: Long, @RequestParam groupId: Long?, @RequestParam assignmentSetId: Long): List<SignOffResultDtoCompact> {
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_SIGNOFFRESULT)
+
         return courseService.getSignOffResultsFilteredInCourse(courseId, groupId, assignmentSetId).map { SignOffResultDtoCompact(it) }
     }
 
     @GetMapping(path = ["/{courseId}/studentDashboard"])
     fun getStudentDashboard(@PathVariable courseId: Long): StudentDashboardDto {
+        // No permissions necessary: all results are "personalized" anyways
         val participant = participantService.getCurrentParticipationInCourse(courseId)
         val sets = assignmentService.getAssignmentSetsByParticipant(participant)
         val results = signOffService.getSignOffsByParticipant(participant)

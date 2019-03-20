@@ -1,9 +1,13 @@
 package nl.utwente.horus.controllers.participant
 
 import nl.utwente.horus.auth.permissions.HorusPermissionType
+import nl.utwente.horus.auth.permissions.HorusResource
 import nl.utwente.horus.controllers.BaseController
+import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.exceptions.CommentThreadNotFoundException
+import nl.utwente.horus.exceptions.CourseMismatchException
+import nl.utwente.horus.exceptions.EmptyListException
 import nl.utwente.horus.representations.comment.CommentThreadCreateDto
 import nl.utwente.horus.representations.comment.CommentThreadDtoFull
 import nl.utwente.horus.representations.participant.ParticipantDtoFull
@@ -34,11 +38,18 @@ class ParticipantController: BaseController() {
 
     @GetMapping(path = ["/", ""])
     fun getParticipants(@RequestParam participantIds: List<Long>): List<ParticipantDtoFull> {
-        participantIds.forEach {
-            // TODO: Remove comments/labels when request issued by students (e.g. no view permissions for those)
-            verifyCoursePermission(Participant::class, it, HorusPermissionType.VIEW)
+        if (participantIds.isEmpty()) {
+            throw EmptyListException()
         }
-        return participantService.getParticipantsById(participantIds).map { ParticipantDtoFull(it) }
+        val participants = participantService.getParticipantsById(participantIds)
+        val initialId = participants.first().course.id
+        if (participants.map { it.course.id }.any { it != initialId }) {
+            // Participants come from different courses
+            throw CourseMismatchException()
+        }
+        // Check ANY on first item, that will hold for whole list since they originate from same course
+        requireAnyPermission(Participant::class, participants.first().id, HorusPermissionType.VIEW)
+        return participants.map { ParticipantDtoFull(it) }
     }
 
     @GetMapping(path = ["/{pId}/comments"])
@@ -47,7 +58,9 @@ class ParticipantController: BaseController() {
         if (participant.commentThread == null) {
             throw CommentThreadNotFoundException()
         }
-        return CommentThreadDtoFull(participant.commentThread!!)
+        val thread = participant.commentThread!!
+        verifyCoursePermission(CommentThread::class, thread.id, HorusPermissionType.VIEW, toHorusResource(thread))
+        return CommentThreadDtoFull(thread)
     }
 
     @PostMapping(path = ["/{pId}/comments"])
@@ -56,11 +69,15 @@ class ParticipantController: BaseController() {
         // Update participant, but using new comment thread
         val p = participantService.getParticipantById(pId)
         participantService.addThread(p, thread)
+        verifyCoursePermission(CommentThread::class, thread.id, HorusPermissionType.CREATE, toHorusResource(thread))
         return CommentThreadDtoFull(thread)
     }
 
     @PostMapping(path = ["/{pId}/labels/{labelId}"])
     fun addLabelMapping(@PathVariable pId: Long, @PathVariable labelId: Long): ParticipantDtoFull {
+        verifyCoursePermission(Participant::class, pId, HorusPermissionType.CREATE,
+                HorusResource.COURSE_PARTICIPANT_LABEL_MAPPING)
+
         val participant = participantService.getParticipantById(pId)
         val label = labelService.getLabelById(labelId)
         participantService.addLabel(participant, label)
@@ -69,6 +86,9 @@ class ParticipantController: BaseController() {
 
     @DeleteMapping(path = ["/{pId}/labels/{labelId}"])
     fun deleteLabelMapping(@PathVariable pId: Long, @PathVariable labelId: Long): ParticipantDtoFull {
+        verifyCoursePermission(Participant::class, pId, HorusPermissionType.DELETE,
+                HorusResource.COURSE_PARTICIPANT_LABEL_MAPPING)
+
         val participant = participantService.getParticipantById(pId)
         val label = labelService.getLabelById(labelId)
         participantService.removeLabelMapping(participant, label)

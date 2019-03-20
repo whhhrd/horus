@@ -1,5 +1,8 @@
 package nl.utwente.horus.controllers.comment
 
+import nl.utwente.horus.auth.permissions.HorusPermissionType
+import nl.utwente.horus.controllers.BaseController
+import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.representations.comment.CommentThreadCreateDto
 import nl.utwente.horus.representations.comment.CommentThreadDtoFull
 import nl.utwente.horus.services.auth.HorusUserDetailService
@@ -11,7 +14,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping(path=["/api/threads"])
 @Transactional
-class CommentThreadController {
+class CommentThreadController: BaseController() {
 
     @Autowired
     lateinit var commentService: CommentService
@@ -21,18 +24,26 @@ class CommentThreadController {
 
     @GetMapping(path = ["", "/"])
     fun getThreads(@RequestParam threadIds: List<Long>): List<CommentThreadDtoFull> {
-        return threadIds.map { CommentThreadDtoFull(commentService.getThreadById(it)) }
+        val threads = threadIds.map { commentService.getThreadById(it) }
+        threads.forEach {
+            verifyCoursePermission(CommentThread::class, it.id, HorusPermissionType.VIEW, toHorusResource(it))
+        }
+        return threads.map { CommentThreadDtoFull(it) }
     }
 
     @PostMapping(path = ["", "/"])
     fun createThread(@RequestBody dto: CommentThreadCreateDto): CommentThreadDtoFull {
+        // Unfortunately no security possible: no way to track back to a course....
         val author = userDetailService.getCurrentPerson()
-        return CommentThreadDtoFull(commentService.createThread(dto, author))
+        val commentThread = commentService.createThread(dto, author)
+        return CommentThreadDtoFull(commentThread)
     }
 
     @DeleteMapping(path = ["/{threadId}"])
     fun deleteThread(@PathVariable threadId: Long) {
-        commentService.deleteCommentsThread(commentService.getThreadById(threadId))
+        val thread = commentService.getThreadById(threadId)
+        verifyCoursePermission(CommentThread::class, threadId, HorusPermissionType.DELETE, toHorusResource(thread))
+        commentService.deleteCommentsThread(thread)
     }
 
 }

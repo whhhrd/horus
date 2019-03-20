@@ -2,6 +2,7 @@ package nl.utwente.horus.services.course
 
 import nl.utwente.horus.entities.assignment.AssignmentSet
 import nl.utwente.horus.entities.assignment.SignOffResult
+import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.course.CourseRepository
 import nl.utwente.horus.entities.group.GroupSet
@@ -88,6 +89,10 @@ class CourseService {
     fun getCurrentParticipationInCourse(course: Course): Participant {
         val user = userDetailService.getCurrentPerson()
         return course.participants.firstOrNull { it.person.id == user.id } ?: throw ParticipantNotFoundException()
+    }
+
+    fun getCoursesOfCommentThread(thread: CommentThread): List<Course> {
+        return courseRepository.findCoursesByCommentThread(thread)
     }
 
     fun createAssignmentSetInCourse(creator: Person, courseId: Long, dto: AssignmentSetCreateDto): AssignmentSet {

@@ -1,7 +1,11 @@
 package nl.utwente.horus.controllers.signoff
 
+import nl.utwente.horus.auth.permissions.HorusPermissionType
+import nl.utwente.horus.auth.permissions.HorusResource
+import nl.utwente.horus.controllers.BaseController
+import nl.utwente.horus.entities.assignment.AssignmentSet
+import nl.utwente.horus.entities.assignment.SignOffResult
 import nl.utwente.horus.exceptions.CommentThreadNotFoundException
-import nl.utwente.horus.representations.assignment.SignOffResultDtoCompact
 import nl.utwente.horus.representations.assignment.SignOffResultDtoSummary
 import nl.utwente.horus.representations.comment.CommentThreadCreateDto
 import nl.utwente.horus.representations.comment.CommentThreadDtoFull
@@ -16,7 +20,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @Transactional
 @RequestMapping(path=["/api/signoff"])
-class SignOffResultController {
+class SignOffResultController: BaseController() {
 
     @Autowired
     lateinit var signOffService: SignOffService
@@ -29,14 +33,20 @@ class SignOffResultController {
 
     @PatchMapping(path = ["/{assignmentSetId}"])
     fun createSignOff(@PathVariable assignmentSetId: Long, @RequestBody dto: SignOffResultPatchDto): List<SignOffResultDtoSummary> {
-        return signOffService.processSignOffs(dto, assignmentSetId).map { SignOffResultDtoSummary(it) }
+        requireAnyPermission(AssignmentSet::class, assignmentSetId, HorusPermissionType.CREATE, HorusResource.COURSE_SIGNOFFRESULT)
+        requireAnyPermission(AssignmentSet::class, assignmentSetId, HorusPermissionType.EDIT, HorusResource.COURSE_SIGNOFFRESULT)
 
+        return signOffService.processSignOffs(dto, assignmentSetId).map { SignOffResultDtoSummary(it) }
     }
 
     @GetMapping(path = ["/{signOffId}/comments"])
     fun getCommentThread(@PathVariable signOffId: Long): CommentThreadDtoFull {
+
         val thread = signOffService.getSignOffResultById(signOffId).commentThread
                 ?: throw CommentThreadNotFoundException()
+
+        verifyCoursePermission(SignOffResult::class, signOffId, HorusPermissionType.VIEW, toHorusResource(thread))
+
         return CommentThreadDtoFull(thread)
     }
 
@@ -46,12 +56,22 @@ class SignOffResultController {
         val thread = commentService.createThread(dto, user)
         val result = signOffService.getSignOffResultById(signOffId)
         signOffService.addThreadToSignOffResult(result, thread)
+
+        verifyCoursePermission(SignOffResult::class, signOffId, HorusPermissionType.CREATE, toHorusResource(thread))
+
         return CommentThreadDtoFull(thread)
     }
 
     @GetMapping(path = ["/history"])
     fun getSignOffHistory(@RequestParam participantId: Long, @RequestParam assignmentId: Long): List<SignOffResultDtoSummary> {
-        return signOffService.getSignOffHistory(participantId, assignmentId).sortedByDescending { it.signedAt }.map { SignOffResultDtoSummary(it) }
+        val results = signOffService.getSignOffHistory(participantId, assignmentId)
+
+        if (results.isNotEmpty()) {
+            // Check permission based on first result: will hold for rest as well (since they are for same participant)
+            verifyCoursePermission(SignOffResult::class, results.first().id, HorusPermissionType.VIEW)
+        }
+
+        return results.sortedByDescending { it.signedAt }.map { SignOffResultDtoSummary(it) }
     }
 
 }

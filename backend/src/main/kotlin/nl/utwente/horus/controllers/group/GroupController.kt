@@ -1,5 +1,9 @@
 package nl.utwente.horus.controllers.group
 
+import nl.utwente.horus.auth.permissions.HorusPermissionType
+import nl.utwente.horus.controllers.BaseController
+import nl.utwente.horus.entities.comment.CommentThread
+import nl.utwente.horus.entities.group.Group
 import nl.utwente.horus.exceptions.CommentThreadNotFoundException
 import nl.utwente.horus.representations.comment.CommentThreadCreateDto
 import nl.utwente.horus.representations.comment.CommentThreadDtoFull
@@ -14,7 +18,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @Transactional
 @RequestMapping(path=["/api/groups"])
-class GroupController {
+class GroupController: BaseController() {
 
     @Autowired
     lateinit var groupService: GroupService
@@ -27,12 +31,16 @@ class GroupController {
 
     @GetMapping(path = ["/{groupId}"])
     fun getGroup(@PathVariable groupId: Long): GroupDtoFull {
+        verifyCoursePermission(Group::class, groupId, HorusPermissionType.VIEW)
+
         return GroupDtoFull(groupService.getGroupById(groupId))
     }
 
     @GetMapping(path = ["/{groupId}/comments"])
     fun getGroupComments(@PathVariable groupId: Long): CommentThreadDtoFull {
         val thread = groupService.getGroupById(groupId).commentThread ?: throw CommentThreadNotFoundException()
+
+        verifyCoursePermission(Group::class, groupId, HorusPermissionType.VIEW, toHorusResource(thread))
         return CommentThreadDtoFull(thread)
     }
 
@@ -42,6 +50,9 @@ class GroupController {
         val thread = commentService.createThread(dto, user)
         val group = groupService.getGroupById(groupId)
         groupService.addThread(group, thread)
+
+        verifyCoursePermission(CommentThread::class, thread.id, HorusPermissionType.CREATE, toHorusResource(thread))
+
         return CommentThreadDtoFull(thread)
     }
 }

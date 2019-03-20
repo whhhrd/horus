@@ -6,21 +6,26 @@ import nl.utwente.horus.auth.permissions.HorusResource
 import nl.utwente.horus.auth.permissions.HorusResourceScope
 import nl.utwente.horus.entities.assignment.Assignment
 import nl.utwente.horus.entities.assignment.AssignmentSet
+import nl.utwente.horus.entities.assignment.SignOffResult
 import nl.utwente.horus.entities.comment.Comment
 import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.comment.CommentType
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.group.Group
+import nl.utwente.horus.entities.group.GroupSet
 import nl.utwente.horus.entities.participant.Label
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.person.Person
 import nl.utwente.horus.exceptions.InsufficientPermissionsException
+import nl.utwente.horus.representations.participant.ParticipantDtoFull
 import nl.utwente.horus.services.assignment.AssignmentService
 import nl.utwente.horus.services.auth.HorusUserDetailService
+import nl.utwente.horus.services.comment.CommentService
 import nl.utwente.horus.services.course.CourseService
 import nl.utwente.horus.services.group.GroupService
 import nl.utwente.horus.services.participant.LabelService
 import nl.utwente.horus.services.participant.ParticipantService
+import nl.utwente.horus.services.signoff.SignOffService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
@@ -32,6 +37,7 @@ import kotlin.reflect.KClass
 typealias EntityFetcher<T> = (id: Long) -> T
 typealias CourseMapper<T> = (entity: T) -> Long
 typealias MappedChecker<T> = (person: Person, entity: T) -> Boolean
+typealias CallResult<D> = (Person) -> D
 
 @Component
 @Transactional
@@ -55,6 +61,12 @@ abstract class BaseController {
     @Autowired
     private lateinit var groupService: GroupService
 
+    @Autowired
+    private lateinit var commentService: CommentService
+
+    @Autowired
+    private lateinit var signOffService: SignOffService
+
     data class EntityBundle<T>(
             val fetcher: EntityFetcher<T>,
             val mapper: CourseMapper<T>,
@@ -71,7 +83,9 @@ abstract class BaseController {
                 Course::class to HorusResource.COURSE,
                 Participant::class to HorusResource.COURSE_PARTICIPANT,
                 Label::class to HorusResource.COURSE_LABEL,
-                Group::class to HorusResource.COURSE_GROUP
+                Group::class to HorusResource.COURSE_GROUP,
+                SignOffResult::class to HorusResource.COURSE_SIGNOFFRESULT,
+                GroupSet::class to HorusResource.COURSE_GROUPSET
         )
 
     }
@@ -86,6 +100,23 @@ abstract class BaseController {
 
     fun <T : Any> checkGlobalPermission(resourceClass: KClass<T>, type: HorusPermissionType) {
 
+    }
+
+    fun <T: Any> requireAnyPermission(idClass: KClass<T>, entityId: Long,
+                             type: HorusPermissionType,
+                             diffResource: HorusResource? = null) {
+        val bundle = getEntityBundle(idClass)!!
+        val resource = diffResource ?: TYPES_MAP.getValue(idClass)
+
+        val entity = bundle.fetcher(entityId)
+        val courseId = bundle.mapper(entity)
+
+        // Check if user has this permission regardless of being mapped to it
+        val hasAny = userDetailService.hasCoursePermission(courseId,
+                HorusPermission(resource, HorusResourceScope.ANY, type))
+        if (!hasAny) {
+            throw InsufficientPermissionsException()
+        }
     }
 
     /**
@@ -110,6 +141,16 @@ abstract class BaseController {
     fun <T : Any> verifyCoursePermission(idClass: KClass<T>, entityId: Long,
                                          type: HorusPermissionType,
                                          diffResource: HorusResource? = null) {
+        val scope = getAllowedResourceScope(idClass, entityId, type, diffResource)
+        if (scope == null) {
+            // No permission to do operation: not any nor own.
+            throw InsufficientPermissionsException()
+        }
+    }
+
+    fun <T : Any> getAllowedResourceScope(idClass: KClass<T>, entityId: Long,
+                                type: HorusPermissionType,
+                                diffResource: HorusResource? = null): HorusResourceScope? {
         val bundle = getEntityBundle(idClass)!!
         val resource = diffResource ?: TYPES_MAP.getValue(idClass)
 
@@ -120,7 +161,7 @@ abstract class BaseController {
         val hasAny = userDetailService.hasCoursePermission(courseId,
                 HorusPermission(resource, HorusResourceScope.ANY, type))
         if (hasAny) {
-            return
+            return HorusResourceScope.ANY
         }
 
         // Didn't succeed: maybe has permission only when mapped to entity
@@ -128,11 +169,23 @@ abstract class BaseController {
                 HorusPermission(resource, HorusResourceScope.OWN, type))
         val isMapped = bundle.checker(userDetailService.getCurrentPerson(), entity)
         if (hasOwn && isMapped) {
-            return
+            return HorusResourceScope.OWN
         }
 
-        // Also didn't succeed: operation not allowed
-        throw InsufficientPermissionsException()
+        return null
+    }
+
+    fun <E: Any, D: Any> anyOwnResult(idClass: KClass<E>, entityId: Long,
+                                      type: HorusPermissionType,
+                                      diffResource: HorusResource? = null,
+                                      anyResult: CallResult<D>,
+                                      ownResult: CallResult<D>): D {
+        val scope = getAllowedResourceScope(idClass, entityId, type, diffResource)
+        return when (scope) {
+            HorusResourceScope.ANY -> anyResult(userDetailService.getCurrentPerson())
+            HorusResourceScope.OWN -> ownResult(userDetailService.getCurrentPerson())
+            null -> throw InsufficientPermissionsException()
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -179,6 +232,38 @@ abstract class BaseController {
                     groupService::isPersonMemberOfGroup
             ) as EntityBundle<T>
         }
+        if (kClass == GroupSet::class) {
+            return EntityBundle<GroupSet>(
+                    groupService::getGroupSetById,
+                    { it.course.id },
+                    groupService::isPersonMemberOfGroupSet
+            ) as EntityBundle<T>
+        }
+        if (kClass == CommentThread::class) {
+            return EntityBundle<CommentThread>(
+                    commentService::getThreadById,
+                    {
+                        val course = courseService.getCoursesOfCommentThread(it).firstOrNull() ?: throw InsufficientPermissionsException()
+                        course.id
+                    },
+                    { person, entity -> entity.comments.map { it.person.id }.any { person.id == it } }
+            ) as EntityBundle<T>
+        }
+        if (kClass == Comment::class) {
+            return EntityBundle<Comment>(
+                    commentService::getCommentById,
+                    { courseService.getCoursesOfCommentThread(it.thread).first().id }, // Same as with thread
+                    { person, entity -> entity.person.id == person.id}
+            ) as EntityBundle<T>
+        }
+        if (kClass == SignOffResult::class) {
+            return EntityBundle<SignOffResult>(
+                    signOffService::getSignOffResultById,
+                    { it.participant.course.id },
+                    // "Own" definition if you're either signer or the "subject"/participating student
+                    { person, entity -> entity.participant.person.id == person.id || entity.signedBy.person.id == person.id }
+            ) as EntityBundle<T>
+        }
         return null
     }
 
@@ -188,6 +273,11 @@ abstract class BaseController {
         byteWriter(response.outputStream)
         response.outputStream.flush()
         response.outputStream.close()
+    }
 
+    fun toCleanDto(p: Participant): ParticipantDtoFull {
+        val dto = ParticipantDtoFull(p)
+        dto.labels = emptyList()
+        return dto
     }
 }

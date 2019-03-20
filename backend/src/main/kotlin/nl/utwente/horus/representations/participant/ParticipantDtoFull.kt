@@ -7,7 +7,7 @@ import nl.utwente.horus.representations.person.PersonDtoBrief
 import java.time.ZonedDateTime
 
 open class ParticipantDtoFull: ParticipantDtoBrief {
-    val labels: List<LabelDto>
+    var labels: List<LabelDto>
     val enabled: Boolean
     val createdAt: ZonedDateTime
 
