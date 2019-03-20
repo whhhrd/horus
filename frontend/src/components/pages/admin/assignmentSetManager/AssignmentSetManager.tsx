@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { withRouter, RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 
-import { Card, CardBody, Row } from "reactstrap";
+import { Card, CardBody, Row, Alert } from "reactstrap";
 
 import AssignmentSetListEntry from "./AssignmentSetListEntry";
 
@@ -28,23 +28,30 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import AssignmentSetCreatorModal from "./AssignmentSetCreatorModal";
 import { getCoursePermissions } from "../../../../state/auth/selectors";
 import CoursePermissions from "../../../../api/permissions";
-import { assignmentSetsAnyEdit, assignmentSetsAnyCreate } from "../../../../state/auth/constants";
+import {
+    assignmentSetsAnyEdit,
+    assignmentSetsAnyCreate,
+    assignmentsAdmin, assignmentSetsAnyDelete, groupSetsAdmin,
+} from "../../../../state/auth/constants";
 import { buildContent } from "../../../pagebuilder";
 
 interface AssignmentSetManagerProps {
-
     assignmentGroupSetsMappingDtos: AssignmentGroupSetsMappingDto[] | null;
 
     permissions: CoursePermissions | null;
 
     getAssignmentSets: () => AssignmentSetDtoBrief[] | null;
 
-    fetchAssignmentGroupSetsMappingDtos: (courseID: number) => {
-        type: string,
+    fetchAssignmentGroupSetsMappingDtos: (
+        courseID: number,
+    ) => {
+        type: string;
     };
 
-    fetchAssignmentSets: (courseID: number) => {
-        type: string,
+    fetchAssignmentSets: (
+        courseID: number,
+    ) => {
+        type: string;
     };
 }
 
@@ -52,9 +59,10 @@ interface AssignmentSetManagerState {
     creatorModalOpen: boolean;
 }
 
-class AssignmentSetManager extends
-    Component<AssignmentSetManagerProps & RouteComponentProps<any>, AssignmentSetManagerState> {
-
+class AssignmentSetManager extends Component<
+    AssignmentSetManagerProps & RouteComponentProps<any>,
+    AssignmentSetManagerState
+> {
     constructor(props: AssignmentSetManagerProps & RouteComponentProps<any>) {
         super(props);
         this.state = {
@@ -64,7 +72,9 @@ class AssignmentSetManager extends
     }
 
     toggleCreatorModal() {
-        this.setState((state) => ({ creatorModalOpen: !state.creatorModalOpen }));
+        this.setState((state) => ({
+            creatorModalOpen: !state.creatorModalOpen,
+        }));
     }
 
     componentDidMount() {
@@ -72,7 +82,9 @@ class AssignmentSetManager extends
         this.props.fetchAssignmentSets(this.props.match.params.cid);
 
         // Fetch the AssignmentGroupSets mappings
-        this.props.fetchAssignmentGroupSetsMappingDtos(this.props.match.params.cid);
+        this.props.fetchAssignmentGroupSetsMappingDtos(
+            this.props.match.params.cid,
+        );
     }
 
     render() {
@@ -80,26 +92,46 @@ class AssignmentSetManager extends
     }
 
     buildContent() {
+        const cid = Number(this.props.match.params.cid);
+        const permissions = this.props.permissions!;
         const assignmentSets = this.props.getAssignmentSets();
 
-        if (assignmentSets === null || this.props.assignmentGroupSetsMappingDtos === null) {
+        const canView = assignmentsAdmin.check(cid, permissions);
+
+        if (
+            assignmentSets === null ||
+            this.props.assignmentGroupSetsMappingDtos === null
+        ) {
             return null;
+        } else if (!canView) {
+            return (
+                <Alert color="danger">
+                    You don't have permission to view this page
+                </Alert>
+            );
         } else {
             // Prepare the mapping of assignment set with its groupsets
-            const preparedASetGroupSetsMapping: Map<number, GroupSetDtoBrief[]> =
-                this.prepareAssignmentGroupSetsMappingDtosToMap(this.props.assignmentGroupSetsMappingDtos);
+            const preparedASetGroupSetsMapping: Map<
+                number,
+                GroupSetDtoBrief[]
+            > = this.prepareAssignmentGroupSetsMappingDtosToMap(
+                this.props.assignmentGroupSetsMappingDtos,
+            );
 
             // Put the AssignmentSetListEntry elements in the following map
-            const aSetJSXs: JSX.Element[] =
-                this.composeAssignmentSetListEntries(assignmentSets, preparedASetGroupSetsMapping);
+            const aSetJSXs: JSX.Element[] = this.composeAssignmentSetListEntries(
+                assignmentSets,
+                preparedASetGroupSetsMapping,
+            );
             return (
                 <Row className="px-2 d-flex justify-content-center justify-content-lg-start">
                     {aSetJSXs}
                     <AssignmentSetCreatorModal
                         isOpen={this.state.creatorModalOpen}
-                        courseID={this.props.match.params.cid}
+                        courseID={cid}
                         key={-1}
-                        onCloseModal={this.toggleCreatorModal} />
+                        onCloseModal={this.toggleCreatorModal}
+                    />
                 </Row>
             );
         }
@@ -110,23 +142,29 @@ class AssignmentSetManager extends
      * an assignmentSetID and as value a list of GroupSetDtoBrief objects.
      * @param mappingDtos The Dtos fetched from the API call /courses/:cid/assignmentgroupsetsmappings
      */
-    private prepareAssignmentGroupSetsMappingDtosToMap(mappingDtos: AssignmentGroupSetsMappingDto[]) {
-
+    private prepareAssignmentGroupSetsMappingDtosToMap(
+        mappingDtos: AssignmentGroupSetsMappingDto[],
+    ) {
         // The prepared mapping to be returned.
         const aSetIDsToGroupSets = new Map<number, GroupSetDtoBrief[]>();
 
-        // Loop over the mappingDtos and fill the map
-        for (const mappingDto of mappingDtos) {
-            const aSetDtoBrief = mappingDto.assignmentSet;
-            const groupSetDtoBrief = mappingDto.groupSet;
+        const cid = Number(this.props.match.params.cid);
+        const permissions = this.props.permissions!;
+        const canListGroupSets = groupSetsAdmin.check(cid, permissions);
+        if (canListGroupSets) {
+            // Loop over the mappingDtos and fill the map
+            for (const mappingDto of mappingDtos) {
+                const aSetDtoBrief = mappingDto.assignmentSet;
+                const groupSetDtoBrief = mappingDto.groupSet;
 
-            // Put an empty list if there is no key yet for this aSetDtoBrief
-            if (aSetIDsToGroupSets.get(aSetDtoBrief.id) === undefined) {
-                aSetIDsToGroupSets.set(aSetDtoBrief.id, []);
+                // Put an empty list if there is no key yet for this aSetDtoBrief
+                if (aSetIDsToGroupSets.get(aSetDtoBrief.id) === undefined) {
+                    aSetIDsToGroupSets.set(aSetDtoBrief.id, []);
+                }
+
+                // Push the groupSetDtoBrief to the value of the corresponding key
+                aSetIDsToGroupSets.get(aSetDtoBrief.id)!.push(groupSetDtoBrief);
             }
-
-            // Push the groupSetDtoBrief to the value of the corresponding key
-            aSetIDsToGroupSets.get(aSetDtoBrief.id)!.push(groupSetDtoBrief);
         }
 
         return aSetIDsToGroupSets;
@@ -144,24 +182,33 @@ class AssignmentSetManager extends
         aSetDtoBriefs: AssignmentSetDtoBrief[],
         preparedASetGroupSetsMapping: Map<number, GroupSetDtoBrief[]>,
     ) {
-
+        const permissions = this.props.permissions!;
+        const cid = Number(this.props.match.params.cid);
         // The JSX.Element[] list to be returned
         const aSetJSXs: JSX.Element[] = [];
 
-        const canEdit = this.props.permissions != null
-            && assignmentSetsAnyEdit.check(this.props.match.params.cid, this.props.permissions);
-
-        const canCreate = this.props.permissions != null
-            && assignmentSetsAnyCreate.check(this.props.match.params.cid, this.props.permissions);
+        const canCreate = assignmentSetsAnyCreate.check(cid, permissions);
+        const canEdit = assignmentSetsAnyEdit.check(cid, permissions);
+        const canDelete = assignmentSetsAnyDelete.check(cid, permissions);
+        const canListGroupSets = groupSetsAdmin.check(cid, permissions);
 
         if (canCreate) {
             aSetJSXs.push(
-                <Card key={-1}
-                    className="m-2 shadow-sm aset-card-create" onClick={() => this.toggleCreatorModal()}>
-                    <CardBody className="d-flex vertical-center" style={{ color: "#007bff" }}>
+                <Card
+                    key={-1}
+                    className="m-2 shadow-sm aset-card-create"
+                    onClick={() => this.toggleCreatorModal()}
+                >
+                    <CardBody
+                        className="d-flex vertical-center"
+                        style={{ color: "#007bff" }}
+                    >
                         <div className="mx-auto my-auto text-center">
                             <FontAwesomeIcon icon={faPlus} size="4x" />
-                            <br /><big className="mt-4 d-block">Create assignment set</big>
+                            <br />
+                            <big className="mt-4 d-block">
+                                Create assignment set
+                            </big>
                         </div>
                     </CardBody>
                 </Card>,
@@ -172,9 +219,10 @@ class AssignmentSetManager extends
         if (aSetDtoBriefs.length > 0) {
             // Loop over each assignmentSetDtoBrief and put
             for (const aSetDtoBrief of aSetDtoBriefs) {
-
                 // Retrieve the groupSets mapped to the assignmentSet
-                const groupSets = preparedASetGroupSetsMapping.get(aSetDtoBrief.id);
+                const groupSets = preparedASetGroupSetsMapping.get(
+                    aSetDtoBrief.id,
+                );
 
                 // Push an AssignmentSetListEntry with the necessary details
                 aSetJSXs.push(
@@ -183,7 +231,10 @@ class AssignmentSetManager extends
                         courseId={this.props.match.params.cid}
                         assignmentSet={aSetDtoBrief}
                         canEdit={canEdit}
-                        groupSets={groupSets != null ? groupSets : []} />,
+                        canDelete={canDelete}
+                        groupSets={groupSets != null ? groupSets : []}
+                        canSeeGroups={canListGroupSets}
+                    />,
                 );
             }
         }
@@ -191,11 +242,18 @@ class AssignmentSetManager extends
     }
 }
 
-export default withRouter(connect((state: ApplicationState) => ({
-    assignmentGroupSetsMappingDtos: getAssignmentGroupSetsMappingDtos(state),
-    getAssignmentSets: () => getAssignmentSets(state),
-    permissions: getCoursePermissions(state),
-}), {
-        fetchAssignmentGroupSetsMappingDtos: assignmentGroupSetsMappingsFetchRequestedAction,
-        fetchAssignmentSets: assignmentSetsFetchRequestedAction,
-    })(AssignmentSetManager));
+export default withRouter(
+    connect(
+        (state: ApplicationState) => ({
+            assignmentGroupSetsMappingDtos: getAssignmentGroupSetsMappingDtos(
+                state,
+            ),
+            getAssignmentSets: () => getAssignmentSets(state),
+            permissions: getCoursePermissions(state),
+        }),
+        {
+            fetchAssignmentGroupSetsMappingDtos: assignmentGroupSetsMappingsFetchRequestedAction,
+            fetchAssignmentSets: assignmentSetsFetchRequestedAction,
+        },
+    )(AssignmentSetManager),
+);

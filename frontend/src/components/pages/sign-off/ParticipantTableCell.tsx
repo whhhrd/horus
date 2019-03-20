@@ -17,6 +17,7 @@ interface ParticipantTableCellProps {
     participant: ParticipantDtoBrief;
     group: GroupDtoSummary;
     onCommentClick: (comments: JSX.Element) => void;
+    canViewComments: boolean;
 
     commentThread: (
         entityId: number,
@@ -31,7 +32,7 @@ class ParticipantTableCell extends Component<ParticipantTableCellProps> {
             <td className="sign-off-table-heading sign-off-table-top-row">
                 {person.fullName}
 
-                {this.props.onCommentClick && (
+                {this.props.canViewComments && this.props.onCommentClick && (
                     <div
                         onClick={() =>
                             this.props.onCommentClick(this.buildComments())

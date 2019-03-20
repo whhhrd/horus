@@ -25,6 +25,13 @@ import CommentThread from "../../../../comments/CommentThread";
 import { openSidebarPhoneAction } from "../../../../../state/sidebar/actions";
 import { Action } from "redux";
 import { EntityType } from "../../../../../state/comments/types";
+import CoursePermissions from "../../../../../api/permissions";
+import {getCoursePermissions} from "../../../../../state/auth/selectors";
+import {
+    canvasGroupsSyncPerform,
+    groupsAnyView,
+    viewCommentSidebar,
+} from "../../../../../state/auth/constants";
 
 interface GroupManagerProps {
     groups: GroupDtoFull[] | null;
@@ -42,6 +49,7 @@ interface GroupManagerProps {
         groupSetId: number,
     ) => CanvasRefreshSetRequestedAction;
 
+    coursePermissions: CoursePermissions | null;
     redirectTo: (url: string) => {};
 }
 
@@ -85,17 +93,22 @@ class GroupManager extends Component<
     }
 
     buildContent() {
+        const permissions = this.props.coursePermissions!;
+        const cid = Number(this.props.match.params.cid);
+        const canPerformCanvasSync = canvasGroupsSyncPerform.check(cid, permissions);
+        const canViewGroups = groupsAnyView.check(cid, permissions);
+
         const { groups } = this.props;
 
         const course = this.props.course(this.props.match.params.cid);
 
-        if (course === null) {
+        if (course === null || !canViewGroups) {
             return null;
         } else {
             return (
                 <Row className="flex-row justify-content-center">
                     <Col xs="12" md="8">
-                        {course.externalId != null && (
+                        {canPerformCanvasSync && course.externalId != null && (
                             <div>
                                 <Button
                                     block
@@ -134,6 +147,9 @@ class GroupManager extends Component<
     }
 
     buildSidebar() {
+        const permissions = this.props.coursePermissions!;
+        const cid = Number(this.props.match.params.cid);
+        const canViewComments = viewCommentSidebar.check(cid, permissions);
         const gid = Number(queryString.parse(this.props.location.search).gid);
 
         let currentlyShownGroup = null;
@@ -176,35 +192,38 @@ class GroupManager extends Component<
                     {participants.length === 0 && (
                         <span className="text-muted">This group is empty.</span>
                     )}
-                    <hr />
-                    <h3>Comments</h3>
-                    <CommentThread
-                        linkedEntityId={currentlyShownGroup.id}
-                        commentThreadId={
-                            currentlyShownGroup.commentThread != null
-                                ? currentlyShownGroup.commentThread.id
-                                : null
-                        }
-                        linkedEntityType={EntityType.Group}
-                        commentThreadSubject={currentlyShownGroup.name}
-                        showCommentThreadContent={false}
-                    />
+                    {canViewComments &&
+                    <div>
+                        <hr />
+                        <h3>Comments</h3>
+                        <CommentThread
+                            linkedEntityId={currentlyShownGroup.id}
+                            commentThreadId={
+                                currentlyShownGroup.commentThread != null
+                                    ? currentlyShownGroup.commentThread.id
+                                    : null
+                            }
+                            linkedEntityType={EntityType.Group}
+                            commentThreadSubject={currentlyShownGroup.name}
+                            showCommentThreadContent={false}
+                        />
 
-                    {participants.length > 0 &&
-                        participants.map((p) => (
-                            <CommentThread
-                                key={p.id}
-                                linkedEntityId={p.id}
-                                commentThreadId={
-                                    p.commentThread != null
-                                        ? p.commentThread.id
-                                        : null
-                                }
-                                linkedEntityType={EntityType.Participant}
-                                commentThreadSubject={p.person.fullName}
-                                showCommentThreadContent={false}
-                            />
-                        ))}
+                        {participants.length > 0 &&
+                            participants.map((p) => (
+                                <CommentThread
+                                    key={p.id}
+                                    linkedEntityId={p.id}
+                                    commentThreadId={
+                                        p.commentThread != null
+                                            ? p.commentThread.id
+                                            : null
+                                    }
+                                    linkedEntityType={EntityType.Participant}
+                                    commentThreadSubject={p.person.fullName}
+                                    showCommentThreadContent={false}
+                                />
+                            ))}
+                    </div>}
                 </div>
             );
         }
@@ -215,6 +234,10 @@ class GroupManager extends Component<
     }
 
     private renderGroups(groups: GroupDtoFull[] | null) {
+        const permissions = this.props.coursePermissions!;
+        const cid = Number(this.props.match.params.cid);
+        const canViewGroups = groupsAnyView.check(cid, permissions);
+
         const searchQuery = this.state.searchQuery;
         const groupsRender = [];
 
@@ -232,6 +255,7 @@ class GroupManager extends Component<
                             key={group.id}
                             group={group}
                             onShowClick={this.onShowClick}
+                            showButton={canViewGroups}
                         />,
                     );
                 } else {
@@ -249,6 +273,7 @@ class GroupManager extends Component<
                                     key={group.id}
                                     group={group}
                                     onShowClick={this.onShowClick}
+                                    showButton={canViewGroups}
                                 />,
                             );
                             break;
@@ -266,6 +291,7 @@ export default withRouter(
         (state: ApplicationState) => ({
             course: (id: number) => getCourse(state, id),
             groups: getGroups(state),
+            coursePermissions: getCoursePermissions(state),
         }),
         {
             fetchGroups: groupsFetchRequestedAction,

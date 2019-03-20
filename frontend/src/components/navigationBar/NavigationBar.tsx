@@ -11,7 +11,7 @@ import CoursePermissions from "../../api/permissions";
 import { ApplicationState } from "../../state/state";
 import { getActiveTab } from "../../state/navigationBar/selectors";
 import { getCoursePermissions } from "../../state/auth/selectors";
-import { courseAdmin } from "../../state/auth/constants";
+import { courseAdmin, signoffAssignmentsView, signoffAssignmentsPerform } from "../../state/auth/constants";
 import { logoutRequestedAction } from "../../state/auth/actions";
 import { Action } from "redux";
 
@@ -34,6 +34,8 @@ export class NavigationBar extends Component<NavigationBarProps & RouteComponent
         const permissions = this.props.coursePermissions!;
 
         const hasAdmin = courseAdmin.check(courseId, permissions);
+        const canViewSignoffs = signoffAssignmentsPerform.check(courseId, permissions);
+        const canSignoff = signoffAssignmentsView.check(courseId, permissions);
 
         const deviceClass = onPhone ? "NavigationBarSm shadow-lg" : "NavigationBar";
 
@@ -51,17 +53,17 @@ export class NavigationBar extends Component<NavigationBarProps & RouteComponent
                             }
                             <div className="mb-auto w-100">
                                 <ListGroup flush className="border-top">
-                                    {inCourse &&
+                                    {inCourse && canViewSignoffs &&
                                         <NavigationBarItem title="Dashboard" icon={faTachometerAlt}
                                             active={activeTab === ActiveTabEnum.DASHBOARD}
                                             url={`/courses/${match.params.cid}`} />
                                     }
-                                    {inCourse &&
+                                    {inCourse && canSignoff &&
                                         <NavigationBarItem title="Sign-off" icon={faTasks}
                                             active={activeTab === ActiveTabEnum.SIGNOFF}
                                             url={`/courses/${match.params.cid}/signoff`} />
                                     }
-                                    {(inCourse || hasAdmin) &&
+                                    {inCourse && hasAdmin &&
                                         <NavigationBarItem title="Admin" icon={faTools}
                                             active={activeTab === ActiveTabEnum.ADMINISTRATION}
                                             url={`/courses/${match.params.cid}/administration`} />

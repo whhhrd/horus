@@ -225,6 +225,11 @@ button {
     cursor: pointer;
 }
 
+.canvas-card-unclickable:hover {
+    box-shadow: none !important;
+    cursor: inherit;
+}
+
 .canvas-card-header {
     border-bottom: 0;
     height: 150px;

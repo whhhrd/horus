@@ -30,6 +30,9 @@ import {
     SignOffOverviewResultsFetchRequestedAction,
 } from "../../../state/overview/types";
 import { getAssignmentSet } from "../../../state/assignments/selectors";
+import CoursePermissions from "../../../api/permissions";
+import {getCoursePermissions} from "../../../state/auth/selectors";
+import {signoffAssignmentsView} from "../../../state/auth/constants";
 import { Action } from "redux";
 import { openSidebarPhoneAction } from "../../../state/sidebar/actions";
 import GroupTableCell from "./GroupTableCell";
@@ -43,6 +46,7 @@ interface SignOffOverviewProps {
     groups: GroupDtoFull[];
     loading: boolean;
     assignmentSet: (id: number) => AssignmentSetDtoFull | null;
+    coursePermissions: CoursePermissions | null;
 
     fetchAssignmentSet: (id: number) => AssignmentSetFetchAction;
     fetchOverviewGroups: (
@@ -99,6 +103,13 @@ class SignOffOverview extends Component<
     }
 
     private buildContent(): JSX.Element | null {
+        const cid = Number(this.props.match.params.cid);
+        const permissions = this.props.coursePermissions!;
+        const canViewSignoffs = signoffAssignmentsView.check(cid, permissions);
+        if (!canViewSignoffs) {
+            return null;
+        }
+
         const assignmentSetId = Number(this.props.match.params.asid);
 
         if (this.props.assignmentSet(assignmentSetId) == null) {
@@ -377,6 +388,7 @@ export default withRouter(
             loading: getOverviewLoading(state),
             results: getOverviewSignOffResults(state),
             assignmentSet: (id: number) => getAssignmentSet(state, id),
+            coursePermissions: getCoursePermissions(state),
         }),
         {
             fetchAssignmentSet: assignmentSetFetchRequestedAction,

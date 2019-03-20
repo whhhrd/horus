@@ -13,6 +13,8 @@ interface AssignmentSetListEntryProps {
     groupSets: GroupSetDtoBrief[];
     courseId: number;
     canEdit: boolean;
+    canDelete: boolean;
+    canSeeGroups: boolean;
 }
 
 interface AssignmentSetListEntryState {
@@ -45,10 +47,12 @@ export default class AssignmentSetListEntry
                 </CardHeader>
                 <CardBody>
                     <p className="mb-0">
-                        {
+                        {(!this.props.canSeeGroups &&
+                            <small className="text-muted">No permission to view group sets.</small>)
+                        || (this.props.canSeeGroups &&
                             groupSetTags.length > 0 ?
-                                <span><small>Group sets:</small><br />{groupSetTags}</span> :
-                                <small className="text-muted">No group sets assigned yet.</small>
+                            <span><small>Group sets:</small><br />{groupSetTags}</span> :
+                            <small className="text-muted">No group sets assigned yet.</small>)
                         }
                     </p>
                 </CardBody>
@@ -64,7 +68,9 @@ export default class AssignmentSetListEntry
                             isOpen={this.state.editorModalOpen}
                             assignmentSetId={this.props.assignmentSet.id}
                             courseId={this.props.courseId}
-                            onCloseModal={this.toggleEditorModal} />
+                            onCloseModal={this.toggleEditorModal}
+                            canDelete={this.props.canDelete}
+                            canSeeGroups={this.props.canSeeGroups} />
                     }
                 </CardFooter>
             </Card>

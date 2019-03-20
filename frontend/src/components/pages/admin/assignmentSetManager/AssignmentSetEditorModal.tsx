@@ -57,12 +57,15 @@ interface AssignmentSetEditorModalProps {
     isOpen: boolean;
     assignmentSetId: number;
     courseId: number;
+    canDelete: boolean;
 
     groupSets: GroupSetDtoBrief[] | null;
 
     deleteWarning: AssignmentValue[] | null;
 
     deleteOK: boolean;
+
+    canSeeGroups: boolean;
 
     fetchGroupSets: (courseId: number) => {
         type: string,
@@ -89,7 +92,6 @@ interface AssignmentSetEditorModalProps {
     resetDeleteCheck: () => {
         type: string;
     };
-
 }
 
 interface AssignmentSetEditorModalState {
@@ -230,22 +232,24 @@ class AssignmentSetEditorModal extends Component<AssignmentSetEditorModalProps, 
                                     this.onNameInput(e.target.value);
                                 }} />
                         </FormGroup>
-                        <FormGroup>
-                            <Label>Linked group sets</Label>
-                            {assignedGroupsBadges}
-                            <Dropdown className="mt-2"
-                                isOpen={this.state.dropdownOpen}
-                                toggle={this.toggleDropDown}
-                                size="sm">
-                                <DropdownToggle
-                                    color="success" outline>
-                                    <big>Add group set<FontAwesomeIcon icon={faPlus} className="ml-2" /></big>
-                                </DropdownToggle>
-                                <DropdownMenu>
-                                    {unassignedGroupsDropdownItems}
-                                </DropdownMenu>
-                            </Dropdown>
-                        </FormGroup>
+                        {this.props.canSeeGroups &&
+                            <FormGroup>
+                                <Label>Linked group sets</Label>
+                                {assignedGroupsBadges}
+                                <Dropdown className="mt-2"
+                                    isOpen={this.state.dropdownOpen}
+                                    toggle={this.toggleDropDown}
+                                    size="sm">
+                                    <DropdownToggle
+                                        color="success" outline>
+                                        <big>Add group set<FontAwesomeIcon icon={faPlus} className="ml-2" /></big>
+                                    </DropdownToggle>
+                                    <DropdownMenu>
+                                        {unassignedGroupsDropdownItems}
+                                    </DropdownMenu>
+                                </Dropdown>
+                            </FormGroup>
+                        }
                         <FormGroup>
                             <Label>Assignments</Label>
                             <div style={{ maxHeight: "40vh", overflowY: "auto" }}>
@@ -261,9 +265,11 @@ class AssignmentSetEditorModal extends Component<AssignmentSetEditorModalProps, 
                         </FormGroup>
                     </ModalBody>
                     <ModalFooter>
-                        <Button block size="md" color="danger" outline onClick={() => {
-                            this.safeDeleteSet();
-                        }}>Delete</Button>
+                        {this.props.canDelete &&
+                            <Button block size="md" color="danger" outline onClick={() => {
+                                this.safeDeleteSet();
+                            }}>Delete</Button>
+                        }
                         <Button block size="md" color="secondary" outline onClick={this.onCloseModal}>Cancel</Button>
                         <Button disabled={!this.isFormValid()}
                             block size="md" color="primary" onClick={() => {

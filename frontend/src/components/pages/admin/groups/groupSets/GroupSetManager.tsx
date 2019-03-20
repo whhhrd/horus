@@ -19,6 +19,9 @@ import {
 import { courseRequestedAction } from "../../../../../state/courses/action";
 import { getCourse } from "../../../../../state/courses/selectors";
 import { buildContent } from "../../../../pagebuilder";
+import CoursePermissions from "../../../../../api/permissions";
+import {getCoursePermissions} from "../../../../../state/auth/selectors";
+import {canvasGroupSetsSyncPerform, groupsAnyView, groupsAnyList} from "../../../../../state/auth/constants";
 
 interface GroupSetManagerProps {
     groupSets: GroupSetDtoSummary[] | null;
@@ -34,6 +37,7 @@ interface GroupSetManagerProps {
     };
 
     refreshSetsList: (courseId: number) => CanvasRefreshSetsListRequestedAction;
+    coursePermissions: CoursePermissions | null;
 }
 
 class GroupSetManager extends Component<GroupSetManagerProps & RouteComponentProps<any>> {
@@ -51,16 +55,21 @@ class GroupSetManager extends Component<GroupSetManagerProps & RouteComponentPro
     }
 
     buildContent() {
-        const { groupSets } = this.props;
+        const permissions = this.props.coursePermissions!;
+        const cid = Number(this.props.match.params.cid);
+        const canPerformCanvasSync = canvasGroupSetsSyncPerform.check(cid, permissions);
+        const canListGroups = groupsAnyList.check(cid, permissions);
+        const canViewGroups = groupsAnyView.check(cid, permissions);
 
-        const course = this.props.course(Number(this.props.match.params.cid));
+        const { groupSets } = this.props;
+        const course = this.props.course(cid);
 
         if (course == null) {
             return null;
         } else {
             return (
                 <Row className="px-2 d-flex justify-content-center justify-content-lg-start">
-                    {course.externalId != null &&
+                    {canPerformCanvasSync && course.externalId != null &&
                         <Col xs="12" md="12">
                             <Row>
                                 <Col xs="12" lg="4">
@@ -80,6 +89,7 @@ class GroupSetManager extends Component<GroupSetManagerProps & RouteComponentPro
                                 key={gSet.id}
                                 cardTitle={gSet.name}
                                 url={`/courses/${gSet.course.id}/administration/groupsets/${gSet.id}`}
+                                clickable={canListGroups && canViewGroups}
                             />,
                         )
                     }
@@ -92,6 +102,7 @@ class GroupSetManager extends Component<GroupSetManagerProps & RouteComponentPro
 export default withRouter(connect((state: ApplicationState) => ({
     course: (id: number) => getCourse(state, id),
     groupSets: getGroupSets(state),
+    coursePermissions: getCoursePermissions(state),
 }), {
         fetchGroupSets: groupSetsFetchRequestedAction,
         refreshSetsList: canvasRefreshSetsListRequestedAction,

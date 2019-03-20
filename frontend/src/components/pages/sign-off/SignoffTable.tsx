@@ -40,11 +40,20 @@ import SignoffResultTableCell from "./SignoffResultTableCell";
 import { buildContent } from "../../pagebuilder";
 import { openSidebarPhoneAction } from "../../../state/sidebar/actions";
 import { Action } from "redux";
+import {getCoursePermissions} from "../../../state/auth/selectors";
+import CoursePermissions from "../../../api/permissions";
+import {
+    commentAnyCreate,
+    signoffAssignmentsPerform,
+    signoffAssignmentsView,
+    viewCommentSidebar,
+} from "../../../state/auth/constants";
 
 interface SignoffTableProps {
     signoffs: SignOffResultDtoCompact[] | null;
     group: GroupDtoFull | null;
     assignmentSet: AssignmentSetDtoFull | null;
+    coursePermissions: CoursePermissions | null;
 
     fetchSignOffs: (
         asid: number,
@@ -144,9 +153,13 @@ class SignoffTable extends Component<
      * @override
      */
     render() {
+        const cid = Number(this.props.match.params.cid);
+        const permissions = this.props.coursePermissions!;
+        const canViewSignoffs = signoffAssignmentsView.check(cid, permissions);
+
         return buildContent(
             "Sign-off",
-            this.buildContent(),
+            canViewSignoffs && this.buildContent() || null,
             this.buildSidebar(),
         );
     }
@@ -188,6 +201,11 @@ class SignoffTable extends Component<
      * Builds sign off table contents.
      */
     private buildTable() {
+        const cid = Number(this.props.match.params.cid);
+        const permissions = this.props.coursePermissions!;
+        const canChangeSignoffs = signoffAssignmentsPerform.check(cid, permissions);
+        const canViewComments = viewCommentSidebar.check(cid, permissions);
+
         const { group, assignmentSet } = this.props;
         const newGroup = Number(
             queryString.parse(this.props.location.search).g!,
@@ -214,6 +232,7 @@ class SignoffTable extends Component<
                             <GroupTableCell
                                 group={group}
                                 onCommentClick={this.setComments}
+                                canViewComments={canViewComments}
                             />
                             {group.participants.map((p) => (
                                 <ParticipantTableCell
@@ -221,6 +240,7 @@ class SignoffTable extends Component<
                                     participant={p}
                                     group={group}
                                     onCommentClick={this.setComments}
+                                    canViewComments={canViewComments}
                                 />
                             ))}
                         </tr>
@@ -234,12 +254,13 @@ class SignoffTable extends Component<
                                 <AssignmentTableCell
                                     assignment={a}
                                     disabled={
-                                        !this.isAssignmentBatchSignable(a.id)
+                                        !this.isAssignmentBatchSignable(a.id) || !canChangeSignoffs
                                     }
                                     onClick={() =>
                                         this.onAssignmentSignOffClick(a.id)
                                     }
                                     onCommentClick={this.setComments}
+                                    canViewComments={canViewComments}
                                 />
                                 {group.participants.map((p) => {
                                     const cellType = this.getLocalTypeForSignOff(
@@ -264,12 +285,13 @@ class SignoffTable extends Component<
                                             participant={p}
                                             signOff={signOff!}
                                             signOffState={cellType}
-                                            disabled={unsaved}
+                                            disabled={unsaved || !canChangeSignoffs}
                                             unsaved={unsaved}
                                             onClick={() =>
                                                 this.onSignOffClick(a.id, p.id)
                                             }
                                             onCommentClick={this.setComments}
+                                            canViewComments={canViewComments}
                                         />
                                     );
                                 })}
@@ -400,6 +422,14 @@ class SignoffTable extends Component<
         changedInSession: boolean,
         newResult: SignOffChangeResult,
     ): boolean {
+        // If no permission to create comments, say no comment is required
+        const cid = Number(this.props.match.params.cid);
+        const permissions = this.props.coursePermissions!;
+        const canCreateComment = commentAnyCreate.check(cid, permissions);
+        if (!canCreateComment) {
+            return false;
+        }
+
         switch (newResult) {
             case SignOffChangeResult.Sufficient:
                 return false;
@@ -633,6 +663,7 @@ export default withRouter(
             signoffs: getRemoteSignoffs(state),
             group: getGroup(state),
             assignmentSet: getAssignmentSet(state),
+            coursePermissions: getCoursePermissions(state),
         }),
         {
             fetchSignOffs: signOffResultsRequestedAction,

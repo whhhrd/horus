@@ -27,6 +27,7 @@ interface SignoffResultTableCellProps {
     unsaved: boolean;
     disabled: boolean;
     onClick?: () => void;
+    canViewComments: boolean;
 
     signOff: SignOffResultDtoCompact | null;
     assignment: AssignmentDtoBrief;

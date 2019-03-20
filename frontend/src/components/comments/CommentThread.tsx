@@ -39,6 +39,10 @@ import {
 import CardBody from "reactstrap/lib/CardBody";
 import CommentThreadCreatorModal from "./CommentThreadCreatorModal";
 import { EntityType } from "../../state/comments/types";
+import CoursePermissions from "../../api/permissions";
+import {getCoursePermissions} from "../../state/auth/selectors";
+import {RouteComponentProps, withRouter} from "react-router";
+import {commentAnyCreate, commentAnyDelete, commentAnyEdit, viewCommentSidebar} from "../../state/auth/constants";
 
 interface CommentThreadProps {
     linkedEntityId: number;
@@ -46,6 +50,7 @@ interface CommentThreadProps {
     linkedEntityType: EntityType;
     commentThreadSubject: string;
     showCommentThreadContent: boolean;
+    coursePermissions: CoursePermissions | null;
 
     commentThread: (
         entityId: number,
@@ -89,8 +94,8 @@ interface CommentThreadState {
  *      showCommentThreadContent={false}
  * />
  */
-class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
-    constructor(props: CommentThreadProps) {
+class CommentThread extends Component<CommentThreadProps & RouteComponentProps<any>, CommentThreadState> {
+    constructor(props: CommentThreadProps & RouteComponentProps<any>) {
         super(props);
         this.state = {
             commentCreatorModalOpen: false,
@@ -152,6 +157,16 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
     }
 
     render() {
+        const cid = this.props.match.params.cid;
+        const permissions = this.props.coursePermissions!;
+        const canView = viewCommentSidebar.check(cid, permissions);
+        if (!canView) {
+            return null;
+        }
+        const canCreate = commentAnyCreate.check(cid, permissions);
+        const canEdit = commentAnyEdit.check(cid, permissions);
+        const canDelete = commentAnyDelete.check(cid, permissions);
+
         let borderColor: string;
         let titleEntityPrefix: string;
         switch (this.props.linkedEntityType) {
@@ -199,7 +214,7 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
                             </div>
                         </div>
                         <Collapse isOpen={this.state.showCommentThreadContent}>
-                            {this.buildCommentThreadContent()}
+                            {this.buildCommentThreadContent(canCreate, canEdit, canDelete)}
                         </Collapse>
                     </CardBody>
                 </Card>
@@ -256,7 +271,7 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
         );
     }
 
-    buildComments(comments: CommentDto[]) {
+    buildComments(comments: CommentDto[], canEdit: boolean, canDelete: boolean) {
         const { linkedEntityId, linkedEntityType } = this.props;
 
         if (comments.length > 0) {
@@ -269,6 +284,8 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
                                 entityId={linkedEntityId}
                                 entityType={linkedEntityType}
                                 comment={comment}
+                                canEdit={canEdit}
+                                canDelete={canDelete}
                             />
                         ))}
                     </ListGroup>
@@ -286,7 +303,7 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
         }
     }
 
-    buildCommentThreadContent() {
+    buildCommentThreadContent(canCreate: boolean, canEdit: boolean, canDelete: boolean) {
         const {
             linkedEntityId,
             linkedEntityType,
@@ -309,16 +326,18 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
                         </div>
                         <div>Empty comment thread.</div>
                     </Alert>
-                    <Button
-                        outline
-                        block
-                        color="primary"
-                        size="md"
-                        onClick={() => this.toggleCreateCommentThreadModal()}
-                    >
-                        <FontAwesomeIcon icon={faPlus} className="mr-2" />
-                        Add comment
-                    </Button>
+                    {canCreate &&
+                        <Button
+                            outline
+                            block
+                            color="primary"
+                            size="md"
+                            onClick={() => this.toggleCreateCommentThreadModal()}
+                        >
+                            <FontAwesomeIcon icon={faPlus} className="mr-2"/>
+                            Add comment
+                        </Button>
+                    }
                     <CommentThreadCreatorModal
                         onCloseModal={this.toggleCreateCommentThreadModal}
                         linkedEntityId={linkedEntityId}
@@ -334,17 +353,19 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
             )!;
             return (
                 <div>
-                    {this.buildComments(comments)}
-                    <Button
-                        outline
-                        block
-                        color="primary"
-                        size="md"
-                        onClick={() => this.toggleCreateCommentModal()}
-                    >
-                        <FontAwesomeIcon icon={faPlus} className="mr-2" />
-                        Add comment
-                    </Button>
+                    {this.buildComments(comments, canEdit, canDelete)}
+                    {canCreate &&
+                        <Button
+                            outline
+                            block
+                            color="primary"
+                            size="md"
+                            onClick={() => this.toggleCreateCommentModal()}
+                        >
+                            <FontAwesomeIcon icon={faPlus} className="mr-2"/>
+                            Add comment
+                        </Button>
+                    }
                     <CommentCreatorModal
                         entityId={linkedEntityId}
                         entityType={linkedEntityType}
@@ -359,10 +380,11 @@ class CommentThread extends Component<CommentThreadProps, CommentThreadState> {
     }
 }
 
-export default connect(
+export default withRouter(connect(
     (state: ApplicationState) => ({
         commentThread: (entityId: number, entityType: EntityType) =>
             getCommentThread(state, entityId, entityType),
+        coursePermissions: getCoursePermissions(state),
     }),
     { fetchCommentThread: commentThreadRequestedAction },
-)(CommentThread);
+)(CommentThread));

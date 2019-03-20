@@ -14,6 +14,7 @@ interface AssignmentTableCellProps {
 
     assignment: AssignmentDtoBrief;
     onCommentClick: (comments: JSX.Element) => void;
+    canViewComments: boolean;
 
     commentThread: (
         entityId: number,
@@ -40,7 +41,7 @@ class AssignmentTableCell extends Component<AssignmentTableCellProps> {
                 style={{ cursor: disabled ? "default" : "pointer" }}
             >
                 {name}
-                {this.props.onCommentClick && (
+                {this.props.canViewComments && this.props.onCommentClick && (
                     <div
                         onClick={() =>
                             this.props.onCommentClick(this.buildComments())

@@ -12,13 +12,17 @@ interface CanvasCardProps {
     url: string;
     redirectTo: (url: string) => {};
     watermarkIcon: IconDefinition | null;
+    clickable?: boolean;
 }
 
 class CanvasCard extends Component<CanvasCardProps> {
+    static defaultProps = {clickable: true};
+
     render() {
-        const { url, cardTitle } = this.props;
+        const { url, cardTitle, clickable } = this.props;
         return (
-            <Card className="canvas-card mx-2 mb-3 shadow-sm" onClick={() => this.props.redirectTo(url)}>
+            <Card className={`canvas-card mx-2 mb-3 shadow-sm ${clickable ? "" : "canvas-card-unclickable"}`}
+                  onClick={clickable ? () => this.props.redirectTo(url) : () => (null)}>
                 <CardHeader
                     className="canvas-card-header d-flex vertical-center"
                     style={{ backgroundColor: randomColor(cardTitle) }}>

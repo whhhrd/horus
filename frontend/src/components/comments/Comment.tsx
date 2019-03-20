@@ -16,6 +16,8 @@ interface CommentProps {
     entityId: number;
     entityType: EntityType;
     comment: CommentDto;
+    canEdit: boolean;
+    canDelete: boolean;
 }
 
 interface CommentState {
@@ -77,22 +79,26 @@ export class Comment extends Component<CommentProps, CommentState> {
                             </div>
                         </div>
                         <div className="flex-shrink-0">
-                            <span onClick={() => this.toggleEditorModal()}>
-                                <FontAwesomeIcon
-                                    className="ml-3 cursor-pointer"
-                                    icon={faEdit}
-                                    size="sm"
-                                />
-                            </span>
-                            <span
-                                onClick={() => this.toggleDeleteCommentModal()}
-                            >
-                                <FontAwesomeIcon
-                                    className="ml-3 cursor-pointer"
-                                    icon={faTrash}
-                                    size="sm"
-                                />
-                            </span>
+                            {this.props.canEdit &&
+                                <span onClick={() => this.toggleEditorModal()}>
+                                    <FontAwesomeIcon
+                                        className="ml-3 cursor-pointer"
+                                        icon={faEdit}
+                                        size="sm"
+                                    />
+                                </span>
+                            }
+                            {this.props.canDelete &&
+                                <span
+                                    onClick={() => this.toggleDeleteCommentModal()}
+                                >
+                                    <FontAwesomeIcon
+                                        className="ml-3 cursor-pointer"
+                                        icon={faTrash}
+                                        size="sm"
+                                    />
+                                </span>
+                            }
                             <CommentDeleteModal
                                 isOpen={this.state.deleteModalOpen}
                                 entityId={entityId}

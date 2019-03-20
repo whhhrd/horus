@@ -12,6 +12,7 @@ import { ApplicationState } from "../../../state/state";
 interface GroupTableCellProps {
     group: GroupDtoFull;
     onCommentClick: (comments: JSX.Element) => void;
+    canViewComments: boolean;
 
     commentThread: (
         entityId: number,
@@ -26,7 +27,7 @@ class GroupTableCell extends Component<GroupTableCellProps> {
             <td className="sign-off-table-top-left-cell sign-off-table-heading">
                 {name}
 
-                {this.props.onCommentClick && (
+                {this.props.canViewComments && this.props.onCommentClick && (
                     <div
                         onClick={() =>
                             this.props.onCommentClick(this.buildComments())
