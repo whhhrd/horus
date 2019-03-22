@@ -81,6 +81,8 @@ export interface AssignmentDtoSummary extends AssignmentDtoBrief {
 export type SignOffResultType = "COMPLETE" | "INSUFFICIENT";
 
 export interface SignOffResultDtoSummary {
+    archivedAt: Date | null;
+    archivedBy: ParticipantDtoBrief | null;
     assignment: AssignmentDtoBrief;
     commentThread: CommentThreadDtoBrief | null;
     id: number;
