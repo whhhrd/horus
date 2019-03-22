@@ -8,6 +8,7 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
+    FormGroup,
 } from "reactstrap";
 
 export interface CommentModalProps {
@@ -31,7 +32,7 @@ export default class CommentModal extends PureComponent<CommentModalProps> {
     render() {
         return (
             <Modal autoFocus={false} isOpen={true}>
-                <ModalHeader>{"Add comment"}</ModalHeader>
+                <ModalHeader>{"Mark as insufficient"}</ModalHeader>
                 <Formik
                     initialValues={{
                         content: "",
@@ -42,34 +43,36 @@ export default class CommentModal extends PureComponent<CommentModalProps> {
                         <div>
                             <ModalBody>
                                 <Form>
-                                    {this.props.message}
-                                    <Field
-                                        autoFocus={true}
-                                        component="textarea"
-                                        className="p-2 w-100"
-                                        name="content"
-                                        isvalid={
-                                            String((values.content.trim().length > 0))
-                                        }
-                                        onKeyDown={(event: KeyboardEvent) => {
-                                            if (
-                                                event.key === "Enter" &&
-                                                !event.shiftKey
-                                            ) {
-                                                event.preventDefault();
-                                                if (isValid) {
-                                                    handleSubmit();
-                                                }
+                                    <FormGroup>
+                                        <div className="mb-1">{this.props.message}</div>
+                                        <Field
+                                            autoFocus={true}
+                                            component="textarea"
+                                            className="p-2 w-100"
+                                            name="content"
+                                            isvalid={
+                                                String((values.content.trim().length > 0))
                                             }
-                                        }}
-                                        placeholder="Sign off comment..."
-                                    />
+                                            onKeyDown={(event: KeyboardEvent) => {
+                                                if (
+                                                    event.key === "Enter" &&
+                                                    !event.shiftKey
+                                                ) {
+                                                    event.preventDefault();
+                                                    if (isValid) {
+                                                        handleSubmit();
+                                                    }
+                                                }
+                                            }}
+                                            placeholder="What is insufficient about the sign-off?"
+                                        />
+                                    </FormGroup>
                                 </Form>
                             </ModalBody>
                             <ModalFooter>
                                 <Button
                                     size="md"
-                                    color="danger"
+                                    color="secondary"
                                     outline
                                     onClick={this.props.onCancelClick}
                                 >
@@ -77,19 +80,11 @@ export default class CommentModal extends PureComponent<CommentModalProps> {
                                 </Button>
                                 <Button
                                     size="md"
-                                    color="secondary"
-                                    outline
-                                    onClick={this.props.onNoCommentClick}
+                                    color={isValid ? "warning" : "danger"}
+                                    outline={!isValid}
+                                    onClick={isValid ? () => handleSubmit() : this.props.onNoCommentClick}
                                 >
-                                    No Comment
-                                </Button>
-                                <Button
-                                    size="md"
-                                    color="primary"
-                                    disabled={!isValid}
-                                    onClick={() => handleSubmit()}
-                                >
-                                    Add Comment
+                                    {isValid ? "Add comment and mark as insufficient" : "Mark as insufficient"}
                                 </Button>
                             </ModalFooter>
                         </div>

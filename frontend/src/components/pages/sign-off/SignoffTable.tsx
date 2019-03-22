@@ -392,7 +392,7 @@ class SignoffTable extends Component<
         } else {
             // Some require comments; open modal
             this.openCommentModal(
-                "Leave a comment for this sign off.",
+                "You are about to mark this sign-off as insufficient.",
                 () => this.closeCommentModal(),
                 (comment) => {
                     // Apply comment to those that needed a coomment and push
