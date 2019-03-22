@@ -249,7 +249,6 @@ class SignOffSearch extends Component<
             && (forceSelect || asid == null)) {
             const groupAssignmentSetCombination = searchResults[0];
             this.pushURL(
-                this.props.match.params.cid,
                 groupAssignmentSetCombination.assignmentSet.id,
                 groupAssignmentSetCombination.id,
             );
