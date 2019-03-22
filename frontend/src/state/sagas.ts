@@ -11,6 +11,7 @@ import overviewSagas from "./overview/saga";
 import studentDashboardSagas from "./student-dashboard/sagas";
 import participantSagas from "./participants/sagas";
 import labelsSaga from "./labels/sagas";
+import rolesSagas from "./roles/sagas";
 
 export default function* rootSaga() {
     yield* authSagas();
@@ -26,4 +27,5 @@ export default function* rootSaga() {
     yield* studentDashboardSagas();
     yield* participantSagas();
     yield* labelsSaga();
+    yield* rolesSagas();
 }

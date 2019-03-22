@@ -13,6 +13,7 @@ import { SignOffOverviewState } from "./overview/types";
 import { StudentDashboardState } from "./student-dashboard/types";
 import { ParticipantsState } from "./participants/types";
 import { LabelsState } from "./labels/types";
+import { RolesState } from "./roles/types";
 
 export interface ApplicationState {
     router?: RouterState;
@@ -30,4 +31,5 @@ export interface ApplicationState {
     studentDashboard?: StudentDashboardState;
     labels?: LabelsState;
     participants?: ParticipantsState;
+    roles?: RolesState;
 }

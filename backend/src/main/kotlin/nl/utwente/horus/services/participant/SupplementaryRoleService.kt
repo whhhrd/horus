@@ -5,6 +5,8 @@ import nl.utwente.horus.entities.auth.*
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.exceptions.*
+import nl.utwente.horus.representations.auth.SupplementaryRoleCreateUpdateDto
+import nl.utwente.horus.services.course.CourseService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -29,8 +31,19 @@ class SupplementaryRoleService {
     @Autowired
     lateinit var participantService: ParticipantService
 
+    @Autowired
+    lateinit var courseService: CourseService
+
     fun getSupplementaryRoleById(id: Long): SupplementaryRole {
         return supplementaryRoleRepository.findByIdOrNull(id) ?: throw SupplementaryRoleNotFoundException()
+    }
+
+    fun getRolesByCourse(course: Course): List<SupplementaryRole> {
+        return supplementaryRoleRepository.findAllByCourse(course)
+    }
+
+    fun getMappingsByCourse(course: Course): List<ParticipantSupplementaryRoleMapping> {
+        return mappingRepository.findAllByCourse(course)
     }
 
     fun isSupplementaryRoleAssigned(participant: Participant, role: SupplementaryRole): Boolean {
@@ -48,6 +61,19 @@ class SupplementaryRoleService {
         val mapping = mappingRepository.save(ParticipantSupplementaryRoleMapping(role, participant, assigner))
         role.participantMappings.add(mapping)
         participant.supplementaryRoleMappings.add(mapping)
+    }
+
+    fun createSupplementaryRole(courseId: Long, dto: SupplementaryRoleCreateUpdateDto): SupplementaryRole {
+        return createSupplementaryRole(
+                courseService.getCourseById(courseId),
+                dto.name,
+                dto.permissions.map { HorusPermission(it) }
+        )
+    }
+
+    fun deleteSupplementaryRole(role: SupplementaryRole) {
+        role.participantMappings.toList().forEach(this::deAssignSupplementaryRole)
+        supplementaryRoleRepository.delete(role)
     }
 
     fun createSupplementaryRole(course: Course, name: String, permissions: List<HorusPermission>): SupplementaryRole {
@@ -71,11 +97,15 @@ class SupplementaryRoleService {
         permission.supplementaryRolePermissions.add(rolePermission)
     }
 
-    fun removeSupplementaryRole(role: SupplementaryRole, participant: Participant) {
-        val mapping = participant.supplementaryRoleMappings
-                .firstOrNull { it.supplementaryRole.id == role.id } ?: throw SupplementaryRoleNotAssignedException()
-        role.participantMappings.remove(mapping)
-        participant.supplementaryRoleMappings.remove(mapping)
+    fun deAssignSupplementaryRole(role: SupplementaryRole, participant: Participant) {
+        val mapping = mappingRepository.findByParticipantAndSupplementaryRole(participant, role)
+                ?: throw SupplementaryRoleNotAssignedException()
+        deAssignSupplementaryRole(mapping)
+    }
+
+    fun deAssignSupplementaryRole(mapping: ParticipantSupplementaryRoleMapping) {
+        mapping.supplementaryRole.participantMappings.remove(mapping)
+        mapping.participant.supplementaryRoleMappings.remove(mapping)
         mappingRepository.delete(mapping)
     }
 }

@@ -43,6 +43,13 @@ class ParticipantService {
     @Autowired
     lateinit var roleService: RoleService
 
+
+    companion object {
+        const val STUDENT_ID = 1L
+        const val TEACHER_ID = 2L
+        const val TEACHING_ASSISTANT_ID = 3L
+    }
+
     fun getParticipantsById(ids: Collection<Long>): List<Participant> {
         // Prevent duplications in request
         val set = ids.toSet()
@@ -54,6 +61,10 @@ class ParticipantService {
             throw ParticipantNotFoundException() // One of ID's wasn't found, since there were no duplicates
         }
         return result
+    }
+
+    fun getCourseStaff(course: Course): List<Participant> {
+        return participantRepository.findAllByCourseAndRoleIdIn(course, listOf(TEACHER_ID, TEACHING_ASSISTANT_ID))
     }
 
     fun getParticipantById(id: Long): Participant {

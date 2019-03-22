@@ -6,6 +6,8 @@ import nl.utwente.horus.representations.BooleanResultDto
 import nl.utwente.horus.representations.assignment.*
 import nl.utwente.horus.representations.auth.HorusAuthorityDto
 import nl.utwente.horus.representations.auth.RoleDtoBrief
+import nl.utwente.horus.representations.auth.SupplementaryRoleCreateUpdateDto
+import nl.utwente.horus.representations.auth.SupplementaryRoleDto
 import nl.utwente.horus.representations.canvas.CanvasCourseDto
 import nl.utwente.horus.representations.canvas.CanvasTokenDto
 import nl.utwente.horus.representations.comment.*
@@ -36,6 +38,9 @@ fun generate() {
                     SignOffResultDtoCompact::class,
 
                     RoleDtoBrief::class,
+                    SupplementaryRoleCreateUpdateDto::class,
+                    ParticipantSupplementaryRoleMappingDto::class,
+                    SupplementaryRoleDto::class,
 
                     BooleanResultDto::class,
                     CanvasCourseDto::class,

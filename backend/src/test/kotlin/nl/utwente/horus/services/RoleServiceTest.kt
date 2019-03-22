@@ -57,7 +57,7 @@ class RoleServiceTest : HorusAbstractTest() {
         assertEquals(ADDED_PERMISSIONS.toSet(), newAuthorities.map { it.permission }.toSet())
 
         // Remove supplementary role and check that they are unavailable again
-        supplementaryRoleService.removeSupplementaryRole(role, receiver)
+        supplementaryRoleService.deAssignSupplementaryRole(role, receiver)
         val restoredAuthorities = receiver.person.getAuthorities().filter { PP_MOCK_COURSE_ID in it.courseIds }
         ADDED_PERMISSIONS.forEach { permission -> assertFalse(permission in restoredAuthorities.map { it.permission }) }
         assertFalse(supplementaryRoleService.isSupplementaryRoleAssigned(receiver, role))

@@ -114,6 +114,24 @@ export interface SignOffResultDtoCompact {
     result: SignOffResultType;
 }
 
+export interface SupplementaryRoleCreateUpdateDto {
+    name: string;
+    permissions: string[];
+}
+
+export interface ParticipantSupplementaryRoleMappingDto {
+    assignedAt: Date;
+    assignedBy: ParticipantDtoBrief;
+    participantId: number;
+    roleId: number;
+}
+
+export interface SupplementaryRoleDto {
+    id: number;
+    name: string;
+    permissions: string[];
+}
+
 export interface BooleanResultDto {
     result: boolean;
 }
@@ -265,11 +283,30 @@ export interface ParticipantUpdateDto {
     roleId: number;
 }
 
-export type HorusResource = "PERSON" | "COURSE" | "COURSE_PARTICIPANT" | "COURSE_LABEL" | "COURSE_PARTICIPANT_LABEL_MAPPING" | "COURSE_GROUPSET" | "COURSE_GROUP" | "COURSE_GROUPMEMBER" | "COURSE_ASSIGNMENTSET" | "COURSE_COMMENT_STAFFONLY" | "COURSE_COMMENT_PUBLIC" | "COURSE_SIGNOFFRESULT";
+export type HorusResource =
+    | "PERSON"
+    | "COURSE"
+    | "COURSE_PARTICIPANT"
+    | "COURSE_SUPPLEMENTARY_ROLE"
+    | "COURSE_SUPPLEMENTARY_ROLE_MAPPING"
+    | "COURSE_LABEL"
+    | "COURSE_PARTICIPANT_LABEL_MAPPING"
+    | "COURSE_GROUPSET"
+    | "COURSE_GROUP"
+    | "COURSE_GROUPMEMBER"
+    | "COURSE_ASSIGNMENTSET"
+    | "COURSE_COMMENT_STAFFONLY"
+    | "COURSE_COMMENT_PUBLIC"
+    | "COURSE_SIGNOFFRESULT";
 
 export type HorusResourceScope = "OWN" | "ANY";
 
-export type HorusPermissionType = "LIST" | "VIEW" | "CREATE" | "EDIT" | "DELETE";
+export type HorusPermissionType =
+    | "LIST"
+    | "VIEW"
+    | "CREATE"
+    | "EDIT"
+    | "DELETE";
 
 export interface HorusPermissionDto {
     resource: HorusResource;

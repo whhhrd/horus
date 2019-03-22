@@ -9,6 +9,7 @@ export const PATH_SIGNOFF_OVERVIEW         = `${PATH_COURSES}/:cid/assignmentset
 export const PATH_SIGNOFF                  = `${PATH_COURSES}/:cid/signoff`;
 export const PATH_COURSE_ADMINISTRATION    = `${PATH_COURSES}/:cid/administration`;
 export const PATH_COURSE_LABEL_MANAGER     = `${PATH_COURSES}/:cid/administration/labels`;
+export const PATH_COURSE_ROLES_MANAGER     = `${PATH_COURSES}/:cid/administration/roles`;
 export const PATH_ASSIGNMENT_SET_MANAGER   = `${PATH_COURSES}/:cid/administration/assignmentsets`;
 export const PATH_CANVAS_TOKEN             = "/canvas/token";
 export const PATH_CANVAS_IMPORT            = "/canvas/import";

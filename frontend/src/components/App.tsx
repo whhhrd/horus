@@ -39,12 +39,14 @@ import {
     PATH_SIGNOFF,
     PATH_SIGNOFF_OVERVIEW,
     PATH_COURSE_LABEL_MANAGER,
+    PATH_COURSE_ROLES_MANAGER,
 } from "../routes";
 import SignoffTable from "./pages/sign-off/SignoffTable";
 import GroupManager from "./pages/admin/groups/groups/GroupManager";
 import AssignmentSetManager from "./pages/admin/assignmentSetManager/AssignmentSetManager";
 import SignOffOverview from "./pages/sign-off-overview/SignOffOverview";
 import LabelManager from "./pages/admin/labels/LabelManager";
+import RolesManager from "./pages/admin/supplementaryroles/RolesManager";
 
 export interface AppProps {
     loadAuthentication: () => {
@@ -135,6 +137,13 @@ class App extends React.Component<AppProps & RouteComponentProps> {
                     exact
                     path={PATH_COURSE_LABEL_MANAGER}
                     component={LabelManager}
+                    setActiveTab={ActiveTabEnum.ADMINISTRATION}
+                />
+
+                <RouteExtension
+                    exact
+                    path={PATH_COURSE_ROLES_MANAGER}
+                    component={RolesManager}
                     setActiveTab={ActiveTabEnum.ADMINISTRATION}
                 />
 

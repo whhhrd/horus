@@ -12,7 +12,6 @@ import {
     DropdownMenu,
     Input,
 } from "reactstrap";
-// import { ParticipantsFetchAction } from "../../../../state/participants/actions";
 import { ParticipantDtoFull, LabelDto } from "../../../../api/types";
 import { buildContent, centerSpinner } from "../../../pagebuilder";
 import { ApplicationState } from "../../../../state/state";
@@ -273,8 +272,6 @@ class LabelManager extends Component<
                     {centerSpinner()}
                 </Col>
             );
-        } else if (searchQuery === "") {
-            return [];
         } else {
             for (const p of participants) {
                 if (
@@ -360,17 +357,26 @@ class LabelManager extends Component<
                     Add label
                 </DropdownToggle>
                 <DropdownMenu className="p-3" persist>
-                    {assignableLabels.map((l) => (
-                        <span
-                            key={l.id}
-                            className="cursor-pointer"
-                            onClick={() =>
-                                this.props.createLabelMapping(participantId, l)
-                            }
-                        >
-                            <Label label={l} />
-                        </span>
-                    ))}
+                    {assignableLabels.length > 0 &&
+                        assignableLabels.map((l) => (
+                            <span
+                                key={l.id}
+                                className="cursor-pointer"
+                                onClick={() =>
+                                    this.props.createLabelMapping(
+                                        participantId,
+                                        l,
+                                    )
+                                }
+                            >
+                                <Label label={l} />
+                            </span>
+                        ))}
+                    {assignableLabels.length === 0 && (
+                        <small className="text-muted">
+                            No labels to assign.
+                        </small>
+                    )}
                 </DropdownMenu>
             </Dropdown>
         );
@@ -414,7 +420,9 @@ class LabelManager extends Component<
                 </Label>
             ));
         } else {
-            return <small className="muted">This course has no labels</small>;
+            return (
+                <small className="text-muted">This course has no labels</small>
+            );
         }
     }
 

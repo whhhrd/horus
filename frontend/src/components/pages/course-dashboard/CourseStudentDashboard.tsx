@@ -155,7 +155,7 @@ export class CourseStudentDashboard extends Component<
             ));
         } else {
             return (
-                <span className="muted">
+                <span className="text-muted">
                     You are not assigned to any assignments.
                 </span>
             );
@@ -245,7 +245,7 @@ export class CourseStudentDashboard extends Component<
                 </Card>
             ));
         } else {
-            return <span className="muted">You are not yet in any group.</span>;
+            return <span className="text-muted">You are not yet in any group.</span>;
         }
     }
 
@@ -304,7 +304,7 @@ export class CourseStudentDashboard extends Component<
                                             ),
                                     )!.name
                                 }{" "}
-                                <small className="muted">
+                                <small className="text-muted">
                                     {getDisplayedDate(
                                         new Date(result.signedAt),
                                     )}
@@ -314,7 +314,7 @@ export class CourseStudentDashboard extends Component<
                 </ListGroup>
             );
         } else {
-            return <span className="muted">There are no recent events.</span>;
+            return <span className="text-muted">There are no recent events.</span>;
         }
     }
 

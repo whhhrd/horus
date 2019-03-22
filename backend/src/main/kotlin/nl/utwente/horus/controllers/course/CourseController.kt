@@ -14,6 +14,8 @@ import nl.utwente.horus.exceptions.InsufficientPermissionsException
 import nl.utwente.horus.exceptions.WrongCourseException
 import nl.utwente.horus.representations.assignment.*
 import nl.utwente.horus.representations.auth.RoleDtoBrief
+import nl.utwente.horus.representations.auth.SupplementaryRoleCreateUpdateDto
+import nl.utwente.horus.representations.auth.SupplementaryRoleDto
 import nl.utwente.horus.representations.course.CourseCreateDto
 import nl.utwente.horus.representations.course.CourseDtoFull
 import nl.utwente.horus.representations.course.CourseDtoSummary
@@ -28,6 +30,7 @@ import nl.utwente.horus.services.course.CourseService
 import nl.utwente.horus.services.group.GroupService
 import nl.utwente.horus.services.participant.LabelService
 import nl.utwente.horus.services.participant.ParticipantService
+import nl.utwente.horus.services.participant.SupplementaryRoleService
 import nl.utwente.horus.services.sheets.ExportService
 import nl.utwente.horus.services.signoff.SignOffService
 import org.springframework.beans.factory.annotation.Autowired
@@ -66,6 +69,9 @@ class CourseController: BaseController() {
 
     @Autowired
     lateinit var exportService: ExportService
+
+    @Autowired
+    lateinit var supplementaryRoleService: SupplementaryRoleService
 
     @GetMapping(path = ["", "/"], produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
     fun listCourses(): List<CourseDtoSummary> {
@@ -133,6 +139,22 @@ class CourseController: BaseController() {
         requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_PARTICIPANT)
 
         return courseService.getParticipantsOfCourse(courseId).map { ParticipantDtoFull(it) }
+    }
+
+    @GetMapping(path = ["/{courseId}/staff"])
+    fun listStaffOfCourse(@PathVariable courseId: Long): List<ParticipantDtoFull> {
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_PARTICIPANT)
+        val course = courseService.getCourseById(courseId)
+
+        return participantService.getCourseStaff(course).map { ParticipantDtoFull(it) }
+    }
+
+    @GetMapping(path = ["/{courseId}/supplementaryRoleMappings"])
+    fun listSupplementaryRoleMappings(@PathVariable courseId: Long): List<ParticipantSupplementaryRoleMappingDto> {
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_SUPPLEMENTARY_ROLE_MAPPING)
+        val course = courseService.getCourseById(courseId)
+
+        return supplementaryRoleService.getMappingsByCourse(course).map { ParticipantSupplementaryRoleMappingDto(it) }
     }
 
     @PostMapping(path = ["/{courseId}/participants"])
@@ -203,6 +225,21 @@ class CourseController: BaseController() {
             throw CourseMismatchException()
         }
         labelService.deleteLabel(label)
+    }
+
+    @GetMapping(path = ["/{courseId}/roles"])
+    fun getSupplementaryRoles(@PathVariable courseId: Long): List<SupplementaryRoleDto> {
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.LIST, HorusResource.COURSE_SUPPLEMENTARY_ROLE)
+
+        val course = courseService.getCourseById(courseId)
+        return supplementaryRoleService.getRolesByCourse(course).map { SupplementaryRoleDto(it) }
+    }
+
+    @PostMapping(path = ["/{courseId}/roles"])
+    fun createSupplementaryRole(@PathVariable courseId: Long, @RequestBody dto: SupplementaryRoleCreateUpdateDto): SupplementaryRoleDto {
+        verifyCoursePermission(Course::class, courseId, HorusPermissionType.CREATE, HorusResource.COURSE_SUPPLEMENTARY_ROLE)
+        val result = supplementaryRoleService.createSupplementaryRole(courseId, dto)
+        return SupplementaryRoleDto(result)
     }
 
     @GetMapping(path = ["/{courseId}/groups/search"])

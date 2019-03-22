@@ -30,7 +30,6 @@ class DatabasePopulator {
             transaction.begin()
             val scriptNames = listOf(
                     "1_courses.sql",
-                    "1a_roles.sql",
                     "2_person.sql",
                     "3_comments.sql",
                     "4_participant.sql",

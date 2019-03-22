@@ -3,11 +3,14 @@ import {
     ParticipantsFetchAction,
     ParticipantsFetchSucceededAction,
     CourseParticipantsFetchSucceededAction,
+    CourseStaffParticipantsFetchSucceededAction,
 } from "./actions";
 import {
     PARTICIPANTS_FETCH_REQUESTED_ACTION,
     PARTICIPANTS_FETCH_REQUEST_SUCCEEDED_ACTION,
     COURSE_PARTICIPANTS_FETCH_REQUEST_SUCCEEDED_ACTION,
+    COURSE_STAFF_PARTICIPANTS_FETCH_REQUESTED_ACTION,
+    COURSE_STAFF_PARTICIPANTS_FETCH_REQUEST_SUCCEEDED_ACTION,
 } from "./constants";
 import {
     LABEL_MAPPING_CREATE_SUCCEEDED_ACTION,
@@ -20,6 +23,7 @@ import {
 
 const initialState: ParticipantsState = {
     participants: null,
+    staff: null,
 };
 
 function participantsReducer(
@@ -28,7 +32,8 @@ function participantsReducer(
         | ParticipantsFetchAction
         | ParticipantsFetchSucceededAction
         | LabelMappingCreateSucceededAction
-        | LabelMappingDeleteSucceededAction,
+        | LabelMappingDeleteSucceededAction
+        | CourseStaffParticipantsFetchSucceededAction,
 ): ParticipantsState {
     if (state == null) {
         return initialState;
@@ -113,6 +118,18 @@ function participantsReducer(
                 return state;
             }
         }
+        case COURSE_STAFF_PARTICIPANTS_FETCH_REQUESTED_ACTION:
+            return {
+                ...state,
+                staff: null,
+            };
+        case COURSE_STAFF_PARTICIPANTS_FETCH_REQUEST_SUCCEEDED_ACTION:
+            const staff = (action as CourseStaffParticipantsFetchSucceededAction)
+                .participants;
+            return {
+                ...state,
+                staff,
+            };
         default:
             return state;
     }

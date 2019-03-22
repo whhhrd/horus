@@ -7,6 +7,8 @@ import nl.utwente.horus.auth.permissions.HorusResourceScope
 import nl.utwente.horus.entities.assignment.Assignment
 import nl.utwente.horus.entities.assignment.AssignmentSet
 import nl.utwente.horus.entities.assignment.SignOffResult
+import nl.utwente.horus.entities.auth.ParticipantSupplementaryRoleMapping
+import nl.utwente.horus.entities.auth.SupplementaryRole
 import nl.utwente.horus.entities.comment.Comment
 import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.comment.CommentType
@@ -85,7 +87,9 @@ abstract class BaseController {
                 Label::class to HorusResource.COURSE_LABEL,
                 Group::class to HorusResource.COURSE_GROUP,
                 SignOffResult::class to HorusResource.COURSE_SIGNOFFRESULT,
-                GroupSet::class to HorusResource.COURSE_GROUPSET
+                GroupSet::class to HorusResource.COURSE_GROUPSET,
+                SupplementaryRole::class to HorusResource.COURSE_SUPPLEMENTARY_ROLE,
+                ParticipantSupplementaryRoleMapping::class to HorusResource.COURSE_SUPPLEMENTARY_ROLE_MAPPING
         )
 
     }

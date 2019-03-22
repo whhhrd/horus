@@ -14,6 +14,8 @@ interface ParticipantRepository: JpaRepository<Participant, Long> {
     @Query("SELECT p FROM Participant p WHERE p.course = ?1 ORDER BY p.person.sortableName")
     fun findAllByCourseSorted(course: Course): Stream<Participant>
 
+    fun findAllByCourseAndRoleIdIn(c: Course, roles: List<Long>): List<Participant>
+
     fun findParticipantByPersonIdAndCourseId(personId: Long, courseId: Long): Participant?
 
     fun findAllByPersonIdInAndCourseId(personIds: Collection<Long>, courseId: Long): List<Participant>

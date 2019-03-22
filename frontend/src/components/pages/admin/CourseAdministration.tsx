@@ -65,6 +65,15 @@ class CourseAdministration extends PureComponent<
                             <h5>Manage Course Labels</h5>
                         </Link>
                     )}
+                    {true && (
+                        <Link
+                            to={`/courses/${
+                                this.props.match.params.cid
+                            }/administration/roles`}
+                        >
+                            <h5>Manage Supplementary Roles</h5>
+                        </Link>
+                    )}
                     {canExport && accessToken != null && <a
                         href={`/api/courses/${this.props.match.params.cid}/export?token=${accessToken}`}
                         target="_blank">
