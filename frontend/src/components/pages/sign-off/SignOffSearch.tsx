@@ -71,7 +71,7 @@ class SignOffSearch extends Component<
     }
 
     componentDidMount() {
-        this.setState((_) => ({ searchQuery: "" }));
+        this.setState(() => ({ searchQuery: "" }));
         this.props.fetchAssignmentSets(this.props.match.params.cid);
     }
 
@@ -227,9 +227,33 @@ class SignOffSearch extends Component<
                             searchQuery: newValue.newValue,
                         }));
                     },
+                    onBlurCapture: () => this.selectFirstSuggestion(false),
+                    onKeyPress: (e) => {
+                        if (e.key === "Enter") {
+                            this.selectFirstSuggestion(true);
+                            // @ts-ignore
+                            e.target.blur();
+                        }
+                    },
                 }}
             />
         );
+    }
+
+    private selectFirstSuggestion(forceSelect: boolean) {
+        const searchQuery = this.state.searchQuery;
+        const asid = queryString.parse(this.props.location.search).as;
+        const searchResults = this.props.searchResult;
+        if (searchQuery != null && searchQuery.length > 0
+            && searchResults != null && searchResults.length >= 1
+            && (forceSelect || asid == null)) {
+            const groupAssignmentSetCombination = searchResults[0];
+            this.pushURL(
+                this.props.match.params.cid,
+                groupAssignmentSetCombination.assignmentSet.id,
+                groupAssignmentSetCombination.id,
+            );
+        }
     }
 
     private highlightSuggestion(
