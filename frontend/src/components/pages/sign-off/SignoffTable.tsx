@@ -3,7 +3,7 @@ import { RouteComponentProps, withRouter } from "react-router";
 import { connect } from "react-redux";
 import queryString from "query-string";
 
-import { Row, Col, Table } from "reactstrap";
+import { Table } from "reactstrap";
 
 import {
     SignOffResultDtoCompact,
@@ -40,7 +40,7 @@ import SignoffResultTableCell from "./SignoffResultTableCell";
 import { buildContent } from "../../pagebuilder";
 import { openSidebarPhoneAction } from "../../../state/sidebar/actions";
 import { Action } from "redux";
-import {getCoursePermissions} from "../../../state/auth/selectors";
+import { getCoursePermissions } from "../../../state/auth/selectors";
 import CoursePermissions from "../../../api/permissions";
 import {
     commentAnyCreate,
@@ -48,6 +48,7 @@ import {
     signoffAssignmentsView,
     viewCommentSidebar,
 } from "../../../state/auth/constants";
+import { AutoSizer } from "react-virtualized";
 
 interface SignoffTableProps {
     signoffs: SignOffResultDtoCompact[] | null;
@@ -154,13 +155,15 @@ class SignoffTable extends Component<
      */
     render() {
         const cid = Number(this.props.match.params.cid);
+        const assignmentSet = this.props.assignmentSet;
         const permissions = this.props.coursePermissions!;
         const canViewSignoffs = signoffAssignmentsView.check(cid, permissions);
-
         return buildContent(
-            "Sign-off",
-            canViewSignoffs && this.buildContent() || null,
+            "Sign-off" + (assignmentSet != null ? ": " + assignmentSet.name : ""),
+            (canViewSignoffs && this.buildContent()) || null,
             this.buildSidebar(),
+            false,
+            false,
         );
     }
 
@@ -182,18 +185,18 @@ class SignoffTable extends Component<
         const { group, signoffs } = this.props;
 
         return (
-            <Row className="px-2 flex-row justify-content-center">
-                <Col lg="12" xs="12">
+            <div className="d-flex flex-column align-items-stretch h-100">
+                <div className="mb-3 px-3 pt-3 px-lg-0 py-lg-0">
                     <SignOffSearch
                         searchQuery={group != null ? group.name : undefined}
                     />
-                </Col>
-                <Col lg="12" xs="12" className="SignoffTableWrapper">
+                </div>
+                <div className="flex-fill h-100 w-100">
                     {signoffs != null && this.buildTable()}
-                </Col>
+                </div>
 
                 {this.state.modal && <CommentModal {...this.state.modal} />}
-            </Row>
+            </div>
         );
     }
 
@@ -203,7 +206,10 @@ class SignoffTable extends Component<
     private buildTable() {
         const cid = Number(this.props.match.params.cid);
         const permissions = this.props.coursePermissions!;
-        const canChangeSignoffs = signoffAssignmentsPerform.check(cid, permissions);
+        const canChangeSignoffs = signoffAssignmentsPerform.check(
+            cid,
+            permissions,
+        );
         const canViewComments = viewCommentSidebar.check(cid, permissions);
 
         const { group, assignmentSet } = this.props;
@@ -226,79 +232,109 @@ class SignoffTable extends Component<
             return null;
         } else {
             return (
-                <Table className="sign-off-table mt-4 table-bordered">
-                    <thead>
-                        <tr>
-                            <GroupTableCell
-                                group={group}
-                                onCommentClick={this.setComments}
-                                canViewComments={canViewComments}
-                            />
-                            {group.participants.map((p) => (
-                                <ParticipantTableCell
-                                    key={`p:${p.id}`}
-                                    participant={p}
-                                    group={group}
-                                    onCommentClick={this.setComments}
-                                    canViewComments={canViewComments}
-                                />
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {assignmentSet.assignments.map((a) => (
-                            <tr
-                                key={`a:${a.id}`}
-                                className="sign-off-table-row"
-                            >
-                                <AssignmentTableCell
-                                    assignment={a}
-                                    disabled={
-                                        !this.isAssignmentBatchSignable(a.id) || !canChangeSignoffs
-                                    }
-                                    onClick={() =>
-                                        this.onAssignmentSignOffClick(a.id)
-                                    }
-                                    onCommentClick={this.setComments}
-                                    canViewComments={canViewComments}
-                                />
-                                {group.participants.map((p) => {
-                                    const cellType = this.getLocalTypeForSignOff(
-                                        p.id,
-                                        a.id,
-                                    );
-                                    const unsaved = this.isCellUnsaved(
-                                        p.id,
-                                        a.id,
-                                    );
-
-                                    const signOff = this.findSignOff(
-                                        p.id,
-                                        a.id,
-                                    );
-
-                                    return (
-                                        <SignoffResultTableCell
-                                            key={`a:${a.id}:p:${p.id}`}
+                <AutoSizer>
+                    {({ width, height }) => (
+                        <div className="SignOffTableWrapper" style={{ width, height }}>
+                            <Table className="sign-off-table m-0 table-bordered">
+                                <thead>
+                                    <tr>
+                                        <GroupTableCell
                                             group={group}
-                                            assignment={a}
-                                            participant={p}
-                                            signOff={signOff!}
-                                            signOffState={cellType}
-                                            disabled={unsaved || !canChangeSignoffs}
-                                            unsaved={unsaved}
-                                            onClick={() =>
-                                                this.onSignOffClick(a.id, p.id)
-                                            }
                                             onCommentClick={this.setComments}
                                             canViewComments={canViewComments}
                                         />
-                                    );
-                                })}
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
+                                        {group.participants.map((p) => (
+                                            <ParticipantTableCell
+                                                key={`p:${p.id}`}
+                                                participant={p}
+                                                group={group}
+                                                onCommentClick={
+                                                    this.setComments
+                                                }
+                                                canViewComments={
+                                                    canViewComments
+                                                }
+                                            />
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {assignmentSet.assignments.map((a) => (
+                                        <tr
+                                            key={`a:${a.id}`}
+                                            className="sign-off-table-row"
+                                        >
+                                            <AssignmentTableCell
+                                                assignment={a}
+                                                disabled={
+                                                    !this.isAssignmentBatchSignable(
+                                                        a.id,
+                                                    ) || !canChangeSignoffs
+                                                }
+                                                onClick={() =>
+                                                    this.onAssignmentSignOffClick(
+                                                        a.id,
+                                                    )
+                                                }
+                                                onCommentClick={
+                                                    this.setComments
+                                                }
+                                                canViewComments={
+                                                    canViewComments
+                                                }
+                                            />
+                                            {group.participants.map((p) => {
+                                                const cellType = this.getLocalTypeForSignOff(
+                                                    p.id,
+                                                    a.id,
+                                                );
+                                                const unsaved = this.isCellUnsaved(
+                                                    p.id,
+                                                    a.id,
+                                                );
+
+                                                const signOff = this.findSignOff(
+                                                    p.id,
+                                                    a.id,
+                                                );
+
+                                                return (
+                                                    <SignoffResultTableCell
+                                                        key={`a:${a.id}:p:${
+                                                            p.id
+                                                        }`}
+                                                        group={group}
+                                                        assignment={a}
+                                                        participant={p}
+                                                        signOff={signOff!}
+                                                        signOffState={cellType}
+                                                        disabled={
+                                                            unsaved ||
+                                                            !canChangeSignoffs
+                                                        }
+                                                        unsaved={unsaved}
+                                                        onClick={() =>
+                                                            this.onSignOffClick(
+                                                                a.id,
+                                                                p.id,
+                                                            )
+                                                        }
+                                                        onCommentClick={
+                                                            this.setComments
+                                                        }
+                                                        canViewComments={
+                                                            canViewComments
+                                                        }
+                                                    />
+                                                );
+                                            })}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        </div>
+                    )}
+                </AutoSizer>
             );
         }
     }

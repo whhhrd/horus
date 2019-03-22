@@ -3,6 +3,7 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { push } from "connected-react-router";
 import queryString from "query-string";
+import reactStringReplace from "react-string-replace";
 
 import {
     Dropdown,
@@ -27,6 +28,8 @@ import {
 
 import { getAssignmentSets } from "../../../state/assignments/selectors";
 import { getSignOffSearchResults } from "../../../state/search/selectors";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTasks } from "@fortawesome/free-solid-svg-icons";
 
 interface SignOffSearchProps {
     searchQuery?: string;
@@ -70,15 +73,17 @@ class SignOffSearch extends Component<
     }
 
     componentDidMount() {
-        this.setState((_) => ({searchQuery: ""}));
+        this.setState((_) => ({ searchQuery: "" }));
         this.props.fetchAssignmentSets(this.props.match.params.cid);
     }
 
     render() {
         return (
-            <div className="d-flex flex-row">
-                {this.renderSearchBar()}
-                {this.renderAssignmentSetSelector()}
+            <div className="d-flex flex-row align-items-stretch h-100">
+                <div className="flex-grow-1">{this.renderSearchBar()}</div>
+                <div className="h-100">
+                    {this.renderAssignmentSetSelector()}
+                </div>
             </div>
         );
     }
@@ -124,19 +129,28 @@ class SignOffSearch extends Component<
         );
 
         return (
-            <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
-                <DropdownToggle
-                    color="primary"
-                    outline
-                    className="h-100 px-3"
-                    caret
-                >
-                    <span className="mr-3">
-                        {selectedAssignmentSet != null
-                            ? selectedAssignmentSet.name
-                            : "Select an assignment set"}
-                    </span>
-                </DropdownToggle>
+            <Dropdown
+                isOpen={this.state.dropdownOpen}
+                toggle={this.toggle}
+                className="h-100"
+            >
+                <span>
+                    <DropdownToggle
+                        color="primary"
+                        outline
+                        className="px-3 h-100"
+                        caret
+                    >
+                        <span className="mr-2">
+                            <FontAwesomeIcon icon={faTasks} />
+                        </span>
+                        <span className="d-none d-lg-inline">
+                            {selectedAssignmentSet != null
+                                ? selectedAssignmentSet.name
+                                : "Select an assignment set"}
+                        </span>
+                    </DropdownToggle>
+                </span>
                 <DropdownMenu>{assignmentSetOptions}</DropdownMenu>
             </Dropdown>
         );
@@ -187,15 +201,11 @@ class SignOffSearch extends Component<
 
                     const suggestionName =
                         assignmentSetString + suggestion.name + memberString;
-                    if (suggestion.important) {
-                        return (
-                            <div>
-                                <b>{suggestionName}</b>
-                            </div>
-                        );
-                    } else {
-                        return <div>{suggestionName}</div>;
-                    }
+                    return this.highlightSuggestion(
+                        suggestionName,
+                        suggestion.important,
+                        this.state.searchQuery,
+                    );
                 }}
                 onSuggestionSelected={(_: any, suggestion: any) => {
                     if (suggestion == null) {
@@ -224,6 +234,28 @@ class SignOffSearch extends Component<
                 }}
             />
         );
+    }
+
+    private highlightSuggestion(
+        suggestionName: string,
+        important: boolean | null,
+        input: string,
+    ) {
+        const result = reactStringReplace(
+            suggestionName,
+            input,
+            (match: string, i: number) => (
+                <mark key={i} className="m-0 px-0">
+                    {match}
+                </mark>
+            ),
+        );
+
+        if (important) {
+            return <div className="font-weight-bold">{result}</div>;
+        } else {
+            return <div>{result}</div>;
+        }
     }
 
     private orderSearchResults(

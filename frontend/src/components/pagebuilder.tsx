@@ -17,11 +17,24 @@ import DesktopComponent from "./DesktopComponent";
 export const buildContent = (
     headerTitle: string,
     content: JSX.Element | null,
-    sidebarContent: JSX.Element | null = null): JSX.Element => {
+    sidebarContent: JSX.Element | null = null,
+    phoneBodyPaddingY: boolean = true,
+    phoneBodyPaddingX: boolean = true,
+): JSX.Element => {
     return (
         <div>
-            <DesktopComponent headerTitle={headerTitle} content={content} sidebarContent={sidebarContent} />
-            <PhoneComponent headerTitle={headerTitle} content={content} sidebarContent={sidebarContent} />
+            <DesktopComponent
+                headerTitle={headerTitle}
+                content={content}
+                sidebarContent={sidebarContent}
+            />
+            <PhoneComponent
+                headerTitle={headerTitle}
+                content={content}
+                sidebarContent={sidebarContent}
+                hasPaddingX={phoneBodyPaddingX}
+                hasPaddingY={phoneBodyPaddingY}
+            />
         </div>
     );
 };
@@ -33,10 +46,13 @@ export const buildContent = (
 export const centerSpinner = (): JSX.Element => {
     return (
         <div className="d-flex justify-content-center h-100">
-            <Spinner className="my-auto"
+            <Spinner
+                className="my-auto"
                 style={{ width: "6rem", height: "6rem" }}
                 type="grow"
-                color="primary" role="status" />
+                color="primary"
+                role="status"
+            />
         </div>
     );
 };

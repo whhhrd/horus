@@ -14,6 +14,8 @@ interface PhoneComponentProps {
     headerTitle: string;
     content: JSX.Element | null;
     sidebarContent: JSX.Element | null;
+    hasPaddingX: boolean;
+    hasPaddingY: boolean;
 
     toggleSidebarPhone: () => Action;
 }
@@ -23,8 +25,10 @@ interface PhoneComponentState {
     width: number;
 }
 
-class PhoneComponent extends Component<PhoneComponentProps, PhoneComponentState> {
-
+class PhoneComponent extends Component<
+    PhoneComponentProps,
+    PhoneComponentState
+> {
     constructor(props: PhoneComponentProps) {
         super(props);
         this.state = {
@@ -36,7 +40,7 @@ class PhoneComponent extends Component<PhoneComponentProps, PhoneComponentState>
     }
 
     updateDimensions() {
-        this.setState({width: window.innerWidth});
+        this.setState({ width: window.innerWidth });
     }
 
     componentWillMount() {
@@ -52,67 +56,91 @@ class PhoneComponent extends Component<PhoneComponentProps, PhoneComponentState>
     }
 
     toggleNavigationBar() {
-        this.setState((state) => ({ navigationBarOpen: !state.navigationBarOpen }));
+        this.setState((state) => ({
+            navigationBarOpen: !state.navigationBarOpen,
+        }));
         this.forceUpdate();
     }
 
     render() {
-        const { headerTitle, content, sidebarContent } = this.props;
+        const {
+            headerTitle,
+            content,
+            sidebarContent,
+            hasPaddingX,
+            hasPaddingY,
+        } = this.props;
         if (this.state.width >= 992) {
-            return <div style={{display: "none"}}/>;
+            return <div style={{ display: "none" }} />;
         }
         return (
             // A flexible wrapper column for the mobile content
             <div className="d-flex ContentWrapper d-lg-none flex-column">
-
-                {/* <div className="NavigationBarSmOpen cursor-pointer p-3 ml-2 bg-light">
-                        <span onClick={this.toggleNavBar}><FontAwesomeIcon icon={faBars} size="lg" /></span>
-                    </div>; */}
-
                 {/* The content header box diplaying the 'headerTitle' in the top of the screen */}
-                <div className="d-flex flex-row
+                <div
+                    className="d-flex flex-row
                     justify-content-between
                     align-content-middle
-                    p-3 bg-light border-bottom">
-                    <div className="flex-shrink-0 mr-2 cursor-pointer"
-                        onClick={this.toggleNavigationBar}>
-                        <span><FontAwesomeIcon icon={faBars} size="lg" /></span>
+                    p-3 bg-light border-bottom"
+                >
+                    <div
+                        className="flex-shrink-0 mr-2 cursor-pointer"
+                        onClick={this.toggleNavigationBar}
+                    >
+                        <span>
+                            <FontAwesomeIcon icon={faBars} size="lg" />
+                        </span>
                     </div>
                     <div>
-                    <h5 className="mb-0 text-center">{headerTitle}</h5>
+                        <h5 className="mb-0 text-center">{headerTitle}</h5>
                     </div>
-                    <div className="flex-shrink-0 ml-2 cursor-pointer"
-                        onClick={this.props.toggleSidebarPhone}>
-                        {sidebarContent != null ?
+                    <div
+                        className="flex-shrink-0 ml-2 cursor-pointer"
+                        onClick={this.props.toggleSidebarPhone}
+                    >
+                        {sidebarContent != null ? (
                             <span>
-                                <FontAwesomeIcon icon={faInfoCircle} size="lg" />
-                            </span> : null
-                        }
+                                <FontAwesomeIcon
+                                    icon={faInfoCircle}
+                                    size="lg"
+                                />
+                            </span>
+                        ) : null}
                     </div>
                 </div>
 
                 {/* The main content box, displaying the elements from the 'content' argument or
                 the center spinner if the content is Null. */}
-                <div className="ContentMainSm p-3 flex-grow-1">
+                <div
+                    className={`ContentMainSm flex-grow-1 ${
+                        hasPaddingX ? "px-3" : ""
+                    } ${hasPaddingY ? "py-3" : ""}`}
+                >
                     {content !== null ? content : centerSpinner()}
                 </div>
 
                 {/* If sidebar content has been passed, render it in the SidebarPhone component,
                 a component that is open and closable with a button in the top right. of the screen. */}
-                {sidebarContent !== null &&
+                {sidebarContent !== null && (
                     <SidebarPhone content={sidebarContent} />
-                }
+                )}
 
                 {/* Render the navigation bar with Phone Mode. What this means is that it is hidden until
                 you click on the menu button in the top left of the screen. */}
-                <NavigationBar onPhone={true} visibleOnPhone={this.state.navigationBarOpen} />
+                <NavigationBar
+                    onPhone={true}
+                    visibleOnPhone={this.state.navigationBarOpen}
+                />
             </div>
         );
     }
 }
 
-export default connect((state: ApplicationState) => ({
-    isOpen: isOpen(state),
-}), {
+export default connect(
+    (state: ApplicationState) => ({
+        isOpen: isOpen(state),
+    }),
+    {
         toggleSidebarPhone: toggleSidebarPhoneAction,
-    })(PhoneComponent);
+    },
+)(PhoneComponent);

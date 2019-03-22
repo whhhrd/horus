@@ -5,3 +5,4 @@ declare module "*.png" {
   }
 
 declare module "react-sortablejs";
+declare module "react-string-replace";
