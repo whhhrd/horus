@@ -38,8 +38,6 @@ import ParticipantTableCell from "./ParticipantTableCell";
 import AssignmentTableCell from "./AssignmentTableCell";
 import SignoffResultTableCell from "./SignoffResultTableCell";
 import { buildContent } from "../../pagebuilder";
-import { openSidebarPhoneAction } from "../../../state/sidebar/actions";
-import { Action } from "redux";
 import { getCoursePermissions } from "../../../state/auth/selectors";
 import CoursePermissions from "../../../api/permissions";
 import {
@@ -66,8 +64,6 @@ interface SignoffTableProps {
         localChanges: SignOffChange[],
         asid: number,
     ) => SignOffSaveRequestedAction;
-
-    openSideBarPhone: () => Action;
 }
 
 interface SignoffTableState {
@@ -341,7 +337,7 @@ class SignoffTable extends Component<
 
     private setComments(comments: JSX.Element) {
         this.setState((_) => ({ comments }));
-        this.props.openSideBarPhone();
+        this.openSidebar();
     }
 
     /**
@@ -691,6 +687,17 @@ class SignoffTable extends Component<
             this.props.fetchSignOffs(assignmentSetId, courseId, groupId);
         }
     }
+
+    /**
+     * Opens the sidebar on phone.
+     */
+    private openSidebar() {
+        const { history } = this.props;
+        history.push({
+            ...history.location,
+            hash: "sidebar",
+        });
+    }
 }
 
 export default withRouter(
@@ -704,7 +711,6 @@ export default withRouter(
         {
             fetchSignOffs: signOffResultsRequestedAction,
             saveChanges: signOffSaveRequestedAction,
-            openSideBarPhone: openSidebarPhoneAction,
         },
     )(SignoffTable),
 );

@@ -1,3 +1,0 @@
-export const OPEN_PHONE_SIDEBAR = "sidebar/OPEN_PHONE_SIDEBAR";
-export const CLOSE_PHONE_SIDEBAR = "sidebar/CLOSE_PHONE_SIDEBAR";
-export const TOGGLE_PHONE_SIDEBAR = "sidebar/TOGGLE_PHONE_SIDEBAR";

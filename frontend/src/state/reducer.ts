@@ -14,7 +14,6 @@ import participantsReducer from "./participants/reducer";
 import signOffReducer from "./sign-off/reducer";
 import commentsReducer from "./comments/reducer";
 import searchReducer from "./search/reducer";
-import sidebarPhoneReducer from "./sidebar/reducer";
 import overviewReducer from "./overview/reducer";
 import studentDashboardReducer from "./student-dashboard/reducer";
 import labelsReducer from "./labels/reducer";
@@ -32,7 +31,6 @@ export const rootReducer = (history: History) => combineReducers<ApplicationStat
     canvasSettings: canvasReducer,
     signOffs: signOffReducer,
     search: searchReducer,
-    sidebar: sidebarPhoneReducer,
     overview: overviewReducer,
     studentDashboard: studentDashboardReducer,
     participants: participantsReducer,

@@ -1,7 +1,6 @@
 import React, { Component, SyntheticEvent } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import { push } from "connected-react-router";
 import queryString from "query-string";
 import reactStringReplace from "react-string-replace";
 
@@ -37,7 +36,6 @@ interface SignOffSearchProps {
     searchResult: GroupAssignmentSetCombination[] | null;
     assignmentSets: () => AssignmentSetDtoBrief[] | null;
 
-    redirectTo: (url: string) => {};
     doSearchQuery: (
         courseID: number,
         query: string,
@@ -113,7 +111,6 @@ class SignOffSearch extends Component<
                             );
                             const hasGroup = !isNaN(groupId) && groupId > 0;
                             this.pushURL(
-                                this.props.match.params.cid,
                                 assignmentSet.id,
                                 hasGroup ? groupId : null,
                             );
@@ -215,7 +212,6 @@ class SignOffSearch extends Component<
                         suggestion.suggestion;
                     this.setState({ searchQuery: "" }, () => {
                         this.pushURL(
-                            this.props.match.params.cid,
                             groupAssignmentSetCombination.assignmentSet.id,
                             groupAssignmentSetCombination.id,
                         );
@@ -293,11 +289,9 @@ class SignOffSearch extends Component<
     }
 
     private pushURL(
-        cid: number,
         asid: number | null,
         selectedGroupID: number | null,
     ) {
-        let newURL: string = "/courses/" + cid + "/signoff?";
         const searchParams: string[] = [];
 
         if (asid != null) {
@@ -308,9 +302,12 @@ class SignOffSearch extends Component<
             searchParams.push(`g=${selectedGroupID}`);
         }
 
-        newURL += searchParams.join("&");
+        const { location } = this.props.history;
 
-        this.props.redirectTo(newURL);
+        this.props.history.push({
+            ...location,
+            search: `?${searchParams.join("&")}`,
+        });
     }
 }
 
@@ -324,7 +321,6 @@ export default withRouter(
             doSearchQuery: (courseID: number, query: string) =>
                 signOffSearchQueryAction(courseID, query),
             fetchAssignmentSets: assignmentSetsFetchRequestedAction,
-            redirectTo: (url: string) => push(url),
         },
     )(SignOffSearch),
 );

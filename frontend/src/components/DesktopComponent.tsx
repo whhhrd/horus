@@ -1,8 +1,5 @@
 import React, { Component } from "react";
-import { ApplicationState } from "../state/state";
-import { isOpen } from "../state/sidebar/selectors";
 import { connect } from "react-redux";
-import { toggleSidebarPhoneAction } from "../state/sidebar/actions";
 import { centerSpinner } from "./pagebuilder";
 import NavigationBar from "./navigationBar/NavigationBar";
 
@@ -88,8 +85,6 @@ class DesktopComponent extends Component<DesktopComponentProps, DesktopComponent
     }
 }
 
-export default connect((state: ApplicationState) => ({
-    isOpen: isOpen(state),
+export default connect(() => ({
 }), {
-        toggleSidebarPhone: toggleSidebarPhoneAction,
     })(DesktopComponent);

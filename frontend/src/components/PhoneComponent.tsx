@@ -1,14 +1,11 @@
 import React, { Component } from "react";
-import { ApplicationState } from "../state/state";
-import { isOpen } from "../state/sidebar/selectors";
 import { connect } from "react-redux";
-import { toggleSidebarPhoneAction } from "../state/sidebar/actions";
-import { Action } from "redux";
 import { centerSpinner } from "./pagebuilder";
 import SidebarPhone from "./SidebarPhone";
 import NavigationBar from "./navigationBar/NavigationBar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import { withRouter, RouteComponentProps } from "react-router";
 
 interface PhoneComponentProps {
     headerTitle: string;
@@ -16,8 +13,6 @@ interface PhoneComponentProps {
     sidebarContent: JSX.Element | null;
     hasPaddingX: boolean;
     hasPaddingY: boolean;
-
-    toggleSidebarPhone: () => Action;
 }
 
 interface PhoneComponentState {
@@ -26,10 +21,10 @@ interface PhoneComponentState {
 }
 
 class PhoneComponent extends Component<
-    PhoneComponentProps,
+    PhoneComponentProps & RouteComponentProps<any>,
     PhoneComponentState
 > {
-    constructor(props: PhoneComponentProps) {
+    constructor(props: PhoneComponentProps & RouteComponentProps<any>) {
         super(props);
         this.state = {
             navigationBarOpen: false,
@@ -37,6 +32,7 @@ class PhoneComponent extends Component<
         };
         this.toggleNavigationBar = this.toggleNavigationBar.bind(this);
         this.updateDimensions = this.updateDimensions.bind(this);
+        this.closeNavigationBar = this.closeNavigationBar.bind(this);
     }
 
     updateDimensions() {
@@ -49,10 +45,12 @@ class PhoneComponent extends Component<
 
     componentDidMount() {
         window.addEventListener("resize", this.updateDimensions);
+        window.addEventListener("mouseup", this.closeNavigationBar);
     }
 
     componentWillUnmount() {
         window.removeEventListener("resize", this.updateDimensions);
+        window.removeEventListener("mouseup", this.closeNavigationBar);
     }
 
     toggleNavigationBar() {
@@ -60,6 +58,26 @@ class PhoneComponent extends Component<
             navigationBarOpen: !state.navigationBarOpen,
         }));
         this.forceUpdate();
+    }
+
+    /**
+     * Is called upon a 'mouseup' event (only when the PhoneComponent is mounted).
+     * Checks if the mouse is over the NavigationBar element and if so, it closes the
+     * navigation bar. Otherwise, it does nothing.
+     * @param e The MouseEvent, which has the properties that are necessary for checking
+     *     whether the mouse is above the NavigationBar element.
+     */
+    closeNavigationBar(e: MouseEvent) {
+        if (
+            this.state.navigationBarOpen &&
+            !e.composedPath().find(
+                (eventTarget: EventTarget) =>
+                    // @ts-ignore
+                    eventTarget.id === "NavigationBar" || eventTarget.id === "NavigationBarToggle",
+            )
+        ) {
+            this.setState(() => ({ navigationBarOpen: false }));
+        }
     }
 
     render() {
@@ -81,10 +99,10 @@ class PhoneComponent extends Component<
                     className="d-flex flex-row
                     justify-content-between
                     align-content-middle
-                    p-3 bg-light border-bottom"
+                    p-0 bg-light border-bottom"
                 >
-                    <div
-                        className="flex-shrink-0 mr-2 cursor-pointer"
+                    <div id="NavigationBarToggle"
+                        className="flex-shrink-0 cursor-pointer p-3 pr-4"
                         onClick={this.toggleNavigationBar}
                     >
                         <span>
@@ -92,11 +110,11 @@ class PhoneComponent extends Component<
                         </span>
                     </div>
                     <div>
-                        <h5 className="mb-0 text-center">{headerTitle}</h5>
+                        <h5 className="mb-0 text-center py-3">{headerTitle}</h5>
                     </div>
                     <div
-                        className="flex-shrink-0 ml-2 cursor-pointer"
-                        onClick={this.props.toggleSidebarPhone}
+                        className="flex-shrink-0 p-3 pl-4 cursor-pointer"
+                        onClick={sidebarContent != null ? () => this.openSidebar() : () => null}
                     >
                         {sidebarContent != null ? (
                             <span>
@@ -134,13 +152,19 @@ class PhoneComponent extends Component<
             </div>
         );
     }
+
+    openSidebar() {
+        const { history } = this.props;
+        history.push({
+            ...history.location,
+            hash: "sidebar",
+        });
+    }
 }
 
-export default connect(
-    (state: ApplicationState) => ({
-        isOpen: isOpen(state),
-    }),
-    {
-        toggleSidebarPhone: toggleSidebarPhoneAction,
-    },
-)(PhoneComponent);
+export default withRouter(
+    connect(
+        () => ({}),
+        {},
+    )(PhoneComponent),
+);

@@ -41,7 +41,7 @@ export class NavigationBar extends Component<NavigationBarProps & RouteComponent
 
         if (!onPhone || visibleOnPhone) {
             return (
-                <div>
+                <div id="NavigationBar">
                     <div className={`${deviceClass} bg-light border-top border-bottom border-right`}>
                         <div className="d-flex align-items-start flex-column h-100">
                             {!onPhone && <div>

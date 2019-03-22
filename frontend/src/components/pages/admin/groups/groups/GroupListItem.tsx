@@ -44,5 +44,4 @@ export default class GroupListItem extends PureComponent<GroupListItemProps> {
             </Col>
         );
     }
-
 }

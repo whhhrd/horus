@@ -31,10 +31,8 @@ import {
 } from "../../../state/overview/types";
 import { getAssignmentSet } from "../../../state/assignments/selectors";
 import CoursePermissions from "../../../api/permissions";
-import {getCoursePermissions} from "../../../state/auth/selectors";
-import {signoffAssignmentsView} from "../../../state/auth/constants";
-import { Action } from "redux";
-import { openSidebarPhoneAction } from "../../../state/sidebar/actions";
+import { getCoursePermissions } from "../../../state/auth/selectors";
+import { signoffAssignmentsView } from "../../../state/auth/constants";
 import GroupTableCell from "./GroupTableCell";
 import ParticipantTableCell from "./ParticipantTableCell";
 import AssignmentTableCell from "./AssignmentTableCell";
@@ -57,7 +55,6 @@ interface SignOffOverviewProps {
         courseId: number,
         assignmentSetId: number,
     ) => SignOffOverviewResultsFetchRequestedAction;
-    openSideBarPhone: () => Action;
 }
 
 interface SignOffOverviewState {
@@ -327,7 +324,7 @@ class SignOffOverview extends Component<
 
     private setComments(comments: JSX.Element) {
         this.setState(() => ({ comments }));
-        this.props.openSideBarPhone();
+        this.openSidebar();
     }
 
     private groupsToRowArray(groups: GroupDtoFull[]): Row[] {
@@ -379,6 +376,14 @@ class SignOffOverview extends Component<
         });
         return (completed * 100) / milestone.length;
     }
+
+    private openSidebar() {
+        const { history } = this.props;
+        history.push({
+            ...history.location,
+            hash: "sidebar",
+        });
+    }
 }
 
 export default withRouter(
@@ -394,7 +399,6 @@ export default withRouter(
             fetchAssignmentSet: assignmentSetFetchRequestedAction,
             fetchOverviewGroups: overviewGroupsFetchRequestedAction,
             fetchOverviewResults: overviewSignOffResultsRequestedAction,
-            openSideBarPhone: openSidebarPhoneAction,
         },
     )(SignOffOverview),
 );

@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Row, Col, Button, Input, Table } from "reactstrap";
 import { RouteComponentProps, withRouter } from "react-router";
-import { push } from "connected-react-router";
 import queryString from "query-string";
 import { GroupDtoFull, CourseDtoSummary } from "../../../../../api/types";
 import { ApplicationState } from "../../../../../state/state";
@@ -22,11 +21,10 @@ import { courseRequestedAction } from "../../../../../state/courses/action";
 import { getCourse } from "../../../../../state/courses/selectors";
 import { buildContent, centerSpinner } from "../../../../pagebuilder";
 import CommentThread from "../../../../comments/CommentThread";
-import { openSidebarPhoneAction } from "../../../../../state/sidebar/actions";
 import { Action } from "redux";
 import { EntityType } from "../../../../../state/comments/types";
 import CoursePermissions from "../../../../../api/permissions";
-import {getCoursePermissions} from "../../../../../state/auth/selectors";
+import { getCoursePermissions } from "../../../../../state/auth/selectors";
 import {
     canvasGroupsSyncPerform,
     groupsAnyView,
@@ -40,8 +38,6 @@ interface GroupManagerProps {
 
     fetchCourse: (id: number) => Action;
 
-    openSidebarPhone: () => Action;
-
     fetchGroups: (groupSetId: number) => GroupsFetchAction;
 
     refreshSet: (
@@ -50,7 +46,6 @@ interface GroupManagerProps {
     ) => CanvasRefreshSetRequestedAction;
 
     coursePermissions: CoursePermissions | null;
-    redirectTo: (url: string) => {};
 }
 
 interface GroupManagerState {
@@ -86,16 +81,21 @@ class GroupManager extends Component<
     }
 
     onShowClick(gid: number) {
-        const { cid, gsid } = this.props.match.params;
-        const URL = `/courses/${cid}/administration/groupsets/${gsid}?gid=${gid}`;
-        this.props.redirectTo(URL);
-        this.props.openSidebarPhone();
+        const { history } = this.props;
+        history.push({
+            ...history.location,
+            search: `?gid=${gid}`,
+            hash: "sidebar",
+        });
     }
 
     buildContent() {
         const permissions = this.props.coursePermissions!;
         const cid = Number(this.props.match.params.cid);
-        const canPerformCanvasSync = canvasGroupsSyncPerform.check(cid, permissions);
+        const canPerformCanvasSync = canvasGroupsSyncPerform.check(
+            cid,
+            permissions,
+        );
         const canViewGroups = groupsAnyView.check(cid, permissions);
 
         const { groups } = this.props;
@@ -192,38 +192,41 @@ class GroupManager extends Component<
                     {participants.length === 0 && (
                         <span className="text-muted">This group is empty.</span>
                     )}
-                    {canViewComments &&
-                    <div>
-                        <hr />
-                        <h3>Comments</h3>
-                        <CommentThread
-                            linkedEntityId={currentlyShownGroup.id}
-                            commentThreadId={
-                                currentlyShownGroup.commentThread != null
-                                    ? currentlyShownGroup.commentThread.id
-                                    : null
-                            }
-                            linkedEntityType={EntityType.Group}
-                            commentThreadSubject={currentlyShownGroup.name}
-                            showCommentThreadContent={false}
-                        />
+                    {canViewComments && (
+                        <div>
+                            <hr />
+                            <h3>Comments</h3>
+                            <CommentThread
+                                linkedEntityId={currentlyShownGroup.id}
+                                commentThreadId={
+                                    currentlyShownGroup.commentThread != null
+                                        ? currentlyShownGroup.commentThread.id
+                                        : null
+                                }
+                                linkedEntityType={EntityType.Group}
+                                commentThreadSubject={currentlyShownGroup.name}
+                                showCommentThreadContent={false}
+                            />
 
-                        {participants.length > 0 &&
-                            participants.map((p) => (
-                                <CommentThread
-                                    key={p.id}
-                                    linkedEntityId={p.id}
-                                    commentThreadId={
-                                        p.commentThread != null
-                                            ? p.commentThread.id
-                                            : null
-                                    }
-                                    linkedEntityType={EntityType.Participant}
-                                    commentThreadSubject={p.person.fullName}
-                                    showCommentThreadContent={false}
-                                />
-                            ))}
-                    </div>}
+                            {participants.length > 0 &&
+                                participants.map((p) => (
+                                    <CommentThread
+                                        key={p.id}
+                                        linkedEntityId={p.id}
+                                        commentThreadId={
+                                            p.commentThread != null
+                                                ? p.commentThread.id
+                                                : null
+                                        }
+                                        linkedEntityType={
+                                            EntityType.Participant
+                                        }
+                                        commentThreadSubject={p.person.fullName}
+                                        showCommentThreadContent={false}
+                                    />
+                                ))}
+                        </div>
+                    )}
                 </div>
             );
         }
@@ -296,9 +299,7 @@ export default withRouter(
         {
             fetchGroups: groupsFetchRequestedAction,
             refreshSet: canvasRefreshSetRequestedAction,
-            openSidebarPhone: openSidebarPhoneAction,
             fetchCourse: (id: number) => courseRequestedAction(id),
-            redirectTo: (url: string) => push(url),
         },
     )(GroupManager),
 );

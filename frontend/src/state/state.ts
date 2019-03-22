@@ -9,7 +9,6 @@ import { GroupsState } from "./groups/types";
 import { SignOffState } from "./sign-off/types";
 import { CommentsState } from "./comments/types";
 import { SearchState } from "./search/types";
-import { SidebarPhoneState } from "./sidebar/types";
 import { SignOffOverviewState } from "./overview/types";
 import { StudentDashboardState } from "./student-dashboard/types";
 import { ParticipantsState } from "./participants/types";
@@ -27,7 +26,6 @@ export interface ApplicationState {
     canvasSettings?: CanvasSettingsState;
     signOffs?: SignOffState;
     search?: SearchState;
-    sidebar?: SidebarPhoneState;
     overview?: SignOffOverviewState;
     studentDashboard?: StudentDashboardState;
     labels?: LabelsState;
