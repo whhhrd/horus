@@ -20,7 +20,7 @@ class CourseServiceTest : HorusAbstractTest() {
     val newCourse = CourseCreateDto("TestCourse123",
             "TestCourse123CourseCode", "TestCourse123ExternalId")
     val ppCourseCode = "84736"
-    val ppGroupSetId = 150L
+    val ppGroupSetId = 1L
     val fakeCourseId = 8138123912L
 
     @Autowired

@@ -36,18 +36,19 @@ abstract class HorusAbstractTest {
 
     companion object {
         const val TEACHER_LOGIN = "s1843141"
-        const val STUDENT_LOGIN = "s4677447"
+        const val STUDENT_LOGIN = "s55619"
 
-        const val TEACHER_PARTICIPANT_ID: Long = 1000
-        const val STUDENT_PARTICIPANT_ID: Long = 1100
+        const val COLOR_STR = "8B4513"
 
-        const val PP_MOCK_COURSE_ID: Long = 100
+        const val TEACHER_PARTICIPANT_ID: Long = 1
+        const val STUDENT_PARTICIPANT_ID: Long = 11
 
-        val PP_PARTICIPANT_IDS = (1100L..1590L)
+        const val PP_MOCK_COURSE_ID: Long = 1
 
-        val CC_ASSIGNMENT_IDS = (3000L..3030L)
+        val PP_PARTICIPANT_IDS = (11L..500L)
+        const val PP_GROUPSET_ID = 1L
 
-        val COLOR_STR = "8B4513"
+        val CC_ASSIGNMENT_IDS = (1L..35L)
 
         const val TEST_LABEL_ID: Long = 1
     }

@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired
 
 class AssignmentServiceTest : HorusAbstractTest() {
 
-    val fpAssignmentSetId = 302L
+    val fpAssignmentSetId = 3L
     val fakeID = 17371238L
 
     @Autowired

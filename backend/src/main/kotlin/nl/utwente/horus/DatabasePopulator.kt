@@ -29,16 +29,9 @@ class DatabasePopulator {
             val transaction = manager.transaction
             transaction.begin()
             val scriptNames = listOf(
-                    "1_courses.sql",
-                    "2_person.sql",
-                    "3_comments.sql",
-                    "4_participant.sql",
-                    "5_assignment_sets.sql",
-                    "6_assignments.sql",
-                    "7_groups.sql",
-                    "8_group_members.sql",
-                    "9_group_assignment_mapping.sql",
-                    "10_pp_ss_mock.sql"
+                    "person.sql",
+                    "pp_ss_mock_creation.sql",
+                    "pp_ss_mock_population.sql"
             )
             scriptNames.forEach {script: String ->
                 try {

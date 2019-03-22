@@ -2,6 +2,11 @@ package nl.utwente.horus.services
 
 import nl.utwente.horus.HorusAbstractTest
 import nl.utwente.horus.WithLoginId
+import nl.utwente.horus.entities.assignment.AssignmentSet
+import nl.utwente.horus.representations.assignment.AssignmentCreateUpdateDto
+import nl.utwente.horus.representations.assignment.AssignmentSetCreateDto
+import nl.utwente.horus.representations.assignment.AssignmentSetUpdateDto
+import nl.utwente.horus.services.assignment.AssignmentService
 import nl.utwente.horus.services.signoff.SignOffService
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -12,6 +17,9 @@ class SignOffServiceTest : HorusAbstractTest() {
 
     @Autowired
     lateinit var signOffService: SignOffService
+
+    @Autowired
+    lateinit var assignmentService: AssignmentService
 
     @Test
     @WithLoginId(TEACHER_LOGIN)
@@ -28,7 +36,8 @@ class SignOffServiceTest : HorusAbstractTest() {
     @Test
     @WithLoginId(TEACHER_LOGIN)
     fun testHasSignOffsEmpty() {
-        val assignmentIds = listOf(1L, 2L, 3L)
+        val set = createAssignmentSet()
+        val assignmentIds = set.assignments.map { it.id }
         val counts = signOffService.getSignOffResultCounts(assignmentIds)
         assertEquals(assignmentIds.size, counts.size)
         assertTrue(counts.values.all { it == 0L })
@@ -37,11 +46,24 @@ class SignOffServiceTest : HorusAbstractTest() {
     @Test
     @WithLoginId(TEACHER_LOGIN)
     fun testHasSignOffsMixed() {
-        val assignmentIds = listOf(1L, 3000L, 2L)
+        val firstAssignment = CC_ASSIGNMENT_IDS.first()
+        val lastAssignment = CC_ASSIGNMENT_IDS.last()
+        val newId = createAssignmentSet().assignments.first().id
+        val assignmentIds = listOf(firstAssignment, newId, lastAssignment)
         val counts = signOffService.getSignOffResultCounts(assignmentIds).mapKeys { it.key.id }
         assertEquals(assignmentIds.size, counts.size)
-        assertTrue(counts[1L] == 0L)
-        assertTrue(counts.getValue(3000L) > 0L)
-        assertTrue(counts[2L] == 0L)
+        assertTrue(counts[firstAssignment]!! > counts[lastAssignment]!!)
+        assertTrue(counts[newId]!! == 0L)
     }
+
+    private fun createAssignmentSet(): AssignmentSet {
+        val set = assignmentService.createAssignmentSet(getTeacherParticipant(), getPPCourse(), AssignmentSetCreateDto("set"))
+        assignmentService.updateAssignmentSet(getCurrentPerson(), set.id, AssignmentSetUpdateDto("set", listOf(PP_GROUPSET_ID),
+                listOf(
+                        AssignmentCreateUpdateDto(null, "1.1", true),
+                        AssignmentCreateUpdateDto(null, "2.1", true))))
+        return set
+    }
+
+
 }
