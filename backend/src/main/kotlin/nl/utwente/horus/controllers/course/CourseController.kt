@@ -4,7 +4,9 @@ import nl.utwente.horus.auth.permissions.HorusPermission
 import nl.utwente.horus.auth.permissions.HorusPermissionType
 import nl.utwente.horus.auth.permissions.HorusResource
 import nl.utwente.horus.controllers.BaseController
+import nl.utwente.horus.entities.assignment.AssignmentSet
 import nl.utwente.horus.entities.course.Course
+import nl.utwente.horus.entities.group.GroupFiltrationSpecification
 import nl.utwente.horus.entities.participant.Label
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.person.Person
@@ -21,6 +23,7 @@ import nl.utwente.horus.representations.course.CourseDtoFull
 import nl.utwente.horus.representations.course.CourseDtoSummary
 import nl.utwente.horus.representations.course.CourseUpdateDto
 import nl.utwente.horus.representations.dashboard.StudentDashboardDto
+import nl.utwente.horus.representations.group.GroupDtoFull
 import nl.utwente.horus.representations.group.GroupSetDtoSummary
 import nl.utwente.horus.representations.participant.*
 import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
@@ -34,6 +37,8 @@ import nl.utwente.horus.services.participant.SupplementaryRoleService
 import nl.utwente.horus.services.sheets.ExportService
 import nl.utwente.horus.services.signoff.SignOffService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -268,6 +273,13 @@ class CourseController: BaseController() {
         val results = signOffService.getSignOffsByParticipant(participant)
         val groups = groupService.getGroupsByParticipant(participant)
         return StudentDashboardDto(groups, sets, results)
+    }
+
+    @GetMapping(path = ["/{courseId}/groups/filtered"])
+    fun getGroupsFiltered(pageable: Pageable, @PathVariable courseId: Long, @RequestParam groupSetId: Long?, @RequestParam assignmentSetId: Long?, @RequestParam labelIds: List<Long>?, @RequestParam operator: GroupFiltrationSpecification.LabelFilterOperator?): Page<GroupDtoFull> {
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_GROUP)
+        val groups = courseService.getGroupsOfCourseFiltered(pageable, courseId, groupSetId, assignmentSetId,labelIds ?: emptyList(), operator)
+        return groups.map { GroupDtoFull(it) }
     }
 
 }

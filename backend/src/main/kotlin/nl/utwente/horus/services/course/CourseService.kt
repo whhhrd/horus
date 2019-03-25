@@ -5,6 +5,8 @@ import nl.utwente.horus.entities.assignment.SignOffResult
 import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.course.CourseRepository
+import nl.utwente.horus.entities.group.Group
+import nl.utwente.horus.entities.group.GroupFiltrationSpecification
 import nl.utwente.horus.entities.group.GroupSet
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.person.Person
@@ -22,6 +24,8 @@ import nl.utwente.horus.services.group.GroupService
 import nl.utwente.horus.services.participant.ParticipantService
 import nl.utwente.horus.services.signoff.SignOffService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -80,6 +84,10 @@ class CourseService {
 
     fun getGroupSetsOfCourse(courseId: Long) : List<GroupSet> {
         return getCourseById(courseId).groupSets.toList()
+    }
+
+    fun getGroupsOfCourseFiltered(pageable: Pageable, courseId: Long, groupSetId: Long?, assignmentSetId: Long?, labelIds: List<Long>, operator: GroupFiltrationSpecification.LabelFilterOperator?): Page<Group> {
+        return groupService.getGroupsFiltered(pageable, courseId, groupSetId, assignmentSetId, labelIds, operator)
     }
 
     fun getParticipantsOfCourse(courseId: Long) : List<Participant> {

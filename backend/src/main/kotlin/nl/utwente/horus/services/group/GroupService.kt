@@ -108,6 +108,11 @@ class GroupService {
         return groupRepository.findAllByMappedAssignmentSetId(pageable, assignmentSetId)
     }
 
+    fun getGroupsFiltered(pageable: Pageable, courseId: Long, groupSetId: Long?, assignmentSetId: Long?, labelIds: List<Long>, operator: GroupFiltrationSpecification.LabelFilterOperator?): Page<Group> {
+        val specification = GroupFiltrationSpecification(courseId, groupSetId, assignmentSetId, labelIds, operator)
+        return groupRepository.findAll(specification, pageable)
+    }
+
     fun addParticipantToGroup(group: Group, p: Participant) {
         val member = GroupMember(group, p)
         groupMemberRepository.save(member)
