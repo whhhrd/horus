@@ -1,16 +1,16 @@
 import { Component } from "react";
 import {
-    SignOffResultDtoSummary,
     ParticipantDtoBrief,
 } from "../../../api/types";
 import { centerSpinner } from "../../pagebuilder";
 import React from "react";
 import { Table, Modal, ModalHeader, ModalBody } from "reactstrap";
 import { getDisplayedDate } from "../../util";
+import {SignOffInformation} from "../../../state/sign-off/types";
 
 interface SignOffHistoryModalProps {
     isOpen: boolean;
-    signOffHistory: SignOffResultDtoSummary[] | null;
+    signOffHistory: SignOffInformation[] | null;
     participant: ParticipantDtoBrief;
     onCloseModal: () => void;
 }
@@ -34,6 +34,7 @@ export default class SignOffHistoryModal extends Component<
             return centerSpinner();
         } else {
             const { participant, isOpen } = this.props;
+
             return (
                 <Modal autoFocus={false} isOpen={isOpen}>
                     <ModalHeader
@@ -52,13 +53,11 @@ export default class SignOffHistoryModal extends Component<
                             </thead>
                             <tbody>
                                 {signOffHistory.map((result) => (
-                                    <tr key={result.signedAt.toString()}>
+                                    <tr key={result.signedAt.getTime()}>
                                         <td>{result.signer.person.fullName}</td>
-                                        <td>{result.result}</td>
+                                        <td>{result.type}</td>
                                         <td>
-                                            {getDisplayedDate(
-                                                new Date(result.signedAt),
-                                            )}
+                                            {getDisplayedDate(result.signedAt)}
                                         </td>
                                     </tr>
                                 ))}

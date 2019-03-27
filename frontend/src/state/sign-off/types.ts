@@ -2,7 +2,7 @@ import {
     SignOffResultDtoCompact,
     AssignmentSetDtoFull,
     GroupDtoFull,
-    SignOffResultDtoSummary,
+    SignOffResultDtoSummary, ParticipantDtoBrief, AssignmentDtoBrief,
 } from "../../api/types";
 
 export enum SignOffChangeResult {
@@ -28,4 +28,12 @@ export interface SignOffChange {
     aid: number;
     result: SignOffChangeResult;
     comment: string | null;
+}
+
+export interface SignOffInformation {
+    signedAt: Date;
+    signer: ParticipantDtoBrief;
+    type: string;
+    student: ParticipantDtoBrief;
+    assignment: AssignmentDtoBrief;
 }

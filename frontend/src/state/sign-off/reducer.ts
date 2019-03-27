@@ -74,64 +74,12 @@ export default function signOffReducer(
                 convertToCompact(successAction.signoffs),
             );
 
-            // Update sign-off history
-            const signOffHistory =
-                state.signOffHistory != null
-                    ? state.signOffHistory.slice()
-                    : [];
-
-            // If we already show the sign-off details in the sidebar for some assignment
-            if (signOffHistory.length > 0) {
-
-                // Get the sign-off history details of the sign-off that we are looking at
-                // in the sidebar
-                const { participant, assignment } = signOffHistory[0];
-
-                // If we are changing sign-offs
-                if (successAction.signoffs.length > 0) {
-                    successAction.signoffs.forEach((s) => {
-
-                        // Check for each sign-off whether it concerns the details
-                        // in the sidbear. If so, prepend the sign-off history with
-                        // the new sign-off (THIS DOES NOT WORK FOR PUTTING TO UNATEMPTED)
-                        if (
-                            participant.id === s.participant.id &&
-                            assignment.id === s.assignment.id
-                        ) {
-                            signOffHistory.unshift(s);
-                        }
-                    });
-                }
-
-                // if (successAction.deletions.length > 0) {
-                //     successAction.deletions.forEach((d) => {
-                //         const deletedSummary =
-                //             state.signOffs != null
-                //                 ? state.signOffs.signOffs.find(
-                //                       (s) => s.id === d,
-                //                   )
-                //                 : null;
-                //         const isNotToUnattempted = successAction.signoffs.find(
-                //             (s) => s.id === d,
-                //         );
-                //         if (
-                //             deletedSummary != null &&
-                //             !isNotToUnattempted &&
-                //             participant.id === deletedSummary.participantId &&
-                //             assignment.id === deletedSummary.assignmentId
-                //         ) {
-                //             signOffHistory = [];
-                //         }
-                //     });
-                // }
-            }
             return {
                 ...state,
                 signOffs: {
                     ...state.signOffs!,
                     signOffs: signOffResults,
                 },
-                signOffHistory,
             };
         case SIGN_OFF_HISTORY_REQUESTED_ACTION:
             return {

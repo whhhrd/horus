@@ -1,7 +1,6 @@
 import { Component } from "react";
 import { ApplicationState } from "../../../state/state";
 import { connect } from "react-redux";
-import { SignOffResultDtoSummary } from "../../../api/types";
 import { getSignOffHistory } from "../../../state/sign-off/selectors";
 import {
     SignOffHistoryRequestedAction,
@@ -13,11 +12,12 @@ import { getDisplayedDate } from "../../util";
 import SignOffHistoryModal from "./SignOffHistoryModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHistory } from "@fortawesome/free-solid-svg-icons";
+import {SignOffInformation} from "../../../state/sign-off/types";
 
 interface SignOffDetailsProps {
     participantId: number;
     assignmentId: number;
-    signOffHistory: SignOffResultDtoSummary[] | null;
+    signOffHistory: SignOffInformation[] | null;
 
     fetchSignOffHistory: (
         participantId: number,
@@ -101,13 +101,12 @@ class SignOffDetails extends Component<
                                 <span>
                                     Marked as{" "}
                                     <strong>
-                                        {mostRecentSignoff.result.toLowerCase()}
+                                        {mostRecentSignoff.type.toLowerCase()}
                                     </strong>{" "}
                                     by{" "}
                                     <mark className="mr-2">
                                         {
-                                            mostRecentSignoff.signer.person
-                                                .fullName
+                                            mostRecentSignoff.signer.person.fullName
                                         }
                                     </mark>
                                     <small>
@@ -135,7 +134,7 @@ class SignOffDetails extends Component<
                         </Card>
                         {this.state.signOffHistoryModalOpen && (
                             <SignOffHistoryModal
-                                participant={mostRecentSignoff.participant}
+                                participant={mostRecentSignoff.student}
                                 signOffHistory={signOffHistory}
                                 onCloseModal={this.toggleHistoryModal}
                                 isOpen={this.state.signOffHistoryModalOpen}
