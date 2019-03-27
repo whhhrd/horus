@@ -111,10 +111,7 @@ class SignOffOverviewSearch extends Component<
         if (this.props.labels == null) {
             this.props.fetchCourse(courseId);
         }
-
-        if (this.props.groupSets == null) {
-            this.props.fetchGroupSets(courseId);
-        }
+        this.props.fetchGroupSets(courseId);
     }
 
     toggleGroupSetSelectorDropdown() {
