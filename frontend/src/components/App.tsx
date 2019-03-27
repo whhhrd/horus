@@ -73,7 +73,9 @@ class App extends React.Component<AppProps & RouteComponentProps> {
             this.props.push(App.HOME_PATH);
             pathname = App.HOME_PATH;
         }
-        if (pathname !== PATH_LOGIN) {
+        if (pathname === PATH_LOGIN) {
+            setLoginRedirect(App.HOME_PATH);
+        } else {
             setLoginRedirect(`${pathname}${search}${hash}`);
         }
         loadAuthentication();
