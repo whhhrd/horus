@@ -4,9 +4,12 @@ import {
     SIGN_OFF_OVERVIEW_GROUPS_FETCH_REQUESTED_ACTION,
     SIGN_OFF_OVERVIEW_GROUPS_FETCH_SUCCEEDED_ACTION,
     SIGN_OFF_OVERVIEW_GROUPS_PAGE_FETCH_SUCCEEDED_ACTION,
+    SIGN_OFF_OVERVIEW_FILTER_QUERY_ACTION,
+    SIGN_OFF_OVERVIEW_FILTER_SUCCEEDED_ACTION,
 } from "./constants";
 
 import { SignOffResultDtoCompact, GroupDtoFull } from "../../api/types";
+import { Action } from "redux";
 
 export const overviewSignOffResultsRequestedAction = (
     courseId: number,
@@ -57,4 +60,41 @@ export const overviewGroupsFetchSucceededAction = (
     courseId,
     assignmentSetId,
     groups,
+});
+
+export interface SignOffOverviewFilterQueryAction extends Action<string> {
+    courseId: number;
+    operator: string;
+    assignmentSetId?: number;
+    labelIds?: number[];
+    groupSetId?: number;
+}
+
+export interface SignOffOverviewFilterSucceededAction extends Action<string> {
+    groups: GroupDtoFull[];
+    finished?: boolean;
+}
+
+export const signOffOverviewFilterQueryAction = (
+    courseId: number,
+    operator: string,
+    assignmentSetId?: number,
+    labelIds?: number[],
+    groupSetId?: number,
+) => ({
+    type: SIGN_OFF_OVERVIEW_FILTER_QUERY_ACTION,
+    courseId,
+    operator,
+    assignmentSetId,
+    groupSetId,
+    labelIds,
+});
+
+export const signOffOverviewFilterSucceededAction = (
+    groups: GroupDtoFull[],
+    finished?: boolean,
+) => ({
+    type: SIGN_OFF_OVERVIEW_FILTER_SUCCEEDED_ACTION,
+    groups,
+    finished,
 });

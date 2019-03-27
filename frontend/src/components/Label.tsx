@@ -5,15 +5,19 @@ import { LabelDto } from "../api/types";
 
 interface LabelProps {
     label: LabelDto;
+    className?: string;
+    style?: React.CSSProperties;
 }
 
 export default class Label extends PureComponent<LabelProps> {
     render() {
         const { name, color } = this.props.label;
+        const { className, style } = this.props;
         return (
-            <Badge pill
-                className="p-label mr-1 mb-1 py-1 px-2 shadow-sm"
-                style={this.getLabelStyle(color)}
+            <Badge
+                pill
+                className={`p-label mr-1 mb-1 py-1 px-2 shadow-sm ${className != null ? className : ""}`}
+                style={{...this.getLabelStyle(color), ...style}}
             >
                 {name}
                 {this.props.children}

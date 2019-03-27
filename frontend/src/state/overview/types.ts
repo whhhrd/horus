@@ -1,5 +1,6 @@
 import { Action } from "redux";
 import { GroupDtoFull, SignOffResultDtoCompact } from "../../api/types";
+import { SignOffOverviewFilterQueryAction, SignOffOverviewFilterSucceededAction } from "./actions";
 
 export interface SignOffOverviewFetchRequestedAction extends Action<string> {
     courseId: number;
@@ -45,4 +46,6 @@ export type SignOffOverviewAction =
     | SignOffOverviewFetchSucceededAction
     | SignOffOverviewGroupsFetchPageSucceededAction
     | SignOffOverviewResultsFetchRequestedAction
-    | SignOffOverviewResultsFetchSucceededAction;
+    | SignOffOverviewResultsFetchSucceededAction
+    | SignOffOverviewFilterQueryAction
+    | SignOffOverviewFilterSucceededAction;
