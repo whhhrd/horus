@@ -30,7 +30,6 @@ export default function searchReducer(
                         name: group.name,
                         memberNames: group.memberNames,
                         assignmentSet: assignmentSetsMap[linkedAssignmentSetID],
-                        important: false,
                     };
                     groupAssignmentSetCombinations.push(
                         groupAssignmentSetCombination,

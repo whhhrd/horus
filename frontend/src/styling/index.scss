@@ -427,7 +427,7 @@ button {
 }
 
 .react-autosuggest__suggestions-container--open {
-    display: flex;
+    display: block;
     position: absolute;
     width: 600px;
     max-width: 90%;
@@ -451,11 +451,29 @@ button {
 
 .react-autosuggest__suggestion {
     cursor: pointer;
-    padding: 10px 20px;
+    padding: 7px 21px;
 }
 
 .react-autosuggest__suggestion--highlighted {
     background-color: $color_blue_light;
+}
+
+.react-autosuggest__section-container {
+    border-top: 1px dashed #ccc;
+    margin-top: 0.5rem;
+}
+
+.react-autosuggest__section-container--first {
+    border-top: 0;
+    margin-top: 0;
+}
+
+.react-autosuggest__section-title {
+    padding: 7px 0 1px 14px;
+}
+
+.autosuggest-section-title {
+    font-size: 12pt;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

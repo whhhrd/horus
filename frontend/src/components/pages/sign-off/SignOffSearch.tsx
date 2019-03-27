@@ -14,7 +14,7 @@ import Autosuggest from "react-autosuggest";
 
 import { AssignmentSetDtoBrief } from "../../../api/types";
 import { ApplicationState } from "../../../state/state";
-import { GroupAssignmentSetCombination } from "../../../state/search/types";
+import {GroupAssignmentSetCombination, GroupAssignmentSetSection} from "../../../state/search/types";
 
 import {
     assignmentSetsFetchRequestedAction,
@@ -156,9 +156,12 @@ class SignOffSearch extends Component<
     private renderSearchBar() {
         return (
             <Autosuggest
+                // @ts-ignore
+                // Because suggestions are actually used as sections here,
+                // meaning that type of suggestion != type of section.
                 suggestions={
                     this.props.searchResult != null
-                        ? this.orderSearchResults(this.props.searchResult)
+                        ? this.sectionizeSearchResults(this.props.searchResult)
                         : []
                 }
                 onSuggestionsFetchRequested={(value: any) => {
@@ -178,8 +181,8 @@ class SignOffSearch extends Component<
                 renderSuggestion={(
                     suggestion: GroupAssignmentSetCombination,
                 ) => {
-                    const assignmentSetString =
-                        suggestion.assignmentSet.name + ": ";
+                    // const assignmentSetString =
+                    //     suggestion.assignmentSet.name + ": ";
                     let memberString: string;
                     if (suggestion.memberNames.length === 0) {
                         memberString = "";
@@ -196,11 +199,10 @@ class SignOffSearch extends Component<
                         memberString += ")";
                     }
 
-                    const suggestionName =
-                        assignmentSetString + suggestion.name + memberString;
+                    const suggestionName = suggestion.name + memberString;
                     return this.highlightSuggestion(
                         suggestionName,
-                        suggestion.important,
+                        false,
                         this.state.searchQuery,
                     );
                 }}
@@ -236,8 +238,19 @@ class SignOffSearch extends Component<
                         }
                     },
                 }}
+                multiSection={true}
+                renderSectionTitle={this.renderSectionTitle}
+                getSectionSuggestions={this.getSectionSuggestions}
             />
         );
+    }
+
+    private renderSectionTitle(section: GroupAssignmentSetSection) {
+        return <span className="font-weight-bold autosuggest-section-title">{section.assignmentSet.name}</span>;
+    }
+
+    private getSectionSuggestions(section: GroupAssignmentSetSection) {
+        return section.groupsAssignmentSetCombinations;
     }
 
     private selectFirstSuggestion(forceSelect: boolean) {
@@ -277,27 +290,40 @@ class SignOffSearch extends Component<
         }
     }
 
-    private orderSearchResults(
+    private sectionizeSearchResults(
         searchResult: GroupAssignmentSetCombination[],
-    ): GroupAssignmentSetCombination[] {
+    ): GroupAssignmentSetSection[] {
+        const sectionMapping = new Map<AssignmentSetDtoBrief, GroupAssignmentSetCombination[]>();
         const asid = Number(queryString.parse(this.props.location.search).as!);
-        if (!isNaN(asid) && asid > 0) {
-            const bestResults: GroupAssignmentSetCombination[] = [];
-            const otherResults: GroupAssignmentSetCombination[] = [];
-            for (const groupAssignmentSetCombination of searchResult) {
-                if (groupAssignmentSetCombination.assignmentSet.id === asid) {
-                    bestResults.push({
-                        ...groupAssignmentSetCombination,
-                        important: true,
-                    });
-                } else {
-                    otherResults.push(groupAssignmentSetCombination);
-                }
+
+        // First construct a map with assignment sets as key,
+        // and a list of GroupAssignmentSetCombination as values.
+        searchResult.forEach((c) => {
+            if (!sectionMapping.has(c.assignmentSet)) {
+                sectionMapping.set(c.assignmentSet, []);
             }
-            return bestResults.concat(otherResults);
-        } else {
-            return searchResult;
-        }
+            sectionMapping.get(c.assignmentSet)!.push(c);
+        });
+
+        // Then convert this map to a two-dimensional list (representing the sections),
+        // with the 'important' elements at the start of the list.
+        // A section is important whenever that section is selected,
+        // meaning the query parameter matches the assignment set id.
+        const sections: GroupAssignmentSetSection[] = [];
+        sectionMapping.forEach((value, key) => {
+            const section: GroupAssignmentSetSection = {
+                assignmentSet: key,
+                groupsAssignmentSetCombinations: value,
+                important: key.id === asid,
+            };
+            if (section.important) {
+                sections.unshift(section);
+            } else {
+                sections.push(section);
+            }
+        });
+
+        return sections;
     }
 
     private getAssignmentSetByID(asid: number): AssignmentSetDtoBrief | null {

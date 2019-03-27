@@ -9,6 +9,10 @@ export interface GroupAssignmentSetCombination {
     name: string;
     memberNames: string[];
     assignmentSet: AssignmentSetDtoBrief;
-    // Used to indicate that this suggestion should be at the top of the search results
-    important: boolean | null;
+}
+
+export interface GroupAssignmentSetSection {
+    assignmentSet: AssignmentSetDtoBrief;
+    groupsAssignmentSetCombinations: GroupAssignmentSetCombination[];
+    important: boolean;
 }
