@@ -1,22 +1,26 @@
+import {combineReducers} from "redux";
+
 import {
-    SignOffOverviewState,
+    SignOffOverviewAction,
     SignOffOverviewFetchRequestedAction,
     SignOffOverviewGroupsFetchPageSucceededAction,
     SignOffOverviewResultsFetchSucceededAction,
-    SignOffOverviewAction,
+    SignOffOverviewState,
     SignOffResultsMap,
 } from "./types";
-import { GroupDtoFull } from "../../api/types";
+import {GroupDtoFull, ParticipantDtoBrief, SignOffResultDtoCompact} from "../../api/types";
 import {
-    SIGN_OFF_OVERVIEW_GROUPS_PAGE_FETCH_SUCCEEDED_ACTION,
     SIGN_OFF_OVERVIEW_GROUPS_FETCH_REQUESTED_ACTION,
-    SIGN_OFF_OVERVIEW_RESULTS_FETCH_SUCCEEDED_ACTION,
     SIGN_OFF_OVERVIEW_GROUPS_FETCH_SUCCEEDED_ACTION,
+    SIGN_OFF_OVERVIEW_GROUPS_PAGE_FETCH_SUCCEEDED_ACTION,
+    SIGN_OFF_OVERVIEW_RESULTS_FETCH_SUCCEEDED_ACTION,
     SIGN_OFF_OVERVIEW_FILTER_SUCCEEDED_ACTION,
     SIGN_OFF_OVERVIEW_FILTER_QUERY_ACTION,
 } from "./constants";
-import { combineReducers } from "redux";
 import { SignOffOverviewFilterSucceededAction } from "./actions";
+import {CommentDeleteSucceededAction} from "../comments/action";
+import {COMMENT_DELETE_REQUEST_SUCCEEDED_ACTION} from "../comments/constants";
+import {EntityType} from "../comments/types";
 
 const initialState: SignOffOverviewState = {
     groups: [],
@@ -29,6 +33,7 @@ function groupsReducer(
     action:
         | SignOffOverviewFetchRequestedAction
         | SignOffOverviewGroupsFetchPageSucceededAction
+        | CommentDeleteSucceededAction
         | SignOffOverviewFilterSucceededAction,
 ): GroupDtoFull[] {
     switch (action.type) {
@@ -38,6 +43,47 @@ function groupsReducer(
             const groups = (action as SignOffOverviewGroupsFetchPageSucceededAction)
                 .groups;
             return [...state, ...groups];
+        case COMMENT_DELETE_REQUEST_SUCCEEDED_ACTION:
+            const commentDelAction = action as CommentDeleteSucceededAction;
+            const entityId = commentDelAction.entityId;
+            switch (commentDelAction.entityType) {
+                case EntityType.Participant:
+                    const newGroups: GroupDtoFull[] = [];
+                    state.forEach((group) => {
+                        const newParticipants: ParticipantDtoBrief[] = [];
+                        group.participants.forEach((participant) => {
+                            if (participant.id === entityId) {
+                                newParticipants.push({
+                                    ...participant,
+                                    commentThread: commentDelAction.commentThread,
+                                });
+                            } else {
+                                newParticipants.push(participant);
+                            }
+                        });
+                        const newGroup: GroupDtoFull = {
+                            ...group,
+                            participants: newParticipants,
+                        };
+                        newGroups.push(newGroup);
+                    });
+                    return newGroups;
+                case EntityType.Group:
+                    const updatedGroups: GroupDtoFull[] = [];
+                    state.forEach((group) => {
+                        if (group.id === entityId) {
+                            updatedGroups.push({
+                                ...group,
+                                commentThread: commentDelAction.commentThread,
+                            });
+                        } else {
+                            updatedGroups.push(group);
+                        }
+                    });
+                    return updatedGroups;
+                default:
+                    return state;
+            }
         case SIGN_OFF_OVERVIEW_FILTER_QUERY_ACTION:
             return initialState.groups;
         case SIGN_OFF_OVERVIEW_FILTER_SUCCEEDED_ACTION:
@@ -51,12 +97,15 @@ function groupsReducer(
 
 function resultsReducer(
     state: SignOffResultsMap = initialState.signOffResults,
-    action: SignOffOverviewResultsFetchSucceededAction,
+    action:
+        | SignOffOverviewResultsFetchSucceededAction
+        | CommentDeleteSucceededAction,
 ): SignOffResultsMap {
     switch (action.type) {
         case SIGN_OFF_OVERVIEW_RESULTS_FETCH_SUCCEEDED_ACTION:
+            const overviewFetchAction = action as SignOffOverviewResultsFetchSucceededAction;
             const map: SignOffResultsMap = new Map();
-            action.results.forEach((result) => {
+            overviewFetchAction.results.forEach((result) => {
                 if (map.get(result.participantId) == null) {
                     map.set(result.participantId, new Map());
                 }
@@ -69,6 +118,30 @@ function resultsReducer(
                 map.get(result.participantId)!.set(result.assignmentId, result);
             });
             return map;
+        case COMMENT_DELETE_REQUEST_SUCCEEDED_ACTION:
+            const commentDelAction = action as CommentDeleteSucceededAction;
+            switch (commentDelAction.entityType) {
+                case EntityType.Signoff:
+                    const commentThreadId = commentDelAction.commentThread == null
+                        ? null : commentDelAction.commentThread.id;
+                    const entityId = commentDelAction.entityId;
+                    const newSignOffResultsMap: SignOffResultsMap = new Map();
+                    state.forEach((assignmentMap: Map<number, SignOffResultDtoCompact>, participantId: number) => {
+                        const newAssignmentMap: Map<number, SignOffResultDtoCompact> = new Map();
+                        assignmentMap.forEach((signOffResult: SignOffResultDtoCompact, assignmentId: number) => {
+                            if (signOffResult.id === entityId) {
+                                const newSignOffResult = {...signOffResult, commentThreadId};
+                                newAssignmentMap.set(assignmentId, newSignOffResult);
+                            } else {
+                                newAssignmentMap.set(assignmentId, signOffResult);
+                            }
+                        });
+                        newSignOffResultsMap.set(participantId, newAssignmentMap);
+                    });
+                    return newSignOffResultsMap;
+                default:
+                    return state;
+            }
         default:
             return state;
     }

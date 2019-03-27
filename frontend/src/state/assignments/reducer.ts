@@ -1,31 +1,34 @@
 import {
-    ASSIGNMENT_SETS_FETCH_SUCCEEDED_ACTION,
-    ASSIGNMENT_SETS_FETCH_REQUESTED_ACTION,
     ASSIGNMENT_GROUP_SETS_MAPPINGS_FETCH_REQUESTED_ACTION,
     ASSIGNMENT_GROUP_SETS_MAPPINGS_FETCH_SUCCEEDED_ACTION,
+    ASSIGNMENT_SET_CREATE_REQUEST_SUCCEEDED_ACTION,
+    ASSIGNMENT_SET_DELETE_REQUEST_SUCCEEDED_ACTION,
     ASSIGNMENT_SET_FETCH_REQUESTED_ACTION,
     ASSIGNMENT_SET_FETCH_SUCCEEDED_ACTION,
-    ASSIGNMENT_SET_CREATE_REQUEST_SUCCEEDED_ACTION,
     ASSIGNMENT_SET_UPDATE_REQUEST_SUCCEEDED_ACTION,
-    ASSIGNMENTS_DELETE_CHECK_SUCCEEDED_ACTION,
+    ASSIGNMENT_SETS_FETCH_REQUESTED_ACTION,
+    ASSIGNMENT_SETS_FETCH_SUCCEEDED_ACTION,
     ASSIGNMENTS_DELETE_CHECK_REQUESTED_ACTION,
-    ASSIGNMENT_SET_DELETE_REQUEST_SUCCEEDED_ACTION,
+    ASSIGNMENTS_DELETE_CHECK_SUCCEEDED_ACTION,
     RESET_DELETE_CHECK_ACTION,
 } from "./constants";
 
-import { AssignmentSetsState } from "./types";
-import { AssignmentSetDtoFull, AssignmentSetDtoBrief } from "../../api/types";
+import {AssignmentSetsState} from "./types";
+import {AssignmentDtoBrief, AssignmentSetDtoBrief, AssignmentSetDtoFull} from "../../api/types";
 import {
-    AssignmentSetsFetchSucceededAction,
     AssignmentGroupSetsMappingsFetchSucceededAction,
-    AssignmentSetFetchSucceededAction,
-    AssignmentSetFetchAction,
-    AssignmentSetCreateSucceededAction,
-    AssignmentSetUpdateSucceededAction,
     AssignmentsDeleteCheckAction,
+    AssignmentSetCreateSucceededAction,
     AssignmentSetDeleteAction,
+    AssignmentSetFetchAction,
+    AssignmentSetFetchSucceededAction,
+    AssignmentSetsFetchSucceededAction,
+    AssignmentSetUpdateSucceededAction,
 } from "./actions";
-import { Action } from "redux";
+import {Action} from "redux";
+import {COMMENT_DELETE_REQUEST_SUCCEEDED_ACTION} from "../comments/constants";
+import {CommentDeleteSucceededAction} from "../comments/action";
+import {EntityType} from "../comments/types";
 
 const initialState: AssignmentSetsState = {
     assignmentSets: null,
@@ -148,6 +151,37 @@ function assignmentSetsReducer(state: AssignmentSetsState, action: Action<string
                 deleteOK: false,
             };
         }
+        case COMMENT_DELETE_REQUEST_SUCCEEDED_ACTION:
+            if (state.assignmentSets == null) {
+                return state;
+            }
+            const commentDelAction = action as CommentDeleteSucceededAction;
+            switch (commentDelAction.entityType) {
+                case EntityType.Assignment:
+                    const entityId = commentDelAction.entityId;
+                    const commentThreadId = commentDelAction.commentThread == null
+                        ? null : commentDelAction.commentThread.id;
+                    const newAssignmentSets: Map<number, AssignmentSetDtoFull> = new Map();
+                    state.assignmentSets.forEach(
+                        (assignmentSet: AssignmentSetDtoFull, assignmentSetId: number) => {
+                        const newAssignments: AssignmentDtoBrief[] = [];
+                        assignmentSet.assignments.forEach((assignment) => {
+                            if (assignment.id === entityId) {
+                                newAssignments.push({...assignment, commentThreadId});
+                            } else {
+                                newAssignments.push(assignment);
+                            }
+                        });
+                        const newAssignmentSet: AssignmentSetDtoFull = {
+                            ...assignmentSet,
+                            assignments: newAssignments,
+                        };
+                        newAssignmentSets.set(assignmentSetId, newAssignmentSet);
+                    });
+                    return {...state, assignmentSets: newAssignmentSets};
+                default:
+                    return state;
+            }
         default:
             return state;
     }

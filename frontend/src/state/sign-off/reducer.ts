@@ -1,20 +1,25 @@
-import { SignOffState } from "./types";
+import {SignOffDetails, SignOffState} from "./types";
 import {
+    SignOffHistoryRequestSucceededAction,
     SignOffResultsRequestSucceededAction,
     SignOffSaveSucceededction,
-    SignOffHistoryRequestSucceededAction,
 } from "./actions";
 import {
+    SIGN_OFF_HISTORY_REQUEST_SUCCEEDED_ACTION,
+    SIGN_OFF_HISTORY_REQUESTED_ACTION,
     SIGN_OFF_RESULTS_REQUEST_SUCCEEDED_ACTION,
     SIGN_OFF_RESULTS_REQUESTED_ACTION,
     SIGN_OFF_SAVE_REQUEST_SUCCEEDED_ACTION,
-    SIGN_OFF_HISTORY_REQUEST_SUCCEEDED_ACTION,
-    SIGN_OFF_HISTORY_REQUESTED_ACTION,
 } from "./constants";
 import {
-    SignOffResultDtoSummary,
+    AssignmentDtoBrief, AssignmentSetDtoFull, GroupDtoFull,
+    ParticipantDtoBrief,
     SignOffResultDtoCompact,
+    SignOffResultDtoSummary,
 } from "../../api/types";
+import {COMMENT_DELETE_REQUEST_SUCCEEDED_ACTION} from "../comments/constants";
+import {CommentDeleteSucceededAction} from "../comments/action";
+import {EntityType} from "../comments/types";
 
 const initialState: SignOffState = {
     signOffs: null,
@@ -26,7 +31,8 @@ export default function signOffReducer(
     action:
         | SignOffResultsRequestSucceededAction
         | SignOffSaveSucceededction
-        | SignOffHistoryRequestSucceededAction,
+        | SignOffHistoryRequestSucceededAction
+        | CommentDeleteSucceededAction,
 ): SignOffState {
     if (state == null) {
         return initialState;
@@ -93,6 +99,12 @@ export default function signOffReducer(
                 ...state,
                 signOffHistory: history,
             };
+        case COMMENT_DELETE_REQUEST_SUCCEEDED_ACTION: {
+            return {
+                ...state,
+                signOffs: commentDeleteReducer(state.signOffs, action as CommentDeleteSucceededAction),
+            };
+        }
         default:
             return state;
     }
@@ -113,4 +125,74 @@ function convertToCompact(signOffs: SignOffResultDtoSummary[]) {
         result.push(compact);
     });
     return result;
+}
+
+function commentDeleteReducer(state: SignOffDetails | null, action: CommentDeleteSucceededAction) {
+    if (state == null) {
+        return null;
+    }
+
+    const commentThreadId = action.commentThread == null ? null : action.commentThread.id;
+    const entityId = action.entityId;
+    switch (action.entityType) {
+        case EntityType.Signoff:
+            const newSignOffs: SignOffResultDtoCompact[] = [];
+            state.signOffs.forEach((signOff) => {
+                if (signOff.id === entityId) {
+                    newSignOffs.push({
+                        ...signOff,
+                        commentThreadId,
+                    });
+                } else {
+                    newSignOffs.push(signOff);
+                }
+            });
+            return {...state, signOffs: newSignOffs};
+        case EntityType.Participant:
+            const newParticipants: ParticipantDtoBrief[] = [];
+            state.group.participants.forEach((participant) => {
+                if (participant.id === entityId) {
+                    newParticipants.push({
+                        ...participant,
+                        commentThread: action.commentThread,
+                    });
+                } else {
+                    newParticipants.push(participant);
+                }
+            });
+            const newGroup: GroupDtoFull = {
+                ...state.group,
+                participants: newParticipants,
+            };
+            return {...state, group: newGroup};
+        case EntityType.Group:
+            if (state.group.id === entityId) {
+                const updatedGroup: GroupDtoFull = {
+                    ...state.group,
+                    commentThread: action.commentThread,
+                };
+                return {...state, group: updatedGroup};
+            } else {
+                return state;
+            }
+        case EntityType.Assignment:
+            const newAssignments: AssignmentDtoBrief[] = [];
+            state.assignmentSet.assignments.forEach((assignment) => {
+                if (assignment.id === entityId) {
+                    newAssignments.push({
+                        ...assignment,
+                        commentThreadId,
+                    });
+                } else {
+                    newAssignments.push(assignment);
+                }
+            });
+            const newAssignmentSet: AssignmentSetDtoFull = {
+                ...state.assignmentSet,
+                assignments: newAssignments,
+            };
+            return {...state, assignmentSet: newAssignmentSet};
+        default:
+            return state;
+    }
 }
