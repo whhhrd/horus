@@ -191,6 +191,7 @@ class SignoffResultTableCell extends Component<
                         linkedEntityId={assignment.id}
                         linkedEntityType={EntityType.Assignment}
                         showCommentThreadContent={false}
+                        immutableThread={true}
                     />
                 </div>
             );

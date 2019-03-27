@@ -51,6 +51,7 @@ interface CommentThreadProps {
     commentThreadSubject: string;
     showCommentThreadContent: boolean;
     coursePermissions: CoursePermissions | null;
+    immutableThread?: boolean;
 
     commentThread: (
         entityId: number,
@@ -157,6 +158,10 @@ class CommentThread extends Component<CommentThreadProps & RouteComponentProps<a
     }
 
     render() {
+        if (this.props.immutableThread && this.props.commentThreadId == null) {
+            return null;
+        }
+
         const cid = this.props.match.params.cid;
         const permissions = this.props.coursePermissions!;
         const canView = viewCommentSidebar.check(cid, permissions);
@@ -284,8 +289,8 @@ class CommentThread extends Component<CommentThreadProps & RouteComponentProps<a
                                 entityId={linkedEntityId}
                                 entityType={linkedEntityType}
                                 comment={comment}
-                                canEdit={canEdit}
-                                canDelete={canDelete}
+                                canEdit={canEdit && !this.props.immutableThread}
+                                canDelete={canDelete && !this.props.immutableThread}
                             />
                         ))}
                     </ListGroup>
@@ -293,7 +298,7 @@ class CommentThread extends Component<CommentThreadProps & RouteComponentProps<a
             );
         } else {
             return (
-                <Alert color="info" className="mt-3 d-flex">
+                <Alert color="primary" className="mt-3 d-flex">
                     <div className="my-auto mr-3">
                         <FontAwesomeIcon icon={faInfo} size="lg" />
                     </div>
@@ -320,13 +325,13 @@ class CommentThread extends Component<CommentThreadProps & RouteComponentProps<a
         ) {
             return (
                 <div>
-                    <Alert color="info" className="mt-3 d-flex">
+                    <Alert color="primary" className="mt-3 d-flex">
                         <div className="my-auto mr-3">
                             <FontAwesomeIcon icon={faInfo} size="lg" />
                         </div>
                         <div>Empty comment thread.</div>
                     </Alert>
-                    {canCreate &&
+                    {canCreate && !this.props.immutableThread &&
                         <Button
                             outline
                             block
@@ -354,7 +359,7 @@ class CommentThread extends Component<CommentThreadProps & RouteComponentProps<a
             return (
                 <div>
                     {this.buildComments(comments, canEdit, canDelete)}
-                    {canCreate &&
+                    {canCreate && !this.props.immutableThread &&
                         <Button
                             outline
                             block

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { AssignmentDtoBrief, CommentThreadDtoFull } from "../../../api/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faComments } from "@fortawesome/free-solid-svg-icons";
+import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { EntityType } from "../../../state/comments/types";
 import CommentThread from "../../comments/CommentThread";
 import { connect } from "react-redux";
@@ -34,6 +34,7 @@ class AssignmentTableCell extends Component<AssignmentTableCellProps> {
     render() {
         const { name } = this.props.assignment;
         const { disabled } = this.props;
+        const commentClickable = this.props.assignment.commentThreadId != null;
         return (
             <td
                 onClick={() => this.onClick()}
@@ -48,9 +49,9 @@ class AssignmentTableCell extends Component<AssignmentTableCellProps> {
                         }
                         className={`table-cell-comment-button ${
                             this.highlightIcon() ? "icon-highlighted" : ""
-                        }`}
+                        } ${commentClickable ? "" : "invisible"}`}
                     >
-                        <FontAwesomeIcon icon={faComments} size="lg" />
+                        <FontAwesomeIcon icon={faInfoCircle} size="lg" />
                     </div>
                 )}
             </td>
@@ -86,6 +87,7 @@ class AssignmentTableCell extends Component<AssignmentTableCellProps> {
                     linkedEntityId={assignment.id}
                     linkedEntityType={EntityType.Assignment}
                     showCommentThreadContent={true}
+                    immutableThread={true}
                 />
             </div>
         );
