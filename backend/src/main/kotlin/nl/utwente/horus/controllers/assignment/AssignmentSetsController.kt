@@ -5,6 +5,7 @@ import nl.utwente.horus.auth.permissions.HorusPermissionType
 import nl.utwente.horus.auth.permissions.HorusResource
 import nl.utwente.horus.controllers.BaseController
 import nl.utwente.horus.entities.assignment.AssignmentSet
+import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.exceptions.CourseMismatchException
 import nl.utwente.horus.exceptions.EmptyListException
 import nl.utwente.horus.exceptions.InsufficientPermissionsException
@@ -77,11 +78,17 @@ class AssignmentSetsController: BaseController() {
         if (ids.isEmpty()) {
             throw EmptyListException()
         }
+
         val first = assignmentService.getAssignmentSetById(ids.first())
         val courseId = first.course.id
         if (ids.map(assignmentService::getAssignmentSetById).map { it.course.id }.any { it != courseId }) {
             throw CourseMismatchException()
         }
+
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_PARTICIPANT)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_SIGNOFFRESULT)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_ASSIGNMENTSET)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_GROUP)
 
         val book = exportService.createAssignmentSetsBook(ids)
         val fileName = "${first.course.name}-${ids.joinToString(",")}-${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}.xlsx"

@@ -200,6 +200,12 @@ class CourseController: BaseController() {
 
     @GetMapping(path = ["/{courseId}/export"])
     fun getCourseSheet(@PathVariable courseId: Long, response: HttpServletResponse) {
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_PARTICIPANT)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_PARTICIPANT_LABEL_MAPPING)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_SIGNOFFRESULT)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_ASSIGNMENTSET)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_GROUP)
+
         val course = courseService.getCourseById(courseId)
         val book = exportService.createCourseBook(course)
         val fileName = "${course.name}-${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}.xlsx"
