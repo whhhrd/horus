@@ -24,7 +24,7 @@ export function* fetchParticipants(action: ParticipantsFetchAction) {
             authenticatedFetchJSON,
             "GET",
             "participants",
-            { ids: action.participantIds.join(",") },
+            { participantIds: action.participantIds.join(",") },
         );
 
         // If successful, update the state

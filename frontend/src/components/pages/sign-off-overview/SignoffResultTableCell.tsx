@@ -15,6 +15,11 @@ import { centerSpinner } from "../../pagebuilder";
 import { ApplicationState } from "../../../state/state";
 import { connect } from "react-redux";
 import { getCommentThread } from "../../../state/comments/selectors";
+import ParticipantLabelInfo from "../admin/labels/ParticipantLabelInfo";
+import { getCoursePermissions } from "../../../state/auth/selectors";
+import CoursePermissions from "../../../api/permissions";
+import { labelAnyView } from "../../../state/auth/constants";
+import { withRouter, RouteComponentProps } from "react-router";
 import SignOffDetails from "../sign-off/SignOffDetails";
 
 interface SignoffResultTableCellProps {
@@ -27,6 +32,7 @@ interface SignoffResultTableCellProps {
     group: GroupDtoSummary;
     participant: ParticipantDtoBrief;
     onCommentClick: (comments: JSX.Element) => void;
+    coursePermissions: CoursePermissions | null;
 
     commentThread: (
         entityId: number,
@@ -34,10 +40,12 @@ interface SignoffResultTableCellProps {
     ) => CommentThreadDtoFull | null;
 }
 
-class SignoffResultTableCell extends Component<SignoffResultTableCellProps> {
+class SignoffResultTableCell extends Component<
+    SignoffResultTableCellProps & RouteComponentProps<any>
+> {
     lastClick: number;
 
-    constructor(props: SignoffResultTableCellProps) {
+    constructor(props: SignoffResultTableCellProps & RouteComponentProps<any>) {
         super(props);
         this.lastClick = 0;
     }
@@ -59,17 +67,22 @@ class SignoffResultTableCell extends Component<SignoffResultTableCellProps> {
         if (this.props.onCommentClick && this.props.signOff != null) {
             return (
                 <div
-                    className={classNameFinal + " d-flex align-items-center justify-content-center cursor-pointer"}
+                    className={
+                        classNameFinal +
+                        " d-flex align-items-center justify-content-center cursor-pointer"
+                    }
                     style={style}
                     onClick={() =>
                         this.props.onCommentClick(this.buildComments())
                     }
                 >
-                    {this.highlightIcon() && <div
-                        className={`overview-table-cell-sign-off-comment-buttonicon-highlighted`}
-                    >
-                        <FontAwesomeIcon icon={faComments} size="lg" />
-                    </div>}
+                    {this.highlightIcon() && (
+                        <div
+                            className={`overview-table-cell-sign-off-comment-buttonicon-highlighted`}
+                        >
+                            <FontAwesomeIcon icon={faComments} size="lg" />
+                        </div>
+                    )}
                 </div>
             );
         } else {
@@ -78,7 +91,17 @@ class SignoffResultTableCell extends Component<SignoffResultTableCellProps> {
     }
 
     private buildComments() {
-        const { participant, group, signOff, assignment } = this.props;
+        const {
+            participant,
+            group,
+            signOff,
+            assignment,
+            coursePermissions,
+        } = this.props;
+        const canViewLabels = labelAnyView.check(
+            Number(this.props.match.params.cid),
+            coursePermissions!,
+        );
 
         if (signOff == null) {
             return centerSpinner();
@@ -90,6 +113,17 @@ class SignoffResultTableCell extends Component<SignoffResultTableCellProps> {
                         participantId={participant.id}
                         assignmentId={assignment.id}
                     />
+                    {canViewLabels && (
+                        <div>
+                            <h4>
+                                Labels assigned to{" "}
+                                {participant.person.shortName}
+                            </h4>
+                            <ParticipantLabelInfo
+                                participantId={participant.id}
+                            />
+                        </div>
+                    )}
                     <h4>Comments:</h4>
                     <CommentThread
                         commentThreadId={
@@ -153,10 +187,13 @@ class SignoffResultTableCell extends Component<SignoffResultTableCellProps> {
     }
 }
 
-export default connect(
-    (state: ApplicationState) => ({
-        commentThread: (entityId: number, entityType: EntityType) =>
-            getCommentThread(state, entityId, entityType),
-    }),
-    {},
-)(SignoffResultTableCell);
+export default withRouter(
+    connect(
+        (state: ApplicationState) => ({
+            commentThread: (entityId: number, entityType: EntityType) =>
+                getCommentThread(state, entityId, entityType),
+            coursePermissions: getCoursePermissions(state),
+        }),
+        {},
+    )(SignoffResultTableCell),
+);

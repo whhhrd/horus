@@ -155,7 +155,8 @@ class SignoffTable extends Component<
         const permissions = this.props.coursePermissions!;
         const canViewSignoffs = signoffAssignmentsView.check(cid, permissions);
         return buildContent(
-            "Sign-off" + (assignmentSet != null ? ": " + assignmentSet.name : ""),
+            "Sign-off" +
+                (assignmentSet != null ? ": " + assignmentSet.name : ""),
             (canViewSignoffs && this.buildContent()) || null,
             this.buildSidebar(),
             false,
@@ -230,7 +231,10 @@ class SignoffTable extends Component<
             return (
                 <AutoSizer>
                     {({ width, height }) => (
-                        <div className="SignOffTableWrapper" style={{ width, height }}>
+                        <div
+                            className="SignOffTableWrapper"
+                            style={{ width, height }}
+                        >
                             <Table className="sign-off-table m-0 table-bordered">
                                 <thead>
                                     <tr>

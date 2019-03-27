@@ -12,6 +12,11 @@ import { EntityType } from "../../../state/comments/types";
 import { getCommentThread } from "../../../state/comments/selectors";
 import { ApplicationState } from "../../../state/state";
 import { connect } from "react-redux";
+import ParticipantLabelInfo from "../admin/labels/ParticipantLabelInfo";
+import { getCoursePermissions } from "../../../state/auth/selectors";
+import { labelAnyView } from "../../../state/auth/constants";
+import { withRouter, RouteComponentProps } from "react-router";
+import CoursePermissions from "../../../api/permissions";
 
 interface ParticipantTableCellProps {
     participant: ParticipantDtoBrief;
@@ -19,6 +24,7 @@ interface ParticipantTableCellProps {
     className: string;
     group: GroupDtoSummary;
     onCommentClick: (comments: JSX.Element) => void;
+    coursePermissions: CoursePermissions | null;
 
     commentThread: (
         entityId: number,
@@ -26,7 +32,9 @@ interface ParticipantTableCellProps {
     ) => CommentThreadDtoFull | null;
 }
 
-class ParticipantTableCell extends Component<ParticipantTableCellProps> {
+class ParticipantTableCell extends Component<
+    ParticipantTableCellProps & RouteComponentProps<any>
+> {
     render() {
         const { person } = this.props.participant;
         return (
@@ -50,9 +58,21 @@ class ParticipantTableCell extends Component<ParticipantTableCellProps> {
     }
 
     private buildComments() {
-        const { participant, group } = this.props;
+        const { participant, group, coursePermissions } = this.props;
+        const canViewLabels = labelAnyView.check(
+            Number(this.props.match.params.cid),
+            coursePermissions!,
+        );
         return (
             <div>
+                {canViewLabels && (
+                    <div>
+                        <h4>
+                            Labels assigned to {participant.person.shortName}
+                        </h4>
+                        <ParticipantLabelInfo participantId={participant.id} />
+                    </div>
+                )}
                 <h4>Comments:</h4>
                 <CommentThread
                     commentThreadId={
@@ -89,10 +109,13 @@ class ParticipantTableCell extends Component<ParticipantTableCellProps> {
     }
 }
 
-export default connect(
-    (state: ApplicationState) => ({
-        commentThread: (entityId: number, entityType: EntityType) =>
-            getCommentThread(state, entityId, entityType),
-    }),
-    {},
-)(ParticipantTableCell);
+export default withRouter(
+    connect(
+        (state: ApplicationState) => ({
+            commentThread: (entityId: number, entityType: EntityType) =>
+                getCommentThread(state, entityId, entityType),
+            coursePermissions: getCoursePermissions(state),
+        }),
+        {},
+    )(ParticipantTableCell),
+);

@@ -12,6 +12,11 @@ import { EntityType } from "../../../state/comments/types";
 import { getCommentThread } from "../../../state/comments/selectors";
 import { ApplicationState } from "../../../state/state";
 import { connect } from "react-redux";
+import { RouteComponentProps, withRouter } from "react-router";
+import ParticipantLabelInfo from "../admin/labels/ParticipantLabelInfo";
+import CoursePermissions from "../../../api/permissions";
+import { labelAnyView } from "../../../state/auth/constants";
+import { getCoursePermissions } from "../../../state/auth/selectors";
 
 interface ParticipantTableCellProps {
     participant: ParticipantDtoBrief;
@@ -23,9 +28,13 @@ interface ParticipantTableCellProps {
         entityId: number,
         entityType: EntityType,
     ) => CommentThreadDtoFull | null;
+
+    coursePermissions: CoursePermissions | null;
 }
 
-class ParticipantTableCell extends Component<ParticipantTableCellProps> {
+class ParticipantTableCell extends Component<
+    ParticipantTableCellProps & RouteComponentProps<any>
+> {
     render() {
         const { person } = this.props.participant;
         return (
@@ -35,7 +44,9 @@ class ParticipantTableCell extends Component<ParticipantTableCellProps> {
                 {this.props.canViewComments && this.props.onCommentClick && (
                     <div
                         onClick={() =>
-                            this.props.onCommentClick(this.buildComments())
+                            this.props.onCommentClick(
+                                this.buildSidebarContent(),
+                            )
                         }
                         className={`table-cell-comment-button ${
                             this.highlightIcon() ? "icon-highlighted" : ""
@@ -48,10 +59,22 @@ class ParticipantTableCell extends Component<ParticipantTableCellProps> {
         );
     }
 
-    private buildComments() {
-        const { participant, group } = this.props;
+    private buildSidebarContent() {
+        const { participant, group, coursePermissions } = this.props;
+        const canViewLabels = labelAnyView.check(
+            Number(this.props.match.params.cid),
+            coursePermissions!,
+        );
         return (
             <div>
+                {canViewLabels && (
+                    <div>
+                        <h4>
+                            Labels assigned to {participant.person.shortName}
+                        </h4>
+                        <ParticipantLabelInfo participantId={participant.id} />
+                    </div>
+                )}
                 <h4>Comments:</h4>
                 <CommentThread
                     commentThreadId={
@@ -88,10 +111,13 @@ class ParticipantTableCell extends Component<ParticipantTableCellProps> {
     }
 }
 
-export default connect(
-    (state: ApplicationState) => ({
-        commentThread: (entityId: number, entityType: EntityType) =>
-            getCommentThread(state, entityId, entityType),
-    }),
-    {},
-)(ParticipantTableCell);
+export default withRouter(
+    connect(
+        (state: ApplicationState) => ({
+            commentThread: (entityId: number, entityType: EntityType) =>
+                getCommentThread(state, entityId, entityType),
+            coursePermissions: getCoursePermissions(state),
+        }),
+        {},
+    )(ParticipantTableCell),
+);

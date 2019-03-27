@@ -7,9 +7,6 @@ import {
     Col,
     Button,
     Table,
-    Dropdown,
-    DropdownToggle,
-    DropdownMenu,
     Input,
 } from "reactstrap";
 import { ParticipantDtoFull, LabelDto } from "../../../../api/types";
@@ -34,7 +31,6 @@ import { getParticipants } from "../../../../state/participants/selectors";
 import {
     labelMappingDeleteAction,
     LabelMappingDeleteAction,
-    LabelMappingCreateAction,
     labelMappingCreateAction,
 } from "../../../../state/labels/action";
 import { getCoursePermissions } from "../../../../state/auth/selectors";
@@ -48,6 +44,7 @@ import {
     labelMappingAnyCreate,
     labelMappingAnyDelete,
 } from "../../../../state/auth/constants";
+import LabelAddDropdown from "./LabelAddDropdown";
 
 interface LabelManagerProps {
     participants: ParticipantDtoFull[] | null;
@@ -64,11 +61,6 @@ interface LabelManagerProps {
         participantId: number,
         label: LabelDto,
     ) => LabelMappingDeleteAction;
-
-    createLabelMapping: (
-        participantdId: number,
-        label: LabelDto,
-    ) => LabelMappingCreateAction;
 }
 
 interface LabelManagerState {
@@ -79,9 +71,6 @@ interface LabelManagerState {
 
     deleteLabelModalOpen: boolean;
     labelToDelete: LabelDto | null;
-
-    dropdownOpen: boolean;
-    dropdownElement: string;
 
     searchQuery: string;
 }
@@ -94,9 +83,6 @@ const initialState = {
 
     deleteLabelModalOpen: false,
     labelToDelete: null,
-
-    dropdownOpen: false,
-    dropdownElement: "",
 
     searchQuery: "",
 };
@@ -111,7 +97,6 @@ class LabelManager extends Component<
         this.toggleLabelCreatorModal = this.toggleLabelCreatorModal.bind(this);
         this.toggleLabelEditorModal = this.toggleLabelEditorModal.bind(this);
         this.toggleLabelDeleteModal = this.toggleLabelDeleteModal.bind(this);
-        this.toggleDropdown = this.toggleDropdown.bind(this);
     }
 
     componentDidMount() {
@@ -313,13 +298,14 @@ class LabelManager extends Component<
                                         return null;
                                     }
                                 })}
-                                {canAddMapping &&
-                                    this.buildAddLabelDropdown(
-                                        String(p.id),
-                                        p.labels,
-                                        labels,
-                                        p.id,
-                                    )}
+                                {canAddMapping && (
+                                    <LabelAddDropdown
+                                        allLabels={labels}
+                                        assignedLabels={p.labels}
+                                        participantId={p.id}
+                                        className="float-right"
+                                    />
+                                )}
                             </td>
                         </tr>,
                     );
@@ -327,66 +313,6 @@ class LabelManager extends Component<
             }
             return studentRender.slice(0, 15);
         }
-    }
-
-    buildAddLabelDropdown(
-        id: string,
-        assignedLabels: LabelDto[],
-        allLabels: LabelDto[],
-        participantId: number,
-    ) {
-        const assignableLabels: LabelDto[] = [];
-        allLabels.forEach((l) => {
-            const label = assignedLabels.find((l2) => l2.id === l.id);
-            if (label == null) {
-                assignableLabels.push(l);
-            }
-        });
-
-        return (
-            <Dropdown
-                className="float-right"
-                onSelect={() => null}
-                isOpen={
-                    this.state.dropdownOpen && this.state.dropdownElement === id
-                }
-                toggle={() => this.toggleDropdown(id)}
-            >
-                <DropdownToggle outline color="success" size="sm">
-                    <FontAwesomeIcon icon={faPlus} className="mr-2" size="sm" />
-                    Add label
-                </DropdownToggle>
-                <DropdownMenu className="p-3" persist>
-                    {assignableLabels.length > 0 &&
-                        assignableLabels.map((l) => (
-                            <span
-                                key={l.id}
-                                className="cursor-pointer"
-                                onClick={() =>
-                                    this.props.createLabelMapping(
-                                        participantId,
-                                        l,
-                                    )
-                                }
-                            >
-                                <Label label={l} />
-                            </span>
-                        ))}
-                    {assignableLabels.length === 0 && (
-                        <small className="text-muted">
-                            No labels to assign.
-                        </small>
-                    )}
-                </DropdownMenu>
-            </Dropdown>
-        );
-    }
-
-    toggleDropdown(id: string) {
-        this.setState((state) => ({
-            dropdownOpen: !state.dropdownOpen,
-            dropdownElement: id,
-        }));
     }
 
     buildCourseLabels(
