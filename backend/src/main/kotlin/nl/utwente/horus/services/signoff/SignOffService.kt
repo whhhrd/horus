@@ -139,7 +139,7 @@ class SignOffService {
         existing.forEach { r ->
             // Auto archiving if the last existing result is not modifiable
             // or if the last is modifiable and the element is not the last one
-            if (!modifiable || (modifiable && r != last)) {
+            if ((!modifiable || (modifiable && r != last)) && !r.isArchived) {
                 r.archivedAt = ZonedDateTime.now()
                 r.archivedBy = signer
             }
