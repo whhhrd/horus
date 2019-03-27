@@ -54,7 +54,7 @@ class LabelEditModal extends Component<LabelEditModalProps> {
 
     isValid(labelUpdate: LabelCreateUpdateDto) {
         return (
-            labelUpdate.name.trim().length > 2 && labelUpdate.name.length <= 15
+            labelUpdate.name.trim().match("^[-a-z0-9]{1,15}$") != null
         );
     }
 
@@ -84,6 +84,8 @@ class LabelEditModal extends Component<LabelEditModalProps> {
                                                 name="name"
                                                 maxLength={15}
                                                 valid={this.isValid(values)}
+                                                invalid={!this.isValid(values)}
+                                                autoFocus={true}
                                             />
                                         </FormGroup>
                                         <FormGroup>

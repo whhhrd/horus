@@ -48,7 +48,7 @@ class LabelCreateModal extends Component<LabelCreateModalProps> {
 
     isValid(labelCreate: LabelCreateUpdateDto) {
         return (
-            labelCreate.name.trim().length > 2 && labelCreate.name.length <= 15
+            labelCreate.name.trim().match("^[-a-z0-9]{1,15}$") != null
         );
     }
 
@@ -77,6 +77,8 @@ class LabelCreateModal extends Component<LabelCreateModalProps> {
                                                 name="name"
                                                 maxLength={15}
                                                 valid={this.isValid(values)}
+                                                invalid={!this.isValid(values)}
+                                                autoFocus={true}
                                             />
                                         </FormGroup>
                                         <FormGroup>
