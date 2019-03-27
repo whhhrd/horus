@@ -4,14 +4,14 @@ import { connect } from "react-redux";
 import queryString from "query-string";
 import {
     Row,
-    Col,
     Form,
     Button,
     Input,
-    Label,
     FormGroup,
     Jumbotron,
     Modal,
+    ModalBody,
+    ModalFooter, Label, ModalHeader,
 } from "reactstrap";
 import { Formik, Field } from "formik";
 
@@ -20,6 +20,7 @@ import { isLoggedIn, getLoginError } from "../../../state/auth/selectors";
 import { ApplicationState } from "../../../state/state";
 import { loginAction } from "../../../state/auth/actions";
 import Spinner from "reactstrap/lib/Spinner";
+import groupPicture from "../../../images/horus_group_picture_compressed.jpg";
 
 export interface LoginProps {
     logIn: (
@@ -37,6 +38,7 @@ export interface LoginProps {
 export interface LoginState {
     loginCode: string | null;
     showExternalLogin: boolean;
+    showAboutPage: boolean;
 }
 
 interface LoginValues {
@@ -50,6 +52,7 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
         this.state = {
             loginCode: null,
             showExternalLogin: false,
+            showAboutPage: false,
         };
         this.toggleExternalLoginCollapse = this.toggleExternalLoginCollapse.bind(
             this,
@@ -59,6 +62,12 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
     toggleExternalLoginCollapse() {
         this.setState((state) => ({
             showExternalLogin: !state.showExternalLogin,
+        }));
+    }
+
+    toggleAboutPageCollapse() {
+        this.setState((state) => ({
+            showAboutPage: !state.showAboutPage,
         }));
     }
 
@@ -94,9 +103,10 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
     render() {
         const code = this.getLoginCode();
         const loginError = this.props.error;
+        const divider = <small className="pl-1 pr-1"> | </small>;
         return (
-            <Row className="LoginWrapper d-flex align-items-center">
-                <Col className="mx-auto" lg="5" sm="12">
+            <Row className="LoginWrapper m-0 align-items-center justify-content-center">
+                <div className="LoginPageBox">
                     <svg className="LoginBackground">
                         <circle
                             cx="1%"
@@ -129,9 +139,9 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                     </svg>
                     <Jumbotron className="Login mx-auto">
                         <h1 className="display-5">
-                            Horus, TA administration system
+                            Horus
                         </h1>
-                        <p className="lead">Description of the system here</p>
+                        <p className="lead">Sign-off manager</p>
                         <p className="lead mt-5 mb-0">
                             {(code == null || loginError != null) && (
                                 <a
@@ -162,77 +172,133 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                                         onSubmit={this.onSubmit}
                                     >
                                         {({ handleSubmit }) => (
-                                            <Form className="p-3">
-                                                <h4>External login</h4>
-                                                <FormGroup>
-                                                    <Label>Username</Label>
-                                                    <Input
-                                                        tag={Field}
-                                                        id="username"
-                                                        name="username"
-                                                        placeholder="s1234567/m1234567"
-                                                        onKeyDown={(
-                                                            event: KeyboardEvent,
-                                                        ) => {
-                                                            if (
-                                                                event.key ===
-                                                                "Enter"
-                                                            ) {
-                                                                event.preventDefault();
-                                                                handleSubmit();
-                                                            } else {
-                                                                return;
-                                                            }
+                                            <div>
+                                                <ModalHeader>
+                                                    <h3 className="mb-0">External Login</h3>
+                                                </ModalHeader>
+                                                <ModalBody>
+                                                    <Form>
+                                                        <FormGroup>
+                                                            <Label>Username</Label>
+                                                            <Input
+                                                                tag={Field}
+                                                                id="username"
+                                                                name="username"
+                                                                placeholder="s1234567/m1234567"
+                                                                onKeyDown={(
+                                                                    event: KeyboardEvent,
+                                                                ) => {
+                                                                    if (
+                                                                        event.key ===
+                                                                        "Enter"
+                                                                    ) {
+                                                                        event.preventDefault();
+                                                                        handleSubmit();
+                                                                    } else {
+                                                                        return;
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </FormGroup>
+                                                        <FormGroup>
+                                                            <Label>Password</Label>
+                                                            <Input
+                                                                tag={Field}
+                                                                id="password"
+                                                                name="password"
+                                                                placeholder="*********"
+                                                                type="password"
+                                                                onKeyDown={(
+                                                                    event: KeyboardEvent,
+                                                                ) => {
+                                                                    if (
+                                                                        event.key ===
+                                                                        "Enter"
+                                                                    ) {
+                                                                        event.preventDefault();
+                                                                        handleSubmit();
+                                                                    } else {
+                                                                        return;
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </FormGroup>
+                                                    </Form>
+                                                </ModalBody>
+                                                <ModalFooter>
+                                                    <Button
+                                                        block
+                                                        color="primary"
+                                                        outline
+                                                        onClick={() => {
+                                                            handleSubmit();
                                                         }}
-                                                    />
-                                                </FormGroup>
-                                                <FormGroup>
-                                                    <Label>Password</Label>
-                                                    <Input
-                                                        tag={Field}
-                                                        id="password"
-                                                        name="password"
-                                                        placeholder="*********"
-                                                        type="password"
-                                                        onKeyDown={(
-                                                            event: KeyboardEvent,
-                                                        ) => {
-                                                            if (
-                                                                event.key ===
-                                                                "Enter"
-                                                            ) {
-                                                                event.preventDefault();
-                                                                handleSubmit();
-                                                            } else {
-                                                                return;
-                                                            }
-                                                        }}
-                                                    />
-                                                </FormGroup>
-                                                <Button
-                                                    block
-                                                    color="primary"
-                                                    outline
-                                                    onClick={() => {
-                                                        handleSubmit();
-                                                    }}
-                                                >
-                                                    Log in
-                                                </Button>
-                                            </Form>
+                                                    >
+                                                        Log in
+                                                    </Button>
+                                                </ModalFooter>
+                                            </div>
                                         )}
                                     </Formik>
                                 </Modal>
                             )}
+                            {(code == null || loginError != null) && (
+                                <Modal
+                                    isOpen={this.state.showAboutPage}
+                                    toggle={() => this.toggleAboutPageCollapse()}
+                                    className="AboutPageModal"
+                                >
+                                    <div>
+                                        <ModalHeader>
+                                            <h3 className="mb-0">About Horus</h3>
+                                        </ModalHeader>
+                                        <ModalBody>
+                                            <div>
+                                                Horus is a course management system particularly focussing on the
+                                                "sign-offs" of assignments. Its intent is to take away the
+                                                inconveniences perceived during the sign-off process, both for
+                                                students and Teaching Assistants. In addition, Horus also aims to
+                                                take away some of the manual labor involved in managing courses
+                                                for teachers.
+                                            </div>
+                                            <h4 className="pt-3">Developers</h4>
+                                            <div>
+                                                Horus was originally developed in 2019 as a Design Project
+                                                for the Technical Computer Science curriculum.
+                                                <img className="AboutPageImage pt-2 pb-2"
+                                                     src={groupPicture}
+                                                     alt="Picture of the Horus project group"/>
+                                                This is the project team that made it happen. From left to right,
+                                                the members are <a href="mailto:r.a.h.perera@student.utwente.nl">
+                                                Harindu Perera</a>, <a href="mailto:r.abraham@student.utwente.nl">
+                                                Remco Abraham</a>, <a href="mailto:r.h.devries@student.utwente.nl">
+                                                Rick de Vries</a>, <a href="mailto:j.w.praas@student.utwente.nl">
+                                                Justin Praas</a> & <a href="mailto:d.kooij-1@student.utwente.nl">
+                                                Daan Kooij</a>.
+                                            </div>
+                                        </ModalBody>
+                                        <ModalFooter>
+                                            <Button
+                                                block
+                                                size="md"
+                                                color="primary"
+                                                outline
+                                                onClick={() => this.toggleAboutPageCollapse()}
+                                            >
+                                                Close
+                                            </Button>
+                                        </ModalFooter>
+                                    </div>
+                                </Modal>
+                            )}
                         </p>
                     </Jumbotron>
-                    <a
-                        className="ExternalLoginToggle"
-                        onClick={() => this.toggleExternalLoginCollapse()}
-                    >
-                        <small>External login</small>
-                    </a>
-                </Col>
+                    <div className="LoginPageMenu">
+                        <small onClick={() => this.toggleExternalLoginCollapse()}>External Login</small>
+                        {divider}
+                        <small onClick={() => this.toggleAboutPageCollapse()}>About</small>
+                    </div>
+                </div>
             </Row>
         );
     }

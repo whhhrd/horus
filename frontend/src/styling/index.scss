@@ -98,10 +98,14 @@ button {
     overflow-x: hidden;
 }
 
-.ExternalLoginToggle {
+.LoginPageMenu {
     position: fixed;
-    right: 0;
-    bottom: 0;
+    right: 10px;
+    bottom: 5px;
+}
+
+.AboutPageImage {
+    max-width: 100%;
 }
 
 .LoginBackground {
@@ -119,6 +123,11 @@ button {
     flex: none;
     flex-basis: inherit !important;
     overflow-x: hidden;
+    text-align: center;
+}
+
+.LoginPageBox {
+    width: 400px;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
