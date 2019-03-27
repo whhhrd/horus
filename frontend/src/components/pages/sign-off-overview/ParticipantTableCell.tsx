@@ -68,7 +68,7 @@ class ParticipantTableCell extends Component<
                 {canViewLabels && (
                     <div>
                         <h4>
-                            Labels assigned to {participant.person.shortName}
+                            Labels assigned to {participant.person.shortName}:
                         </h4>
                         <ParticipantLabelInfo participantId={participant.id} />
                     </div>
