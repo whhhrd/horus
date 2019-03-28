@@ -102,7 +102,11 @@ class PhoneComponent extends Component<
                     p-0 bg-light border-bottom"
                 >
                     <div id="NavigationBarToggle"
-                        className="flex-shrink-0 cursor-pointer p-3 pr-4"
+                        className={`flex-shrink-0 p-3 pr-4 cursor-pointer navigation-bar-hamburger ${
+                            this.state.navigationBarOpen
+                                ? " navigation-bar-hamburger-open"
+                                : ""
+                        }`}
                         onClick={this.toggleNavigationBar}
                     >
                         <span>

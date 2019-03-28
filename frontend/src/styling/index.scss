@@ -56,8 +56,12 @@ button {
     cursor: move !important;
 }
 
-.chevron {
+.transition {
     transition: transform 0.3s ease;
+}
+
+.chevron {
+    @extend .transition;
 }
 
 .chevron-open {
@@ -179,6 +183,14 @@ button {
 
 .navigation-bar-item-text {
     font-size: 0.8rem;
+}
+
+.navigation-bar-hamburger {
+    @extend .transition;
+}
+
+.navigation-bar-hamburger-open {
+    transform: rotateX(180deg);
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

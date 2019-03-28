@@ -12,7 +12,7 @@ import {
 } from "../../../../../state/groups/actions";
 import GroupListItem from "./GroupListItem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSync } from "@fortawesome/free-solid-svg-icons";
+import { faSync, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import {
     canvasRefreshSetRequestedAction,
     CanvasRefreshSetRequestedAction,
@@ -126,7 +126,18 @@ class GroupManager extends Component<
                                         icon={faSync}
                                         className="mr-2"
                                     />
-                                    Sync this group set with Canvas
+                                    Fetch groups from Canvas
+
+                                    <abbr
+                                            title="This does not change the Canvas groups compositions in
+                                            any way. Use this when group compositions change in Canvas, so that
+                                            Horus groups are in sync with the groups within this group set."
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faInfoCircle}
+                                                className="ml-2"
+                                            />
+                                        </abbr>
                                 </Button>
                                 <hr />
                             </div>
