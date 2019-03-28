@@ -56,7 +56,10 @@ export class CourseStudentDashboard extends Component<
 
     componentDidUpdate() {
         for (const el of this.scrollToAssignment.values()) {
-            el.scrollIntoView({ behavior: "smooth" });
+            const scrollContainer = el.parentElement!.parentElement!
+                .parentElement!.parentElement!;
+            const pixelsToScroll = el.offsetLeft - scrollContainer.parentElement!.offsetWidth / 2;
+            scrollContainer.scrollLeft = pixelsToScroll;
         }
     }
 
@@ -94,7 +97,7 @@ export class CourseStudentDashboard extends Component<
             return assignmentSets.map((assignmentSet: AssignmentSetDtoFull) => (
                 <AutoSizer
                     className="mb-3"
-                    key={assignmentSet.id}
+                    key={`as-${assignmentSet.id}`}
                     style={{ height: "auto", width: "auto" }}
                 >
                     {({ width }) => (
@@ -173,6 +176,7 @@ export class CourseStudentDashboard extends Component<
         if (result == null) {
             return (
                 <td
+                    key={assignment.id}
                     className="sign-off-table-cell-blank"
                     style={{ minWidth: "100px", height: "49px" }}
                     ref={(ref) => this.setRefIfFirst(asid, ref)}
@@ -181,6 +185,9 @@ export class CourseStudentDashboard extends Component<
         }
         return (
             <td
+                key={`res${result.assignmentId}+${result.participantId}+${
+                    result.signedAt
+                }`}
                 id={`a${String(assignment.id)}`}
                 className={`sign-off-table-cell-${
                     result.result === "INSUFFICIENT"
@@ -231,7 +238,7 @@ export class CourseStudentDashboard extends Component<
                                 {group.participants.map(
                                     (participant: ParticipantDtoBrief) => (
                                         <li
-                                            key={`p-$participant.id}-g-${
+                                            key={`p-${participant.id}-g-${
                                                 group.id
                                             }`}
                                         >
@@ -245,7 +252,11 @@ export class CourseStudentDashboard extends Component<
                 </Card>
             ));
         } else {
-            return <span className="text-muted">You are not yet in any group.</span>;
+            return (
+                <span className="text-muted">
+                    You are not yet in any group.
+                </span>
+            );
         }
     }
 
@@ -264,7 +275,11 @@ export class CourseStudentDashboard extends Component<
                         )
                         .slice(0, 5)
                         .map((result: SignOffResultDtoStudent) => (
-                            <ListGroupItem>
+                            <ListGroupItem
+                                key={`res${result.assignmentId}+${
+                                    result.participantId
+                                }+${result.signedAt}`}
+                            >
                                 <mark>{result.signerName}</mark>{" "}
                                 {result.result === "INSUFFICIENT"
                                     ? "requested changes for"
@@ -314,7 +329,9 @@ export class CourseStudentDashboard extends Component<
                 </ListGroup>
             );
         } else {
-            return <span className="text-muted">There are no recent events.</span>;
+            return (
+                <span className="text-muted">There are no recent events.</span>
+            );
         }
     }
 
