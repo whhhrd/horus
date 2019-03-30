@@ -3,10 +3,12 @@ package nl.utwente.horus.configurations
 import nl.utwente.horus.HorusConfigurationProperties
 import nl.utwente.horus.auth.filters.*
 import nl.utwente.horus.auth.providers.*
-import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.auth.saml.SAML2ClientHolder
+import nl.utwente.horus.isProductionActive
+import nl.utwente.horus.services.auth.HorusUserDetailService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.env.Environment
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -50,6 +52,9 @@ class HorusWebSecurityConfiguration: WebSecurityConfigurerAdapter() {
         // Access token request endpoint
         const val AUTH_ACCESS_TOKEN_REFRESH_PATTERN = "/api/auth/token/refresh"
     }
+
+    @Autowired
+    lateinit var environment: Environment
 
     @Autowired
     lateinit var configurationProperties: HorusConfigurationProperties
@@ -197,10 +202,16 @@ class HorusWebSecurityConfiguration: WebSecurityConfigurerAdapter() {
                 .addFilterAfter(buildSAMLAuthnRequestRedirectFilter(), SAML2MetadataProviderFilter::class.java)
                 .addFilterAfter(buildSAMLAuthResponseAuthenticationFilter(), SAML2SSOAuthenticationRequestRedirectFilter::class.java)
                 .addFilterAfter(buildAuthCodeLoginAuthenticationFilter(), SAML2SSOAuthenticationResponseAuthenticationFilter::class.java)
-                // Add password auth filter, this will intercept and handle request if path matches
-                .addFilterAfter(buildPasswordAuthenticationFilter(), AuthCodeLoginAuthenticationFilter::class.java)
-                // Add JWT auth filter, this will intercept, authenticate and continue the filter chain if authenticated
-                .addFilterAfter(buildJWTAuthenticationFilter(), PasswordLoginAuthenticationFilter::class.java)
+
+        // Add JWT auth filter, this will intercept, authenticate and continue the filter chain if authenticated
+        // However, add external login before this if we're not in production
+        if (!environment.isProductionActive()) {
+            // First add password auth filter, this will intercept and handle request if path matches
+            http.addFilterAfter(buildPasswordAuthenticationFilter(), AuthCodeLoginAuthenticationFilter::class.java)
+                    .addFilterAfter(buildJWTAuthenticationFilter(), PasswordLoginAuthenticationFilter::class.java)
+        } else {
+            http.addFilterAfter(buildJWTAuthenticationFilter(), AuthCodeLoginAuthenticationFilter::class.java)
+        }
                 // Add access token request filter, this will check if path matches and respond with an access token if
                 // a refresh token is in the SecurityContext
                 .addFilterAfter(buildAccessTokenRequestAuthenticationFilter(), JWTAuthenticationFilter::class.java)
