@@ -102,12 +102,12 @@ class GroupManager extends Component<
 
         const course = this.props.course(this.props.match.params.cid);
 
-        if (course === null || !canViewGroups) {
+        if (course === null || !canViewGroups || groups == null) {
             return null;
         } else {
             return (
                 <Row className="flex-row justify-content-center">
-                    <Col xs="12" md="8">
+                    <Col xs="12" md="12" lg="12" xl="12">
                         {canPerformCanvasSync && course.externalId != null && (
                             <div>
                                 <Button
@@ -127,17 +127,16 @@ class GroupManager extends Component<
                                         className="mr-2"
                                     />
                                     Fetch groups from Canvas
-
                                     <abbr
-                                            title="This does not change the Canvas groups compositions in
+                                        title="This does not change the Canvas groups compositions in
                                             any way. Use this when group compositions change in Canvas, so that
                                             Horus groups are in sync with the groups within this group set."
-                                        >
-                                            <FontAwesomeIcon
-                                                icon={faInfoCircle}
-                                                className="ml-2"
-                                            />
-                                        </abbr>
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faInfoCircle}
+                                            className="ml-2"
+                                        />
+                                    </abbr>
                                 </Button>
                                 <hr />
                             </div>
@@ -150,7 +149,17 @@ class GroupManager extends Component<
                                 this.onSearchQueryInput(e.target.value);
                             }}
                         />
-                        <Row>{this.renderGroups(groups)}</Row>
+                        <Row>
+                            {this.renderGroups(
+                                groups.sort((groupA, groupB) => {
+                                    return groupA.name.length >
+                                        groupB.name.length ||
+                                        groupA.name > groupB.name
+                                        ? 1
+                                        : -1;
+                                }),
+                            )}
+                        </Row>
                     </Col>
                 </Row>
             );
