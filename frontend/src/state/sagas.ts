@@ -12,6 +12,8 @@ import studentDashboardSagas from "./student-dashboard/sagas";
 import participantSagas from "./participants/sagas";
 import labelsSaga from "./labels/sagas";
 import rolesSagas from "./roles/sagas";
+import queuingSagas from "./queuing/sagas";
+import roomsSagas from "./rooms/sagas";
 
 export default function* rootSaga() {
     yield* authSagas();
@@ -28,4 +30,6 @@ export default function* rootSaga() {
     yield* participantSagas();
     yield* labelsSaga();
     yield* rolesSagas();
+    yield* queuingSagas();
+    yield* roomsSagas();
 }

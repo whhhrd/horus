@@ -31,5 +31,8 @@ interface GroupRepository: JpaRepository<Group, Long>, JpaSpecificationExecutor<
     @Query("SELECT g FROM Group g INNER JOIN GroupMember m ON g = m.id.group WHERE m.id.participant = ?1 AND g.archivedAt IS NULL")
     fun findAllByParticipantMember(participant: Participant): List<Group>
 
+    @Query("SELECT g FROM Group g INNER JOIN GroupMember m ON g = m.id.group INNER JOIN AssignmentGroupSetsMapping agm ON g.groupSet = agm.id.groupSet WHERE m.id.participant.id = ?1  AND g.archivedAt IS NULL AND agm.id.assignmentSet.id = ?2")
+    fun findFirstByParticipantIdAndAssignmentSetId(participantId: Long, assignmentSetId: Long): Group?
+
     fun findAllByGroupSetIdAndAndArchivedAtIsNull(groupSetId: Long): List<Group>
 }

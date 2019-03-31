@@ -74,7 +74,7 @@ export class CourseStudentDashboard extends Component<
         } else {
             return (
                 <div className="d-flex flex-column align-items-stretch">
-                    <h3>Your Progress</h3>
+                    <h3>Your progress</h3>
                     <div className="d-flex flex-fill flex-column h-100 w-100 mb-2">
                         {this.buildResultsTable(dashboard.assignmentSets)}
                     </div>
@@ -84,7 +84,7 @@ export class CourseStudentDashboard extends Component<
                             {this.buildRecentEvents(dashboard.results)}
                         </Col>
                         <Col xs="12" lg="6">
-                            <h3>Your Groups</h3>
+                            <h3>Your groups</h3>
                             {this.buildGroupsList(dashboard.groups)}
                         </Col>
                     </Row>

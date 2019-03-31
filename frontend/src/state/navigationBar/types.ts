@@ -10,5 +10,6 @@ export enum ActiveTabEnum {
     COURSES,
     SIGNOFF,
     ADMINISTRATION,
+    ROOMS,
     NONE,
 }

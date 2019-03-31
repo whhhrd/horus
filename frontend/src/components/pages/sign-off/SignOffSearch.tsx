@@ -9,12 +9,16 @@ import {
     DropdownItem,
     DropdownMenu,
     DropdownToggle,
+    Button,
 } from "reactstrap";
 import Autosuggest from "react-autosuggest";
 
 import { AssignmentSetDtoBrief } from "../../../api/types";
 import { ApplicationState } from "../../../state/state";
-import {GroupAssignmentSetCombination, GroupAssignmentSetSection} from "../../../state/search/types";
+import {
+    GroupAssignmentSetCombination,
+    GroupAssignmentSetSection,
+} from "../../../state/search/types";
 
 import {
     assignmentSetsFetchRequestedAction,
@@ -28,7 +32,20 @@ import {
 import { getAssignmentSets } from "../../../state/assignments/selectors";
 import { getSignOffSearchResults } from "../../../state/search/selectors";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTasks } from "@fortawesome/free-solid-svg-icons";
+import {
+    faTasks,
+    faArrowCircleLeft,
+    faBell,
+} from "@fortawesome/free-solid-svg-icons";
+import {
+    getFilterParam,
+    replaceQueryParam,
+    objectToQueryString,
+} from "../../util";
+import {
+    RemindRequestedAction,
+    remindRequestedAction,
+} from "../../../state/queuing/actions";
 
 interface SignOffSearchProps {
     searchQuery?: string;
@@ -41,6 +58,7 @@ interface SignOffSearchProps {
         query: string,
     ) => SignOffSearchQueryAction;
     fetchAssignmentSets: (courseID: number) => AssignmentSetsFetchAction;
+    remind: (cid: number, rid: string, id: number) => RemindRequestedAction;
 }
 
 interface SignOffSearchState {
@@ -76,9 +94,56 @@ class SignOffSearch extends Component<
     }
 
     render() {
+        const roomCode = getFilterParam(this.props.location.search, "r");
         return (
             <div className="d-flex flex-row align-items-stretch h-100">
-                <div className="flex-grow-1">{this.renderSearchBar()}</div>
+                <div className="flex-grow-1">
+                    {roomCode != null ? (
+                        <div className="d-flex mr-2">
+                            <Button
+                                block
+                                color="success"
+                                className="mr-2 mt-0"
+                                onClick={() =>
+                                    this.props.history.push({
+                                        pathname: `rooms/${roomCode}`,
+                                    })
+                                }
+                            >
+                                <FontAwesomeIcon
+                                    icon={faArrowCircleLeft}
+                                    className="mr-2"
+                                />
+                                Go back
+                            </Button>
+                            <Button
+                                block
+                                color="primary"
+                                className="mt-0"
+                                onClick={() =>
+                                    this.props.remind(
+                                        Number(this.props.match.params.cid),
+                                        roomCode.toString(),
+                                        Number(
+                                            getFilterParam(
+                                                this.props.location.search,
+                                                "pid",
+                                            ),
+                                        ),
+                                    )
+                                }
+                            >
+                                <FontAwesomeIcon
+                                    icon={faBell}
+                                    className="mr-2"
+                                />
+                                Remind
+                            </Button>
+                        </div>
+                    ) : (
+                        this.renderSearchBar()
+                    )}
+                </div>
                 <div className="h-100">
                     {this.renderAssignmentSetSelector()}
                 </div>
@@ -106,14 +171,18 @@ class SignOffSearch extends Component<
                     <DropdownItem
                         key={assignmentSet.id}
                         onClick={() => {
-                            const groupId = Number(
-                                queryString.parse(this.props.location.search).g,
+                            let newQuery = queryString.parse(
+                                this.props.location.search,
                             );
-                            const hasGroup = !isNaN(groupId) && groupId > 0;
-                            this.pushURL(
+                            newQuery = replaceQueryParam(
+                                newQuery,
+                                "as",
                                 assignmentSet.id,
-                                hasGroup ? groupId : null,
                             );
+                            this.props.history.push({
+                                ...this.props.history.location,
+                                search: objectToQueryString(newQuery),
+                            });
                         }}
                     >
                         {assignmentSet.name}
@@ -246,7 +315,11 @@ class SignOffSearch extends Component<
     }
 
     private renderSectionTitle(section: GroupAssignmentSetSection) {
-        return <span className="font-weight-bold autosuggest-section-title">{section.assignmentSet.name}</span>;
+        return (
+            <span className="font-weight-bold autosuggest-section-title">
+                {section.assignmentSet.name}
+            </span>
+        );
     }
 
     private getSectionSuggestions(section: GroupAssignmentSetSection) {
@@ -257,9 +330,13 @@ class SignOffSearch extends Component<
         const searchQuery = this.state.searchQuery;
         const asid = queryString.parse(this.props.location.search).as;
         const searchResults = this.props.searchResult;
-        if (searchQuery != null && searchQuery.length > 0
-            && searchResults != null && searchResults.length >= 1
-            && (forceSelect || asid == null)) {
+        if (
+            searchQuery != null &&
+            searchQuery.length > 0 &&
+            searchResults != null &&
+            searchResults.length >= 1 &&
+            (forceSelect || asid == null)
+        ) {
             const groupAssignmentSetCombination = searchResults[0];
             this.pushURL(
                 groupAssignmentSetCombination.assignmentSet.id,
@@ -293,7 +370,10 @@ class SignOffSearch extends Component<
     private sectionizeSearchResults(
         searchResult: GroupAssignmentSetCombination[],
     ): GroupAssignmentSetSection[] {
-        const sectionMapping = new Map<AssignmentSetDtoBrief, GroupAssignmentSetCombination[]>();
+        const sectionMapping = new Map<
+            AssignmentSetDtoBrief,
+            GroupAssignmentSetCombination[]
+        >();
         const asid = Number(queryString.parse(this.props.location.search).as!);
 
         // First construct a map with assignment sets as key,
@@ -337,10 +417,7 @@ class SignOffSearch extends Component<
         return null;
     }
 
-    private pushURL(
-        asid: number | null,
-        selectedGroupID: number | null,
-    ) {
+    private pushURL(asid: number | null, selectedGroupID: number | null) {
         const searchParams: string[] = [];
 
         if (asid != null) {
@@ -370,6 +447,8 @@ export default withRouter(
             doSearchQuery: (courseID: number, query: string) =>
                 signOffSearchQueryAction(courseID, query),
             fetchAssignmentSets: assignmentSetsFetchRequestedAction,
+            remind: (cid: number, rid: string, id: number) =>
+                remindRequestedAction(cid, rid, id),
         },
     )(SignOffSearch),
 );

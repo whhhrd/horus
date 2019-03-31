@@ -2,6 +2,7 @@ package nl.utwente.horus
 
 import me.ntrrgc.tsGenerator.TypeScriptGenerator
 import nl.utwente.horus.auth.permissions.HorusResource
+import nl.utwente.horus.representations.queuing.updates.*
 import nl.utwente.horus.representations.BooleanResultDto
 import nl.utwente.horus.representations.assignment.*
 import nl.utwente.horus.representations.auth.HorusAuthorityDto
@@ -20,6 +21,14 @@ import nl.utwente.horus.representations.group.GroupDtoFull
 import nl.utwente.horus.representations.group.GroupSetDtoFull
 import nl.utwente.horus.representations.participant.*
 import nl.utwente.horus.representations.person.PersonDtoFull
+import nl.utwente.horus.representations.queuing.updates.InitialStateDto
+import nl.utwente.horus.representations.queuing.ParticipantDto
+import nl.utwente.horus.representations.queuing.QueueDto
+import nl.utwente.horus.representations.queuing.RoomDto
+import nl.utwente.horus.representations.queuing.requests.AnnouncementCreateDto
+import nl.utwente.horus.representations.queuing.requests.QueueCreateDto
+import nl.utwente.horus.representations.queuing.requests.RoomCreateDto
+import nl.utwente.horus.representations.queuing.updates.*
 import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
 import nl.utwente.horus.representations.signoff.SignOffResultPatchDto
 import java.io.File
@@ -73,6 +82,26 @@ fun generate() {
                     PersonDtoFull::class,
 
                     SignOffResultPatchDto::class,
+
+                    RoomDto::class,
+                    QueueDto::class,
+                    ParticipantDto::class,
+                    UpdateType::class,
+                    UpdateDto::class,
+                    AcceptDto::class,
+                    AddAnnouncementDto::class,
+                    AddQueueDto::class,
+                    CloseRoomDto::class,
+                    DequeueDto::class,
+                    EditQueueDto::class,
+                    EnqueueDto::class,
+                    RemindDto::class,
+                    RemoveAnnouncementDto::class,
+                    RemoveQueueDto::class,
+                    InitialStateDto::class,
+                    RoomCreateDto::class,
+                    QueueCreateDto::class,
+                    AnnouncementCreateDto::class,
 
                     HorusAuthorityDto::class,
                     HorusResource::class,

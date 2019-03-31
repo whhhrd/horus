@@ -30,12 +30,15 @@ module.exports = {
       '/api': {
         target: 'http://localhost:8080',
         secure: false
+      },
+      '/ws': {
+        target: 'http://localhost:8080',
+        secure: false
       }
-    },
+    }
   },
 
   plugins: [
     new HtmlWebpackPlugin({ inject: true, template: path.join(APP_PATH, 'index.html') }),
-    new ForkTsCheckerWebpackPlugin(),
-  ]
-};
+    new ForkTsCheckerWebpackPlugin()
+]}

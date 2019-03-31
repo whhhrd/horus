@@ -1,5 +1,5 @@
 import { push } from "connected-react-router";
-import { put, race, take, takeEvery } from "redux-saga/effects";
+import { put, race, take, takeEvery, takeLeading } from "redux-saga/effects";
 
 import { notifyError } from "../notifications/constants";
 
@@ -113,5 +113,5 @@ export default function* authSagas() {
     yield takeEvery(LOGOUT_COMPLETED_ACTION, postLogoutRedirect);
     yield takeEvery(API_AUTH_LOGOUT_COMPLETED, handleAPILogout);
     yield takeEvery(API_AUTH_TOKEN_REFRESH_SUCCEEDED, updateAuthorities);
-    yield takeEvery(LOAD_AUTHENTICATION_REQUESTED_ACTION, loadAuthentication);
+    yield takeLeading(LOAD_AUTHENTICATION_REQUESTED_ACTION, loadAuthentication);
 }

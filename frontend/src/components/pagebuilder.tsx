@@ -2,6 +2,8 @@ import React from "react";
 import { Spinner } from "reactstrap";
 import PhoneComponent from "./PhoneComponent";
 import DesktopComponent from "./DesktopComponent";
+import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 /**
  * Builds the page with the desktop/mobile compatible layouts. Must receive mobile/desktop friendly contents.
@@ -53,6 +55,52 @@ export const centerSpinner = (): JSX.Element => {
                 color="primary"
                 role="status"
             />
+        </div>
+    );
+};
+
+/**
+ * Builds a large message (with icon if specified) in the center of the screen.
+ */
+export const buildBigCenterMessage = (text: string, icon?: IconDefinition) => {
+    return (
+        <div className="d-flex justify-content-center h-100 flex-wrap">
+            <div className="my-auto w-100 text-center">
+                {icon != null && (
+                    <h1>
+                        <FontAwesomeIcon
+                            icon={icon}
+                            size="3x"
+                            className="mb-5"
+                        />{" "}
+                    </h1>
+                )}
+                <h1 className="text-muted">{text}</h1>
+            </div>
+        </div>
+    );
+};
+
+/**
+ * Builds a large loading indicator with the specified text below it.
+ */
+export const buildConnectingSpinner = (text: string) => {
+    return (
+        <div className="d-flex justify-content-center h-100 flex-wrap">
+            <div className="my-auto text-center w-100 d-flex justify-content-center">
+                <Spinner
+                    className="d-block mr-3"
+                    style={{ width: "6rem", height: "6rem" }}
+                    type="grow"
+                    color="primary"
+                    role="status"
+                />
+            </div>
+            <div className="w-100 text-center">
+                <span className="text-muted" style={{ fontSize: "20pt" }}>
+                    {text}
+                </span>
+            </div>
         </div>
     );
 };

@@ -146,6 +146,13 @@ class CourseController: BaseController() {
         return courseService.getParticipantsOfCourse(courseId).map { ParticipantDtoFull(it) }
     }
 
+    @GetMapping(path = ["/{courseId}/participants/self"])
+    fun getCurrentParticipantInCourse(@PathVariable courseId: Long) : ParticipantDtoBrief {
+        verifyCoursePermission(Course::class, courseId, HorusPermissionType.LIST, HorusResource.COURSE_PARTICIPANT)
+
+        return ParticipantDtoBrief(participantService.getCurrentParticipationInCourse(courseId))
+    }
+
     @GetMapping(path = ["/{courseId}/staff"])
     fun listStaffOfCourse(@PathVariable courseId: Long): List<ParticipantDtoFull> {
         requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_PARTICIPANT)

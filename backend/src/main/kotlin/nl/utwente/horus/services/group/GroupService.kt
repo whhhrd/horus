@@ -65,6 +65,10 @@ class GroupService {
         return groupRepository.findAllByParticipantMember(participant)
     }
 
+    fun getGroupByParticipantIdAndAssignmentSetId(participantId: Long, assignmentSetId: Long): Group? {
+        return groupRepository.findFirstByParticipantIdAndAssignmentSetId(participantId, assignmentSetId)
+    }
+
     fun isPersonMemberOfGroup(person: Person, group: Group): Boolean {
         return groupRepository.isPersonMemberOfGroup(person, group)
     }

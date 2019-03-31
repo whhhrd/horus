@@ -8,6 +8,7 @@ import nl.utwente.horus.entities.assignment.Assignment
 import nl.utwente.horus.entities.assignment.AssignmentSet
 import nl.utwente.horus.entities.assignment.SignOffResult
 import nl.utwente.horus.entities.auth.ParticipantSupplementaryRoleMapping
+import nl.utwente.horus.entities.auth.Role
 import nl.utwente.horus.entities.auth.SupplementaryRole
 import nl.utwente.horus.entities.comment.Comment
 import nl.utwente.horus.entities.comment.CommentThread
@@ -189,6 +190,12 @@ abstract class BaseController {
             HorusResourceScope.ANY -> anyResult(userDetailService.getCurrentPerson())
             HorusResourceScope.OWN -> ownResult(userDetailService.getCurrentPerson())
             null -> throw InsufficientPermissionsException()
+        }
+    }
+
+    fun requireCourseRoles(courseId: Long, vararg roleName: String) {
+        if (!roleName.contains(participantService.getCurrentParticipationInCourse(courseId).role.name)) {
+            throw InsufficientPermissionsException()
         }
     }
 

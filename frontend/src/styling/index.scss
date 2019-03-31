@@ -542,6 +542,45 @@ button {
     background: $color_yellow_light;
     border: 1px solid $color_yellow;
 }
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Queuing
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+.queue-entry-buttons {
+    float: right
+}
+.queue-entry-name {
+    width: auto;
+    display: inline-block;
+}
+.queue-list {
+    width: 400px;
+}
+.queue-history-table {
+    td, th {
+        box-sizing: content-box;
+        height: 38px;
+    }
+}
+.queue-popup {
+    //TODO add animation and styling
+    position: fixed;
+    left: 10%;
+    right: 10%;
+    top: 10%;
+    bottom:10%;
+    border-width: 20px;
+    border-color: black;
+    text-align: center;
+    background-color: lightgray;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s, visibility 0.25s;
+}
+.queue-popup.show {
+    opacity: 1;
+    visibility: visible
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * Label properties

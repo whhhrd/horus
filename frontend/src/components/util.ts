@@ -10,7 +10,6 @@ const palette: string[] = [
     "#0097A7",
     "#00796B",
     "#388E3C",
-    "#AFB42B",
     "#FBC02D",
     "#FFA000",
     "#F57C00",

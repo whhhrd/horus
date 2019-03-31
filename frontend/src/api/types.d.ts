@@ -285,30 +285,11 @@ export interface ParticipantUpdateDto {
     roleId: number;
 }
 
-export type HorusResource =
-    | "PERSON"
-    | "COURSE"
-    | "COURSE_PARTICIPANT"
-    | "COURSE_SUPPLEMENTARY_ROLE"
-    | "COURSE_SUPPLEMENTARY_ROLE_MAPPING"
-    | "COURSE_LABEL"
-    | "COURSE_PARTICIPANT_LABEL_MAPPING"
-    | "COURSE_GROUPSET"
-    | "COURSE_GROUP"
-    | "COURSE_GROUPMEMBER"
-    | "COURSE_ASSIGNMENTSET"
-    | "COURSE_COMMENT_STAFFONLY"
-    | "COURSE_COMMENT_PUBLIC"
-    | "COURSE_SIGNOFFRESULT";
+export type HorusResource = "PERSON" | "COURSE" | "COURSE_PARTICIPANT" | "COURSE_SUPPLEMENTARY_ROLE" | "COURSE_SUPPLEMENTARY_ROLE_MAPPING" | "COURSE_LABEL" | "COURSE_PARTICIPANT_LABEL_MAPPING" | "COURSE_GROUPSET" | "COURSE_GROUP" | "COURSE_GROUPMEMBER" | "COURSE_ASSIGNMENTSET" | "COURSE_COMMENT_STAFFONLY" | "COURSE_COMMENT_PUBLIC" | "COURSE_SIGNOFFRESULT";
 
 export type HorusResourceScope = "OWN" | "ANY";
 
-export type HorusPermissionType =
-    | "LIST"
-    | "VIEW"
-    | "CREATE"
-    | "EDIT"
-    | "DELETE";
+export type HorusPermissionType = "LIST" | "VIEW" | "CREATE" | "EDIT" | "DELETE";
 
 export interface HorusPermissionDto {
     resource: HorusResource;
@@ -343,8 +324,108 @@ export interface SignOffResultPatchDto {
     delete: SignOffResultArchiveDto[];
 }
 
+export interface RoomDto {
+    code: string;
+    courseId: number;
+    name: string;
+}
+
+export interface ParticipantDto {
+    fullName: string;
+    id: number;
+}
+
+export interface QueueDto {
+    assignmentSetId: number | null;
+    courseId: number;
+    createdAt: Date;
+    id: string;
+    name: string;
+    participants: ParticipantDto[];
+    roomCode: string;
+}
+
+export type UpdateType = "INITIAL" | "ENQUEUE" | "DEQUEUE" | "ADD_QUEUE" | "EDIT_QUEUE" | "REMOVE_QUEUE" | "CLOSE_ROOM" | "ADD_ANNOUNCEMENT" | "REMOVE_ANNOUNCEMENT" | "REMIND" | "ACCEPT";
+
+export interface UpdateDto {
+    roomCode: string;
+    type: UpdateType;
+}
+
+export interface AcceptDto extends UpdateDto {
+    accepter: ParticipantDto;
+    assignmentSetId: number | null;
+    groupId: number | null;
+    participant: ParticipantDto;
+    queueId: string;
+}
+
+export interface AnnouncementDto {
+    content: string;
+    id: string;
+    roomCode: string;
+}
+
+export interface AddAnnouncementDto extends UpdateDto {
+    announcement: AnnouncementDto;
+}
+
+export interface AddQueueDto extends UpdateDto {
+    queue: QueueDto;
+}
+
+export interface CloseRoomDto extends UpdateDto {
+}
+
+export interface DequeueDto extends UpdateDto {
+    participantId: number;
+    queueId: string;
+}
+
+export interface EditQueueDto extends UpdateDto {
+    queue: QueueDto;
+}
+
+export interface EnqueueDto extends UpdateDto {
+    participant: ParticipantDto;
+    queueId: string;
+}
+
+export interface RemindDto extends UpdateDto {
+    participant: ParticipantDto;
+}
+
+export interface RemoveAnnouncementDto extends UpdateDto {
+    announcementId: string;
+}
+
+export interface RemoveQueueDto extends UpdateDto {
+    queueId: string;
+}
+
+export interface InitialStateDto extends UpdateDto {
+    announcements: AnnouncementDto[];
+    history: AcceptDto[];
+    queues: QueueDto[];
+    room: RoomDto;
+}
+
+export interface RoomCreateDto {
+    name: string;
+}
+
+export interface QueueCreateDto {
+    assignmentSetId: number | null;
+    name: string;
+}
+
+export interface AnnouncementCreateDto {
+    content: string;
+}
+
 export interface ErrorDto {
     code: string;
     message: string;
     path: string;
 }
+

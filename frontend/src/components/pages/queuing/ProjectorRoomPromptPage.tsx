@@ -1,0 +1,120 @@
+import React, { KeyboardEvent, Component } from "react";
+import { withRouter, RouteComponentProps } from "react-router";
+import { connect } from "react-redux";
+import { Input, Button, FormGroup, Col, Label } from "reactstrap";
+import { Field, Formik } from "formik";
+
+interface PromptValues {
+    code: string;
+}
+
+class ProjectorRoomPromptPage extends Component<RouteComponentProps<any>> {
+
+    constructor(props: RouteComponentProps<any>) {
+        super(props);
+        this.isValidRoomCode = this.isValidRoomCode.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
+    }
+
+    isValidRoomCode(values: PromptValues) {
+        return values.code.trim().length === 6;
+    }
+
+    onSubmit(values: PromptValues) {
+        this.props.history.push({
+            pathname: `/beamer/${values.code}`,
+        });
+    }
+
+    render() {
+        return (
+            // A flexibles body for the navigation bar, content (including sidebar)
+            <div className="d-none d-lg-flex">
+                {/* Fills the remaining horizontal space (next to the navbar) */}
+                <div className="flex-fill">
+                    {/* A wrapper for the content, a flexible row that contains
+                            the content ans possibly the sidebar */}
+                    <div className="ContentWrapper d-flex flex-row">
+                        {/* The body for the actual content, a flex column that contanis
+                                the title and body content */}
+                        <div className="ContentBody d-flex flex-column flex-fill">
+                            {/* The main content box, displaying the elements from the 'content' argument or
+                            the center spinner if the content is Null. */}
+                            <div className="d-flex align-items-center h-100 justify-content-center">
+                                <Col xs="12" md="6" lg="4" xl="3">
+                                    <Formik
+                                        initialValues={{ code: "" }}
+                                        onSubmit={this.onSubmit}
+                                    >
+                                        {({ handleSubmit, values }) => (
+                                            <FormGroup>
+                                                <Label>Room code</Label>
+                                                <Input
+                                                    tag={Field}
+                                                    bsSize="lg"
+                                                    autoFocus={true}
+                                                    name="code"
+                                                    maxLength={6}
+                                                    valid={this.isValidRoomCode(
+                                                        values,
+                                                    )}
+                                                    invalid={
+                                                        !this.isValidRoomCode(
+                                                            values,
+                                                        )
+                                                    }
+                                                    onKeyDown={(
+                                                        event: KeyboardEvent,
+                                                    ) => {
+                                                        if (
+                                                            event.key ===
+                                                                "Enter" &&
+                                                            !event.shiftKey
+                                                        ) {
+                                                            event.preventDefault();
+                                                            if (
+                                                                this.isValidRoomCode(
+                                                                    values,
+                                                                )
+                                                            ) {
+                                                                handleSubmit();
+                                                            }
+                                                        }
+                                                    }}
+                                                    placeholder="Room Code"
+                                                />
+                                                <Button
+                                                    block
+                                                    size="lg"
+                                                    color="primary"
+                                                    className="mt-3"
+                                                    disabled={
+                                                        !this.isValidRoomCode(
+                                                            values,
+                                                        )
+                                                    }
+                                                    onClick={() => {
+                                                        handleSubmit();
+                                                    }}
+                                                >
+                                                    Go to room
+                                                </Button>
+                                            </FormGroup>
+                                        )}
+                                    </Formik>
+                                </Col>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+}
+
+export default withRouter(
+    connect(
+        () => ({}),
+        {},
+    )(ProjectorRoomPromptPage),
+);

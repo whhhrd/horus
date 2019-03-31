@@ -38,15 +38,23 @@ import {
     PATH_CANVAS_IMPORT,
     PATH_SIGNOFF,
     PATH_SIGNOFF_OVERVIEW,
+    PATH_QUEUE,
     PATH_COURSE_LABEL_MANAGER,
     PATH_COURSE_ROLES_MANAGER,
+    PATH_ROOMS,
+    PATH_BEAMER_MODE,
+    PATH_BEAMER_PROMPT,
 } from "../routes";
 import SignoffTable from "./pages/sign-off/SignoffTable";
 import GroupManager from "./pages/admin/groups/groups/GroupManager";
 import AssignmentSetManager from "./pages/admin/assignmentSetManager/AssignmentSetManager";
 import SignOffOverview from "./pages/sign-off-overview/SignOffOverview";
+import QueuingPage from "./pages/queuing/QueuingPage";
 import LabelManager from "./pages/admin/labels/LabelManager";
 import RolesManager from "./pages/admin/supplementaryroles/RolesManager";
+import Rooms from "./pages/rooms/Rooms";
+import ProjectorQueuingPage from "./pages/queuing/ProjectorQueuingPage";
+import ProjectorRoomPromptPage from "./pages/queuing/ProjectorRoomPromptPage";
 
 export interface AppProps {
     loadAuthentication: () => {
@@ -68,24 +76,43 @@ class App extends React.Component<AppProps & RouteComponentProps> {
 
     componentDidMount() {
         let pathname = this.props.pathname;
-        const { setLoginRedirect, loadAuthentication, location: { hash, search } } = this.props;
+        const {
+            setLoginRedirect,
+            loadAuthentication,
+            location: { hash, search },
+        } = this.props;
         if (pathname === "/") {
             this.props.push(App.HOME_PATH);
             pathname = App.HOME_PATH;
         }
-        if (pathname === PATH_LOGIN) {
+        if (
+            pathname === PATH_LOGIN ||
+            pathname.startsWith(PATH_BEAMER_PROMPT)
+        ) {
             setLoginRedirect(App.HOME_PATH);
         } else {
             setLoginRedirect(`${pathname}${search}${hash}`);
         }
-        loadAuthentication();
+        if (!pathname.startsWith(PATH_BEAMER_PROMPT)) {
+            loadAuthentication();
+        }
     }
 
     componentDidUpdate() {
-        const {  pathname, setLoginRedirect, loggedIn, location: { hash, search } } = this.props;
-        if ( !loggedIn && pathname !== PATH_LOGIN ) {
+        const {
+            pathname,
+            loadAuthentication,
+            setLoginRedirect,
+            loggedIn,
+            location: { hash, search },
+        } = this.props;
+        if (pathname.startsWith(PATH_BEAMER_PROMPT)) {
+            return;
+        }
+        if (!loggedIn && pathname !== PATH_LOGIN) {
             setLoginRedirect(`${pathname}${search}${hash}`);
             this.props.push(PATH_LOGIN);
+            loadAuthentication();
         }
         if (loggedIn && pathname === PATH_LOGIN) {
             this.props.push(App.HOME_PATH);
@@ -210,6 +237,33 @@ class App extends React.Component<AppProps & RouteComponentProps> {
                     path={PATH_SIGNOFF_OVERVIEW}
                     component={SignOffOverview}
                     setActiveTab={ActiveTabEnum.DASHBOARD}
+                />
+                <RouteExtension
+                    exact
+                    path={PATH_QUEUE}
+                    component={QueuingPage}
+                    setActiveTab={ActiveTabEnum.ROOMS}
+                />
+
+                <RouteExtension
+                    exact
+                    path={PATH_ROOMS}
+                    component={Rooms}
+                    setActiveTab={ActiveTabEnum.ROOMS}
+                />
+
+                <RouteExtension
+                    exact
+                    path={PATH_BEAMER_MODE}
+                    component={ProjectorQueuingPage}
+                    setActiveTab={ActiveTabEnum.NONE}
+                />
+
+                <RouteExtension
+                    exact
+                    path={PATH_BEAMER_PROMPT}
+                    component={ProjectorRoomPromptPage}
+                    setActiveTab={ActiveTabEnum.NONE}
                 />
             </Switch>
         );

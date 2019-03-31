@@ -15,4 +15,10 @@ data class Role (
 
     val permissions: List<Permission>
         get() = rolePermissions.map { rp -> rp.permission }
+
+    companion object {
+        const val STUDENT = "STUDENT"
+        const val TEACHER = "TEACHER"
+        const val TEACHING_ASSISTANT = "TEACHING_ASSISTANT"
+    }
 }
