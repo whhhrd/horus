@@ -368,7 +368,7 @@ class QueuingPage extends Component<
     // TODO proper error handling and recovering connection
     private connect() {
         // TODO remove this crap when not needed anymore
-        const host = `ws${location.protocol === "https" ? "s" : ""}://${
+        const host = `ws${location.protocol === "https:" ? "s" : ""}://${
             location.hostname
         }:${
             location.port === "8081" ? "8080" : location.port
