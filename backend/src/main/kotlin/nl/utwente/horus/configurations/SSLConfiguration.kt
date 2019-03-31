@@ -19,16 +19,7 @@ class SSLConfiguration {
     // Copied/translated from https://github.com/spring-projects/spring-boot/issues/9836
     @Bean
     fun servletContainer(): ServletWebServerFactory {
-        val tomcat = object : TomcatServletWebServerFactory() {
-            override fun postProcessContext(context: Context) {
-                val securityConstraint = SecurityConstraint()
-                securityConstraint.userConstraint = "CONFIDENTIAL"
-                val collection = SecurityCollection()
-                collection.addPattern("/*")
-                securityConstraint.addCollection(collection)
-                context.addConstraint(securityConstraint)
-            }
-        }
+        val tomcat = SecuredTomcatServletWebServerFactory()
         tomcat.addAdditionalTomcatConnectors(redirectConnector())
         return tomcat
     }
@@ -41,4 +32,33 @@ class SSLConfiguration {
         connector.redirectPort = 443
         return connector
     }
+}
+
+class SecuredTomcatServletWebServerFactory : TomcatServletWebServerFactory() {
+    override fun postProcessContext(context: Context) {
+        /*
+        Add 2 security constraints
+        - First one that we don't need HTTPS for actuator endpoints
+        - Second one that we need HTTPS everywhere
+
+        By defining in this order, the actuator endpoints are not included.
+        For some reason, this works, but the collection.addOmittedMethod() does not work...
+        If debugging this, test with curl -I flag enabled to avoid "smart" browser caches doing the redirects for you...
+         */
+        val exclude = SecurityConstraint()
+        exclude.userConstraint = "NONE"
+        val c = SecurityCollection()
+        c.addPattern("/actuator/*")
+        exclude.addCollection(c)
+        context.addConstraint(exclude)
+
+        val secure = SecurityConstraint()
+        secure.userConstraint = "CONFIDENTIAL"
+        val collection = SecurityCollection()
+        collection.addPattern("/*")
+        secure.addCollection(collection)
+        context.addConstraint(secure)
+    }
+
+
 }
