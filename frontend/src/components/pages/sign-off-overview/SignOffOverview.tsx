@@ -404,7 +404,7 @@ class SignOffOverview extends Component<
             assignments[columnIndex - milestoneData.length - 2] != null &&
             assignments[columnIndex - milestoneData.length - 2].milestone
         ) {
-            className += " overview-milestone-divider";
+            className += " overview-milestone-divider-gray";
         }
 
         // Set milestone border visuals for cells after milestone cells,
@@ -412,7 +412,7 @@ class SignOffOverview extends Component<
             assignments[columnIndex - milestoneData.length - 3] != null &&
             assignments[columnIndex - milestoneData.length - 3].milestone
         ) {
-            className += " overview-milestone-divider-left";
+            className += " overview-milestone-divider-left-gray";
         }
 
         // Render the sign-off result cell

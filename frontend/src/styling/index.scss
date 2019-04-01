@@ -634,19 +634,33 @@ button {
     border: 1px solid $color_yellow;
 }
 
-.supp-role-label {
-    font-size: 12pt;
-}
-
-.overview-bottom-left-grid::-webkit-scrollbar {
-    direction: rtl;
-    width: 0px;
-}
-
 .overview-milestone-divider {
-    border-right: 4px solid $color_blue;
+    border-right: 2px solid $color_blue;
 }
 
 .overview-milestone-divider-left {
-    border-left: 1px solid $color_blue;
+    border-left: 2px solid $color_blue;
+}
+
+.overview-bottom-left-grid::-webkit-scrollbar {
+    width: 0px;
+}
+
+.overview-milestone-divider-gray {
+    border-right: 2px solid #bfbfc0;
+}
+
+.overview-milestone-divider-left-gray {
+    border-left: 2px solid #bfbfc0;
+}
+
+.overview-bottom-left-grid {
+    scrollbar-width: none;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Supplmenentary roles
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+.supp-role-label {
+    font-size: 12pt;
 }
