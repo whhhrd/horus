@@ -10,6 +10,8 @@ class EmptyStringException : BadRequestException("A string used for creation/upd
 class DuplicateEntityRequestException : BadRequestException("The same entity was requested multiple times in the same request.")
 
 class EmptyListException : BadRequestException("List parameter should have at least one entry.")
+
+class DuplicateNameException : BadRequestException("An entity was attempted to be given a name which is already taken.")
 // Course-related
 class WrongCourseException : BadRequestException("This entity does not belong to the indicated course.")
 

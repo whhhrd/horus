@@ -5,6 +5,7 @@ import nl.utwente.horus.WithLoginId
 import nl.utwente.horus.auth.permissions.HorusPermission
 import nl.utwente.horus.auth.permissions.HorusResource
 import nl.utwente.horus.entities.auth.SupplementaryRole
+import nl.utwente.horus.exceptions.DuplicateNameException
 import nl.utwente.horus.services.participant.SupplementaryRoleService
 import org.junit.Assert.*
 import org.junit.Test
@@ -33,6 +34,13 @@ class RoleServiceTest : HorusAbstractTest() {
 
     private fun createFreshSupplementaryRole(): SupplementaryRole {
         return supplementaryRoleService.createSupplementaryRole(getPPCourse(), "admins", ADDED_PERMISSIONS)
+    }
+
+    @Test
+    @WithLoginId(TEACHER_LOGIN)
+    fun testCreateRoleDuplicate() {
+        createFreshSupplementaryRole()
+        assertThrows(DuplicateNameException::class) { createFreshSupplementaryRole() }
     }
 
     @Test

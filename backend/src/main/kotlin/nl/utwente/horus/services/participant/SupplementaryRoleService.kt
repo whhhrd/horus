@@ -80,6 +80,10 @@ class SupplementaryRoleService {
         if (name.isBlank()) {
             throw EmptyStringException()
         }
+        if (supplementaryRoleRepository.existsByNameAndCourse(name, course)) {
+            throw DuplicateNameException()
+        }
+
         val role = supplementaryRoleRepository.save(SupplementaryRole(name, course))
         permissions.forEach { addPermissionToRole(role, it) }
         return role

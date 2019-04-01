@@ -10,4 +10,6 @@ import org.springframework.transaction.annotation.Transactional
 interface SupplementaryRoleRepository: JpaRepository<SupplementaryRole, Long> {
 
     fun findAllByCourse(c: Course): List<SupplementaryRole>
+
+    fun existsByNameAndCourse(name: String, course: Course): Boolean
 }

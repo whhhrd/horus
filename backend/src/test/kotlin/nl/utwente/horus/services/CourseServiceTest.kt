@@ -9,6 +9,7 @@ import nl.utwente.horus.representations.course.CourseCreateDto
 import nl.utwente.horus.representations.course.CourseUpdateDto
 import nl.utwente.horus.services.course.CourseService
 import nl.utwente.horus.services.participant.ParticipantService
+import nl.utwente.horus.services.participant.SupplementaryRoleService
 import nl.utwente.horus.services.person.PersonService
 import org.junit.Assert.*
 import org.junit.Test
@@ -31,6 +32,9 @@ class CourseServiceTest : HorusAbstractTest() {
 
     @Autowired
     private lateinit var participantService: ParticipantService
+
+    @Autowired
+    private lateinit var supplementaryRoleService: SupplementaryRoleService
 
     @Test
     @WithLoginId(TEACHER_LOGIN)
@@ -292,6 +296,7 @@ class CourseServiceTest : HorusAbstractTest() {
         // Define function that asserts whether course creation went as expected
         val asExpected: (CourseCreateDto, Course) -> Unit = { courseCreate, course ->
             assertTrue(course.id > 0)
+            assertTrue(supplementaryRoleService.getRolesByCourse(course).isNotEmpty())
             assertEquals(courseCreate.name, course.name)
             assertEquals(courseCreate.courseCode, course.courseCode)
             assertEquals(courseCreate.externalId, course.externalId)
