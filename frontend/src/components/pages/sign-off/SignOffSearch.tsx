@@ -307,6 +307,7 @@ class SignOffSearch extends Component<
                         }
                     },
                 }}
+                focusInputOnSuggestionClick={false}
                 multiSection={true}
                 renderSectionTitle={this.renderSectionTitle}
                 getSectionSuggestions={this.getSectionSuggestions}
