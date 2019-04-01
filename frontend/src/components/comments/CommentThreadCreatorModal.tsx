@@ -57,7 +57,7 @@ class CommentThreadCreatorModal extends Component<
         return (
             <Modal autoFocus={false} isOpen={this.props.isOpen}>
                 <ModalHeader toggle={this.onCloseModal}>
-                    {"Creating comment thread"}
+                    {"Creating comment"}
                 </ModalHeader>
                 {this.props.isOpen && (
                     <Formik

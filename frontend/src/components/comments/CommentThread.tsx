@@ -258,7 +258,7 @@ class CommentThread extends Component<CommentThreadProps & RouteComponentProps<a
         return (
             <mark className="px-2">
                 <abbr
-                    title={`Comment thread about ${titlePrefix}${
+                    title={`Comments about ${titlePrefix}${
                         this.props.commentThreadSubject
                     }`}
                 >
@@ -302,7 +302,7 @@ class CommentThread extends Component<CommentThreadProps & RouteComponentProps<a
                     <div className="my-auto mr-3">
                         <FontAwesomeIcon icon={faInfo} size="lg" />
                     </div>
-                    <div>Empty comment thread.</div>
+                    <div>No comments to be displayed.</div>
                 </Alert>
             );
         }
@@ -329,7 +329,7 @@ class CommentThread extends Component<CommentThreadProps & RouteComponentProps<a
                         <div className="my-auto mr-3">
                             <FontAwesomeIcon icon={faInfo} size="lg" />
                         </div>
-                        <div>Empty comment thread.</div>
+                        <div>No comments to be displayed.</div>
                     </Alert>
                     {canCreate && !this.props.immutableThread &&
                         <Button

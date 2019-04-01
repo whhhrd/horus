@@ -56,7 +56,7 @@ export function* requestCommentThread(action: CommentThreadRequestedAction) {
             ),
         );
     } catch (e) {
-        yield put(notifyError("Could not fetch comment thread"));
+        yield put(notifyError("Could not fetch comments"));
     }
 }
 
@@ -82,7 +82,7 @@ export function* createCommentThread(action: CommentThreadCreateAction) {
             ),
         );
     } catch (e) {
-        yield put(notifyError("Could not create comment thread"));
+        yield put(notifyError("Could not create comment"));
     }
 }
 
