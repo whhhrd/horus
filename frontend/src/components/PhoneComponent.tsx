@@ -73,7 +73,9 @@ class PhoneComponent extends Component<
             !e.composedPath().find(
                 (eventTarget: EventTarget) =>
                     // @ts-ignore
-                    eventTarget.id === "NavigationBar" || eventTarget.id === "NavigationBarToggle",
+                    eventTarget.id === "NavigationBar" ||
+                    // @ts-ignore
+                    eventTarget.id === "NavigationBarToggle",
             )
         ) {
             this.setState(() => ({ navigationBarOpen: false }));
@@ -101,24 +103,31 @@ class PhoneComponent extends Component<
                     align-content-middle
                     p-0 bg-light border-bottom"
                 >
-                    <div id="NavigationBarToggle"
-                        className={`flex-shrink-0 p-3 pr-4 cursor-pointer navigation-bar-hamburger ${
-                            this.state.navigationBarOpen
-                                ? " navigation-bar-hamburger-open"
-                                : ""
-                        }`}
+                    <div
+                        id="NavigationBarToggle"
+                        className={`flex-shrink-0 p-3 pr-4 cursor-pointer`}
                         onClick={this.toggleNavigationBar}
                     >
-                        <span>
+                        <div
+                            className={`navigation-bar-hamburger ${
+                                this.state.navigationBarOpen
+                                    ? " navigation-bar-hamburger-open"
+                                    : ""
+                            }`}
+                        >
                             <FontAwesomeIcon icon={faBars} size="lg" />
-                        </span>
+                        </div>
                     </div>
                     <div>
                         <h5 className="mb-0 text-center py-3">{headerTitle}</h5>
                     </div>
                     <div
                         className="flex-shrink-0 p-3 pl-4 cursor-pointer"
-                        onClick={sidebarContent != null ? () => this.openSidebar() : () => null}
+                        onClick={
+                            sidebarContent != null
+                                ? () => this.openSidebar()
+                                : () => null
+                        }
                     >
                         {sidebarContent != null ? (
                             <span>
