@@ -41,7 +41,10 @@ import ParticipantTableCell from "./ParticipantTableCell";
 import AssignmentTableCell from "./AssignmentTableCell";
 import ProgressTableCell from "./ProgressTableCell";
 import SignoffResultTableCell from "./SignoffResultTableCell";
-import SignOffOverviewSearch, { SortType, Filter } from "./SignOffOverviewSearch";
+import SignOffOverviewSearch, {
+    SortType,
+    Filter,
+} from "./SignOffOverviewSearch";
 import { getListFromQuery, arraysEqual, getFilterParam } from "../../util";
 
 interface SignOffOverviewProps {
@@ -130,7 +133,10 @@ class SignOffOverview extends Component<
         // either the laberId array or the groupSetId array is not the same,
         // then refetch from the database.
         const op = getFilterParam(this.props.location.search, Filter.Operator);
-        const prevOp = getFilterParam(prevProps.location.search, Filter.Operator);
+        const prevOp = getFilterParam(
+            prevProps.location.search,
+            Filter.Operator,
+        );
 
         const groupSetId = getFilterParam(
             this.props.location.search,
@@ -198,6 +204,8 @@ class SignOffOverview extends Component<
                         {({ width, height }) => (
                             <MultiGrid
                                 styleBottomRightGrid={{ outline: "none" }}
+                                classNameBottomLeftGrid="overview-bottom-left-grid"
+                                enableFixedColumnScroll
                                 ref={(r) => (this.multigrid = r)}
                                 cellRenderer={(cellProps) =>
                                     this.renderCell(
@@ -287,6 +295,8 @@ class SignOffOverview extends Component<
             className = "sign-off-overview-cell";
         }
 
+        className += " ellipsis ";
+
         // Render the group tag in the top left of the table
         if (columnIndex === 0 && rowIndex === 0) {
             content = "Group";
@@ -369,15 +379,40 @@ class SignOffOverview extends Component<
         if (rowIndex === 0 && columnIndex > 1 + milestoneData.length) {
             const assignment =
                 assignments[columnIndex - milestoneData.length - 2];
+            const assignmentPrevious =
+                assignments[columnIndex - milestoneData.length - 3];
             return (
                 <AssignmentTableCell
                     assignment={assignment}
                     key={key}
                     onCommentClick={this.setSidebarContent}
                     style={style}
-                    className={className}
+                    className={
+                        className + (assignment.milestone
+                            ? " overview-milestone-divider"
+                            : "") + (assignmentPrevious != null &&
+                              assignmentPrevious.milestone
+                            ? " overview-milestone-divider-left"
+                            : "")
+                    }
                 />
             );
+        }
+
+        // Set milestone border visuals for actual milestone cell
+        if (
+            assignments[columnIndex - milestoneData.length - 2] != null &&
+            assignments[columnIndex - milestoneData.length - 2].milestone
+        ) {
+            className += " overview-milestone-divider";
+        }
+
+        // Set milestone border visuals for cells after milestone cells,
+        if (
+            assignments[columnIndex - milestoneData.length - 3] != null &&
+            assignments[columnIndex - milestoneData.length - 3].milestone
+        ) {
+            className += " overview-milestone-divider-left";
         }
 
         // Render the sign-off result cell
@@ -471,7 +506,6 @@ class SignOffOverview extends Component<
         sortedGroups.forEach((group) => {
             group.participants.forEach((participant, pIndex) => {
                 if (pIndex === 0) {
-                    // console.log(participant.person.fullName);
                     rows.push({ metaGroup: group, group, participant });
                 } else {
                     rows.push({ group, participant });
@@ -659,7 +693,10 @@ class SignOffOverview extends Component<
     private reloadData() {
         const courseId = Number(this.props.match.params.cid);
         const assignmentSetId = Number(this.props.match.params.asid);
-        const labelIds = getListFromQuery(this.props.location.search, Filter.LabelIds);
+        const labelIds = getListFromQuery(
+            this.props.location.search,
+            Filter.LabelIds,
+        );
         const groupSetId = getFilterParam(
             this.props.location.search,
             Filter.GroupSetId,

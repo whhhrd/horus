@@ -117,8 +117,7 @@ class SignoffResultTableCell extends Component<
                         <div>
                             <h4>
                                 Labels assigned to{" "}
-                                {participant.person.shortName}
-                                :
+                                {participant.person.shortName}:
                             </h4>
                             <ParticipantLabelInfo
                                 participantId={participant.id}

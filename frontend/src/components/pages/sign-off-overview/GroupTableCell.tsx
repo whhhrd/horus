@@ -25,8 +25,13 @@ class GroupTableCell extends Component<GroupTableCellProps> {
     render() {
         const { name } = this.props.group;
         return (
-            <div className={this.props.className} style={this.props.style}>
-                {name}
+            <div
+                className={
+                    this.props.className +
+                    "d-flex flex-row justify-content-between"
+                }
+                style={{ ...this.props.style, direction: "rtl" }}
+            >
                 {this.props.onCommentClick && (
                     <div
                         onClick={() =>
@@ -39,6 +44,9 @@ class GroupTableCell extends Component<GroupTableCellProps> {
                         <FontAwesomeIcon icon={faComments} size="sm" />
                     </div>
                 )}
+                <div title={name} className="ellipsis text-left pl-1 pr-1">
+                    {name}
+                </div>
             </div>
         );
     }

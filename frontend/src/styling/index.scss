@@ -77,13 +77,13 @@ button {
     */
     -ms-user-select: none;
     user-select: none;
- }
+}
 
- .ellipsis {
-    white-space: nowrap; 
+.ellipsis {
+    white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; 
- }
+    text-overflow: ellipsis;
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * Extended/overwritten reactstrap classes
@@ -321,7 +321,7 @@ button {
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 .SignOffTableWrapper {
     width: 100%;
-    height: 100%;    
+    height: 100%;
     overflow: auto;
 }
 
@@ -546,7 +546,7 @@ button {
 * Queuing
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 .queue-entry-buttons {
-    float: right
+    float: right;
 }
 .queue-entry-name {
     width: auto;
@@ -556,7 +556,8 @@ button {
     width: 400px;
 }
 .queue-history-table {
-    td, th {
+    td,
+    th {
         box-sizing: content-box;
         height: 38px;
     }
@@ -567,7 +568,7 @@ button {
     left: 10%;
     right: 10%;
     top: 10%;
-    bottom:10%;
+    bottom: 10%;
     border-width: 20px;
     border-color: black;
     text-align: center;
@@ -579,7 +580,7 @@ button {
 }
 .queue-popup.show {
     opacity: 1;
-    visibility: visible
+    visibility: visible;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -604,7 +605,7 @@ button {
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 .overview-table-cell-comment-button {
     float: right;
-    color: rgba(0, 0, 0, 0.1);    
+    color: rgba(0, 0, 0, 0.1);
 }
 
 .overview-table-cell-comment-button:hover {
@@ -635,4 +636,17 @@ button {
 
 .supp-role-label {
     font-size: 12pt;
+}
+
+.overview-bottom-left-grid::-webkit-scrollbar {
+    direction: rtl;
+    width: 0px;
+}
+
+.overview-milestone-divider {
+    border-right: 4px solid $color_blue;
+}
+
+.overview-milestone-divider-left {
+    border-left: 1px solid $color_blue;
 }

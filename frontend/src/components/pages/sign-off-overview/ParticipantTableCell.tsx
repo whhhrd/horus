@@ -38,8 +38,11 @@ class ParticipantTableCell extends Component<
     render() {
         const { person } = this.props.participant;
         return (
-            <div className={this.props.className} style={this.props.style}>
-                {person.fullName}
+            <div
+                className={this.props.className + "d-flex flex-row justify-content-between"}
+                style={this.props.style}
+            >
+                <div title={person.fullName} className="ellipsis text-left pl-1 pr-1">{person.fullName}</div>
 
                 {this.props.onCommentClick && (
                     <div
