@@ -217,6 +217,12 @@ function* authenticationFlowLoop() {
 
                 yield put(eventAuthenticationRefreshCompleted());
             } else if (authRefreshFailure != null) {
+
+                if (!(authRefreshFailure.error instanceof APIError && authRefreshFailure.error.code === 401)) {
+                    // Some random error; keep re-trying
+                    continue;
+                }
+
                 clearAuthTokenFromStorage();
                 yield put(requestForcedLogout(authRefreshFailure.error));
 
