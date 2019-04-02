@@ -4,10 +4,7 @@ import { connect } from "react-redux";
 import { ApplicationState } from "../../../state/state";
 import { buildContent } from "../../pagebuilder";
 import React from "react";
-import {
-    RoomDto,
-    ParticipantDtoBrief,
-} from "../../../api/types";
+import { RoomDto, ParticipantDtoBrief } from "../../../api/types";
 import {
     RoomsFetchRequestedAction,
     roomsFetchRequestedAction,
@@ -16,7 +13,7 @@ import {
 import { getRooms } from "../../../state/rooms/selectors";
 import { Row, Col, Button, Card, CardBody, CardTitle } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faLock } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 import RoomCreateModal from "./RoomCreateModal";
 import RoomDeleteModal from "./RoomDeleteModal";
 import {
@@ -154,7 +151,7 @@ class Rooms extends Component<
                                                         }
                                                     >
                                                         <FontAwesomeIcon
-                                                            icon={faLock}
+                                                            icon={faTimes}
                                                         />
                                                     </Button>
                                                 )}

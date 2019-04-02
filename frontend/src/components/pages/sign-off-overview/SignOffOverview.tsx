@@ -388,10 +388,12 @@ class SignOffOverview extends Component<
                     onCommentClick={this.setSidebarContent}
                     style={style}
                     className={
-                        className + (assignment.milestone
+                        className +
+                        (assignment.milestone
                             ? " overview-milestone-divider"
-                            : "") + (assignmentPrevious != null &&
-                              assignmentPrevious.milestone
+                            : "") +
+                        (assignmentPrevious != null &&
+                        assignmentPrevious.milestone
                             ? " overview-milestone-divider-left"
                             : "")
                     }
@@ -523,10 +525,9 @@ class SignOffOverview extends Component<
      * would come after 'Group 119' in an ascending order.
      */
     private sortGroupName(groupA: GroupDtoFull, groupB: GroupDtoFull) {
-        return groupA.name.length > groupB.name.length ||
-            groupA.name > groupB.name
-            ? 1
-            : -1;
+        return groupA.name.localeCompare(groupB.name, "en", {
+            numeric: true,
+        });
     }
 
     /**
@@ -706,7 +707,7 @@ class SignOffOverview extends Component<
             const operator = queryString.parse(this.props.location.search).op;
             this.props.fetchFilteredOverviewGroups(
                 courseId,
-                operator != null ? operator.toString() : "OR",
+                operator != null ? operator.toString() : "AND",
                 assignmentSetId,
                 labelIds,
                 groupSetId != null ? Number(groupSetId.toString()) : undefined,

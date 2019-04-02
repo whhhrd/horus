@@ -174,7 +174,7 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                                         {({ handleSubmit }) => (
                                             <div>
                                                 <ModalHeader>
-                                                    <h3 className="mb-0">External Login</h3>
+                                                    External Login
                                                 </ModalHeader>
                                                 <ModalBody>
                                                     <Form>
@@ -250,7 +250,7 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                                 >
                                     <div>
                                         <ModalHeader>
-                                            <h3 className="mb-0">About Horus</h3>
+                                            About Horus
                                         </ModalHeader>
                                         <ModalBody>
                                             <div>

@@ -41,8 +41,14 @@ export default class QueueCreateModal extends Component<
         };
     }
 
-    isValid(queueName: string) {
-        return queueName.trim().length > 0;
+    isValid(values: QueueCreatorValues) {
+        if (!this.state.isSignOffQueue) {
+            return values.name.trim().length > 0;
+        } else {
+            return (
+                values.name.trim().length > 0 && values.assignmentSetId !== -1
+            );
+        }
     }
 
     render() {
@@ -54,7 +60,7 @@ export default class QueueCreateModal extends Component<
                 </ModalHeader>
                 <Formik
                     initialValues={{
-                        name: "",
+                        name: "Questions",
                         assignmentSetId: -1,
                     }}
                     onSubmit={(result: QueueCreatorValues) => {
@@ -93,11 +99,12 @@ export default class QueueCreateModal extends Component<
                                             color="primary"
                                             block
                                             outline={!isSignOffQueue}
-                                            onClick={() =>
+                                            onClick={() => {
                                                 this.setState(() => ({
                                                     isSignOffQueue: true,
-                                                }))
-                                            }
+                                                }));
+                                                values.name = "";
+                                            }}
                                         >
                                             Sign-off
                                         </Button>
@@ -157,15 +164,15 @@ export default class QueueCreateModal extends Component<
                                         autoFocus={true}
                                         id="name"
                                         name="name"
-                                        valid={this.isValid(values.name)}
-                                        invalid={!this.isValid(values.name)}
+                                        valid={this.isValid(values)}
+                                        invalid={!this.isValid(values)}
                                         onKeyDown={(event: KeyboardEvent) => {
                                             if (
                                                 event.key === "Enter" &&
                                                 !event.shiftKey
                                             ) {
                                                 event.preventDefault();
-                                                if (this.isValid(values.name)) {
+                                                if (this.isValid(values)) {
                                                     handleSubmit();
                                                 }
                                             }
@@ -184,7 +191,7 @@ export default class QueueCreateModal extends Component<
                                 <Button
                                     color="primary"
                                     block
-                                    disabled={!this.isValid(values.name)}
+                                    disabled={!this.isValid(values)}
                                     onClick={() => handleSubmit()}
                                 >
                                     Create Queue

@@ -567,14 +567,14 @@ class SignOffOverviewSearch extends Component<
                                 getFilterParam(
                                     this.props.location.search,
                                     Filter.Operator,
-                                ) === "AND"
+                                ) !== "OR"
                             }
                             disabled={this.props.isLoading}
                             color="primary"
                             size="sm"
                             onClick={() => this.setLabelFilterOperator("OR")}
                         >
-                            Union
+                            Match any
                         </Button>
                         <Button
                             block
@@ -583,13 +583,13 @@ class SignOffOverviewSearch extends Component<
                                 getFilterParam(
                                     this.props.location.search,
                                     Filter.Operator,
-                                ) !== "AND"
+                                ) === "OR"
                             }
                             color="primary"
                             size="sm"
                             onClick={() => this.setLabelFilterOperator("AND")}
                         >
-                            Intersection
+                            Match all
                         </Button>
                     </DropdownItem>
                     <DropdownItem divider />

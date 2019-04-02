@@ -12,7 +12,7 @@ import {
 } from "../../../../../state/groups/actions";
 import GroupListItem from "./GroupListItem";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSync, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import { faInfoCircle, faDownload } from "@fortawesome/free-solid-svg-icons";
 import {
     canvasRefreshSetRequestedAction,
     CanvasRefreshSetRequestedAction,
@@ -123,18 +123,20 @@ class GroupManager extends Component<
                                     }
                                 >
                                     <FontAwesomeIcon
-                                        icon={faSync}
+                                        icon={faDownload}
                                         className="mr-2"
                                     />
-                                    Fetch groups from Canvas
+                                    Retrieve groups from Canvas
                                     <abbr
                                         title="This does not change the Canvas groups compositions in
                                             any way. Use this when group compositions change in Canvas, so that
                                             Horus groups are in sync with the groups within this group set."
+                                            className="float-right"
                                     >
                                         <FontAwesomeIcon
                                             icon={faInfoCircle}
                                             className="ml-2"
+                                            size="lg"
                                         />
                                     </abbr>
                                 </Button>
@@ -152,11 +154,11 @@ class GroupManager extends Component<
                         <Row>
                             {this.renderGroups(
                                 groups.sort((groupA, groupB) => {
-                                    return groupA.name.length >
-                                        groupB.name.length ||
-                                        groupA.name > groupB.name
-                                        ? 1
-                                        : -1;
+                                    return groupA.name.localeCompare(
+                                        groupB.name,
+                                        "en",
+                                        { numeric: true },
+                                    );
                                 }),
                             )}
                         </Row>

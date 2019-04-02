@@ -12,8 +12,8 @@ import { ApplicationState } from "../../../../../state/state";
 import CanvasCard from "../../../../CanvasCard";
 import {
     faUsers,
-    faSync,
     faInfoCircle,
+    faDownload,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -101,13 +101,14 @@ class GroupSetManager extends Component<
                                         }
                                     >
                                         <FontAwesomeIcon
-                                            icon={faSync}
+                                            icon={faDownload}
                                             className="mr-2"
                                         />
-                                        Fetch Canvas group sets{" "}
+                                        Retrieve Canvas group sets{" "}
                                         <abbr
                                             title="This does not change the Canvas course settings in
                                             any way. Use this when group sets in canvas are deleted or added."
+                                            className="float-right"
                                         >
                                             <FontAwesomeIcon
                                                 icon={faInfoCircle}
