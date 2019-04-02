@@ -35,7 +35,7 @@ class Queue {
             null
         } else {
             val participant = QueueParticipant(id, fullName, Instant.now())
-            queue.push(participant)
+            queue.add(participant)
             memberIds.add(id)
             participant
         }

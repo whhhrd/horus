@@ -13,7 +13,7 @@ interface SignOffResultRepository: JpaRepository<SignOffResult, Long> {
     @Query("SELECT r FROM SignOffResult r INNER JOIN GroupMember gm ON r.participant = gm.id.participant INNER JOIN Group g ON gm.id.group = g WHERE g.id = ?1 AND r.assignment.assignmentSet.id = ?2 AND r.archivedAt IS NULL")
     fun getAllByGroupAndAssignmentSet(groupId: Long, assignmentSetId: Long): List<SignOffResult>
 
-    fun getAllByParticipant(participant: Participant): List<SignOffResult>
+    fun getAllByParticipantAndArchivedByIsNull(participant: Participant): List<SignOffResult>
 
     @Query("SELECT r.result FROM Assignment a LEFT JOIN SignOffResult r ON r.assignment = a.id AND r.participant = ?1 AND r.archivedAt IS NULL WHERE a.assignmentSet = ?2 ORDER BY a.orderKey")
     fun getUnarchivedByParticipantAndAssignmentSet(participant: Participant, assignmentSet: AssignmentSet): List<SignOffResultType?>

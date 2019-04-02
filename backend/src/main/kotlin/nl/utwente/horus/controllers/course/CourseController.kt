@@ -4,7 +4,6 @@ import nl.utwente.horus.auth.permissions.HorusPermission
 import nl.utwente.horus.auth.permissions.HorusPermissionType
 import nl.utwente.horus.auth.permissions.HorusResource
 import nl.utwente.horus.controllers.BaseController
-import nl.utwente.horus.entities.assignment.AssignmentSet
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.group.GroupFiltrationSpecification
 import nl.utwente.horus.entities.participant.Label
@@ -283,7 +282,7 @@ class CourseController: BaseController() {
         // No permissions necessary: all results are "personalized" anyways
         val participant = participantService.getCurrentParticipationInCourse(courseId)
         val sets = assignmentService.getAssignmentSetsByParticipant(participant)
-        val results = signOffService.getSignOffsByParticipant(participant)
+        val results = signOffService.getUnarchivedSignOffsByParticipant(participant)
         val groups = groupService.getGroupsByParticipant(participant)
         return StudentDashboardDto(groups, sets, results)
     }

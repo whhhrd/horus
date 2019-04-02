@@ -76,8 +76,8 @@ class SignOffService {
         return signOffResultRepository.getUnarchivedByParticipantAndAssignmentSet(participant, assignmentSet)
     }
 
-    fun getSignOffsByParticipant(participant: Participant): List<SignOffResult> {
-        return signOffResultRepository.getAllByParticipant(participant)
+    fun getUnarchivedSignOffsByParticipant(participant: Participant): List<SignOffResult> {
+        return signOffResultRepository.getAllByParticipantAndArchivedByIsNull(participant)
     }
 
     fun processSignOffs(dto: SignOffResultPatchDto, setId: Long): List<SignOffResult> {
