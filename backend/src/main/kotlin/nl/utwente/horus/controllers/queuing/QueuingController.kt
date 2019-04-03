@@ -5,8 +5,8 @@ import nl.utwente.horus.controllers.BaseController
 import nl.utwente.horus.entities.auth.Role
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.representations.queuing.AnnouncementDto
-import nl.utwente.horus.representations.queuing.ParticipantDto
 import nl.utwente.horus.representations.queuing.QueueDto
+import nl.utwente.horus.representations.queuing.QueueParticipantDto
 import nl.utwente.horus.representations.queuing.RoomDto
 import nl.utwente.horus.representations.queuing.requests.AnnouncementCreateDto
 import nl.utwente.horus.representations.queuing.requests.QueueCreateDto
@@ -72,7 +72,7 @@ class QueuingController: BaseController() {
     }
 
     @PostMapping("/{courseId}/rooms/{roomCode}/queues/{queueId}/participants/self")
-    fun enqueue(@PathVariable courseId: Long, @PathVariable roomCode: String, @PathVariable queueId: String): ParticipantDto {
+    fun enqueue(@PathVariable courseId: Long, @PathVariable roomCode: String, @PathVariable queueId: String): QueueParticipantDto {
         requireCourseRoles(courseId, Role.STUDENT)
         return queuingService.enqueue(courseId, roomCode, queueId)
     }

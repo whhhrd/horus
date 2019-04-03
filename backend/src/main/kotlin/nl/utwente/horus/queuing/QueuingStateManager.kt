@@ -2,8 +2,8 @@ package nl.utwente.horus.queuing
 
 import nl.utwente.horus.queuing.exceptions.RoomNotFoundException
 import nl.utwente.horus.representations.queuing.AnnouncementDto
-import nl.utwente.horus.representations.queuing.ParticipantDto
 import nl.utwente.horus.representations.queuing.QueueDto
+import nl.utwente.horus.representations.queuing.QueueParticipantDto
 import nl.utwente.horus.representations.queuing.RoomDto
 import nl.utwente.horus.representations.queuing.updates.AcceptDto
 import nl.utwente.horus.representations.queuing.updates.InitialStateDto
@@ -84,7 +84,7 @@ class QueuingStateManager {
         }
     }
 
-    fun enqueueParticipant(courseId: Long, roomCode: String, queueId: String, participantId: Long, fullName: String, allowedAssignmentSets: List<Long>): ParticipantDto {
+    fun enqueueParticipant(courseId: Long, roomCode: String, queueId: String, participantId: Long, fullName: String, allowedAssignmentSets: List<Long>): QueueParticipantDto {
         return readOnCourseRoom(courseId, roomCode) {
             it.enqueueParticipant(queueId, participantId, fullName, allowedAssignmentSets)
         }

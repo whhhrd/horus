@@ -5,8 +5,8 @@ import nl.utwente.horus.exceptions.EmptyStringException
 import nl.utwente.horus.exceptions.ParticipantNotFoundException
 import nl.utwente.horus.queuing.QueuingStateManager
 import nl.utwente.horus.representations.queuing.AnnouncementDto
-import nl.utwente.horus.representations.queuing.ParticipantDto
 import nl.utwente.horus.representations.queuing.QueueDto
+import nl.utwente.horus.representations.queuing.QueueParticipantDto
 import nl.utwente.horus.representations.queuing.RoomDto
 import nl.utwente.horus.representations.queuing.updates.AcceptDto
 import nl.utwente.horus.services.assignment.AssignmentService
@@ -65,7 +65,7 @@ class QueuingService {
         return queuingStateManager.deleteQueue(courseId, roomCode, id)
     }
 
-    fun enqueue(courseId: Long, roomCode: String, queueId: String): ParticipantDto {
+    fun enqueue(courseId: Long, roomCode: String, queueId: String): QueueParticipantDto {
         val participant = participantService.getCurrentParticipationInCourse(courseId)
         val allowedAssignmentSets = assignmentService.getAssignmentSetsByParticipant(participant).map { it.id }
         return queuingStateManager.enqueueParticipant(courseId, roomCode, queueId, participant.id, participant.person.fullName, allowedAssignmentSets)

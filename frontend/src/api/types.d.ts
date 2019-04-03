@@ -352,11 +352,15 @@ export interface UpdateDto {
     type: UpdateType;
 }
 
+export interface QueueParticipantDto extends ParticipantDto {
+    addedAt: Date;
+}
+
 export interface AcceptDto extends UpdateDto {
     accepter: ParticipantDto;
     assignmentSetId: number | null;
     groupId: number | null;
-    participant: ParticipantDto;
+    participant: QueueParticipantDto;
     queueId: string;
 }
 
@@ -387,7 +391,7 @@ export interface EditQueueDto extends UpdateDto {
 }
 
 export interface EnqueueDto extends UpdateDto {
-    participant: ParticipantDto;
+    participant: QueueParticipantDto;
     queueId: string;
 }
 
@@ -428,4 +432,3 @@ export interface ErrorDto {
     message: string;
     path: string;
 }
-

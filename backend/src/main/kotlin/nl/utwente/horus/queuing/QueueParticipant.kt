@@ -1,7 +1,9 @@
 package nl.utwente.horus.queuing
 
-import nl.utwente.horus.representations.queuing.ParticipantDto
+import nl.utwente.horus.representations.queuing.QueueParticipantDto
 import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 class QueueParticipant: Comparable<QueueParticipant> {
     val id: Long
@@ -26,7 +28,8 @@ class QueueParticipant: Comparable<QueueParticipant> {
         return  if (addedAt.isBefore(other.addedAt)) -1 else 1
     }
 
-    fun toDto(): ParticipantDto {
-        return ParticipantDto(id, fullName)
+    fun toDto(): QueueParticipantDto {
+        val time = ZonedDateTime.ofInstant(addedAt, ZoneId.systemDefault())
+        return QueueParticipantDto(id, fullName, time)
     }
 }

@@ -1,10 +1,7 @@
 package nl.utwente.horus.queuing
 
 import nl.utwente.horus.queuing.exceptions.*
-import nl.utwente.horus.representations.queuing.AnnouncementDto
-import nl.utwente.horus.representations.queuing.ParticipantDto
-import nl.utwente.horus.representations.queuing.QueueDto
-import nl.utwente.horus.representations.queuing.RoomDto
+import nl.utwente.horus.representations.queuing.*
 import nl.utwente.horus.representations.queuing.updates.*
 import reactor.core.Disposable
 import reactor.core.publisher.DirectProcessor
@@ -99,14 +96,14 @@ class Room {
         }
     }
 
-    fun enqueueParticipant(queueId: String, participantId: Long, fullName: String, allowedAssignmentSets: List<Long>): ParticipantDto {
+    fun enqueueParticipant(queueId: String, participantId: Long, fullName: String, allowedAssignmentSets: List<Long>): QueueParticipantDto {
         return eventEmittingActionWithLock {
             val queue = queues[queueId] ?: throw QueueNotFoundException()
             queue.assignmentSetId?.let {
                 if (!allowedAssignmentSets.contains(it)) throw ParticipantCannotBeEnqueuedForQueueException()
             }
             val participant = queue.enqueueParticipant(participantId, fullName) ?: throw ParticipantAlreadyInQueueException()
-            Pair(participant.toDto(), EnqueueDto(code, queue.id, ParticipantDto(participantId, fullName)))
+            Pair(participant.toDto(), EnqueueDto(code, queue.id, participant.toDto()))
         }
     }
 
