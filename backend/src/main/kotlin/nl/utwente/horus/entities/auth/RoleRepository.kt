@@ -6,4 +6,6 @@ import org.springframework.transaction.annotation.Transactional
 
 @Repository
 @Transactional
-interface RoleRepository: JpaRepository<Role, Long>
+interface RoleRepository: JpaRepository<Role, Long> {
+    fun findByName(name: String): Role?
+}

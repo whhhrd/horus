@@ -16,6 +16,7 @@ import { ParticipantsState } from "./participants/types";
 import { LabelsState } from "./labels/types";
 import { RolesState } from "./roles/types";
 import { RoomsState } from "./rooms/types";
+import { JobsState } from "./jobs/types";
 
 export interface ApplicationState {
     router?: RouterState;
@@ -36,4 +37,5 @@ export interface ApplicationState {
     participants?: ParticipantsState;
     roles?: RolesState;
     rooms?: RoomsState;
+    jobs?: JobsState;
 }

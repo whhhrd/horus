@@ -2,7 +2,6 @@ package nl.utwente.horus
 
 import me.ntrrgc.tsGenerator.TypeScriptGenerator
 import nl.utwente.horus.auth.permissions.HorusResource
-import nl.utwente.horus.representations.queuing.updates.*
 import nl.utwente.horus.representations.BooleanResultDto
 import nl.utwente.horus.representations.assignment.*
 import nl.utwente.horus.representations.auth.HorusAuthorityDto
@@ -19,9 +18,9 @@ import nl.utwente.horus.representations.dashboard.StudentDashboardDto
 import nl.utwente.horus.representations.error.ErrorDto
 import nl.utwente.horus.representations.group.GroupDtoFull
 import nl.utwente.horus.representations.group.GroupSetDtoFull
+import nl.utwente.horus.representations.job.BatchJobDto
 import nl.utwente.horus.representations.participant.*
 import nl.utwente.horus.representations.person.PersonDtoFull
-import nl.utwente.horus.representations.queuing.updates.InitialStateDto
 import nl.utwente.horus.representations.queuing.ParticipantDto
 import nl.utwente.horus.representations.queuing.QueueDto
 import nl.utwente.horus.representations.queuing.RoomDto
@@ -71,6 +70,8 @@ fun generate() {
                     GroupDtoFull::class,
                     GroupSetDtoFull::class,
                     GroupAssignmentSetSearchResultDto::class,
+
+                    BatchJobDto::class,
 
                     LabelCreateUpdateDto::class,
                     LabelDto::class,

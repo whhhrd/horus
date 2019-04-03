@@ -1,7 +1,6 @@
 package nl.utwente.horus.auth.providers
 
 import nl.utwente.horus.auth.tokens.AuthCodeToken
-import nl.utwente.horus.auth.tokens.RefreshToken
 import nl.utwente.horus.auth.tokens.TokenFactory
 import nl.utwente.horus.services.auth.AuthCodeService
 import org.springframework.beans.factory.annotation.Autowired

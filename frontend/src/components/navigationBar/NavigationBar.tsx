@@ -10,6 +10,7 @@ import {
     faSignOutAlt,
     faTools,
     faStoreAlt,
+    faNetworkWired,
 } from "@fortawesome/free-solid-svg-icons";
 import { connect } from "react-redux";
 import { NavigationBarItem } from "./NavigationBarItem";
@@ -28,14 +29,18 @@ import {
     setLoginRedirectAction,
 } from "../../state/auth/actions";
 import { Action } from "redux";
+import { BatchJobDto } from "../../api/types";
+import { getJobs } from "../../state/jobs/selectors";
+import { jobsFetchRequestedAction } from "../../state/jobs/action";
 
 interface NavigationBarProps {
-    // userPermissions: boolean | null; // TODO
     activeTab: ActiveTabEnum | null;
     coursePermissions: CoursePermissions | null;
     onPhone: boolean;
     visibleOnPhone: boolean;
     requestLogout: () => Action<string>;
+    fetchJobs: () => Action;
+    jobs: BatchJobDto[] | null;
     setLoginRedirect: (
         redirectUrl: string,
     ) => {
@@ -46,8 +51,12 @@ interface NavigationBarProps {
 export class NavigationBar extends Component<
     NavigationBarProps & RouteComponentProps<any>
 > {
+    componentDidMount() {
+        this.props.fetchJobs();
+    }
+
     buildContent() {
-        const { activeTab, match, onPhone, visibleOnPhone } = this.props;
+        const { activeTab, match, onPhone, visibleOnPhone, jobs } = this.props;
 
         const courseId = Number(match.params.cid);
         const inCourse: boolean =
@@ -153,6 +162,22 @@ export class NavigationBar extends Component<
                                     flush
                                     className={!onPhone ? "border-top" : ""}
                                 >
+                                    {jobs != null && jobs.length > 0 && (
+                                        <NavigationBarItem
+                                            title="Processes"
+                                            icon={faNetworkWired}
+                                            active={
+                                                activeTab === ActiveTabEnum.JOBS
+                                            }
+                                            url={`${
+                                                inCourse
+                                                    ? "/courses/" +
+                                                      this.props.match.params
+                                                          .cid
+                                                    : ""
+                                            }/self/jobs`}
+                                        />
+                                    )}
                                     <NavigationBarItem
                                         title="Courses"
                                         icon={faBook}
@@ -193,9 +218,11 @@ export default withRouter(
         (state: ApplicationState) => ({
             activeTab: getActiveTab(state),
             coursePermissions: getCoursePermissions(state),
+            jobs: getJobs(state),
         }),
         {
             requestLogout: logoutRequestedAction,
+            fetchJobs: jobsFetchRequestedAction,
             setLoginRedirect: setLoginRedirectAction,
         },
     )(NavigationBar),

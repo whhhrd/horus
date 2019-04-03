@@ -16,7 +16,7 @@ import {
     API_AUTH_AUTHENTICATION_CANCELED,
     APIError,
 } from "./constants";
-import { FetchFunction, fetchJSON } from "./util";
+import { FetchFunction, fetchJSON, fetchJSONFromForm } from "./util";
 
 import {
     eventAuthenticationCanceled,
@@ -396,6 +396,7 @@ function* logout(refreshToken: string) {
  * @param body request body
  * @param headers map of headers to use for request
  * @param options additional request options
+ * @param isFormData specifies if the request body is sent as a form
  */
 export function* authenticatedFetchJSON(
     method: string,
@@ -404,10 +405,11 @@ export function* authenticatedFetchJSON(
     body: object | null = null,
     headers = {},
     options = {},
+    isFormData = false,
 ) {
     return yield call(
         authenticatedFetch,
-        fetchJSON,
+        isFormData ? fetchJSONFromForm : fetchJSON,
         method,
         path,
         query,

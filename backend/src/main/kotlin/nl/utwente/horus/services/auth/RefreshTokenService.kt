@@ -4,7 +4,6 @@ import nl.utwente.horus.HorusConfigurationProperties
 import nl.utwente.horus.entities.auth.RefreshToken
 import nl.utwente.horus.entities.auth.RefreshTokenRepository
 import nl.utwente.horus.entities.person.Person
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.scheduling.annotation.Scheduled

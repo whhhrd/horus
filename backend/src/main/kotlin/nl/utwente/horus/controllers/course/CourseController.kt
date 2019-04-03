@@ -28,6 +28,7 @@ import nl.utwente.horus.representations.participant.*
 import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
 import nl.utwente.horus.services.assignment.AssignmentService
 import nl.utwente.horus.services.auth.HorusUserDetailService
+import nl.utwente.horus.services.auth.RoleService
 import nl.utwente.horus.services.course.CourseService
 import nl.utwente.horus.services.group.GroupService
 import nl.utwente.horus.services.participant.LabelService
@@ -77,6 +78,9 @@ class CourseController: BaseController() {
     @Autowired
     lateinit var supplementaryRoleService: SupplementaryRoleService
 
+    @Autowired
+    lateinit var roleService: RoleService
+
     @GetMapping(path = ["", "/"], produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
     fun listCourses(): List<CourseDtoSummary> {
         val person: Person = userDetailService.getCurrentPerson()
@@ -89,9 +93,7 @@ class CourseController: BaseController() {
 
         val course = courseService.createCourse(dto)
         val creator = userDetailService.getCurrentPerson()
-        // TODO: Be able to check highest privileges via API
-        // RoleID below is based on mocking data
-        val participation = participantService.createParticipant(creator, course, 2)
+        val participation = participantService.createParticipant(creator, course, roleService.getTeacherRole())
         return CourseDtoFull(course, RoleDtoBrief(participation.role))
     }
 

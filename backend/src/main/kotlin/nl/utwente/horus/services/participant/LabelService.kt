@@ -28,6 +28,10 @@ class LabelService {
         return labelRepository.findByIdOrNull(id) ?: throw LabelNotFoundException()
     }
 
+    fun getLabelByName(course: Course, name: String): Label? {
+        return labelRepository.getByCourseAndName(course, name)
+    }
+
     fun isLabelNameTaken(course: Course, name: String): Boolean {
         return labelRepository.existsLabelByCourseAndName(course, name)
     }

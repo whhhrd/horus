@@ -38,7 +38,10 @@ class CourseAdministration extends PureComponent<
         const canListGroupSets = groupSetsAnyList.check(cid, permissions);
         const canExport = canExportData.check(cid, permissions);
 
-        const canViewListLabelManager = canViewListLabels.check(cid, permissions);
+        const canViewListLabelManager = canViewListLabels.check(
+            cid,
+            permissions,
+        );
         const accessToken = getCurrentAccessToken();
 
         return (
@@ -74,11 +77,16 @@ class CourseAdministration extends PureComponent<
                             <h5>Manage Supplementary Roles</h5>
                         </Link>
                     )}
-                    {canExport && accessToken != null && <a
-                        href={`/api/courses/${this.props.match.params.cid}/export?token=${accessToken}`}
-                        target="_blank">
-                        <h5>Export Data to Spreadsheet</h5>
-                    </a>}
+                    {canExport && accessToken != null && (
+                        <a
+                            href={`/api/courses/${
+                                this.props.match.params.cid
+                            }/export?token=${accessToken}`}
+                            target="_blank"
+                        >
+                            <h5>Export Data to Spreadsheet</h5>
+                        </a>
+                    )}
                 </Col>
             </Row>
         );

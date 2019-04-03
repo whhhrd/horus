@@ -263,6 +263,19 @@ export interface GroupAssignmentSetSearchResultDto {
     groups: GroupDtoSearch[];
 }
 
+export type BatchJobStatus = "CREATED" | "PROCESSING" | "COMPLETED" | "ABORTED";
+
+export interface BatchJobDto {
+    completedTasks: number;
+    description: string;
+    error: string | null;
+    id: string;
+    issuer: PersonDtoBrief;
+    startedAt: Date;
+    status: BatchJobStatus;
+    totalTasks: number;
+}
+
 export interface LabelCreateUpdateDto {
     color: string;
     name: string;

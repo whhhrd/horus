@@ -3,17 +3,14 @@ package nl.utwente.horus.auth.handlers
 import com.fasterxml.jackson.databind.ObjectMapper
 import nl.utwente.horus.HorusConfigurationProperties
 import nl.utwente.horus.auth.tokens.TokenPair
-import nl.utwente.horus.entities.person.Person
 import nl.utwente.horus.representations.auth.AuthTokenResponse
 import nl.utwente.horus.representations.auth.HorusAuthorityDto
-import nl.utwente.horus.representations.person.PersonDtoFull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.stereotype.Component
-import java.net.URL
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 

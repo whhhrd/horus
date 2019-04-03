@@ -11,5 +11,6 @@ export enum ActiveTabEnum {
     SIGNOFF,
     ADMINISTRATION,
     ROOMS,
+    JOBS,
     NONE,
 }

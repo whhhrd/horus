@@ -44,6 +44,8 @@ import {
     PATH_ROOMS,
     PATH_BEAMER_MODE,
     PATH_BEAMER_PROMPT,
+    PATH_JOBS,
+    PATH_JOBS_ALT,
 } from "../routes";
 import SignoffTable from "./pages/sign-off/SignoffTable";
 import GroupManager from "./pages/admin/groups/groups/GroupManager";
@@ -55,6 +57,7 @@ import RolesManager from "./pages/admin/supplementaryroles/RolesManager";
 import Rooms from "./pages/rooms/Rooms";
 import ProjectorQueuingPage from "./pages/queuing/ProjectorQueuingPage";
 import ProjectorRoomPromptPage from "./pages/queuing/ProjectorRoomPromptPage";
+import Jobs from "./pages/admin/Jobs";
 
 export interface AppProps {
     loadAuthentication: () => {
@@ -181,6 +184,20 @@ class App extends React.Component<AppProps & RouteComponentProps> {
                     path={PATH_GROUP_SET_GROUPS_MANAGER}
                     component={GroupManager}
                     setActiveTab={ActiveTabEnum.ADMINISTRATION}
+                />
+
+                <RouteExtension
+                    exact
+                    path={PATH_JOBS}
+                    component={Jobs}
+                    setActiveTab={ActiveTabEnum.JOBS}
+                />
+
+                <RouteExtension
+                    exact
+                    path={PATH_JOBS_ALT}
+                    component={Jobs}
+                    setActiveTab={ActiveTabEnum.JOBS}
                 />
 
                 <RouteExtension

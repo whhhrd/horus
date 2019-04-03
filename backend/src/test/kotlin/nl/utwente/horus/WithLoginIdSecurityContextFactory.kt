@@ -1,6 +1,5 @@
 package nl.utwente.horus
 
-import org.springframework.security.core.context.SecurityContextHolder
 import nl.utwente.horus.auth.tokens.TokenFactory
 import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.auth.HorusUserDetails
@@ -8,6 +7,7 @@ import org.junit.Assert
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContext
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.test.context.support.WithSecurityContextFactory
 
 

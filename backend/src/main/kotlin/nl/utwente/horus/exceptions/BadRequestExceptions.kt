@@ -11,7 +11,10 @@ class DuplicateEntityRequestException : BadRequestException("The same entity was
 
 class EmptyListException : BadRequestException("List parameter should have at least one entry.")
 
+class NoCanvasEntityException : BadRequestException("The entity was attempted to be associated to Canvas, but no references to Canvas could be found.")
+
 class DuplicateNameException : BadRequestException("An entity was attempted to be given a name which is already taken.")
+
 // Course-related
 class WrongCourseException : BadRequestException("This entity does not belong to the indicated course.")
 
@@ -57,3 +60,11 @@ class AssignedSupplementaryRoleException: BadRequestException("Supplementary rol
 class SupplementaryRoleNotAssignedException : BadRequestException("Supplementary role was requested to be removed, but no assignment was found.")
 
 class PermissionAlreadyGrantedException : BadRequestException("This permission was already granted to this (supplementary) role.")
+
+// Sheet import-related
+class MalformedSheetException(message: String) : BadRequestException(message)
+
+class InvalidSheetError(errors: List<String>) : BadRequestException("Sheet could not be uploaded due to the following: " + errors.joinToString("\n"))
+
+// Job-related
+class UndeletableJobException : BadRequestException("Job is scheduled to run or running and cannot be deleted yet.")

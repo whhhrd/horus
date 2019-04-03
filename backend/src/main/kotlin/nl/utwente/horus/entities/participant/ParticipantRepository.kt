@@ -18,5 +18,7 @@ interface ParticipantRepository: JpaRepository<Participant, Long> {
 
     fun findParticipantByPersonIdAndCourseId(personId: Long, courseId: Long): Participant?
 
-    fun findAllByPersonIdInAndCourseId(personIds: Collection<Long>, courseId: Long): List<Participant>
+    fun findAllByPersonIdInAndCourseId(personIds: Collection<Long>, courseId: Long): Stream<Participant>
+
+    fun findAllByPersonLoginIdInAndCourseId(loginIds: Collection<String>, courseId: Long): Stream<Participant>
 }

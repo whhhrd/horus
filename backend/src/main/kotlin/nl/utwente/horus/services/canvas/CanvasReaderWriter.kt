@@ -81,4 +81,28 @@ class CanvasReaderWriter {
         return reader.showUserDetails("self").unwrap()
     }
 
+    fun createGroupCategory(name: String, externalCourseId: String, numberGroups: Int, groupSize: Int): GroupCategory {
+        val writer = factory.getWriter(GroupCategoryWriter::class.java, token)
+        val category = GroupCategory()
+        category.name = name
+        category.ceateGroupCount = numberGroups
+        category.groupLimit = groupSize
+        val result = writer.createGroupCategory(category, externalCourseId.toInt())
+        return result.get()
+    }
+
+    fun createGroupInCategory(name: String, externalCategoryId: String): Group {
+        val writer = factory.getWriter(GroupWriter::class.java, token)
+        val group = Group()
+        group.name = name
+        val result = writer.createGroupInCategory(group, externalCategoryId.toInt())
+        return result.get()
+    }
+
+    fun addGroupMembership(externalGroupId: String, canvasUserId: Int): GroupMembership {
+        val writer = factory.getWriter(GroupMembershipWriter::class.java, token)
+        val result = writer.createMembership(externalGroupId.toInt(), canvasUserId)
+        return result.get()
+    }
+
 }

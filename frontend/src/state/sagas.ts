@@ -14,6 +14,7 @@ import labelsSaga from "./labels/sagas";
 import rolesSagas from "./roles/sagas";
 import queuingSagas from "./queuing/sagas";
 import roomsSagas from "./rooms/sagas";
+import jobsSagas from "./jobs/sagas";
 
 export default function* rootSaga() {
     yield* authSagas();
@@ -32,4 +33,5 @@ export default function* rootSaga() {
     yield* rolesSagas();
     yield* queuingSagas();
     yield* roomsSagas();
+    yield* jobsSagas();
 }

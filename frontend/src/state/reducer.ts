@@ -20,6 +20,7 @@ import studentDashboardReducer from "./student-dashboard/reducer";
 import labelsReducer from "./labels/reducer";
 import rolesReducer from "./roles/reducer";
 import roomsReducer from "./rooms/reducer";
+import jobsReducer from "./jobs/reducer";
 
 // TODO: implement cleaning the state on log out.
 export const rootReducer = (history: History) => combineReducers<ApplicationState>({
@@ -41,4 +42,5 @@ export const rootReducer = (history: History) => combineReducers<ApplicationStat
     labels: labelsReducer,
     roles: rolesReducer,
     rooms: roomsReducer,
+    jobs: jobsReducer,
 } as any);

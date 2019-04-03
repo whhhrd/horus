@@ -9,5 +9,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 interface LabelRepository: JpaRepository<Label, Long> {
 
+    fun getByCourseAndName(course: Course, name: String): Label?
+
     fun existsLabelByCourseAndName(course: Course, name: String): Boolean
 }

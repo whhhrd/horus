@@ -6,8 +6,7 @@ import {
     CanvasImportAction,
     CanvasRefreshSetsListRequestedAction,
     CanvasRefreshSetRequestedAction,
-    canvasRefreshSetsListRequestSucceededAction,
-    canvasRefreshSetRequestSucceededAction,
+    CanvasGroupSetImportRequestedAction,
 } from "./actions";
 
 import { authenticatedFetchJSON } from "../../api";
@@ -20,16 +19,24 @@ import {
     CANVAS_COURSES_REQUESTED_ACTION,
     CANVAS_REFRESH_SETS_LIST_REQUESTED_ACTION,
     CANVAS_REFRESH_SET_REQUESTED_ACTION,
+    CANVAS_IMPORT_GROUP_SET_REQUESTED_ACTION,
 } from "./constants";
 
-import { notifyInfo, notifyError, notifySuccess } from "../notifications/constants";
+import {
+    notifyInfo,
+    notifyError,
+    notifySuccess,
+} from "../notifications/constants";
 import { push } from "connected-react-router";
 import { PATH_CANVAS_IMPORT, PATH_CANVAS_TOKEN } from "../../routes";
 import { BooleanResultDto, CanvasCourseDto } from "../../api/types";
+import { jobAddAction } from "../jobs/action";
 
 export function* submitToken(action: TokenSubmittedAction) {
     try {
-        yield call(authenticatedFetchJSON, "POST", "canvas", null, { token: action.token });
+        yield call(authenticatedFetchJSON, "POST", "canvas", null, {
+            token: action.token,
+        });
         yield put(push(PATH_CANVAS_IMPORT));
     } catch (e) {
         yield put(notifyError("Token submit failed"));
@@ -38,19 +45,30 @@ export function* submitToken(action: TokenSubmittedAction) {
 
 export function* importCourse(action: CanvasImportAction) {
     try {
-        yield put(notifyInfo("Course import started..."));
-        yield call(authenticatedFetchJSON, "POST", `canvas/${action.courseId}`);
-        yield put(notifySuccess("Canvas course import succeeded!", false));
+        yield put(
+            notifyInfo(
+                "Course import started. See the 'Processes' page for more information.",
+            ),
+        );
+        const result = yield call(
+            authenticatedFetchJSON,
+            "POST",
+            `canvas/${action.courseId}`,
+        );
+        yield put(jobAddAction(result));
     } catch (e) {
         yield put(notifyError("Canvas import failed", false));
     }
     yield put(importCanvasCourseFinishedAction(action.courseId));
-
 }
 
 export function* checkAndRedirectImport() {
     try {
-        const result: BooleanResultDto = yield call(authenticatedFetchJSON, "GET", "canvas/tokenValid");
+        const result: BooleanResultDto = yield call(
+            authenticatedFetchJSON,
+            "GET",
+            "canvas/tokenValid",
+        );
         if (result.result) {
             yield put(push(PATH_CANVAS_IMPORT));
         }
@@ -61,7 +79,11 @@ export function* checkAndRedirectImport() {
 
 export function* retrieveCourses() {
     try {
-        const result: CanvasCourseDto[] = yield call(authenticatedFetchJSON, "GET", "canvas");
+        const result: CanvasCourseDto[] = yield call(
+            authenticatedFetchJSON,
+            "GET",
+            "canvas",
+        );
         yield put(canvasCoursesRequestSucceeededAction(result));
     } catch (e) {
         yield put(notifyError("Failed to retrieve courses from Canvas"));
@@ -70,7 +92,11 @@ export function* retrieveCourses() {
 
 export function* checkAndRedirectToken() {
     try {
-        const result: BooleanResultDto = yield call(authenticatedFetchJSON, "GET", "canvas/tokenValid");
+        const result: BooleanResultDto = yield call(
+            authenticatedFetchJSON,
+            "GET",
+            "canvas/tokenValid",
+        );
         if (!result.result) {
             yield put(push(PATH_CANVAS_TOKEN));
         } else {
@@ -83,32 +109,71 @@ export function* checkAndRedirectToken() {
 
 export function* refreshSetsList(action: CanvasRefreshSetsListRequestedAction) {
     try {
-        const result = yield call(authenticatedFetchJSON, "PUT", `canvas/${action.courseId}/sets`);
-        yield put(canvasRefreshSetsListRequestSucceededAction(result));
-        yield put(notifySuccess("Succesfully synchronized Canvas group sets"));
-        // TODO update state
+        yield call(
+            authenticatedFetchJSON,
+            "PUT",
+            `canvas/${action.courseId}/sets`,
+        );
+        yield put(notifySuccess("Succesfully retrieved group sets"));
     } catch (e) {
-        yield put(notifyError("Failed to synchronized Canvas group sets"));
+        yield put(notifyError("Failed to retrieve Canvas group sets"));
     }
 }
 
 export function* refreshSet(action: CanvasRefreshSetRequestedAction) {
     try {
-        const result = yield call(authenticatedFetchJSON, "PUT", `canvas/${action.courseId}/sets/${action.groupSetId}`);
-        yield put(canvasRefreshSetRequestSucceededAction(result));
-        yield put(notifySuccess("Succesfully synchronized Canvas group"));
-        // TODO update state
+        yield put(
+            notifyInfo(
+                "Retrieving groups. See the 'Processes' page for more information.",
+            ),
+        );
+        const result = yield call(
+            authenticatedFetchJSON,
+            "PUT",
+            `canvas/${action.courseId}/sets/${action.groupSetId}`,
+        );
+        yield put(jobAddAction(result));
     } catch (e) {
-        yield put(notifyError("Failed to synchronized Canvas group"));
+        yield put(notifyError("Failed to retrieve Canvas groups"));
+    }
+}
+
+export function* importGroupSet(action: CanvasGroupSetImportRequestedAction) {
+    try {
+        yield put(
+            notifyInfo(
+                "Importing group set. See the 'Processes' page for more information.",
+            ),
+        );
+        const result = yield call(
+            authenticatedFetchJSON,
+            "POST",
+            `canvas/${action.courseId}/sets`,
+            null,
+            action.formData,
+            {},
+            {},
+            true,
+        );
+        yield put(jobAddAction(result));
+    } catch (e) {
+        yield put(notifyError("Failed to import group set to Canvas"));
     }
 }
 
 export default function* canvasSaga() {
     yield takeEvery(TOKEN_SUBMITTED_ACTION, submitToken);
     yield takeEvery(IMPORT_CANVAS_COURSE_REQUESTED_ACTION, importCourse);
-    yield takeEvery(CHECK_TOKEN_AND_REDIRECT_IMPORT_ACTION, checkAndRedirectImport);
-    yield takeEvery(CHECK_TOKEN_AND_REDIRECT_TOKEN_ACTION, checkAndRedirectToken);
+    yield takeEvery(
+        CHECK_TOKEN_AND_REDIRECT_IMPORT_ACTION,
+        checkAndRedirectImport,
+    );
+    yield takeEvery(
+        CHECK_TOKEN_AND_REDIRECT_TOKEN_ACTION,
+        checkAndRedirectToken,
+    );
     yield takeEvery(CANVAS_COURSES_REQUESTED_ACTION, retrieveCourses);
     yield takeEvery(CANVAS_REFRESH_SETS_LIST_REQUESTED_ACTION, refreshSetsList);
     yield takeEvery(CANVAS_REFRESH_SET_REQUESTED_ACTION, refreshSet);
+    yield takeEvery(CANVAS_IMPORT_GROUP_SET_REQUESTED_ACTION, importGroupSet);
 }

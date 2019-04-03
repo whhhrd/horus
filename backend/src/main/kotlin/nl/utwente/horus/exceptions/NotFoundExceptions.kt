@@ -31,3 +31,5 @@ class SignOffResultNotFoundException : EntityNotFoundException("Sign off result 
 class SupplementaryRoleNotFoundException : EntityNotFoundException("Supplementary role could not be found.")
 
 class PermissionNotFoundException: EntityNotFoundException("Permission string was well-formed, but does not exist as an entity.")
+
+class JobNotFoundException : EntityNotFoundException("Job with given UUID could not be found.")

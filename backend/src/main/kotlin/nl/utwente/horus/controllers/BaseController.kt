@@ -26,6 +26,9 @@ import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.comment.CommentService
 import nl.utwente.horus.services.course.CourseService
 import nl.utwente.horus.services.group.GroupService
+import nl.utwente.horus.services.job.BatchJob
+import nl.utwente.horus.services.job.BatchJobExecutor
+import nl.utwente.horus.services.job.JobCall
 import nl.utwente.horus.services.participant.LabelService
 import nl.utwente.horus.services.participant.ParticipantService
 import nl.utwente.horus.services.signoff.SignOffService
@@ -69,6 +72,9 @@ abstract class BaseController {
 
     @Autowired
     private lateinit var signOffService: SignOffService
+
+    @Autowired
+    private lateinit var batchJobExecutor: BatchJobExecutor
 
     data class EntityBundle<T>(
             val fetcher: EntityFetcher<T>,
@@ -290,5 +296,10 @@ abstract class BaseController {
         val dto = ParticipantDtoFull(p)
         dto.labels = emptyList()
         return dto
+    }
+
+    fun executeAsBatchJob(description: String, call: JobCall): BatchJob {
+        val issuer = userDetailService.getCurrentPerson()
+        return batchJobExecutor.startAddBatchJob(description, issuer, call)
     }
 }

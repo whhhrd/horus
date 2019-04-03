@@ -3,21 +3,14 @@ package nl.utwente.horus.auth.tokens
 import nl.utwente.horus.HorusConfigurationProperties
 import nl.utwente.horus.auth.util.JWTUtil
 import nl.utwente.horus.auth.util.RandomStringUtil
-import nl.utwente.horus.entities.auth.AuthCode
 import nl.utwente.horus.entities.person.Person
 import nl.utwente.horus.services.auth.AuthCodeService
 import nl.utwente.horus.services.auth.RefreshTokenService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.crypto.codec.Hex
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.security.SecureRandom
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.*
 
 /**
  * TokenFactory generates tokens based on configuration data using the JWTUtil helper class.

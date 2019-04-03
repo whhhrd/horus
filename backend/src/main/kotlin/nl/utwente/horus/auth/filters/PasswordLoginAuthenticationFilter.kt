@@ -6,16 +6,15 @@ import nl.utwente.horus.auth.tokens.UsernamePasswordToken
 import nl.utwente.horus.auth.util.HttpUtil
 import nl.utwente.horus.representations.auth.PasswordLoginRequest
 import org.springframework.http.HttpMethod
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
 import org.springframework.security.web.util.matcher.RequestMatcher
+import org.springframework.web.server.MethodNotAllowedException
+import java.util.*
 import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.authentication.BadCredentialsException
-import org.springframework.web.server.MethodNotAllowedException
-import java.util.*
 
 /**
  * PasswordLoginAuthenticationFilter parses a PasswordLoginRequest in the request body,

@@ -1,5 +1,6 @@
 package nl.utwente.horus.services.participant
 
+import nl.utwente.horus.entities.auth.Role
 import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.participant.*
@@ -84,12 +85,13 @@ class ParticipantService {
         return person.participations.firstOrNull { it.course.id == courseId } ?: throw NoParticipantException()
     }
 
-    fun getParticipationsInCourse(personIds: Set<Long>, courseId: Long): List<Participant> {
+    fun getParticipationsInCourse(personIds: Set<Long>, courseId: Long): Stream<Participant> {
         val result = participantRepository.findAllByPersonIdInAndCourseId(personIds, courseId)
-        if (personIds.size != result.size) {
-            throw ParticipantNotFoundException()
-        }
         return result
+    }
+
+    fun getParticipationsInCourseByLoginId(loginIds: Set<String>, courseId: Long): Stream<Participant> {
+        return participantRepository.findAllByPersonLoginIdInAndCourseId(loginIds, courseId)
     }
 
     fun getCourseParticipationsStream(course: Course): Stream<Participant> {
@@ -98,11 +100,10 @@ class ParticipantService {
 
     fun createParticipant(courseId: Long, dto: ParticipantCreateDto): Participant {
         return createParticipant(personService.getPersonById(dto.personId),
-                courseService.getCourseById(courseId), dto.roleId)
+                courseService.getCourseById(courseId), roleService.getRoleById(dto.roleId))
     }
 
-    fun createParticipant(person: Person, course: Course, roleId: Long): Participant {
-        val role = roleService.getRoleById(roleId)
+    fun createParticipant(person: Person, course: Course, role: Role): Participant {
         val participant = participantRepository.save(Participant(person, course, role))
         course.participants.add(participant)
         person.participations.add(participant)

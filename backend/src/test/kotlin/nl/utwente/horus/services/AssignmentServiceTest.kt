@@ -15,6 +15,7 @@ import nl.utwente.horus.representations.assignment.AssignmentSetCreateDto
 import nl.utwente.horus.representations.assignment.AssignmentSetUpdateDto
 import nl.utwente.horus.representations.course.CourseCreateDto
 import nl.utwente.horus.services.assignment.AssignmentService
+import nl.utwente.horus.services.auth.RoleService
 import nl.utwente.horus.services.comment.CommentService
 import nl.utwente.horus.services.course.CourseService
 import nl.utwente.horus.services.group.GroupService
@@ -46,6 +47,9 @@ class AssignmentServiceTest : HorusAbstractTest() {
 
     @Autowired
     lateinit var commentService: CommentService
+
+    @Autowired
+    lateinit var roleService: RoleService
 
     @Test
     @WithLoginId(TEACHER_LOGIN)
@@ -103,7 +107,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
         // Then create a new person and add it to the course
         val newPerson = personService.createPerson("s9128734",
                 "Person123 Test", "Person123", "Test, Person123","person123@te.st")
-        val newParticipant = participantService.createParticipant(newPerson, ppCourse, 1L)
+        val newParticipant = participantService.createParticipant(newPerson, ppCourse, roleService.getStudentRole())
 
         // Check if initially the participant does not participate in any assignment sets
         val initialAssignmentSets = assignmentService.getAssignmentSetsByParticipant(newParticipant)
@@ -550,7 +554,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
         assertFalse(assignmentService.isPersonMappedToAssignmentSet(person, assignmentSet))
 
         // Then add the person to the course, and check if it is still not mapped to the assignment set
-        val participant = participantService.createParticipant(person, course, 1L)
+        val participant = participantService.createParticipant(person, course, roleService.getStudentRole())
         assertFalse(assignmentService.isPersonMappedToAssignmentSet(person, assignmentSet))
 
         // Finally check if after assigning the person to a group set linked to an assignment set,
@@ -591,7 +595,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
         // To do this, first create an assignment set with no assignments assigned to it
         val newCourse = CourseCreateDto("SampleTestCourse", "STC-CC-999", "STC-EID-999")
         val course = courseService.createCourse(newCourse)
-        val participant = participantService.createParticipant(getCurrentPerson(), course, 2L)
+        val participant = participantService.createParticipant(getCurrentPerson(), course, roleService.getTeacherRole())
         val newEmptyAssignmentSet = AssignmentSetCreateDto("STC-AS-999")
         val emptyAssignmentSet = assignmentService.createAssignmentSet(participant, course, newEmptyAssignmentSet)
 
@@ -652,7 +656,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
         // Create a new course, participant and assignment set and link them
         val newCourse = CourseCreateDto("SampleTestCourse", "STC-CC-999", "STC-EID-999")
         val course = courseService.createCourse(newCourse)
-        val participant = participantService.createParticipant(creatorPerson, course, 2L)
+        val participant = participantService.createParticipant(creatorPerson, course, roleService.getTeacherRole())
         val newAssignmentSet = AssignmentSetCreateDto("STC-AS-999")
         val assignmentSet = assignmentService.createAssignmentSet(participant, course, newAssignmentSet)
 

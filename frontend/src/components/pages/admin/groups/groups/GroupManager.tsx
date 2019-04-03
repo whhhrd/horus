@@ -102,7 +102,7 @@ class GroupManager extends Component<
 
         const course = this.props.course(this.props.match.params.cid);
 
-        if (course === null || !canViewGroups || groups == null) {
+        if (course == null || !canViewGroups || groups == null) {
             return null;
         } else {
             return (

@@ -7,6 +7,7 @@ import nl.utwente.horus.exceptions.CourseNotFoundException
 import nl.utwente.horus.exceptions.ParticipantNotFoundException
 import nl.utwente.horus.representations.course.CourseCreateDto
 import nl.utwente.horus.representations.course.CourseUpdateDto
+import nl.utwente.horus.services.auth.RoleService
 import nl.utwente.horus.services.course.CourseService
 import nl.utwente.horus.services.participant.ParticipantService
 import nl.utwente.horus.services.participant.SupplementaryRoleService
@@ -35,6 +36,9 @@ class CourseServiceTest : HorusAbstractTest() {
 
     @Autowired
     private lateinit var supplementaryRoleService: SupplementaryRoleService
+
+    @Autowired
+    private lateinit var roleService: RoleService
 
     @Test
     @WithLoginId(TEACHER_LOGIN)
@@ -230,7 +234,7 @@ class CourseServiceTest : HorusAbstractTest() {
 
         // Then add a participant to the course, and verify if actually added
         val person = getCurrentPerson()
-        participantService.createParticipant(person, course, 2L)
+        participantService.createParticipant(person, course, roleService.getTeacherRole())
         val newParticipants = courseService.getParticipantsOfCourse(course.id)
         assertEquals(1, newParticipants.size)
         assertEquals(person, newParticipants[0].person)
@@ -250,7 +254,7 @@ class CourseServiceTest : HorusAbstractTest() {
 
         // But after becoming a participant, verify if participant can be retrieved
         val person = getCurrentPerson()
-        participantService.createParticipant(person, course, 2L)
+        participantService.createParticipant(person, course, roleService.getTeacherRole())
         val participant = courseService.getCurrentParticipationInCourse(course)
         assertEquals(person, participant.person)
     }
