@@ -35,6 +35,7 @@ class Notification extends Component<NotificationProps, NotificationLocalState> 
 
     componentDidMount() {
         if (this.props.notification.fadeAway) {
+            // @ts-ignore
             timerId = setTimeout(() => {
                 this.setState((_) => ({ visible: false }));
                 this.props.dismissNotification(this.props.notification.id);

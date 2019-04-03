@@ -32,12 +32,12 @@ module.exports = {
         secure: false
       },
       '/ws': {
-        target: 'http://localhost:8080',
-        secure: false
+        target: 'ws://localhost:8080',
+        secure: false,
+        ws: true
       }
     }
   },
-
   plugins: [
     new HtmlWebpackPlugin({ inject: true, template: path.join(APP_PATH, 'index.html') }),
     new ForkTsCheckerWebpackPlugin()

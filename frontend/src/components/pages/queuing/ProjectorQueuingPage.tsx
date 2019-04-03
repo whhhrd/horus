@@ -146,11 +146,17 @@ class ProjectorQueuingPage extends Component<
     // TODO proper error handling and recovering connection
     private connect() {
         // TODO remove this crap when not needed anymore
-        const host = `ws${location.protocol === "https:" ? "s" : ""}://${
-            location.hostname
-        }:${
-            location.port === "8081" ? "8080" : location.port
-        }/ws/queuing/rooms/${this.props.match.params.rid}/feed`;
+        let protocol = "ws";
+        if (location.protocol === "https:") {
+            protocol = protocol + "s";
+        }
+        let port = "";
+        if (location.port === "8081") {
+            port = ":8080";
+        } else if (location.port.length > 0) {
+            port = ":" + location.port;
+        }
+        const wsUrl = `${protocol}://${location.hostname}${port}/ws/queuing/rooms/${this.props.match.params.rid}/feed`;
         if (this.sock != null) {
             this.sock.close();
             this.sock.removeEventListener("open", this.onSockOpen);
@@ -158,7 +164,7 @@ class ProjectorQueuingPage extends Component<
             this.sock.removeEventListener("message", this.onSockMessage);
             this.sock.removeEventListener("error", this.onSockError);
         }
-        this.sock = new WebSocket(host);
+        this.sock = new WebSocket(wsUrl);
         this.sock.addEventListener("open", this.onSockOpen);
         this.sock.addEventListener("close", this.onSockClose);
         this.sock.addEventListener("message", this.onSockMessage);
