@@ -14,6 +14,8 @@ import {
     ListGroupItem,
     Badge,
 } from "reactstrap";
+import QueueTimeBadge from "./QueueTimeBadge";
+import { gradientColor } from "../../util";
 
 interface QueueProps {
     title: string;
@@ -24,7 +26,10 @@ interface QueueProps {
     onDeleteQueue?: () => any;
     onAcceptNext?: () => any;
 }
+
 export default class Queue extends Component<QueueProps> {
+    static UNACCEPTABLE_QUEUE_LENGTH = 15;
+
     render() {
         const {
             entries,
@@ -32,8 +37,11 @@ export default class Queue extends Component<QueueProps> {
             onDeleteQueue,
             mode,
             onAcceptNext,
+            currentParticipant,
         } = this.props;
         const numOfEntries = entries.length;
+
+        const progress = Math.max(0, 100 - 100 * numOfEntries / Queue.UNACCEPTABLE_QUEUE_LENGTH);
 
         return (
             <Col xs="12" lg="6" xl="4" className="mb-3">
@@ -45,7 +53,7 @@ export default class Queue extends Component<QueueProps> {
                             </div>
                             <Badge
                                 pill
-                                color="success"
+                                style={{backgroundColor: gradientColor(progress).borderColor}}
                                 className="d-none d-lg-inline-block ellipsis mr-2"
                             >
                                 {numOfEntries} in queue
@@ -66,17 +74,20 @@ export default class Queue extends Component<QueueProps> {
                                             <FontAwesomeIcon icon={faEdit} />
                                         </Button>
                                     )}
-                                    {mode === QueuingMode.TA && onDeleteQueue != undefined && (
-                                        <Button
-                                            title="Delete queue"
-                                            outline
-                                            color="danger"
-                                            className="ml-2"
-                                            onClick={onDeleteQueue}
-                                        >
-                                            <FontAwesomeIcon icon={faTimes} />
-                                        </Button>
-                                    )}
+                                    {mode === QueuingMode.TA &&
+                                        onDeleteQueue != null && (
+                                            <Button
+                                                title="Delete queue"
+                                                outline
+                                                color="danger"
+                                                className="ml-2"
+                                                onClick={onDeleteQueue}
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={faTimes}
+                                                />
+                                            </Button>
+                                        )}
                                 </div>
                             )}
                         </CardTitle>
@@ -89,21 +100,22 @@ export default class Queue extends Component<QueueProps> {
                         )}
                         {numOfEntries > 0 && (
                             <div>
-                                {mode === QueuingMode.TA && onAcceptNext != undefined && (
-                                    <Button
-                                        color="success"
-                                        block
-                                        size="sm"
-                                        className="mb-2 mt-2"
-                                        onClick={onAcceptNext}
-                                    >
-                                        <FontAwesomeIcon
-                                            className="mr-3"
-                                            icon={faCheck}
-                                        />
-                                        Accept next
-                                    </Button>
-                                )}
+                                {mode === QueuingMode.TA &&
+                                    onAcceptNext != null && (
+                                        <Button
+                                            color="success"
+                                            block
+                                            size="sm"
+                                            className="mb-2 mt-2"
+                                            onClick={onAcceptNext}
+                                        >
+                                            <FontAwesomeIcon
+                                                className="mr-3"
+                                                icon={faCheck}
+                                            />
+                                            Accept next
+                                        </Button>
+                                    )}
                                 <div
                                     style={{
                                         maxHeight: "500px",
@@ -114,7 +126,7 @@ export default class Queue extends Component<QueueProps> {
                                         {entries.map(
                                             (entry: QueueEntry, i: number) => (
                                                 <ListGroupItem
-                                                    key={entry.participantId}
+                                                    key={entry.participant.id}
                                                     className={`d-flex px-0 align-items-center
                                                         justify-content-between py-2
                                                         border-right-0 border-left-0 ${
@@ -128,44 +140,67 @@ export default class Queue extends Component<QueueProps> {
                                                     }`}
                                                 >
                                                     <div className="d-inline-block ellipsis mr-2">
-                                                        {entry.name}
+                                                        {
+                                                            entry.participant
+                                                                .fullName
+                                                        }
                                                     </div>
-                                                    {this.props.mode ===
-                                                        QueuingMode.TA && (
-                                                        <div className="d-flex flex-nowrap">
-                                                            <Button
-                                                                size="sm"
-                                                                color="success"
-                                                                className="px-4"
-                                                                onClick={
-                                                                    entry.onAccept
-                                                                }
-                                                            >
-                                                                <FontAwesomeIcon
-                                                                    size="sm"
-                                                                    icon={
-                                                                        faCheck
+                                                    <div className="d-flex flex-row justify-content-center flex-nowrap">
+                                                        {(i === 0 ||
+                                                            (currentParticipant !=
+                                                                null &&
+                                                                entry
+                                                                    .participant
+                                                                    .id ===
+                                                                    currentParticipant
+                                                                        .id)) && (
+                                                            <div className="mr-3">
+                                                                <QueueTimeBadge
+                                                                    addedAt={
+                                                                        entry
+                                                                            .participant
+                                                                            .addedAt
                                                                     }
                                                                 />
-                                                            </Button>
-                                                            <Button
-                                                                color="danger"
-                                                                outline
-                                                                size="sm"
-                                                                className="ml-2 px-3"
-                                                                onClick={
-                                                                    entry.onDeny
-                                                                }
-                                                            >
-                                                                <FontAwesomeIcon
+                                                            </div>
+                                                        )}
+                                                        {this.props.mode ===
+                                                            QueuingMode.TA && (
+                                                            <div className="d-flex flex-nowrap">
+                                                                <Button
                                                                     size="sm"
-                                                                    icon={
-                                                                        faTimes
+                                                                    color="success"
+                                                                    className="px-4"
+                                                                    onClick={
+                                                                        entry.onAccept
                                                                     }
-                                                                />
-                                                            </Button>
-                                                        </div>
-                                                    )}
+                                                                >
+                                                                    <FontAwesomeIcon
+                                                                        size="sm"
+                                                                        icon={
+                                                                            faCheck
+                                                                        }
+                                                                    />
+                                                                </Button>
+                                                                <Button
+                                                                    color="danger"
+                                                                    outline
+                                                                    size="sm"
+                                                                    className="ml-2 px-3"
+                                                                    onClick={
+                                                                        entry.onDeny
+                                                                    }
+                                                                >
+                                                                    <FontAwesomeIcon
+                                                                        size="sm"
+                                                                        icon={
+                                                                            faTimes
+                                                                        }
+                                                                    />
+                                                                </Button>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </ListGroupItem>
                                             ),
                                         )}
@@ -184,11 +219,11 @@ export default class Queue extends Component<QueueProps> {
         if (
             mode === QueuingMode.Student &&
             currentParticipant != null &&
-            onJoinQueue != undefined
+            onJoinQueue != null
         ) {
             const entry = entries.find(
                 (qentry: QueueEntry) =>
-                    qentry.participantId === currentParticipant!.id,
+                    qentry.participant.id === currentParticipant!.id,
             );
 
             if (entry == null) {

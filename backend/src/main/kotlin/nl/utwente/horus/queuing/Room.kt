@@ -33,6 +33,10 @@ class Room {
 
     private val scheduler = Schedulers.parallel()
 
+    companion object {
+        const val HISTORY_SIZE = 5
+    }
+
 
     constructor(courseId: Long, code: String, name: String) {
         this.courseId = courseId
@@ -162,9 +166,10 @@ class Room {
         }
     }
 
+
     private fun appendAcceptHistory(dto: AcceptDto) {
         withLock {
-            while(history.size > 0) {
+            while(history.size > HISTORY_SIZE - 1) {
                 history.removeLast()
             }
             history.addFirst(dto)

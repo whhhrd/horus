@@ -2,32 +2,26 @@ import { QueuingState } from "./types";
 import {
     UpdateReceivedAction,
     CurrentParticipantReceivedAction,
-    ResetReminderAction,
-    ResetNewAnnouncementAction,
 } from "./actions";
 import {
     UPDATE_RECEIVED_ACTION,
     HISTORY_SIZE,
     CURRENT_PARTICIPANT_RECEIVED_ACTION,
-    RESET_REMINDER_ACTION,
-    RESET_NEW_ANNOUNCEMENT_ACTION,
 } from "./constants";
 import {
     AcceptDto,
     QueueDto,
     ParticipantDto,
-    AnnouncementDto,
     AddAnnouncementDto,
     AddQueueDto,
     CloseRoomDto,
     DequeueDto,
     EditQueueDto,
     EnqueueDto,
-    RemindDto,
-    RemoveAnnouncementDto,
     RemoveQueueDto,
     InitialStateDto,
-    UpdateType,
+    RemoveAnnouncementDto,
+    AnnouncementDto,
 } from "../../api/types";
 
 const initialState: QueuingState = {
@@ -35,17 +29,11 @@ const initialState: QueuingState = {
     history: [],
     queues: [],
     room: null,
-    remind: null,
     participant: null,
-    newAnnouncement: null,
 };
 export default function queueReducer(
     state: QueuingState,
-    action:
-        | UpdateReceivedAction
-        | CurrentParticipantReceivedAction
-        | ResetReminderAction
-        | ResetNewAnnouncementAction,
+    action: UpdateReceivedAction | CurrentParticipantReceivedAction,
 ): QueuingState {
     if (state == null) {
         return initialState;
@@ -65,6 +53,12 @@ export default function queueReducer(
                         (action as UpdateReceivedAction)
                             .update as AddAnnouncementDto,
                     );
+                case "REMOVE_ANNOUNCEMENT":
+                    return removeAnnouncement(
+                        state,
+                        (action as UpdateReceivedAction)
+                            .update as RemoveAnnouncementDto,
+                    );
                 case "ADD_QUEUE":
                     return addQueue(state, (action as UpdateReceivedAction)
                         .update as AddQueueDto);
@@ -80,15 +74,6 @@ export default function queueReducer(
                 case "ENQUEUE":
                     return enqueue(state, (action as UpdateReceivedAction)
                         .update as EnqueueDto);
-                case "REMIND":
-                    return remind(state, (action as UpdateReceivedAction)
-                        .update as RemindDto);
-                case "REMOVE_ANNOUNCEMENT":
-                    return removeAnnouncement(
-                        state,
-                        (action as UpdateReceivedAction)
-                            .update as RemoveAnnouncementDto,
-                    );
                 case "REMOVE_QUEUE":
                     return removeQueue(state, (action as UpdateReceivedAction)
                         .update as RemoveQueueDto);
@@ -101,20 +86,11 @@ export default function queueReducer(
                 participant: (action as CurrentParticipantReceivedAction)
                     .participant,
             };
-        case RESET_REMINDER_ACTION:
-            return {
-                ...state,
-                remind: null,
-            };
-        case RESET_NEW_ANNOUNCEMENT_ACTION:
-            return {
-                ...state,
-                newAnnouncement: null,
-            };
         default:
             return state;
     }
 }
+
 function accept(state: QueuingState, acceptDto: AcceptDto) {
     // Add to top of history
     const newHistory = [acceptDto].concat(state.history);
@@ -127,11 +103,6 @@ function accept(state: QueuingState, acceptDto: AcceptDto) {
         return {
             ...state,
             history: newHistory,
-            remind: {
-                participant: acceptDto.participant,
-                roomCode: state.room!.code,
-                type: "REMIND" as UpdateType,
-            },
         };
     }
     return {
@@ -139,6 +110,7 @@ function accept(state: QueuingState, acceptDto: AcceptDto) {
         history: newHistory,
     };
 }
+
 function addAnnouncement(
     state: QueuingState,
     addAnnouncementDto: AddAnnouncementDto,
@@ -148,9 +120,9 @@ function addAnnouncement(
     return {
         ...state,
         announcements: newAnnouncements,
-        newAnnouncement: addAnnouncementDto.announcement,
     };
 }
+
 function addQueue(state: QueuingState, addQueueDto: AddQueueDto) {
     const newQueues = state.queues.slice();
     newQueues.push(addQueueDto.queue);
@@ -159,10 +131,12 @@ function addQueue(state: QueuingState, addQueueDto: AddQueueDto) {
         queues: newQueues,
     };
 }
+
 function closeRoom(state: QueuingState, _: CloseRoomDto) {
     // For now do nothing, until this is more clear
     return state;
 }
+
 function dequeue(state: QueuingState, dequeueDto: DequeueDto) {
     // Retrieve the corresponding queue
     const queueIndex = state.queues.findIndex(
@@ -185,6 +159,7 @@ function dequeue(state: QueuingState, dequeueDto: DequeueDto) {
         queues: newQueues,
     };
 }
+
 function editQueue(state: QueuingState, editQueueDto: EditQueueDto) {
     // Retrieve the corresponding queue
     const queueIndex = state.queues.findIndex(
@@ -198,6 +173,7 @@ function editQueue(state: QueuingState, editQueueDto: EditQueueDto) {
         queues: newQueues,
     };
 }
+
 function enqueue(state: QueuingState, enqueueDto: EnqueueDto) {
     // Retrieve the corresponding queue
     const queueIndex = state.queues.findIndex(
@@ -219,12 +195,7 @@ function enqueue(state: QueuingState, enqueueDto: EnqueueDto) {
         queues: newQueues,
     };
 }
-function remind(state: QueuingState, remindDto: RemindDto) {
-    return {
-        ...state,
-        remind: remindDto,
-    };
-}
+
 function removeAnnouncement(
     state: QueuingState,
     removeAnnouncementDto: RemoveAnnouncementDto,
@@ -238,6 +209,7 @@ function removeAnnouncement(
         announcements: newAnnouncements,
     };
 }
+
 function removeQueue(state: QueuingState, removeQueueDto: RemoveQueueDto) {
     const newQueues = state.queues.filter(
         (queue: QueueDto) => queue.id !== removeQueueDto.queueId,
@@ -247,6 +219,7 @@ function removeQueue(state: QueuingState, removeQueueDto: RemoveQueueDto) {
         queues: newQueues,
     };
 }
+
 function initial(state: QueuingState, initialStateDto: InitialStateDto) {
     return {
         ...state,

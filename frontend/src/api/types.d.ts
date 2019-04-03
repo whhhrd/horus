@@ -348,13 +348,17 @@ export interface ParticipantDto {
     id: number;
 }
 
+export interface QueueParticipantDto extends ParticipantDto {
+    addedAt: Date;
+}
+
 export interface QueueDto {
     assignmentSetId: number | null;
     courseId: number;
     createdAt: Date;
     id: string;
     name: string;
-    participants: ParticipantDto[];
+    participants: QueueParticipantDto[];
     roomCode: string;
 }
 
@@ -363,10 +367,6 @@ export type UpdateType = "INITIAL" | "ENQUEUE" | "DEQUEUE" | "ADD_QUEUE" | "EDIT
 export interface UpdateDto {
     roomCode: string;
     type: UpdateType;
-}
-
-export interface QueueParticipantDto extends ParticipantDto {
-    addedAt: Date;
 }
 
 export interface AcceptDto extends UpdateDto {

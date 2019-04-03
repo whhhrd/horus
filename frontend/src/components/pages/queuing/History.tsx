@@ -1,74 +1,170 @@
-import React, { Component } from "react";
-import { HistoryEntry, QueuingMode } from "../../../state/queuing/types";
-import { Table, Button } from "reactstrap";
+import { AcceptDto, QueueDto } from "../../../api/types";
+import {
+    RemindRequestedAction,
+    remindRequestedAction,
+} from "../../../state/queuing/actions";
+import { PureComponent } from "react";
+import { RouteComponentProps, withRouter } from "react-router";
+import { connect } from "react-redux";
+import { ApplicationState } from "../../../state/state";
+import { getHistory, getQueues } from "../../../state/queuing/selectors";
+import {
+    Col,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardBody,
+    Table,
+    Button,
+} from "reactstrap";
+import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell } from "@fortawesome/free-solid-svg-icons";
+import { faHistory, faBell } from "@fortawesome/free-solid-svg-icons";
 
 interface HistoryProps {
-    history: HistoryEntry[];
     size?: number;
-    mode?: QueuingMode;
+    taMode?: boolean;
+    roomHistory: AcceptDto[] | null;
+    queues: QueueDto[] | null;
+
+    remind: (
+        cid: number,
+        rid: string,
+        participantId: number,
+    ) => RemindRequestedAction;
 }
-export default class History extends Component<HistoryProps> {
+
+class History extends PureComponent<HistoryProps & RouteComponentProps<any>> {
     static defaultProps = {
         size: 5,
-        mode: QueuingMode.Student,
+        taMode: false,
     };
+
     render() {
-        const { history } = this.props;
-        if (history.length === 0) {
-            return (
-                <span className="text-muted">
-                    No activity in this room so far.
-                </span>
-            );
+        const { taMode, roomHistory, queues, size } = this.props;
+
+        if (queues == null || roomHistory == null) {
+            return null;
         }
 
         return (
-            <Table bordered>
-                <thead className="thead-light">
-                    <tr>
-                        <th>Student</th>
-                        <th>Teaching Assistant</th>
-                        <th>List</th>
-                        {this.props.mode === QueuingMode.TA && <th>Remind</th>}
-                    </tr>
-                </thead>
-                <tbody>{this.buildTableBody()}</tbody>
-            </Table>
+            <Col xs="12" lg="6" xl="4" className="mb-3">
+                <Card className="h-100">
+                    <CardHeader>
+                        <CardTitle>
+                            <FontAwesomeIcon
+                                icon={faHistory}
+                                className="mr-2"
+                            />{" "}
+                            Room history
+                        </CardTitle>
+                    </CardHeader>
+                    <CardBody className="py-0 px-0">
+                        {history.length > 0 ? (
+                            <div
+                                style={{
+                                    maxHeight: "500px",
+                                    overflow: "auto",
+                                }}
+                            >
+                                <Table className="mb-0 table-fixed">
+                                    <thead className="thead-light sign-off-table-top-row">
+                                        <tr>
+                                            <th>Student</th>
+                                            <th>TA</th>
+                                            <th>In Queue</th>
+                                            {taMode && <th />}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {roomHistory
+                                            .slice(0, size)
+                                            .map((h, i) => (
+                                                <tr
+                                                    key={
+                                                        i +
+                                                        h.accepter.fullName +
+                                                        h.participant.fullName
+                                                    }
+                                                >
+                                                    <td>
+                                                        {h.participant.fullName}
+                                                    </td>
+                                                    <td>
+                                                        {h.accepter.fullName}
+                                                    </td>
+                                                    <td>
+                                                        {queues.find(
+                                                            (q) =>
+                                                                q.id ===
+                                                                h.queueId,
+                                                        ) != null ? (
+                                                            queues.find(
+                                                                (q) =>
+                                                                    q.id ===
+                                                                    h.queueId,
+                                                            )!.name
+                                                        ) : (
+                                                            <span className="text-muted">
+                                                                deleted queue
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    {taMode && (
+                                                        <td>
+                                                            <Button
+                                                                title="Send a reminder to the student"
+                                                                outline
+                                                                color="primary"
+                                                                onClick={() =>
+                                                                    this.props.remind(
+                                                                        Number(
+                                                                            this
+                                                                                .props
+                                                                                .match
+                                                                                .params
+                                                                                .cid,
+                                                                        ),
+                                                                        h.roomCode,
+                                                                        h
+                                                                            .participant
+                                                                            .id,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <FontAwesomeIcon
+                                                                    icon={
+                                                                        faBell
+                                                                    }
+                                                                />
+                                                            </Button>
+                                                        </td>
+                                                    )}
+                                                </tr>
+                                            ))}
+                                    </tbody>
+                                </Table>
+                            </div>
+                        ) : (
+                            <span className="text-muted d-block p-3">
+                                No history in this room
+                            </span>
+                        )}
+                    </CardBody>
+                </Card>
+            </Col>
         );
     }
-    private buildTableBody() {
-        const result = [];
-        const { history, size } = this.props;
-        for (let i = 0; i < size!; i++) {
-            if (history.length > 0 && history[i] != null) {
-                result.push(
-                    <tr key={i}>
-                        <td>{history[i].student}</td>
-                        <td>{history[i].ta}</td>
-                        <td>{history[i].list}</td>
-                        {this.props.mode === QueuingMode.TA && (
-                            <td>
-                                <Button
-                                    color="primary"
-                                    outline
-                                    size="sm"
-                                    className="queue-history-remind"
-                                    onClick={history[i].onRemind}
-                                >
-                                    <FontAwesomeIcon
-                                        icon={faBell}
-                                        className="mr-2"
-                                    />
-                                    Notify
-                                </Button>
-                            </td>
-                        )}
-                    </tr>,
-                );
-            }
-        }
-        return result;
-    }
 }
+
+export default withRouter(
+    connect(
+        (state: ApplicationState) => ({
+            roomHistory: getHistory(state),
+            queues: getQueues(state),
+        }),
+        {
+            remind: remindRequestedAction,
+        },
+    )(History),
+);

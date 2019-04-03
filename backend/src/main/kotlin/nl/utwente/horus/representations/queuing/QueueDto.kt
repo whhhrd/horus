@@ -8,6 +8,6 @@ data class QueueDto(
         val roomCode: String,
         val assignmentSetId: Long?,
         val name: String,
-        var participants: List<ParticipantDto>,
+        var participants: List<QueueParticipantDto>,
         val createdAt: ZonedDateTime
 )

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import {
     QueuingMode,
     AcceptedParticipant,
@@ -10,11 +10,13 @@ import {
     AnnouncementDto,
     AcceptDto,
     QueueDto,
-    RemindDto,
-    ParticipantDto,
     UpdateDto,
     ParticipantDtoBrief,
     AssignmentSetDtoBrief,
+    QueueParticipantDto,
+    RemindDto,
+    UpdateType,
+    AddAnnouncementDto,
 } from "../../../api/types";
 import {
     announcementCreatedAction,
@@ -35,10 +37,6 @@ import {
     EnterQueueAction,
     queueRemovedAction,
     QueueRemovedAction,
-    resetReminderAction,
-    ResetReminderAction,
-    resetNewAnnouncementAction,
-    ResetNewAnnouncementAction,
     acceptNextAction,
     AcceptNextAction,
 } from "../../../state/queuing/actions";
@@ -46,11 +44,8 @@ import { withRouter, RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import {
     getAnnouncements,
-    getHistory,
     getQueues,
     getCurrentParticipant,
-    getNewAnnouncement,
-    getReminder,
 } from "../../../state/queuing/selectors";
 import { ApplicationState } from "../../../state/state";
 import { registration } from "../../..";
@@ -61,7 +56,11 @@ import {
 } from "../../../state/assignments/actions";
 import { getAssignmentSets } from "../../../state/assignments/selectors";
 import PopupModal from "./PopupModal";
-import { buildContent, buildBigCenterMessage, buildConnectingSpinner } from "../../pagebuilder";
+import {
+    buildContent,
+    buildBigCenterMessage,
+    buildConnectingSpinner,
+} from "../../pagebuilder";
 import { getRoom } from "../../../state/rooms/selectors";
 import {
     RoomsFetchRequestedAction,
@@ -74,23 +73,20 @@ import {
     faTimes,
     faPlus,
     faBullhorn,
-    faHistory,
+    faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
 import QueueCreateModal from "./QueueCreateModal";
 import AnnouncementCreateModal from "./AnnouncementCreateModal";
 import AnnouncementDeleteModal from "./AnnouncementDeleteModal";
 import QueueDeleteModal from "./QueueDeleteModal";
-import HistoryModal from "./HistoryModal";
+import History from "./History";
 
 interface QueuingPageProps {
     announcements: AnnouncementDto[] | null;
-    queueHistory: AcceptDto[] | null;
     queues: QueueDto[] | null;
     room: (roomCode: string) => RoomDto | null;
-    reminder: RemindDto | null;
     participant: ParticipantDtoBrief | null;
     assignmentSets: AssignmentSetDtoBrief[] | null;
-    newAnnouncement: AnnouncementDto | null;
     fetchRooms: (courseId: number) => RoomsFetchRequestedAction;
     createAnnouncement: (
         rid: string,
@@ -127,8 +123,6 @@ interface QueuingPageProps {
     ) => QueueCreatedAction;
     enqueue: (cid: number, rid: string, qid: string) => EnterQueueAction;
     deleteQueue: (cid: number, rid: string, qid: string) => QueueRemovedAction;
-    resetReminder: () => ResetReminderAction;
-    resetNewAnnouncement: () => ResetNewAnnouncementAction;
     acceptNext: (cid: number, rid: string, qid: string) => AcceptNextAction;
 }
 
@@ -142,7 +136,8 @@ interface QueuingPageState {
     announcementCreateModalOpen: boolean;
     announcementToDelete: AnnouncementDto | null;
 
-    historyModalOpen: boolean;
+    newAnnouncement: AnnouncementDto | null;
+    reminder: RemindDto | null;
 }
 class QueuingPage extends Component<
     QueuingPageProps & RouteComponentProps<any>,
@@ -159,7 +154,8 @@ class QueuingPage extends Component<
             announcementToDelete: null,
             queueCreateModalOpen: false,
             queueToDelete: null,
-            historyModalOpen: false,
+            newAnnouncement: null,
+            reminder: null,
         };
         this.onSockClose = this.onSockClose.bind(this);
         this.onSockError = this.onSockError.bind(this);
@@ -173,7 +169,6 @@ class QueuingPage extends Component<
         );
         this.toggleQueueCreateModal = this.toggleQueueCreateModal.bind(this);
         this.toggleQueueDeleteModal = this.toggleQueueDeleteModal.bind(this);
-        this.toggleHistoryModal = this.toggleHistoryModal.bind(this);
         this.showNotification = this.showNotification.bind(this);
     }
 
@@ -199,17 +194,13 @@ class QueuingPage extends Component<
         }));
     }
 
-    toggleHistoryModal() {
-        this.setState((state) => ({
-            historyModalOpen: !state.historyModalOpen,
-        }));
-    }
-
     render() {
         const roomCode = this.props.match.params.rid;
         if (this.props.room(roomCode) != null) {
             return buildContent(
-                `Room: ${this.props.room(roomCode)!.name} (${this.props.room(roomCode)!.code})`,
+                `Room: ${this.props.room(roomCode)!.name} (${
+                    this.props.room(roomCode)!.code
+                })`,
                 this.buildContent(),
             );
         } else {
@@ -223,9 +214,6 @@ class QueuingPage extends Component<
         );
         this.props.fetchRooms(this.props.match.params.cid);
         this.props.requestAssignmentSets(Number(this.props.match.params.cid));
-        if ("Notification" in window && Notification.permission === "default") {
-            Notification.requestPermission();
-        }
         // Start listening to our service worker for responses to the notifications
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.addEventListener(
@@ -287,9 +275,9 @@ class QueuingPage extends Component<
                 );
                 const participant = queue!.participants[0];
                 this.showNotification("Someone entered a queue!", {
-                    body: `${
-                        participant.fullName
-                    } has added themself to the '${queue!.name}' queue!`,
+                    body: `${participant.fullName} has added themself to the '${
+                        queue!.name
+                    }' queue!`,
                     actions: [
                         {
                             action: "accept",
@@ -305,8 +293,8 @@ class QueuingPage extends Component<
         } else if (this.state.mode === QueuingMode.Student) {
             // If student will be helped or is reminded, he should get a notification
             if (
-                this.props.reminder != null &&
-                this.props.reminder.participant.id ===
+                this.state.reminder != null &&
+                this.state.reminder.participant.id ===
                     this.props.participant!.id
             ) {
                 this.showNotification("It is your turn!", {
@@ -328,9 +316,15 @@ class QueuingPage extends Component<
 
     private showNotification(title: string, options: NotificationOptions) {
         if (!document.hasFocus()) {
-            if (registration != null && typeof registration.showNotification === "function") {
+            if (
+                registration != null &&
+                typeof registration.showNotification === "function"
+            ) {
                 registration.showNotification(title, options);
-            } else if ("Notification" in window && Notification.permission === "granted") {
+            } else if (
+                "Notification" in window &&
+                Notification.permission === "granted"
+            ) {
                 // @ts-ignore
                 const _ = new Notification(title, options);
             }
@@ -338,27 +332,34 @@ class QueuingPage extends Component<
     }
 
     private buildPopup() {
-        if (
-            this.state.mode === QueuingMode.Student &&
-            this.props.newAnnouncement != null
-        ) {
+        const { mode, reminder, newAnnouncement } = this.state;
+        if (mode === QueuingMode.Student) {
             return (
-                <PopupModal
-                    isOpen={true}
-                    announcement={this.props.newAnnouncement.content}
-                    onCloseModal={() => this.props.resetNewAnnouncement()}
-                />
-            );
-        } else if (
-            this.state.mode === QueuingMode.Student &&
-            this.props.reminder != null &&
-            this.props.reminder!.participant.id === this.props.participant!.id
-        ) {
-            return (
-                <PopupModal
-                    onCloseModal={() => this.props.resetReminder()}
-                    isOpen={true}
-                />
+                <Fragment>
+                    {newAnnouncement != null && (
+                        <PopupModal
+                            isOpen={true}
+                            announcement={newAnnouncement}
+                            onCloseModal={() =>
+                                this.setState(() => ({ newAnnouncement: null }))
+                            }
+                            closeable
+                        />
+                    )}
+                    {reminder != null &&
+                        this.props.participant != null &&
+                        reminder.participant.id ===
+                            this.props.participant.id && (
+                            <PopupModal
+                                isOpen={true}
+                                onCloseModal={() =>
+                                    this.setState(() => ({ reminder: null }))
+                                }
+                                reminder={reminder}
+                                closeable
+                            />
+                        )}
+                </Fragment>
             );
         } else {
             return null;
@@ -370,7 +371,9 @@ class QueuingPage extends Component<
         // TODO remove this crap when not needed anymore
         const protocol = location.protocol === "https:" ? "wss" : "ws";
         const port = location.port.length > 0 ? `:${location.port}` : "";
-        const wsUrl = `${protocol}://${location.hostname}${port}/ws/queuing/rooms/${this.props.match.params.rid}/feed`;
+        const wsUrl = `${protocol}://${
+            location.hostname
+        }${port}/ws/queuing/rooms/${this.props.match.params.rid}/feed`;
         if (this.sock != null) {
             this.sock.close();
             this.sock.removeEventListener("open", this.onSockOpen);
@@ -401,7 +404,34 @@ class QueuingPage extends Component<
     }
 
     private onSockMessage(event: MessageEvent) {
-        this.props.updateReceived(JSON.parse(event.data));
+        const data = JSON.parse(event.data);
+        const type: UpdateType = data.type;
+
+        switch (type) {
+            case "ACCEPT": {
+                const reminder: RemindDto = {
+                    participant: (data as AcceptDto).participant,
+                    roomCode: (data as AcceptDto).roomCode,
+                    type,
+                };
+                this.setState(() => ({ reminder }));
+                break;
+            }
+            case "REMIND": {
+                const reminder: RemindDto = data as RemindDto;
+                this.setState(() => ({ reminder }));
+                break;
+            }
+            case "ADD_ANNOUNCEMENT": {
+                const newAnnouncement: AnnouncementDto = (data as AddAnnouncementDto)
+                    .announcement;
+                this.setState(() => ({ newAnnouncement }));
+                this.props.updateReceived(data);
+                break;
+            }
+            default:
+                this.props.updateReceived(data);
+        }
     }
 
     private onSockError() {
@@ -431,6 +461,42 @@ class QueuingPage extends Component<
         ) {
             return (
                 <div>
+                    {"Notification" in window &&
+                        Notification.permission !== "granted" && (
+                            <Alert color="danger">
+                                <FontAwesomeIcon
+                                    icon={faExclamationTriangle}
+                                    size="lg"
+                                    className="mr-3"
+                                />
+                                We highly recommend{" "}
+                                <a
+                                    className="border-bottom cursor-pointer border-dark text-dark"
+                                    onClick={() => {
+                                        Notification.requestPermission().then(
+                                            (p) => {
+                                                if (p === "granted") {
+                                                    window.location.reload();
+                                                }
+                                            },
+                                        );
+                                    }}
+                                >
+                                    allowing browser notifications
+                                </a>{" "}
+                                in order to effectively make use of the queuing
+                                system.
+                                <small className="ml-2">
+                                    <abbr
+                                        title="You can manually set the notification
+                                permissions by clicking the lock icon next to the URL. Make sure to refresh
+                                the page after you have made changes to the permissions."
+                                    >
+                                        More help
+                                    </abbr>
+                                </small>
+                            </Alert>
+                        )}
                     {this.buildTaTools()}
                     {this.buildAnnouncements()}
                     {this.buildQueues()}
@@ -438,10 +504,7 @@ class QueuingPage extends Component<
                 </div>
             );
         } else {
-            return buildBigCenterMessage(
-                "Unknown error occurred",
-                faTimes,
-            );
+            return buildBigCenterMessage("Unknown error occurred", faTimes);
         }
     }
 
@@ -454,8 +517,6 @@ class QueuingPage extends Component<
                 queueToDelete,
                 announcementCreateModalOpen,
                 announcementToDelete,
-                historyModalOpen,
-                mode,
             } = this.state;
             const {
                 assignmentSets,
@@ -483,17 +544,6 @@ class QueuingPage extends Component<
                             <FontAwesomeIcon icon={faPlus} className="mr-2" />
                             Create an announcement
                         </Button>
-                        <Button
-                            outline
-                            color="success"
-                            onClick={this.toggleHistoryModal}
-                        >
-                            <FontAwesomeIcon
-                                icon={faHistory}
-                                className="mr-2"
-                            />
-                            Show activity history
-                        </Button>
                     </div>
                     <div className="d-sm-flex d-lg-none flex-wrap">
                         <Button
@@ -516,18 +566,6 @@ class QueuingPage extends Component<
                                 className="mr-2"
                             />
                             Create an announcement
-                        </Button>
-                        <Button
-                            outline
-                            block
-                            color="success"
-                            onClick={this.toggleHistoryModal}
-                        >
-                            <FontAwesomeIcon
-                                icon={faHistory}
-                                className="mr-2"
-                            />
-                            Show activity history
                         </Button>
                     </div>
                     {queueCreateModalOpen && assignmentSets != null && (
@@ -579,13 +617,6 @@ class QueuingPage extends Component<
                             announcement={announcementToDelete}
                         />
                     )}
-                    {historyModalOpen && (
-                        <HistoryModal
-                            isOpen={historyModalOpen}
-                            onCloseModal={this.toggleHistoryModal}
-                            mode={mode}
-                        />
-                    )}
                 </div>
             );
         }
@@ -618,15 +649,15 @@ class QueuingPage extends Component<
     }
 
     private buildQueues() {
+        const { mode } = this.state;
         return (
             <Row className="row-eq-height">
                 {this.props.queues!.map((queue: QueueDto) => (
                     <Queue
                         title={queue.name}
                         entries={queue.participants.map(
-                            (participant: ParticipantDto) => ({
-                                name: participant.fullName,
-                                participantId: participant.id,
+                            (participant: QueueParticipantDto) => ({
+                                participant,
                                 onAccept: () =>
                                     this.props.acceptParticipant(
                                         Number(this.props.match.params.cid),
@@ -663,50 +694,21 @@ class QueuingPage extends Component<
                         }
                     />
                 ))}
+                {mode === QueuingMode.TA && (
+                    <History taMode={mode === QueuingMode.TA} />
+                )}
             </Row>
         );
     }
-
-    //     private buildProjectorButton() {
-    //         if (this.state.mode === QueuingMode.Projector) {
-    //             return (
-    //                 <Button
-    //                     onClick={() => {
-    //                         this.setState({
-    //                             mode: QueuingMode.TA,
-    //                         });
-    //                     }}
-    //                 >
-    //                     TA Mode
-    //                 </Button>
-    //             );
-    //         } else if (this.state.mode === QueuingMode.TA) {
-    //             return (
-    //                 <Button
-    //                     onClick={() => {
-    //                         this.setState({
-    //                             mode: QueuingMode.Projector,
-    //                         });
-    //                     }}
-    //                 >
-    //                     Projector Mode
-    //                 </Button>
-    //             );
-    //         }
-    //         return null;
-    //     }
 }
 
 export default withRouter(
     connect(
         (state: ApplicationState) => ({
             announcements: getAnnouncements(state),
-            queueHistory: getHistory(state),
             queues: getQueues(state),
             participant: getCurrentParticipant(state),
             assignmentSets: getAssignmentSets(state),
-            newAnnouncement: getNewAnnouncement(state),
-            reminder: getReminder(state),
             room: (roomCode: string) => getRoom(state, roomCode),
         }),
         {
@@ -745,8 +747,6 @@ export default withRouter(
                 enterQueueAction(cid, rid, qid),
             deleteQueue: (cid: number, rid: string, qid: string) =>
                 queueRemovedAction(cid, rid, qid),
-            resetReminder: resetReminderAction,
-            resetNewAnnouncement: resetNewAnnouncementAction,
             acceptNext: (cid: number, rid: string, qid: string) =>
                 acceptNextAction(cid, rid, qid),
         },

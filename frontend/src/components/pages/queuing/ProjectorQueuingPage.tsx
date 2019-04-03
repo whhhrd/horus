@@ -6,8 +6,10 @@ import {
     AnnouncementDto,
     AcceptDto,
     QueueDto,
-    ParticipantDto,
     UpdateDto,
+    QueueParticipantDto,
+    UpdateType,
+    RemindDto,
 } from "../../../api/types";
 import {
     updateReceivedAction,
@@ -33,11 +35,13 @@ import {
     faDoorClosed,
     faTimes,
 } from "@fortawesome/free-solid-svg-icons";
+import PopupModal from "./PopupModal";
+import History from "./History";
 
 interface ProjectorQueuingPageProps {
     newAnnouncement: AnnouncementDto | null;
     announcements: AnnouncementDto[] | null;
-    queueHistory: AcceptDto[] | null;
+    // queueHistory: AcceptDto[] | null;
     queues: QueueDto[] | null;
     room: RoomDto | null;
     updateReceived: (update: UpdateDto) => UpdateReceivedAction;
@@ -45,17 +49,22 @@ interface ProjectorQueuingPageProps {
 
 interface ProjectorQueuingPageState {
     connectionState: ConnectionState;
+    reminders: RemindDto[];
 }
 
 class ProjectorQueuingPage extends Component<
     ProjectorQueuingPageProps & RouteComponentProps<any>,
     ProjectorQueuingPageState
 > {
+    static NOTIFICATION_DURATION = 3000;
+
     private sock: WebSocket | null = null;
+
     constructor(props: ProjectorQueuingPageProps & RouteComponentProps<any>) {
         super(props);
         this.state = {
             connectionState: ConnectionState.Connecting,
+            reminders: [],
         };
         this.onSockClose = this.onSockClose.bind(this);
         this.onSockError = this.onSockError.bind(this);
@@ -102,37 +111,6 @@ class ProjectorQueuingPage extends Component<
         this.connect();
     }
 
-    // componentDidUpdate(
-    //     prevprops: QueuingPageProps & RouteComponentProps<any>,
-    //     _: QueuingPageState,
-    // ) {
-
-    //     // Automatically remove popup after a few seconds on projector
-    //     if (
-    //         this.state.mode === QueuingMode.Projector &&
-    //         this.props.reminder != null
-    //     ) {
-    //         if (this.currentPopup != null) {
-    //             clearTimeout(this.currentPopup);
-    //         }
-    //         this.currentPopup = setTimeout(() => {
-    //             this.props.resetReminder();
-    //         }, PROJECTOR_POPUP_TIMEOUT);
-    //     }
-
-    //     if (
-    //         this.state.mode === QueuingMode.Projector &&
-    //         this.props.newAnnouncement != null
-    //     ) {
-    //         if (this.currentPopup != null) {
-    //             clearTimeout(this.currentPopup);
-    //         }
-    //         this.currentPopup = setTimeout(() => {
-    //             this.props.resetNewAnnouncement();
-    //         }, PROJECTOR_POPUP_TIMEOUT);
-    //     }
-    // }
-
     componentWillUnmount() {
         if (this.sock != null) {
             this.sock.close();
@@ -156,7 +134,9 @@ class ProjectorQueuingPage extends Component<
         } else if (location.port.length > 0) {
             port = ":" + location.port;
         }
-        const wsUrl = `${protocol}://${location.hostname}${port}/ws/queuing/rooms/${this.props.match.params.rid}/feed`;
+        const wsUrl = `${protocol}://${
+            location.hostname
+        }${port}/ws/queuing/rooms/${this.props.match.params.rid}/feed`;
         if (this.sock != null) {
             this.sock.close();
             this.sock.removeEventListener("open", this.onSockOpen);
@@ -187,7 +167,27 @@ class ProjectorQueuingPage extends Component<
     }
 
     private onSockMessage(event: MessageEvent) {
-        this.props.updateReceived(JSON.parse(event.data));
+        const data = JSON.parse(event.data);
+        const type: UpdateType = data.type;
+
+        switch (type) {
+            case "ACCEPT": {
+                const reminder: RemindDto = {
+                    participant: (data as AcceptDto).participant,
+                    roomCode: (data as AcceptDto).roomCode,
+                    type,
+                };
+                this.addReminderToQueue(reminder);
+                break;
+            }
+            case "REMIND": {
+                const reminder: RemindDto = data as RemindDto;
+                this.addReminderToQueue(reminder);
+                break;
+            }
+            default:
+                this.props.updateReceived(data);
+        }
     }
 
     private onSockError() {
@@ -217,10 +217,27 @@ class ProjectorQueuingPage extends Component<
                 <div>
                     {this.buildAnnouncements()}
                     {this.buildQueues()}
+                    {this.buildPopup()}
                 </div>
             );
         } else {
             return buildBigCenterMessage("Unknown error occurred", faTimes);
+        }
+    }
+
+    private buildPopup() {
+        const nextReminder = this.state.reminders[0];
+        if (nextReminder != null) {
+            return (
+                <PopupModal
+                    isOpen={true}
+                    onCloseModal={() => this.removeReminderFromQueue()}
+                    timer={ProjectorQueuingPage.NOTIFICATION_DURATION}
+                    reminder={nextReminder}
+                />
+            );
+        } else {
+            return null;
         }
     }
 
@@ -253,16 +270,40 @@ class ProjectorQueuingPage extends Component<
                         key={queue.id}
                         title={queue.name}
                         entries={queue.participants.map(
-                            (participant: ParticipantDto) => ({
-                                name: participant.fullName,
-                                participantId: participant.id,
+                            (participant: QueueParticipantDto) => ({
+                                participant,
                             }),
                         )}
                         mode={undefined}
                     />
                 ))}
+                <History />
             </Row>
         );
+    }
+
+    private addReminderToQueue(reminder: RemindDto) {
+        this.setState((state) => {
+            const existingReminder = state.reminders.find(
+                (r) => r.participant.id === reminder.participant.id,
+            );
+
+            if (existingReminder == null) {
+                const newReminders = this.state.reminders.slice();
+                newReminders.push(reminder);
+                return { reminders: newReminders };
+            } else {
+                return { reminders: state.reminders };
+            }
+        });
+    }
+
+    private removeReminderFromQueue() {
+        this.setState((state) => {
+            const newReminders = state.reminders.slice();
+            newReminders.shift();
+            return { reminders: newReminders };
+        });
     }
 }
 

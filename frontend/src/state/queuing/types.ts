@@ -3,13 +3,12 @@ import {
     AcceptDto,
     QueueDto,
     RoomDto,
-    RemindDto,
     ParticipantDtoBrief,
+    QueueParticipantDto,
 } from "../../api/types";
 
 export interface QueueEntry {
-    name: string;
-    participantId: number;
+    participant: QueueParticipantDto;
     onAccept?: () => any;
     onDeny?: () => any;
 }
@@ -35,9 +34,7 @@ export interface QueuingState {
     history: AcceptDto[];
     queues: QueueDto[];
     room: RoomDto | null;
-    remind: RemindDto | null;
     participant: ParticipantDtoBrief | null;
-    newAnnouncement: AnnouncementDto | null;
 }
 
 export interface AcceptedParticipant {

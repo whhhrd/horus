@@ -3,20 +3,18 @@ import { UpdateDto, ParticipantDtoBrief } from "../../api/types";
 import {
     UPDATE_RECEIVED_ACTION,
     ACCEPT_REQUESTED_ACTION,
+    ACCEPT_NEXT_ACTION,
     ANNOUNCEMENT_CREATED_ACTION,
+    ANNOUNCEMENT_REMOVED_ACTION,
     QUEUE_CREATED_ACTION,
+    QUEUE_REMOVED_ACTION,
     QUEUE_CHANGED_ACTION,
     ENTER_QUEUE_ACTION,
+    DEQUEUE_REQUESTED_ACTION,
     REMIND_REQUESTED_ACTION,
-    ANNOUNCEMENT_REMOVED_ACTION,
-    QUEUE_REMOVED_ACTION,
     CURRENT_PARTICIPANT_REQUESTED_ACTION,
     CURRENT_PARTICIPANT_RECEIVED_ACTION,
     DEQUEUE_SELF_REQUESTED_ACTION,
-    DEQUEUE_REQUESTED_ACTION,
-    RESET_REMINDER_ACTION,
-    RESET_NEW_ANNOUNCEMENT_ACTION,
-    ACCEPT_NEXT_ACTION,
 } from "./constants";
 
 export interface UpdateReceivedAction extends Action<string> {
@@ -160,16 +158,6 @@ export const dequeueSelfRequestedAction = (
     rid: string,
     qid: string,
 ) => ({ type: DEQUEUE_SELF_REQUESTED_ACTION, cid, rid, qid });
-
-export interface ResetReminderAction extends Action<string> {}
-
-export const resetReminderAction = () => ({ type: RESET_REMINDER_ACTION });
-
-export interface ResetNewAnnouncementAction extends Action<string> {}
-
-export const resetNewAnnouncementAction = () => ({
-    type: RESET_NEW_ANNOUNCEMENT_ACTION,
-});
 
 export interface AcceptNextAction extends Action<string> {
     cid: number;
