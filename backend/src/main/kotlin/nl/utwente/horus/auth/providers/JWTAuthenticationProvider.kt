@@ -6,6 +6,7 @@ import nl.utwente.horus.HorusConfigurationProperties
 import nl.utwente.horus.services.auth.HorusUserDetails
 import nl.utwente.horus.auth.tokens.*
 import nl.utwente.horus.auth.util.JWTUtil
+import nl.utwente.horus.services.auth.RefreshTokenService
 import nl.utwente.horus.services.person.PersonService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.AuthenticationProvider
@@ -14,6 +15,8 @@ import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.lang.Exception
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 /**
  * JWTAuthenticationProvider authenticates a RawToken (unauthenticated token string),
@@ -28,6 +31,9 @@ class JWTAuthenticationProvider: AuthenticationProvider {
 
     @Autowired
     lateinit var configurationProperties: HorusConfigurationProperties
+
+    @Autowired
+    lateinit var refreshTokenService: RefreshTokenService
 
     override fun authenticate(authentication: Authentication?): Authentication {
         // Check if authentication is a RawToken
@@ -71,6 +77,17 @@ class JWTAuthenticationProvider: AuthenticationProvider {
                         body[JWTUtil.REFRESH_TOKEN_ID_CLAIM] as String)
             }
             TokenType.REFRESH_TOKEN -> {
+                val storedToken = refreshTokenService.getById(body.id) ?: throw BadCredentialsException("Invalid or stale refresh token")
+                if (storedToken.lastUsedAt.isBefore(ZonedDateTime.now().minusSeconds(configurationProperties.refreshTokenFreshnessDuration))) {
+                    throw BadCredentialsException("Invalid or stale refresh token")
+                }
+
+                if (storedToken.clientId != authentication.clientId) {
+                    throw BadCredentialsException("Invalid refresh token")
+                }
+
+                storedToken.lastUsedAt = ZonedDateTime.now()
+
                 token = RefreshToken(
                         authentication.token,
                         body.id,
@@ -80,8 +97,6 @@ class JWTAuthenticationProvider: AuthenticationProvider {
                         HorusUserDetails(person))
             }
         }
-
-
 
         return token
     }

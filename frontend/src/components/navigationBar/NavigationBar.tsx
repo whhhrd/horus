@@ -23,7 +23,10 @@ import {
     signoffAssignmentsView,
     signoffAssignmentsPerform,
 } from "../../state/auth/constants";
-import { logoutRequestedAction } from "../../state/auth/actions";
+import {
+    logoutRequestedAction,
+    setLoginRedirectAction,
+} from "../../state/auth/actions";
 import { Action } from "redux";
 
 interface NavigationBarProps {
@@ -33,6 +36,11 @@ interface NavigationBarProps {
     onPhone: boolean;
     visibleOnPhone: boolean;
     requestLogout: () => Action<string>;
+    setLoginRedirect: (
+        redirectUrl: string,
+    ) => {
+        type: string;
+    };
 }
 
 export class NavigationBar extends Component<
@@ -156,9 +164,11 @@ export class NavigationBar extends Component<
                                     <NavigationBarItem
                                         title="Logout"
                                         icon={faSignOutAlt}
-                                        onClick={() =>
-                                            this.props.requestLogout()
-                                        }
+                                        onClick={() => {
+                                            this.props.setLoginRedirect("/courses");
+                                            this.props.requestLogout();
+                                            return {};
+                                        }}
                                         active={false}
                                         url="/login"
                                     />
@@ -186,6 +196,7 @@ export default withRouter(
         }),
         {
             requestLogout: logoutRequestedAction,
+            setLoginRedirect: setLoginRedirectAction,
         },
     )(NavigationBar),
 );

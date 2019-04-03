@@ -23,6 +23,9 @@ class HorusConfigurationProperties {
     // Validity duration of refresh tokens in seconds
     var refreshTokenValidityDuration: Long = 0
 
+    // How long can a refresh token remain unused in seconds
+    var refreshTokenFreshnessDuration: Long = 0
+
     // Scheme of application URL (http/https)
     lateinit var applicationScheme: String
 

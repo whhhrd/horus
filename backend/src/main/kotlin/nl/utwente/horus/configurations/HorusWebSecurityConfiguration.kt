@@ -6,6 +6,7 @@ import nl.utwente.horus.auth.providers.*
 import nl.utwente.horus.auth.saml.SAML2ClientHolder
 import nl.utwente.horus.isProductionActive
 import nl.utwente.horus.services.auth.HorusUserDetailService
+import nl.utwente.horus.services.auth.RefreshTokenService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment
@@ -51,6 +52,9 @@ class HorusWebSecurityConfiguration: WebSecurityConfigurerAdapter() {
 
         // Access token request endpoint
         const val AUTH_ACCESS_TOKEN_REFRESH_PATTERN = "/api/auth/token/refresh"
+
+        // Logout endpoint
+        const val AUTH_LOGOUT_PATTERN = "/api/auth/logout"
     }
 
     @Autowired
@@ -76,6 +80,9 @@ class HorusWebSecurityConfiguration: WebSecurityConfigurerAdapter() {
 
     @Autowired
     lateinit var authCodeTokenLoginAuthenticationProvider: AuthCodeTokenLoginAuthenticationProvider
+
+    @Autowired
+    lateinit var refreshTokenService: RefreshTokenService
 
     /**
      * Register the auth providers and user detail service with the AuthenticationManager.
@@ -155,6 +162,12 @@ class HorusWebSecurityConfiguration: WebSecurityConfigurerAdapter() {
         return EnsureAccessTokenAuthenticationFilter(AntPathRequestMatcher(AUTH_PROTECTED_PATH_PATTERN))
     }
 
+    /**
+     * Initialize the logout filter.
+     */
+    private fun buildLogoutFilter(): LogoutFilter {
+        return LogoutFilter(AntPathRequestMatcher(AUTH_LOGOUT_PATTERN), refreshTokenService)
+    }
 
 
     /**
@@ -212,9 +225,11 @@ class HorusWebSecurityConfiguration: WebSecurityConfigurerAdapter() {
         } else {
             http.addFilterAfter(buildJWTAuthenticationFilter(), AuthCodeLoginAuthenticationFilter::class.java)
         }
+                // Add the logout filter, which will check a path path for a logout and invalidate corresponding refresh token
+                .addFilterAfter(buildLogoutFilter(), JWTAuthenticationFilter::class.java)
                 // Add access token request filter, this will check if path matches and respond with an access token if
                 // a refresh token is in the SecurityContext
-                .addFilterAfter(buildAccessTokenRequestAuthenticationFilter(), JWTAuthenticationFilter::class.java)
+                .addFilterAfter(buildAccessTokenRequestAuthenticationFilter(), LogoutFilter::class.java)
                 // Beyond this point, ensure that ony requests with an AccessToken may pass through
                 .addFilterAfter(buildEnsureAccessTokenAuthenticationFilter(), AccessTokenRequestAuthenticationFilter::class.java)
                 // Disable sessions (REST FTW!!!)

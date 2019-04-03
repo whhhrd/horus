@@ -2,6 +2,7 @@ package nl.utwente.horus.auth.filters
 
 import nl.utwente.horus.auth.handlers.LoginSuccessHandler
 import nl.utwente.horus.auth.tokens.AuthCodeToken
+import nl.utwente.horus.auth.util.HttpUtil
 import org.springframework.http.HttpMethod
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
@@ -19,11 +20,6 @@ import java.util.*
  */
 class AuthCodeLoginAuthenticationFilter(requiresAuthenticationRequestMatcher: RequestMatcher?) : AbstractAuthenticationProcessingFilter(requiresAuthenticationRequestMatcher) {
 
-    companion object {
-        const val AUTHORIZATION_HEADER_NAME = "Authorization"
-        const val AUTHORIZATION_HEADER_PREFIX = "Bearer "
-    }
-
     // Initialize success handler to send token response on successful authentication
     private val successHandler = LoginSuccessHandler()
 
@@ -40,13 +36,16 @@ class AuthCodeLoginAuthenticationFilter(requiresAuthenticationRequestMatcher: Re
             throw BadCredentialsException("Auth code not provided")
         }
 
+        val clientId = if (HttpUtil.isFromOrigin(request)) HttpUtil.injectClientTokenCookie(request, response!!) else null
+
         // via the AuthCodeLoginAuthenticationProvider
-        return authenticationManager.authenticate(AuthCodeToken(authHeader.substring(AUTHORIZATION_HEADER_PREFIX.length)))
+        return authenticationManager.authenticate(AuthCodeToken(authHeader.substring(AUTHORIZATION_HEADER_PREFIX.length), clientId))
 
     }
 
     override fun successfulAuthentication(request: HttpServletRequest?, response: HttpServletResponse?, chain: FilterChain?, authResult: Authentication?) {
         // Call the success handler to return the token response
+
         successHandler.onAuthenticationSuccess(request, response, authResult)
     }
 

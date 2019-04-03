@@ -5,7 +5,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken
 /**
  * RawToken is a container for a raw, unverified token string.
  */
-class RawToken(val token: String) : AbstractAuthenticationToken(HashSet()) {
+class RawToken(val token: String, val clientId: String?) : AbstractAuthenticationToken(HashSet()) {
 
     override fun getCredentials(): Any {
         return token

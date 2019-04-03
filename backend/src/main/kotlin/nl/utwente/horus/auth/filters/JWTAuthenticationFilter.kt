@@ -1,12 +1,15 @@
 package nl.utwente.horus.auth.filters
 
 import nl.utwente.horus.auth.tokens.RawToken
+import nl.utwente.horus.auth.util.HttpUtil
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
 import org.springframework.security.web.util.matcher.RequestMatcher
+import org.springframework.stereotype.Component
 import javax.servlet.FilterChain
+import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -18,12 +21,6 @@ import javax.servlet.http.HttpServletResponse
  * or AccessToken is stored there for filters further down the chain.
  */
 class JWTAuthenticationFilter(requiresAuthenticationRequestMatcher: RequestMatcher?) : AbstractAuthenticationProcessingFilter(requiresAuthenticationRequestMatcher) {
-
-    companion object {
-        const val AUTHORIZATION_PARAMETER_NAME = "token"
-        const val AUTHORIZATION_HEADER_NAME = "Authorization"
-        const val AUTHORIZATION_HEADER_PREFIX = "Bearer "
-    }
 
     override fun attemptAuthentication(request: HttpServletRequest?, response: HttpServletResponse?): Authentication {
         // Check and extract header
@@ -37,7 +34,8 @@ class JWTAuthenticationFilter(requiresAuthenticationRequestMatcher: RequestMatch
         // Authenticates the token with the AuthenticationManager,
         // which calls the JWTAuthenticationProvider to perform the checks
         val token = authParam ?: authHeader!!.substring(AUTHORIZATION_HEADER_PREFIX.length)
-        return authenticationManager.authenticate(RawToken(token))
+        val clientId = HttpUtil.extractClientTokenCookie(request)
+        return authenticationManager.authenticate(RawToken(token, clientId))
     }
 
     override fun successfulAuthentication(request: HttpServletRequest?, response: HttpServletResponse?, chain: FilterChain?, authResult: Authentication?) {

@@ -25,7 +25,7 @@ class WithLoginIdSecurityContextFactory: WithSecurityContextFactory<WithLoginId>
         val loginId = annotation.value
         Assert.assertTrue("value() must be non empty String", loginId.isNotBlank())
         val principal = userDetailsService.loadUserByUsername(loginId)
-        val authentication = tokenFactory.generateTokenpair((principal as HorusUserDetails).person).accessToken
+        val authentication = tokenFactory.generateTokenPair((principal as HorusUserDetails).person, null).accessToken
         val context = SecurityContextHolder.createEmptyContext()
         context.authentication = authentication
         return context

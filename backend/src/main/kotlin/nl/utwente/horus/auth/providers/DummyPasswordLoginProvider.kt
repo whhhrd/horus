@@ -1,6 +1,7 @@
 package nl.utwente.horus.auth.providers
 
 import nl.utwente.horus.auth.tokens.TokenFactory
+import nl.utwente.horus.auth.tokens.UsernamePasswordToken
 import nl.utwente.horus.services.person.PersonService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.AuthenticationProvider
@@ -27,21 +28,21 @@ class DummyPasswordLoginProvider: AuthenticationProvider {
     lateinit var tokenFactory: TokenFactory
 
     override fun authenticate(authentication: Authentication?): Authentication {
-        if (authentication is UsernamePasswordAuthenticationToken) {
+        if (authentication is UsernamePasswordToken) {
             // Check if password is "password"
-            if (authentication.credentials != "password") {
+            if (authentication.password != "password") {
                 authentication.eraseCredentials()
                 throw BadCredentialsException("Invalid credentials")
             }
             // Fetch the person and create a RefreshToken
-            val person = personService.getPersonByLoginId(authentication.name) ?: throw BadCredentialsException("Invalid credentials")
-            return tokenFactory.generateTokenpair(person)
+            val person = personService.getPersonByLoginId(authentication.username) ?: throw BadCredentialsException("Invalid credentials")
+            return tokenFactory.generateTokenPair(person, authentication.clientId)
         }
         throw BadCredentialsException("Invalid credentials")
     }
 
     override fun supports(authentication: Class<*>?): Boolean {
-        return UsernamePasswordAuthenticationToken::class.java.isAssignableFrom(authentication)
+        return UsernamePasswordToken::class.java.isAssignableFrom(authentication)
     }
 
 }

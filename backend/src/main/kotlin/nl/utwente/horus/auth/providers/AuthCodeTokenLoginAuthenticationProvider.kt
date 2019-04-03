@@ -38,7 +38,7 @@ class AuthCodeTokenLoginAuthenticationProvider: AuthenticationProvider {
                 throw BadCredentialsException("Invalid auth code")
             }
             authCodeService.deleteAuthCode(code)
-            return tokenFactory.generateTokenpair(code.person)
+            return tokenFactory.generateTokenPair(code.person, authentication.clientId)
         }
         throw BadCredentialsException("Auth code token required")
     }

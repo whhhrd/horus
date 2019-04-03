@@ -2,10 +2,11 @@ package nl.utwente.horus.auth.filters
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import nl.utwente.horus.auth.handlers.LoginSuccessHandler
+import nl.utwente.horus.auth.tokens.UsernamePasswordToken
+import nl.utwente.horus.auth.util.HttpUtil
 import nl.utwente.horus.representations.auth.PasswordLoginRequest
 import org.springframework.http.HttpMethod
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
 import org.springframework.security.web.util.matcher.RequestMatcher
 import javax.servlet.FilterChain
@@ -45,9 +46,11 @@ class PasswordLoginAuthenticationFilter(requiresAuthenticationRequestMatcher: Re
             throw BadCredentialsException("Missing username and/or password")
         }
 
+        val clientId = if (HttpUtil.isFromOrigin(request)) HttpUtil.injectClientTokenCookie(request, response!!) else null
+
         // Call the AuthenticationManager to authenticate and grant a RefreshToken
         // via the PasswordLoginAuthenticationProvider
-        return authenticationManager.authenticate(UsernamePasswordAuthenticationToken(passwordLoginRequest.username, passwordLoginRequest.password))
+        return authenticationManager.authenticate(UsernamePasswordToken(passwordLoginRequest.username, passwordLoginRequest.password, clientId))
 
     }
 

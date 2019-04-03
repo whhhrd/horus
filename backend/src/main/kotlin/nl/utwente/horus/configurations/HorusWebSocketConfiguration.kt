@@ -2,10 +2,15 @@ package nl.utwente.horus.configurations
 
 import nl.utwente.horus.queuing.QueuingWebSocketHandler
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.socket.config.annotation.EnableWebSocket
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler
+import org.springframework.scheduling.TaskScheduler
+
+
 
 @Configuration
 @EnableWebSocket
@@ -16,6 +21,11 @@ class HorusWebSocketConfiguration: WebSocketConfigurer {
 
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
         registry.addHandler(queuingHandler, "/ws/queuing/rooms/*/feed").setAllowedOrigins("*")
+    }
+
+    @Bean
+    fun taskScheduler(): TaskScheduler {
+        return ConcurrentTaskScheduler()
     }
 
 }
