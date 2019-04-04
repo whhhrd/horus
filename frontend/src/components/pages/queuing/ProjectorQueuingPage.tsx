@@ -186,8 +186,9 @@ class ProjectorQueuingPage extends Component<
                 break;
             }
             default:
-                this.props.updateReceived(data);
+                break;
         }
+        this.props.updateReceived(data);
     }
 
     private onSockError() {
