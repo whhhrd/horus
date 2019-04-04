@@ -167,7 +167,7 @@ class JobProgress extends Component<JobProgressProps, JobProgressState> {
                                     j.status === "ABORTED") && (
                                     <div
                                         className="cursor-pointer ml-4"
-                                        title="Remove job from history"
+                                        title="Remove task from history"
                                         onClick={() =>
                                             this.props.removeJob(j.id)
                                         }

@@ -10,7 +10,7 @@ import {
     faSignOutAlt,
     faTools,
     faStoreAlt,
-    faNetworkWired,
+    faHourglassHalf,
 } from "@fortawesome/free-solid-svg-icons";
 import { connect } from "react-redux";
 import { NavigationBarItem } from "./NavigationBarItem";
@@ -164,8 +164,8 @@ export class NavigationBar extends Component<
                                 >
                                     {jobs != null && jobs.length > 0 && (
                                         <NavigationBarItem
-                                            title="Processes"
-                                            icon={faNetworkWired}
+                                            title="Tasks"
+                                            icon={faHourglassHalf}
                                             active={
                                                 activeTab === ActiveTabEnum.JOBS
                                             }

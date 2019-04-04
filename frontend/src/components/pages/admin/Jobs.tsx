@@ -23,7 +23,7 @@ class Jobs extends Component<JobsProps & RouteComponentProps<any>> {
     }
 
     render() {
-        return buildContent("Jobs", this.buildContent());
+        return buildContent("Tasks", this.buildContent());
     }
 
     buildContent() {
@@ -54,7 +54,7 @@ class Jobs extends Component<JobsProps & RouteComponentProps<any>> {
                 {running.length > 0 && (
                     <Row className="px-2 d-flex justify-content-center mb-3">
                         <Col md="12" lg="6">
-                            <h4>Running jobs</h4>
+                            <h4>Running tasks</h4>
                             {running.length > 0 &&
                                 running.map((j, i) => (
                                     <JobProgress
@@ -65,7 +65,7 @@ class Jobs extends Component<JobsProps & RouteComponentProps<any>> {
                                 ))}
                             {running.length === 0 && (
                                 <span className="text-muted">
-                                    No jobs running
+                                    No tasks running
                                 </span>
                             )}
                         </Col>
@@ -74,7 +74,7 @@ class Jobs extends Component<JobsProps & RouteComponentProps<any>> {
                 {created.length > 0 && (
                     <Row className="px-2 d-flex justify-content-center mb-3">
                         <Col md="12" lg="6">
-                            <h4>Pending jobs</h4>
+                            <h4>Pending tasks</h4>
                             {created.length > 0 &&
                                 created.map((j, i) => (
                                     <JobProgress
@@ -85,7 +85,7 @@ class Jobs extends Component<JobsProps & RouteComponentProps<any>> {
                                 ))}
                             {created.length === 0 && (
                                 <span className="text-muted">
-                                    No jobs pending
+                                    No tasks pending
                                 </span>
                             )}
                         </Col>
@@ -94,7 +94,7 @@ class Jobs extends Component<JobsProps & RouteComponentProps<any>> {
                 {completed.length > 0 && (
                     <Row className="px-2 d-flex justify-content-center mb-3">
                         <Col md="12" lg="6">
-                            <h4>Completed jobs</h4>
+                            <h4>Completed tasks</h4>
                             {completed.length > 0 &&
                                 completed.map((j, i) => (
                                     <JobProgress
@@ -105,7 +105,7 @@ class Jobs extends Component<JobsProps & RouteComponentProps<any>> {
                                 ))}
                             {completed.length === 0 && (
                                 <span className="text-muted">
-                                    No jobs completed
+                                    No tasks completed
                                 </span>
                             )}
                         </Col>
@@ -114,7 +114,7 @@ class Jobs extends Component<JobsProps & RouteComponentProps<any>> {
                 {aborted.length > 0 && (
                     <Row className="px-2 d-flex justify-content-center mb-3">
                         <Col md="12" lg="6">
-                            <h4>Aborted jobs</h4>
+                            <h4>Aborted tasks</h4>
                             {aborted.length > 0 &&
                                 aborted.map((j, i) => (
                                     <JobProgress
@@ -125,7 +125,7 @@ class Jobs extends Component<JobsProps & RouteComponentProps<any>> {
                                 ))}
                             {aborted.length === 0 && (
                                 <span className="text-muted">
-                                    No jobs aborted
+                                    No tasks aborted
                                 </span>
                             )}
                         </Col>

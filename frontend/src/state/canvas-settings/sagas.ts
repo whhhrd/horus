@@ -47,7 +47,7 @@ export function* importCourse(action: CanvasImportAction) {
     try {
         yield put(
             notifyInfo(
-                "Course import started. See the 'Processes' page for more information.",
+                "Course import started. See the 'Tasks' page for more information.",
             ),
         );
         const result = yield call(
@@ -124,7 +124,7 @@ export function* refreshSet(action: CanvasRefreshSetRequestedAction) {
     try {
         yield put(
             notifyInfo(
-                "Retrieving groups. See the 'Processes' page for more information.",
+                "Retrieving groups. See the 'Tasks' page for more information.",
             ),
         );
         const result = yield call(
@@ -142,7 +142,7 @@ export function* importGroupSet(action: CanvasGroupSetImportRequestedAction) {
     try {
         yield put(
             notifyInfo(
-                "Importing group set. See the 'Processes' page for more information.",
+                "Importing group set. See the 'Tasks' page for more information.",
             ),
         );
         const result = yield call(
