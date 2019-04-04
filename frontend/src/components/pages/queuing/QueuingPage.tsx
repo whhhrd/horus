@@ -426,12 +426,12 @@ class QueuingPage extends Component<
                 const newAnnouncement: AnnouncementDto = (data as AddAnnouncementDto)
                     .announcement;
                 this.setState(() => ({ newAnnouncement }));
-                this.props.updateReceived(data);
                 break;
             }
             default:
-                this.props.updateReceived(data);
+                break;
         }
+        this.props.updateReceived(data);
     }
 
     private onSockError() {
