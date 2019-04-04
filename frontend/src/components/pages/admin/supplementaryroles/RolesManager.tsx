@@ -10,6 +10,7 @@ import {
     Dropdown,
     DropdownToggle,
     DropdownMenu,
+    Alert,
 } from "reactstrap";
 import {
     ParticipantDtoFull,
@@ -41,6 +42,13 @@ import { getStaffParticipants } from "../../../../state/participants/selectors";
 import SuppRoleLabel from "./SuppRoleLabel";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
+import {
+    suppRolesAnyList,
+    suppRolesAnyView,
+    suppRolesMappingAnyCreate,
+    suppRolesMappingAnyDelete,
+    suppRolesMappingAnyView,
+} from "../../../../state/auth/constants";
 
 interface RolesManagerProps {
     staff: ParticipantDtoFull[] | null;
@@ -101,10 +109,16 @@ class RolesManager extends Component<
     }
 
     buildContent() {
-        const { suppRoles, staff, suppRolesMapping } = this.props;
+        const { suppRoles, staff, suppRolesMapping, permissions } = this.props;
+        const cid = this.props.match.params.cid;
+
+        const canListSuppRoles = suppRolesAnyList.check(cid, permissions!);
+        const canViewSuppRoles = suppRolesAnyView.check(cid, permissions!);
 
         if (suppRoles == null || staff == null) {
             return null;
+        } else if (!canListSuppRoles || !canViewSuppRoles) {
+            return <Alert color="danger">No permissions.</Alert>;
         }
 
         return (
@@ -175,11 +189,32 @@ class RolesManager extends Component<
         const searchQuery = this.state.searchQuery;
         const studentRender = [];
 
+        const { permissions } = this.props;
+        const cid = this.props.match.params.cid;
+
+        const canAddMapping = suppRolesMappingAnyCreate.check(
+            cid,
+            permissions!,
+        );
+
+        const canDeleteMapping = suppRolesMappingAnyDelete.check(
+            cid,
+            permissions!,
+        );
+
+        const canViewMapping = suppRolesMappingAnyView.check(cid, permissions!);
+
         if (staff == null || suppRoles == null) {
             return (
                 <Col lg="12" xs="12">
                     {centerSpinner()}
                 </Col>
+            );
+        } else if (!canViewMapping) {
+            return (
+                <Alert color="danger">
+                    You can not view the supplementary roles of others.
+                </Alert>
             );
         } else {
             for (const p of staff) {
@@ -205,32 +240,35 @@ class RolesManager extends Component<
                                                     key={suppRole.id}
                                                     role={suppRole}
                                                 >
-                                                    <span
-                                                        title="Delete role mapping"
-                                                        className="ml-2 cursor-pointer"
-                                                        onClick={() =>
-                                                            this.props.deleteRoleMapping(
-                                                                p.id,
-                                                                suppRole,
-                                                            )
-                                                        }
-                                                    >
-                                                        <FontAwesomeIcon
-                                                            icon={faTimes}
-                                                        />
-                                                    </span>
+                                                    {canDeleteMapping && (
+                                                        <span
+                                                            title="Delete role mapping"
+                                                            className="ml-2 cursor-pointer"
+                                                            onClick={() =>
+                                                                this.props.deleteRoleMapping(
+                                                                    p.id,
+                                                                    suppRole,
+                                                                )
+                                                            }
+                                                        >
+                                                            <FontAwesomeIcon
+                                                                icon={faTimes}
+                                                            />
+                                                        </span>
+                                                    )}
                                                 </SuppRoleLabel>
                                             );
                                         } else {
                                             return null;
                                         }
                                     })}
-                                {this.buildAddRoleDropdown(
-                                    String(p.id),
-                                    suppRoleIds != null ? suppRoleIds : [],
-                                    suppRoles,
-                                    p.id,
-                                )}
+                                {canAddMapping &&
+                                    this.buildAddRoleDropdown(
+                                        String(p.id),
+                                        suppRoleIds != null ? suppRoleIds : [],
+                                        suppRoles,
+                                        p.id,
+                                    )}
                             </td>
                         </tr>,
                     );
@@ -293,7 +331,9 @@ class RolesManager extends Component<
                             </span>
                         ))}
                     {assignableRoles.length === 0 && (
-                        <small className="text-muted">No roles to assign.</small>
+                        <small className="text-muted">
+                            No roles to assign.
+                        </small>
                     )}
                 </DropdownMenu>
             </Dropdown>

@@ -14,6 +14,7 @@ import {
     groupSetsAnyList,
     canViewListLabels,
     canExportData,
+    suppRolesAnyView,
 } from "../../../state/auth/constants";
 
 interface CourseAdministrationProps {
@@ -35,6 +36,8 @@ class CourseAdministration extends PureComponent<
             cid,
             permissions,
         );
+
+        const canViewRoles = suppRolesAnyView.check(cid, permissions);
         const canListGroupSets = groupSetsAnyList.check(cid, permissions);
         const canExport = canExportData.check(cid, permissions);
 
@@ -68,7 +71,7 @@ class CourseAdministration extends PureComponent<
                             <h5>Manage Course Labels</h5>
                         </Link>
                     )}
-                    {true && (
+                    {canViewRoles && (
                         <Link
                             to={`/courses/${
                                 this.props.match.params.cid

@@ -62,6 +62,17 @@ export const labelMappingAnyCreate = CourseAuthScheme.anyCreate("COURSE_PARTICIP
 export const labelMappingAnyEdit = CourseAuthScheme.anyEdit("COURSE_PARTICIPANT_LABEL_MAPPING");
 export const labelMappingAnyDelete = CourseAuthScheme.anyDelete("COURSE_PARTICIPANT_LABEL_MAPPING");
 
+// Supllementary roles
+export const suppRolesAnyList = CourseAuthScheme.anyList("COURSE_SUPPLEMENTARY_ROLE");
+export const suppRolesAnyView = CourseAuthScheme.anyView("COURSE_SUPPLEMENTARY_ROLE");
+export const suppRolesAnyCreate = CourseAuthScheme.anyCreate("COURSE_SUPPLEMENTARY_ROLE");
+export const suppRolesAnyEdit = CourseAuthScheme.anyEdit("COURSE_SUPPLEMENTARY_ROLE");
+export const suppRolesAnyDelete = CourseAuthScheme.anyDelete("COURSE_SUPPLEMENTARY_ROLE");
+
+export const suppRolesMappingAnyView = CourseAuthScheme.anyView("COURSE_SUPPLEMENTARY_ROLE_MAPPING");
+export const suppRolesMappingAnyCreate = CourseAuthScheme.anyCreate("COURSE_SUPPLEMENTARY_ROLE_MAPPING");
+export const suppRolesMappingAnyDelete = CourseAuthScheme.anyDelete("COURSE_SUPPLEMENTARY_ROLE_MAPPING");
+
 // Participant permissions
 export const participantsAnyList = CourseAuthScheme.anyList("COURSE_PARTICIPANT");
 export const participantsAnyView = CourseAuthScheme.anyView("COURSE_PARTICIPANT");
