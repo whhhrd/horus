@@ -1,7 +1,6 @@
-import { Component } from "react";
-import React from "react";
-import { Formik, Field } from "formik";
-import { CommentThreadCreateDto } from "../../api/types";
+import React, { PureComponent, KeyboardEvent, Fragment } from "react";
+import { connect } from "react-redux";
+
 import {
     Form,
     Button,
@@ -9,19 +8,24 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
+    Input,
 } from "reactstrap";
+
+import { CommentThreadCreateDto } from "../../api/types";
 import { ApplicationState } from "../../state/state";
-import { connect } from "react-redux";
+
+import { EntityType } from "../../state/comments/types";
 import {
     commentThreadCreateRequestedAction,
     CommentThreadCreateAction,
 } from "../../state/comments/action";
-import { EntityType } from "../../state/comments/types";
+
+import { Formik, Field } from "formik";
 
 interface CommentThreadCreatorModalProps {
     isOpen: boolean;
-    linkedEntityId: number;
-    linkedEntityType: EntityType;
+    entityId: number;
+    entityType: EntityType;
 
     createCommentThread: (
         linkedEntityId: number,
@@ -32,34 +36,36 @@ interface CommentThreadCreatorModalProps {
     onCloseModal: () => void;
 }
 
-class CommentThreadCreatorModal extends Component<
+/**
+ * A modal that allows the user to create a comment thread. The
+ * component looks exactly like the CommentCreatorModal, since we do
+ * not provide the option to change the visibility of the comment thread.
+ */
+class CommentThreadCreatorModal extends PureComponent<
     CommentThreadCreatorModalProps
 > {
-    constructor(props: CommentThreadCreatorModalProps) {
-        super(props);
-        this.onCloseModal = this.onCloseModal.bind(this);
-    }
-
     onSubmit = (commentThreadCreate: CommentThreadCreateDto) => {
         this.props.createCommentThread(
-            this.props.linkedEntityId,
-            this.props.linkedEntityType,
+            this.props.entityId,
+            this.props.entityType,
             commentThreadCreate,
         );
-        this.onCloseModal();
-    }
-
-    onCloseModal() {
         this.props.onCloseModal();
     }
 
+    isValid(values: CommentThreadCreateDto) {
+        return values.content.trim().length > 0;
+    }
+
     render() {
+        const { isOpen, onCloseModal } = this.props;
+
         return (
-            <Modal autoFocus={false} isOpen={this.props.isOpen}>
-                <ModalHeader toggle={this.onCloseModal}>
+            <Modal autoFocus={false} isOpen={isOpen}>
+                <ModalHeader toggle={onCloseModal}>
                     {"Creating comment"}
                 </ModalHeader>
-                {this.props.isOpen && (
+                {isOpen && (
                     <Formik
                         initialValues={{
                             content: "",
@@ -67,19 +73,18 @@ class CommentThreadCreatorModal extends Component<
                         }}
                         onSubmit={this.onSubmit}
                     >
-                        {({ handleSubmit, values, isValid }) => (
-                            <div>
+                        {({ handleSubmit, values }) => (
+                            <Fragment>
                                 <ModalBody>
                                     <Form>
-                                        <Field
+                                        <Input
+                                            tag={Field}
                                             autoFocus={true}
                                             component="textarea"
                                             className="p-2 w-100"
                                             name="content"
-                                            isvalid={String(
-                                                values.content.trim().length >
-                                                    0,
-                                            )}
+                                            valid={this.isValid(values)}
+                                            invalid={!this.isValid(values)}
                                             onKeyDown={(
                                                 event: KeyboardEvent,
                                             ) => {
@@ -88,7 +93,7 @@ class CommentThreadCreatorModal extends Component<
                                                     !event.shiftKey
                                                 ) {
                                                     event.preventDefault();
-                                                    if (isValid) {
+                                                    if (this.isValid(values)) {
                                                         handleSubmit();
                                                     }
                                                 }
@@ -103,7 +108,7 @@ class CommentThreadCreatorModal extends Component<
                                         size="md"
                                         color="secondary"
                                         outline
-                                        onClick={this.onCloseModal}
+                                        onClick={onCloseModal}
                                     >
                                         Cancel
                                     </Button>
@@ -111,6 +116,7 @@ class CommentThreadCreatorModal extends Component<
                                         block
                                         size="md"
                                         color="primary"
+                                        disabled={!this.isValid(values)}
                                         onClick={() => {
                                             handleSubmit();
                                         }}
@@ -118,7 +124,7 @@ class CommentThreadCreatorModal extends Component<
                                         Create
                                     </Button>
                                 </ModalFooter>
-                            </div>
+                            </Fragment>
                         )}
                     </Formik>
                 )}

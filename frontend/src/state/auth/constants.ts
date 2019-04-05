@@ -49,6 +49,7 @@ export const commentAnyView = CourseAuthScheme.anyView("COURSE_COMMENT_STAFFONLY
 export const commentAnyCreate = CourseAuthScheme.anyCreate("COURSE_COMMENT_STAFFONLY");
 export const commentAnyEdit = CourseAuthScheme.anyEdit("COURSE_COMMENT_STAFFONLY");
 export const commentAnyDelete = CourseAuthScheme.anyDelete("COURSE_COMMENT_STAFFONLY");
+export const commentOwnEdit = CourseAuthScheme.ownEdit("COURSE_COMMENT_STAFFONLY");
 
 // Label permission
 export const labelAnyList = CourseAuthScheme.anyList("COURSE_LABEL");

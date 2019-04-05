@@ -1,13 +1,40 @@
 import React, { Component } from "react";
-
-import { CommentThreadDtoFull, CommentDto } from "../../api/types";
-
-import Comment from "../comments/Comment";
 import { connect } from "react-redux";
-import { getCommentThread } from "../../state/comments/selectors";
-import { ApplicationState } from "../../state/state";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { RouteComponentProps, withRouter } from "react-router";
 
+import {
+    Button,
+    Collapse,
+    Alert,
+    ListGroup,
+    Card,
+    CardTitle,
+    Badge,
+    CardBody,
+} from "reactstrap";
+
+import CoursePermissions from "../../api/permissions";
+import { CommentThreadDtoFull, CommentDto } from "../../api/types";
+import { ApplicationState } from "../../state/state";
+import {
+    commentAnyCreate,
+    viewCommentSidebar,
+} from "../../state/auth/constants";
+
+import { getCoursePermissions } from "../../state/auth/selectors";
+import { getCommentThread } from "../../state/comments/selectors";
+
+import { EntityType } from "../../state/comments/types";
+import {
+    CommentThreadRequestedAction,
+    commentThreadRequestedAction,
+} from "../../state/comments/action";
+
+import CommentCreatorModal from "./CommentCreatorModal";
+import CommentThreadCreatorModal from "./CommentThreadCreatorModal";
+import Comment from "../comments/Comment";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     IconDefinition,
     faUser,
@@ -19,39 +46,16 @@ import {
     faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 
-import {
-    Button,
-    Collapse,
-    Alert,
-    ListGroup,
-    Card,
-    CardTitle,
-    Badge,
-} from "reactstrap";
-
-import CommentCreatorModal from "./CommentCreatorModal";
-
-import {
-    CommentThreadRequestedAction,
-    commentThreadRequestedAction,
-} from "../../state/comments/action";
-
-import CardBody from "reactstrap/lib/CardBody";
-import CommentThreadCreatorModal from "./CommentThreadCreatorModal";
-import { EntityType } from "../../state/comments/types";
-import CoursePermissions from "../../api/permissions";
-import {getCoursePermissions} from "../../state/auth/selectors";
-import {RouteComponentProps, withRouter} from "react-router";
-import {commentAnyCreate, commentAnyDelete, commentAnyEdit, viewCommentSidebar} from "../../state/auth/constants";
-
 interface CommentThreadProps {
-    linkedEntityId: number;
+    entityId: number;
+    entityType: EntityType;
+
     commentThreadId: number | null;
-    linkedEntityType: EntityType;
     commentThreadSubject: string;
-    showCommentThreadContent: boolean;
+    commentThreadMutable?: boolean;
+    commentThreadOpen: boolean;
+
     coursePermissions: CoursePermissions | null;
-    immutableThread?: boolean;
 
     commentThread: (
         entityId: number,
@@ -71,37 +75,32 @@ interface CommentThreadState {
 }
 
 /**
- * Usage:
+ * Creates a comment thread component, showing the entity the comment thread is about
+ * and the comments linked to this comment thread.
  *
  * In order to use a CommentThread, you have to specify certain props, namely:
- * 1. linkedEntityId: this is the ID of the participant, group, assignment or signoff result
- * 2. linkedEntityType: this is the type of the entity. Use EntityType to specify it to your needs
- * 3. commentThreadId: this is the commentThreadId that is part of the entity's CommentThreadDtoBrief (except for
- *        SignOffResultDtoCompact, use the actual commentThreadId there). See example usage below.
- * 4. commendThreadSubject: What is this comment thread about? This will be the highlighted part of the comment thread
- *        title.
- * 5. showCommentThreadContent: do you want the collapse to be open or closed (when the component mounts)?
- *        'true' for open, 'false' for closed
- *
- * <CommentThread
- *      linkedEntityId={participant.id}
- *      commentThreadId={
- *          participant.commentThread != null
- *              ? participant.commentThread.id
- *                   : null
- *      }
- *      linkedEntityType={EntityType.Participant}
- *      commentThreadSubject={participant.person.fullName}
- *      showCommentThreadContent={false}
- * />
+ * @property entityId This is the ID of the participant, group, assignment or signoff result
+ * @property entityType This is the type of the entity. Use EntityType to specify it to your needs
+ * @property commentThreadId This is the commentThreadId that is part of the entity's CommentThreadDtoBrief (except for
+ *     SignOffResultDtoCompact, use the actual commentThreadId there). See example usage below.
+ * @property commendThreadSubject This will be the highlighted part of the comment thread title.
+ * @property commentThreadOpen Determines whether the comment thread is collapsed or not.
+ * @proporty commentThreadMutable (optional) Determines whether comments can be added/removed from the comment thread
  */
-class CommentThread extends Component<CommentThreadProps & RouteComponentProps<any>, CommentThreadState> {
+class CommentThread extends Component<
+    CommentThreadProps & RouteComponentProps<any>,
+    CommentThreadState
+> {
+    static defaultProps = {
+        commentThreadMutable: true,
+    };
+
     constructor(props: CommentThreadProps & RouteComponentProps<any>) {
         super(props);
         this.state = {
             commentCreatorModalOpen: false,
             commentThreadCreatorModalOpen: false,
-            showCommentThreadContent: props.showCommentThreadContent,
+            showCommentThreadContent: props.commentThreadOpen,
         };
         this.toggleCreateCommentThreadModal = this.toggleCreateCommentThreadModal.bind(
             this,
@@ -114,28 +113,27 @@ class CommentThread extends Component<CommentThreadProps & RouteComponentProps<a
 
     componentDidMount() {
         const {
-            linkedEntityId,
-            linkedEntityType,
+            entityId,
+            entityType,
             commentThreadId,
+            fetchCommentThread,
         } = this.props;
 
         if (commentThreadId != null) {
-            this.props.fetchCommentThread(linkedEntityId, linkedEntityType);
+            fetchCommentThread(entityId, entityType);
         }
     }
 
     componentDidUpdate(prevProps: CommentThreadProps) {
         const {
-            linkedEntityId,
-            linkedEntityType,
+            entityId,
+            entityType,
             commentThreadId,
+            fetchCommentThread,
         } = this.props;
 
-        if (
-            commentThreadId != null &&
-            prevProps.linkedEntityId !== linkedEntityId
-        ) {
-            this.props.fetchCommentThread(linkedEntityId, linkedEntityType);
+        if (commentThreadId != null && prevProps.entityId !== entityId) {
+            fetchCommentThread(entityId, entityType);
         }
     }
 
@@ -158,78 +156,97 @@ class CommentThread extends Component<CommentThreadProps & RouteComponentProps<a
     }
 
     render() {
-        if (this.props.immutableThread && this.props.commentThreadId == null) {
-            return null;
-        }
-
+        const { entityType } = this.props;
         const cid = this.props.match.params.cid;
+
+        // Get required permissions
         const permissions = this.props.coursePermissions!;
         const canView = viewCommentSidebar.check(cid, permissions);
-        if (!canView) {
-            return null;
-        }
         const canCreate = commentAnyCreate.check(cid, permissions);
-        const canEdit = commentAnyEdit.check(cid, permissions);
-        const canDelete = commentAnyDelete.check(cid, permissions);
 
-        let borderColor: string;
-        let titleEntityPrefix: string;
-        switch (this.props.linkedEntityType) {
-            case EntityType.Assignment:
-                borderColor = `thread-border-assignment`;
-                titleEntityPrefix = "Assignment: ";
-                break;
-            case EntityType.Participant:
-                borderColor = `thread-border-participant`;
-                titleEntityPrefix = "Student: ";
-                break;
-            case EntityType.Signoff:
-                borderColor = `thread-border-signoff`;
-                titleEntityPrefix = "";
-                break;
-            case EntityType.Group:
-                borderColor = `thread-border-group`;
-                titleEntityPrefix = "Group: ";
-                break;
-        }
+        if (
+            (!this.props.commentThreadMutable &&
+                this.props.commentThreadId == null) ||
+            !canView
+        ) {
+            return null;
+        } else {
+            // Determine left border color of the comment thread
+            // and the title prefix.
+            let borderColor: string;
+            let titleEntityPrefix: string;
+            switch (entityType) {
+                case EntityType.Assignment:
+                    borderColor = `thread-border-assignment`;
+                    titleEntityPrefix = "Assignment: ";
+                    break;
+                case EntityType.Participant:
+                    borderColor = `thread-border-participant`;
+                    titleEntityPrefix = "Student: ";
+                    break;
+                case EntityType.Signoff:
+                    borderColor = `thread-border-signoff`;
+                    titleEntityPrefix = "";
+                    break;
+                case EntityType.Group:
+                    borderColor = `thread-border-group`;
+                    titleEntityPrefix = "Group: ";
+                    break;
+            }
 
-        return (
-            <div>
-                <Card className={`m-0 my-3 mw-100 ${borderColor!}`}>
-                    <CardBody>
-                        <div
-                            className="d-flex justify-content-between
-                                align-items-center flex-row flex-nowrap cursor-pointer"
-                            onClick={this.toggleCollapse}
-                        >
-                            <CardTitle className="my-auto d-flex mr-2">
-                                {this.buildCommentThreadTitle(
-                                    titleEntityPrefix!,
-                                )}
-                            </CardTitle>
-
+            return (
+                <div>
+                    <Card className={`m-0 my-3 mw-100 ${borderColor!}`}>
+                        <CardBody>
                             <div
-                                className={`chevron ${
-                                    this.state.showCommentThreadContent
-                                        ? "chevron-open"
-                                        : ""
-                                }`}
+                                className="d-flex justify-content-between
+                                    align-items-center flex-row flex-nowrap cursor-pointer"
+                                onClick={this.toggleCollapse}
                             >
-                                <FontAwesomeIcon icon={faChevronDown} />
+                                <CardTitle className="my-auto d-flex mr-2">
+                                    {this.buildCommentThreadTitle(
+                                        titleEntityPrefix!,
+                                    )}
+                                </CardTitle>
+
+                                <div
+                                    className={`chevron ${
+                                        this.state.showCommentThreadContent
+                                            ? "chevron-open"
+                                            : ""
+                                    }`}
+                                >
+                                    <FontAwesomeIcon icon={faChevronDown} />
+                                </div>
                             </div>
-                        </div>
-                        <Collapse isOpen={this.state.showCommentThreadContent}>
-                            {this.buildCommentThreadContent(canCreate, canEdit, canDelete)}
-                        </Collapse>
-                    </CardBody>
-                </Card>
-            </div>
-        );
+                            <Collapse
+                                isOpen={this.state.showCommentThreadContent}
+                            >
+                                {this.buildCommentThreadContent(canCreate)}
+                            </Collapse>
+                        </CardBody>
+                    </Card>
+                </div>
+            );
+        }
     }
 
+    /**
+     * Builds the comment thread title content. Contains an icon, a title concerning
+     * the entity and the number of comments.
+     * @param titlePrefix The title to be displayed in the comment thread 'header'
+     */
     buildCommentThreadTitle(titlePrefix: string) {
-        let iconElement: IconDefinition | undefined;
-        switch (this.props.linkedEntityType) {
+        const {
+            commentThread,
+            entityType,
+            entityId,
+            commentThreadSubject,
+        } = this.props;
+
+        // Determine icon to be displayed in comment thread title
+        let iconElement: IconDefinition | null;
+        switch (entityType) {
             case EntityType.Participant:
                 iconElement = faUser;
                 break;
@@ -245,25 +262,17 @@ class CommentThread extends Component<CommentThreadProps & RouteComponentProps<a
         }
 
         const numberOfComments =
-            this.props.commentThread(
-                this.props.linkedEntityId,
-                this.props.linkedEntityType,
-            ) != null
-                ? this.props.commentThread(
-                      this.props.linkedEntityId,
-                      this.props.linkedEntityType,
-                  )!.comments.length
+            commentThread(entityId, entityType) != null
+                ? commentThread(entityId, entityType)!.comments.length
                 : 0;
 
         return (
             <mark className="px-2">
                 <abbr
-                    title={`Comments about ${titlePrefix}${
-                        this.props.commentThreadSubject
-                    }`}
+                    title={`Comments about ${titlePrefix}${commentThreadSubject}`}
                 >
                     <FontAwesomeIcon className="mr-2" icon={iconElement!} />
-                    {this.props.commentThreadSubject}
+                    {commentThreadSubject}
                 </abbr>
                 {numberOfComments > 0 ? (
                     <small>
@@ -276,8 +285,13 @@ class CommentThread extends Component<CommentThreadProps & RouteComponentProps<a
         );
     }
 
-    buildComments(comments: CommentDto[], canEdit: boolean, canDelete: boolean) {
-        const { linkedEntityId, linkedEntityType } = this.props;
+    /**
+     * Builds the comments linked to this comment thread. An Alert is returnt when
+     * there are no comments to be displayed (i.e. the comment thread is empty)
+     * @param comments The comments that are to be displayed
+     */
+    buildComments(comments: CommentDto[]) {
+        const { entityId, entityType, commentThreadMutable } = this.props;
 
         if (comments.length > 0) {
             return (
@@ -286,11 +300,10 @@ class CommentThread extends Component<CommentThreadProps & RouteComponentProps<a
                         {comments.map((comment) => (
                             <Comment
                                 key={comment.id}
-                                entityId={linkedEntityId}
-                                entityType={linkedEntityType}
+                                entityId={entityId}
+                                entityType={entityType}
                                 comment={comment}
-                                canEdit={canEdit && !this.props.immutableThread}
-                                canDelete={canDelete && !this.props.immutableThread}
+                                mutable={commentThreadMutable!}
                             />
                         ))}
                     </ListGroup>
@@ -308,20 +321,26 @@ class CommentThread extends Component<CommentThreadProps & RouteComponentProps<a
         }
     }
 
-    buildCommentThreadContent(canCreate: boolean, canEdit: boolean, canDelete: boolean) {
+    /**
+     * Builds the comment thread content, based on the availability of
+     * comments and comment thread.
+     * @param canCreate A boolean indicating whether the user can create comments
+     */
+    buildCommentThreadContent(canCreate: boolean) {
         const {
-            linkedEntityId,
-            linkedEntityType,
+            entityId,
+            entityType,
             commentThreadId,
+            commentThreadMutable,
+            commentThread,
         } = this.props;
 
         if (
             // If comment thread for this entity does not exist in the application state
             // and the entity does not seem to have a comment thread, show create thread option
-            (this.props.commentThread(linkedEntityId, linkedEntityType) ==
-                null &&
+            (commentThread(entityId, entityType) == null &&
                 commentThreadId == null) ||
-            this.props.commentThread(linkedEntityId, linkedEntityType) == null
+            commentThread(entityId, entityType) == null
         ) {
             return (
                 <div>
@@ -331,49 +350,48 @@ class CommentThread extends Component<CommentThreadProps & RouteComponentProps<a
                         </div>
                         <div>No comments to be displayed.</div>
                     </Alert>
-                    {canCreate && !this.props.immutableThread &&
+                    {canCreate && commentThreadMutable && (
                         <Button
                             outline
                             block
-                            color="primary"
+                            color="success"
                             size="md"
-                            onClick={() => this.toggleCreateCommentThreadModal()}
+                            onClick={() =>
+                                this.toggleCreateCommentThreadModal()
+                            }
                         >
-                            <FontAwesomeIcon icon={faPlus} className="mr-2"/>
+                            <FontAwesomeIcon icon={faPlus} className="mr-2" />
                             Add comment
                         </Button>
-                    }
+                    )}
                     <CommentThreadCreatorModal
                         onCloseModal={this.toggleCreateCommentThreadModal}
-                        linkedEntityId={linkedEntityId}
-                        linkedEntityType={linkedEntityType}
+                        entityId={entityId}
+                        entityType={entityType}
                         isOpen={this.state.commentThreadCreatorModalOpen}
                     />
                 </div>
             );
         } else {
-            const { comments, id, type } = this.props.commentThread(
-                linkedEntityId,
-                linkedEntityType,
-            )!;
+            const { comments, id, type } = commentThread(entityId, entityType)!;
             return (
                 <div>
-                    {this.buildComments(comments, canEdit, canDelete)}
-                    {canCreate && !this.props.immutableThread &&
+                    {this.buildComments(comments)}
+                    {canCreate && commentThreadMutable && (
                         <Button
                             outline
                             block
-                            color="primary"
+                            color="success"
                             size="md"
                             onClick={() => this.toggleCreateCommentModal()}
                         >
-                            <FontAwesomeIcon icon={faPlus} className="mr-2"/>
+                            <FontAwesomeIcon icon={faPlus} className="mr-2" />
                             Add comment
                         </Button>
-                    }
+                    )}
                     <CommentCreatorModal
-                        entityId={linkedEntityId}
-                        entityType={linkedEntityType}
+                        entityId={entityId}
+                        entityType={entityType}
                         commentThreadId={id}
                         commentThreadType={type}
                         onCloseModal={this.toggleCreateCommentModal}
@@ -385,11 +403,13 @@ class CommentThread extends Component<CommentThreadProps & RouteComponentProps<a
     }
 }
 
-export default withRouter(connect(
-    (state: ApplicationState) => ({
-        commentThread: (entityId: number, entityType: EntityType) =>
-            getCommentThread(state, entityId, entityType),
-        coursePermissions: getCoursePermissions(state),
-    }),
-    { fetchCommentThread: commentThreadRequestedAction },
-)(CommentThread));
+export default withRouter(
+    connect(
+        (state: ApplicationState) => ({
+            commentThread: (entityId: number, entityType: EntityType) =>
+                getCommentThread(state, entityId, entityType),
+            coursePermissions: getCoursePermissions(state),
+        }),
+        { fetchCommentThread: commentThreadRequestedAction },
+    )(CommentThread),
+);

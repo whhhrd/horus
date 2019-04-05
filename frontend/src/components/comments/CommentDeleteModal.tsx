@@ -1,15 +1,15 @@
-import { Component } from "react";
-import React from "react";
+import React, { PureComponent } from "react";
+import { connect } from "react-redux";
+
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+
 import { CommentDto } from "../../api/types";
-import { Button, Modal, ModalHeader, ModalBody } from "reactstrap";
+
+import { EntityType } from "../../state/comments/types";
 import {
     CommentDeleteRequestAction,
     commentDeleteRequestedAction,
 } from "../../state/comments/action";
-import { EntityType } from "../../state/comments/types";
-import { connect } from "react-redux";
-import { ApplicationState } from "../../state/state";
-import ModalFooter from "reactstrap/lib/ModalFooter";
 
 interface CommentDeleteModalProps {
     isOpen: boolean;
@@ -26,22 +26,23 @@ interface CommentDeleteModalProps {
     onCloseModal: () => void;
 }
 
-class CommentDeleteModal extends Component<CommentDeleteModalProps> {
-    constructor(props: CommentDeleteModalProps) {
-        super(props);
-        this.onCloseModal = this.onCloseModal.bind(this);
-    }
-
-    onCloseModal() {
-        this.props.onCloseModal();
-    }
-
+/**
+ * A modal that allows the user to delete the desired comment.
+ */
+class CommentDeleteModal extends PureComponent<CommentDeleteModalProps> {
     render() {
+        const {
+            isOpen,
+            onCloseModal,
+            entityId,
+            entityType,
+            comment,
+            deleteComment,
+        } = this.props;
+
         return (
-            <Modal isOpen={this.props.isOpen}>
-                <ModalHeader toggle={this.onCloseModal}>
-                    Delete comment
-                </ModalHeader>
+            <Modal isOpen={isOpen}>
+                <ModalHeader toggle={onCloseModal}>Delete comment</ModalHeader>
                 <ModalBody>
                     <span>Are you sure you want to delete this comment?</span>
                 </ModalBody>
@@ -50,19 +51,16 @@ class CommentDeleteModal extends Component<CommentDeleteModalProps> {
                         block
                         className="mr-3"
                         color="secondary"
-                        onClick={this.onCloseModal}
+                        outline
+                        onClick={onCloseModal}
                     >
                         No
                     </Button>
                     <Button
                         block
-                        color="primary"
+                        color="success"
                         onClick={() =>
-                            this.props.deleteComment(
-                                this.props.entityId,
-                                this.props.entityType,
-                                this.props.comment,
-                            )
+                            deleteComment(entityId, entityType, comment)
                         }
                     >
                         Yes
@@ -74,7 +72,7 @@ class CommentDeleteModal extends Component<CommentDeleteModalProps> {
 }
 
 export default connect(
-    (_: ApplicationState) => ({}),
+    () => ({}),
     {
         deleteComment: (
             entityId: number,

@@ -219,32 +219,32 @@ class GroupManager extends Component<
                             <hr />
                             <h3>Comments</h3>
                             <CommentThread
-                                linkedEntityId={currentlyShownGroup.id}
+                                entityId={currentlyShownGroup.id}
                                 commentThreadId={
                                     currentlyShownGroup.commentThread != null
                                         ? currentlyShownGroup.commentThread.id
                                         : null
                                 }
-                                linkedEntityType={EntityType.Group}
+                                entityType={EntityType.Group}
                                 commentThreadSubject={currentlyShownGroup.name}
-                                showCommentThreadContent={false}
+                                commentThreadOpen={false}
                             />
 
                             {participants.length > 0 &&
                                 participants.map((p) => (
                                     <CommentThread
                                         key={p.id}
-                                        linkedEntityId={p.id}
+                                        entityId={p.id}
                                         commentThreadId={
                                             p.commentThread != null
                                                 ? p.commentThread.id
                                                 : null
                                         }
-                                        linkedEntityType={
+                                        entityType={
                                             EntityType.Participant
                                         }
                                         commentThreadSubject={p.person.fullName}
-                                        showCommentThreadContent={false}
+                                        commentThreadOpen={false}
                                     />
                                 ))}
                         </div>

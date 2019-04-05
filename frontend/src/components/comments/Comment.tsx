@@ -1,23 +1,45 @@
 import React, { Component } from "react";
-import { CommentDto } from "../../api/types";
-import {
-    ListGroupItem,
-} from "reactstrap";
+import { connect } from "react-redux";
+import { withRouter, RouteComponentProps } from "react-router";
+
+import { ListGroupItem } from "reactstrap";
+
+import CoursePermissions from "../../api/permissions";
+import { CommentDto, ParticipantDtoBrief } from "../../api/types";
+import { ApplicationState } from "../../state/state";
+import { getCoursePermissions } from "../../state/auth/selectors";
+
+import { EntityType } from "../../state/comments/types";
+
 import { getDisplayedDate } from "../util";
+import CommentUpdateModal from "./CommentUpdateModal";
+import CommentDeleteModal from "./CommentDeleteModal";
+
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import CommentUpdateModal from "./CommentUpdateModal";
-import { connect } from "react-redux";
-import { ApplicationState } from "../../state/state";
-import { EntityType } from "../../state/comments/types";
-import CommentDeleteModal from "./CommentDeleteModal";
+import {
+    commentAnyEdit,
+    commentAnyDelete,
+    commentOwnEdit,
+} from "../../state/auth/constants";
+import {
+    CurrentParticipantRequestedAction,
+    currentParticipantRequestedAction,
+} from "../../state/queuing/actions";
+import { getCurrentParticipant } from "../../state/queuing/selectors";
 
 interface CommentProps {
     entityId: number;
     entityType: EntityType;
     comment: CommentDto;
-    canEdit: boolean;
-    canDelete: boolean;
+    mutable: boolean;
+
+    currentParticipant: ParticipantDtoBrief | null;
+    requestCurrentParticipant: (
+        cid: number,
+    ) => CurrentParticipantRequestedAction;
+
+    permissions: CoursePermissions | null;
 }
 
 interface CommentState {
@@ -25,8 +47,17 @@ interface CommentState {
     deleteModalOpen: boolean;
 }
 
-export class Comment extends Component<CommentProps, CommentState> {
-    constructor(props: CommentProps) {
+/**
+ * A component that represents a comment in a comment thread. Shows
+ * information such as the author, comment content, creation/modification date
+ * and, depending on the props 'canEdit' and 'canDelete', allows for editing and
+ * deleting the comment.
+ */
+class Comment extends Component<
+    CommentProps & RouteComponentProps<any>,
+    CommentState
+> {
+    constructor(props: CommentProps & RouteComponentProps<any>) {
         super(props);
         this.state = {
             editorModalOpen: false,
@@ -36,6 +67,12 @@ export class Comment extends Component<CommentProps, CommentState> {
         this.toggleDeleteCommentModal = this.toggleDeleteCommentModal.bind(
             this,
         );
+    }
+
+    componentDidMount() {
+        if (this.props.currentParticipant == null) {
+            this.props.requestCurrentParticipant(this.props.match.params.cid);
+        }
     }
 
     toggleEditorModal() {
@@ -57,7 +94,26 @@ export class Comment extends Component<CommentProps, CommentState> {
             thread,
         } = this.props.comment;
 
-        const { entityId, entityType } = this.props;
+        const {
+            entityId,
+            entityType,
+            permissions,
+            currentParticipant,
+            mutable,
+        } = this.props;
+        const cid = this.props.match.params.cid;
+
+        // Get the required permissions
+        const canEditAll = commentAnyEdit.check(cid, permissions!);
+        const canEditOwn = commentOwnEdit.check(cid, permissions!);
+        const canDelete = commentAnyDelete.check(cid, permissions!);
+
+        // Determine actual edit permission
+        const canEdit =
+            canEditAll ||
+            (currentParticipant != null &&
+                canEditOwn &&
+                person.id === currentParticipant.person.id);
 
         const createdAtDate: Date = new Date(createdAt);
         const lastEditedAtDate: Date = new Date(lastEditedAt);
@@ -79,7 +135,7 @@ export class Comment extends Component<CommentProps, CommentState> {
                             </div>
                         </div>
                         <div className="flex-shrink-0">
-                            {this.props.canEdit &&
+                            {canEdit && mutable && (
                                 <span onClick={() => this.toggleEditorModal()}>
                                     <FontAwesomeIcon
                                         className="ml-3 cursor-pointer"
@@ -87,10 +143,12 @@ export class Comment extends Component<CommentProps, CommentState> {
                                         size="sm"
                                     />
                                 </span>
-                            }
-                            {this.props.canDelete &&
+                            )}
+                            {canDelete && mutable && (
                                 <span
-                                    onClick={() => this.toggleDeleteCommentModal()}
+                                    onClick={() =>
+                                        this.toggleDeleteCommentModal()
+                                    }
                                 >
                                     <FontAwesomeIcon
                                         className="ml-3 cursor-pointer"
@@ -98,7 +156,7 @@ export class Comment extends Component<CommentProps, CommentState> {
                                         size="sm"
                                     />
                                 </span>
-                            }
+                            )}
                             <CommentDeleteModal
                                 isOpen={this.state.deleteModalOpen}
                                 entityId={entityId}
@@ -109,12 +167,12 @@ export class Comment extends Component<CommentProps, CommentState> {
                         </div>
                     </div>
                     {content}
-                    {isModified ? (
+                    {isModified && (
                         <small className="text-muted">
                             <br />
                             (last edited {getDisplayedDate(lastEditedAtDate)})
                         </small>
-                    ) : null}
+                    )}
                 </div>
                 <CommentUpdateModal
                     entityId={entityId}
@@ -129,7 +187,14 @@ export class Comment extends Component<CommentProps, CommentState> {
     }
 }
 
-export default connect(
-    (_: ApplicationState) => ({}),
-    {},
-)(Comment);
+export default withRouter(
+    connect(
+        (state: ApplicationState) => ({
+            permissions: getCoursePermissions(state),
+            currentParticipant: getCurrentParticipant(state),
+        }),
+        {
+            requestCurrentParticipant: currentParticipantRequestedAction,
+        },
+    )(Comment),
+);

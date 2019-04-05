@@ -57,42 +57,6 @@ export const commentThreadCreateRequestSucceededAction = (
     commentThread,
 });
 
-// // COMMENT THREAD UPDATE
-// export interface CommendThreadUpdateAction extends Action<string> {
-//     entityId: number;
-//     entityType: EntityType;
-//     commentThreadId: number | null;
-// }
-
-// export const commentThreadUpdateAction = (
-//     entityId: number,
-//     entityType: EntityType,
-//     commentThreadId: number | null,
-// ) => ({
-//     type: COMMENT_THREAD_UPDATE_ACTION,
-//     entityId,
-//     entityType,
-//     commentThreadId,
-// });
-
-// // COMMENT THREADS FETCH
-// export interface CommentThreadsRequestedAction extends Action<string> {
-//     readonly ctids: number[];
-// }
-
-// export interface CommentThreadsRequestSucceededAction extends Action<string> {
-//     readonly commentThreads: CommentThreadDtoFull[];
-// }
-
-// export const commentThreadsRequestedAction = (ctids: number[]) => ({
-//     type: COMMENT_THREADS_REQUESTED_ACTION,
-//     ctids,
-// });
-
-// export const commentThreadsRequestSucceededAction = (
-//     commentThreads: CommentThreadDtoFull[],
-// ) => ({ type: COMMENT_THREADS_REQUEST_SUCCEEDED_ACTION, commentThreads });
-
 // COMMENT THREAD FETCH
 export interface CommentThreadRequestedAction extends Action<string> {
     entityId: number;

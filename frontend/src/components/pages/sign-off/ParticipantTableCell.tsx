@@ -83,9 +83,9 @@ class ParticipantTableCell extends Component<
                             : null
                     }
                     commentThreadSubject={participant.person.fullName}
-                    linkedEntityId={participant.id}
-                    linkedEntityType={EntityType.Participant}
-                    showCommentThreadContent={true}
+                    entityId={participant.id}
+                    entityType={EntityType.Participant}
+                    commentThreadOpen={true}
                 />
                 <CommentThread
                     commentThreadId={
@@ -94,9 +94,9 @@ class ParticipantTableCell extends Component<
                             : null
                     }
                     commentThreadSubject={group.name}
-                    linkedEntityId={group.id}
-                    linkedEntityType={EntityType.Group}
-                    showCommentThreadContent={false}
+                    entityId={group.id}
+                    entityType={EntityType.Group}
+                    commentThreadOpen={false}
                 />
             </div>
         );

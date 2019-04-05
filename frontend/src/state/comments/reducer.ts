@@ -1,3 +1,5 @@
+import { Action } from "redux";
+
 import {
     COMMENT_CREATE_REQUEST_SUCCEEDED_ACTION,
     COMMENT_UPDATE_REQUEST_SUCCEEDED_ACTION,
@@ -6,8 +8,10 @@ import {
     COMMENT_DELETE_REQUEST_SUCCEEDED_ACTION,
     COMMENT_THREAD_REQUESTED_ACTION,
 } from "./constants";
+
 import { CommentsState, EntityType } from "./types";
 import { CommentThreadDtoFull } from "../../api/types";
+
 import {
     CommentCreateSucceededAction,
     CommentThreadCreateSucceededAction,
@@ -16,7 +20,6 @@ import {
     CommentDeleteSucceededAction,
     CommentThreadRequestedAction,
 } from "./action";
-import { Action } from "redux";
 
 const initialState: CommentsState = {
     participantThreads: null,
@@ -92,6 +95,10 @@ export default function commentsReducer(
     }
 }
 
+/**
+ * Link the given comment thread to the specified entity (with entityId and entityType)
+ * in the global application state.
+ */
 function setCommentThread(
     state: CommentsState,
     entityId: number,
@@ -104,7 +111,6 @@ function setCommentThread(
 
     switch (entityType) {
         case EntityType.Participant:
-
             if (newState.participantThreads == null) {
                 newState.participantThreads = new Map<
                     number,

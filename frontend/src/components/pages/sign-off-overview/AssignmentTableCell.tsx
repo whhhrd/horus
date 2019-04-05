@@ -59,9 +59,9 @@ class AssignmentTableCell extends Component<AssignmentTableCellProps> {
                             : null
                     }
                     commentThreadSubject={assignment.name}
-                    linkedEntityId={assignment.id}
-                    linkedEntityType={EntityType.Assignment}
-                    showCommentThreadContent={true}
+                    entityId={assignment.id}
+                    entityType={EntityType.Assignment}
+                    commentThreadOpen={true}
                 />
             </div>
         );

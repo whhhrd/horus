@@ -1,3 +1,18 @@
+import { put, takeEvery, call } from "redux-saga/effects";
+
+import {
+    COMMENT_CREATE_REQUESTED_ACTION,
+    COMMENT_UPDATE_REQUESTED_ACTION,
+    COMMENT_THREAD_CREATE_REQUESTED_ACTION,
+    COMMENT_THREAD_REQUESTED_ACTION,
+    COMMENT_DELETE_REQUESTED_ACTION,
+} from "./constants";
+import { notifyError } from "../notifications/constants";
+
+import { authenticatedFetchJSON } from "../../api";
+import { CommentThreadDtoFull } from "../../api/types";
+import { EntityType } from "./types";
+
 import {
     commentCreateRequestSucceededAction,
     CommentCreateRequestAction,
@@ -10,21 +25,6 @@ import {
     commentDeleteRequestSucceededAction,
     commentUpdateRequestSucceededAction,
 } from "./action";
-
-import { notifyError } from "../notifications/constants";
-import { put, takeEvery, call } from "redux-saga/effects";
-
-import {
-    COMMENT_CREATE_REQUESTED_ACTION,
-    COMMENT_UPDATE_REQUESTED_ACTION,
-    COMMENT_THREAD_CREATE_REQUESTED_ACTION,
-    COMMENT_THREAD_REQUESTED_ACTION,
-    COMMENT_DELETE_REQUESTED_ACTION,
-} from "./constants";
-
-import { authenticatedFetchJSON } from "../../api";
-import { CommentThreadDtoFull } from "../../api/types";
-import { EntityType } from "./types";
 
 function getEntityTypePrefix(entityType: EntityType) {
     switch (entityType) {

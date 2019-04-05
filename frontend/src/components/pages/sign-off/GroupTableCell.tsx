@@ -55,9 +55,9 @@ class GroupTableCell extends Component<GroupTableCellProps> {
                             : null
                     }
                     commentThreadSubject={group.name}
-                    linkedEntityId={group.id}
-                    linkedEntityType={EntityType.Group}
-                    showCommentThreadContent={true}
+                    entityId={group.id}
+                    entityType={EntityType.Group}
+                    commentThreadOpen={true}
                 />
             </div>
         );

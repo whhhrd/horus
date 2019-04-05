@@ -1,7 +1,6 @@
-import { Component } from "react";
-import React from "react";
-import { Formik, Field } from "formik";
-import { CommentCreateDto, CommentType } from "../../api/types";
+import React, { PureComponent, Fragment, KeyboardEvent } from "react";
+import { connect } from "react-redux";
+
 import {
     Form,
     Button,
@@ -10,16 +9,21 @@ import {
     ModalBody,
     ModalFooter,
     Alert,
+    Input,
 } from "reactstrap";
+
+import { CommentCreateDto, CommentType } from "../../api/types";
 import { ApplicationState } from "../../state/state";
-import { connect } from "react-redux";
+
+import { EntityType } from "../../state/comments/types";
 import {
     commentCreateRequestedAction,
     CommentCreateRequestAction,
 } from "../../state/comments/action";
+
+import { Formik, Field } from "formik";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
-import { EntityType } from "../../state/comments/types";
 
 interface CommentCreatorModalProps {
     isOpen: boolean;
@@ -37,45 +41,49 @@ interface CommentCreatorModalProps {
     onCloseModal: () => void;
 }
 
-class CommentCreatorModal extends Component<CommentCreatorModalProps> {
-    constructor(props: CommentCreatorModalProps) {
-        super(props);
-        this.onCloseModal = this.onCloseModal.bind(this);
-    }
-
+/**
+ * A modal that allows the user to create a comment.
+ */
+class CommentCreatorModal extends PureComponent<CommentCreatorModalProps> {
     onSubmit = (commentCreate: CommentCreateDto) => {
         this.props.createComment(
             this.props.entityId,
             this.props.entityType,
             commentCreate,
         );
-        this.onCloseModal();
-    }
-
-    onCloseModal() {
         this.props.onCloseModal();
     }
 
+    isValid(values: CommentCreateDto) {
+        return values.content.trim().length > 0;
+    }
+
     render() {
+        const {
+            isOpen,
+            onCloseModal,
+            commentThreadId,
+            commentThreadType,
+        } = this.props;
+
         return (
-            <Modal autoFocus={false} isOpen={this.props.isOpen}>
-                <ModalHeader toggle={this.onCloseModal}>
+            <Modal autoFocus={false} isOpen={isOpen}>
+                <ModalHeader toggle={onCloseModal}>
                     {"Creating comment"}
                 </ModalHeader>
-                {this.props.isOpen && (
+                {isOpen && (
                     <Formik
                         initialValues={{
-                            threadId: this.props.commentThreadId,
+                            threadId: commentThreadId,
                             content: "",
                         }}
                         onSubmit={this.onSubmit}
                     >
-                        {({ handleSubmit, values, isValid  }) => (
-                            <div>
+                        {({ handleSubmit, values }) => (
+                            <Fragment>
                                 <ModalBody>
                                     <Form>
-                                        {this.props.commentThreadType ===
-                                        "PUBLIC" ? (
+                                        {commentThreadType === "PUBLIC" ? (
                                             <Alert color="warning">
                                                 <FontAwesomeIcon
                                                     icon={faExclamationTriangle}
@@ -85,21 +93,23 @@ class CommentCreatorModal extends Component<CommentCreatorModalProps> {
                                                 designated students.
                                             </Alert>
                                         ) : null}
-                                        <Field
+                                        <Input
+                                            tag={Field}
                                             autoFocus={true}
                                             component="textarea"
                                             className="p-2 w-100"
                                             name="content"
-                                            isvalid={
-                                                String((values.content.trim().length > 0))
-                                            }
-                                            onKeyDown={(event: KeyboardEvent) => {
+                                            valid={this.isValid(values)}
+                                            invalid={!this.isValid(values)}
+                                            onKeyDown={(
+                                                event: KeyboardEvent,
+                                            ) => {
                                                 if (
                                                     event.key === "Enter" &&
                                                     !event.shiftKey
                                                 ) {
                                                     event.preventDefault();
-                                                    if (isValid) {
+                                                    if (this.isValid(values)) {
                                                         handleSubmit();
                                                     }
                                                 }
@@ -114,15 +124,15 @@ class CommentCreatorModal extends Component<CommentCreatorModalProps> {
                                         size="md"
                                         color="secondary"
                                         outline
-                                        onClick={this.onCloseModal}
+                                        onClick={onCloseModal}
                                     >
                                         Cancel
                                     </Button>
                                     <Button
                                         block
                                         size="md"
-                                        color="primary"
-                                        disabled={!isValid}
+                                        color="success"
+                                        disabled={!this.isValid(values)}
                                         onClick={() => {
                                             handleSubmit();
                                         }}
@@ -130,7 +140,7 @@ class CommentCreatorModal extends Component<CommentCreatorModalProps> {
                                         Create
                                     </Button>
                                 </ModalFooter>
-                            </div>
+                            </Fragment>
                         )}
                     </Formik>
                 )}

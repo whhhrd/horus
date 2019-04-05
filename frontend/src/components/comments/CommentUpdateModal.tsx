@@ -1,12 +1,6 @@
-import { Component } from "react";
-import React from "react";
-import { Formik, Field } from "formik";
-import {
-    CommentCreateDto,
-    CommentUpdateDto,
-    CommentDto,
-    CommentType,
-} from "../../api/types";
+import React, { Component, KeyboardEvent, Fragment } from "react";
+import { connect } from "react-redux";
+
 import {
     Form,
     Button,
@@ -15,16 +9,26 @@ import {
     ModalBody,
     ModalFooter,
     Alert,
+    Input,
 } from "reactstrap";
+
+import {
+    CommentCreateDto,
+    CommentUpdateDto,
+    CommentDto,
+    CommentType,
+} from "../../api/types";
 import { ApplicationState } from "../../state/state";
-import { connect } from "react-redux";
+
+import { EntityType } from "../../state/comments/types";
 import {
     commentUpdateRequestedAction,
     CommentUpdateRequestAction,
 } from "../../state/comments/action";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
-import { EntityType } from "../../state/comments/types";
+import { Formik, Field } from "formik";
 
 interface CommentUpdateModalProps {
     isOpen: boolean;
@@ -43,12 +47,10 @@ interface CommentUpdateModalProps {
     onCloseModal: () => void;
 }
 
+/**
+ * A modal that allows the user to edit a comment.
+ */
 class CommentUpdateModal extends Component<CommentUpdateModalProps> {
-    constructor(props: CommentUpdateModalProps) {
-        super(props);
-        this.onCloseModal = this.onCloseModal.bind(this);
-    }
-
     onSubmit = (commentUpdate: CommentCreateDto) => {
         this.props.updateComment(
             this.props.entityId,
@@ -56,33 +58,40 @@ class CommentUpdateModal extends Component<CommentUpdateModalProps> {
             this.props.comment.id,
             commentUpdate,
         );
-        this.onCloseModal();
-    }
-
-    onCloseModal() {
         this.props.onCloseModal();
     }
 
+    isValid(values: CommentUpdateDto) {
+        return values.content.trim().length > 0;
+    }
+
     render() {
+        const {
+            isOpen,
+            onCloseModal,
+            entityId,
+            comment,
+            commentThreadType,
+        } = this.props;
+
         return (
-            <Modal autoFocus={false} isOpen={this.props.isOpen}>
-                <ModalHeader toggle={this.onCloseModal}>
+            <Modal autoFocus={false} isOpen={isOpen}>
+                <ModalHeader toggle={onCloseModal}>
                     {"Editing comment"}
                 </ModalHeader>
-                {this.props.isOpen && (
+                {isOpen && (
                     <Formik
                         initialValues={{
-                            threadId: this.props.entityId,
-                            content: this.props.comment.content,
+                            threadId: entityId,
+                            content: comment.content,
                         }}
                         onSubmit={this.onSubmit}
                     >
-                        {({ handleSubmit, values, isValid  }) => (
-                            <div>
+                        {({ handleSubmit, values }) => (
+                            <Fragment>
                                 <ModalBody>
                                     <Form>
-                                        {this.props.commentThreadType ===
-                                        "PUBLIC" ? (
+                                        {commentThreadType === "PUBLIC" ? (
                                             <Alert color="warning">
                                                 <FontAwesomeIcon
                                                     icon={faExclamationTriangle}
@@ -92,21 +101,23 @@ class CommentUpdateModal extends Component<CommentUpdateModalProps> {
                                                 designated students.
                                             </Alert>
                                         ) : null}
-                                        <Field
+                                        <Input
+                                            tag={Field}
                                             autoFocus={true}
                                             component="textarea"
                                             className="p-2 w-100"
                                             name="content"
-                                            isvalid={
-                                                String((values.content.trim().length > 0))
-                                            }
-                                            onKeyDown={(event: KeyboardEvent) => {
+                                            valid={this.isValid(values)}
+                                            invalid={!this.isValid(values)}
+                                            onKeyDown={(
+                                                event: KeyboardEvent,
+                                            ) => {
                                                 if (
                                                     event.key === "Enter" &&
                                                     !event.shiftKey
                                                 ) {
                                                     event.preventDefault();
-                                                    if (isValid) {
+                                                    if (this.isValid(values)) {
                                                         handleSubmit();
                                                     }
                                                 }
@@ -120,15 +131,15 @@ class CommentUpdateModal extends Component<CommentUpdateModalProps> {
                                         size="md"
                                         color="secondary"
                                         outline
-                                        onClick={this.onCloseModal}
+                                        onClick={onCloseModal}
                                     >
                                         Cancel
                                     </Button>
                                     <Button
                                         block
                                         size="md"
-                                        color="primary"
-                                        disabled={!isValid}
+                                        color="success"
+                                        disabled={!this.isValid(values)}
                                         onClick={() => {
                                             handleSubmit();
                                         }}
@@ -136,7 +147,7 @@ class CommentUpdateModal extends Component<CommentUpdateModalProps> {
                                         Edit
                                     </Button>
                                 </ModalFooter>
-                            </div>
+                            </Fragment>
                         )}
                     </Formik>
                 )}

@@ -132,9 +132,9 @@ class SignoffResultTableCell extends Component<
                                 : null
                         }
                         commentThreadSubject={`Sign-off: ${assignment.name}`}
-                        linkedEntityId={signOff.id}
-                        linkedEntityType={EntityType.Signoff}
-                        showCommentThreadContent={true}
+                        entityId={signOff.id}
+                        entityType={EntityType.Signoff}
+                        commentThreadOpen={true}
                     />
                     <CommentThread
                         commentThreadId={
@@ -143,9 +143,9 @@ class SignoffResultTableCell extends Component<
                                 : null
                         }
                         commentThreadSubject={participant.person.fullName}
-                        linkedEntityId={participant.id}
-                        linkedEntityType={EntityType.Participant}
-                        showCommentThreadContent={false}
+                        entityId={participant.id}
+                        entityType={EntityType.Participant}
+                        commentThreadOpen={false}
                     />
                     <CommentThread
                         commentThreadId={
@@ -154,9 +154,9 @@ class SignoffResultTableCell extends Component<
                                 : null
                         }
                         commentThreadSubject={group.name}
-                        linkedEntityId={group.id}
-                        linkedEntityType={EntityType.Group}
-                        showCommentThreadContent={false}
+                        entityId={group.id}
+                        entityType={EntityType.Group}
+                        commentThreadOpen={false}
                     />
                     <CommentThread
                         commentThreadId={
@@ -165,9 +165,9 @@ class SignoffResultTableCell extends Component<
                                 : null
                         }
                         commentThreadSubject={assignment.name}
-                        linkedEntityId={assignment.id}
-                        linkedEntityType={EntityType.Assignment}
-                        showCommentThreadContent={false}
+                        entityId={assignment.id}
+                        entityType={EntityType.Assignment}
+                        commentThreadOpen={false}
                     />
                 </div>
             );
