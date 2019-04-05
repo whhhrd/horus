@@ -22,7 +22,7 @@ class SignOffServiceTest : HorusAbstractTest() {
     lateinit var assignmentService: AssignmentService
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testHasSignOffsFilled() {
         val assignmentIds = getPPCourse().assignmentSets.first().assignments.take(5)
         val counts = signOffService.getSignOffResultCounts(assignmentIds.map { it.id })
@@ -34,7 +34,7 @@ class SignOffServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testHasSignOffsEmpty() {
         val set = createAssignmentSet()
         val assignmentIds = set.assignments.map { it.id }
@@ -44,7 +44,7 @@ class SignOffServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testHasSignOffsMixed() {
         val firstAssignment = CC_ASSIGNMENT_IDS.first()
         val lastAssignment = CC_ASSIGNMENT_IDS.last()

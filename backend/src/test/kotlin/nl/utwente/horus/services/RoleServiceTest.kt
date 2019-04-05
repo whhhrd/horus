@@ -22,7 +22,7 @@ class RoleServiceTest : HorusAbstractTest() {
                 HorusPermission.anyDelete(HorusResource.COURSE_PARTICIPANT_LABEL_MAPPING))
     }
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testCreateRole() {
         val role = createFreshSupplementaryRole()
         assertEquals(PP_MOCK_COURSE_ID, role.course.id)
@@ -36,15 +36,13 @@ class RoleServiceTest : HorusAbstractTest() {
         return supplementaryRoleService.createSupplementaryRole(getPPCourse(), "admins", ADDED_PERMISSIONS)
     }
 
-    @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testCreateRoleDuplicate() {
         createFreshSupplementaryRole()
         assertThrows(DuplicateNameException::class) { createFreshSupplementaryRole() }
     }
 
-    @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testAssignUnassignRole() {
         // Check that previously permissions weren't added
         val role = createFreshSupplementaryRole()

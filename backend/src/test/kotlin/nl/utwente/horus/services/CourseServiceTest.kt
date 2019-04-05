@@ -41,21 +41,21 @@ class CourseServiceTest : HorusAbstractTest() {
     private lateinit var roleService: RoleService
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testCoursesList() {
         val courses = courseService.getAllParticipatingCourses(getCurrentPerson())
         assertTrue("Current person has no courses", courses.isNotEmpty())
     }
 
     @Test
-    @WithLoginId(STUDENT_LOGIN)
+    @WithLoginId(PP_STUDENT_LOGIN)
     fun testMultipleParticipations() {
         val participations = courseService.getAllParticipatingCourses(getCurrentPerson())
         assertTrue("Student doesn't have multiple courses", participations.size > 1)
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testGetCourseById() {
         // Verify that the PP course can be retrieved
         val course = courseService.getCourseById(PP_MOCK_COURSE_ID)
@@ -71,7 +71,7 @@ class CourseServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testGetCourseByExternalId() {
         // Check that initially no course can be found
         try {
@@ -88,7 +88,7 @@ class CourseServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testExistsCourseByExternalId() {
         // Check that initially such a course does not exist
         var exists = courseService.existsCourseByExternalId(newCourse.externalId!!)
@@ -101,7 +101,7 @@ class CourseServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testGetAllCourses() {
         courseService.createCourse(newCourse)
         val courses = courseService.getAllCourses()
@@ -122,7 +122,7 @@ class CourseServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testGetAllParticipatingCourses() {
         courseService.createCourse(newCourse)
         val person = getCurrentPerson()
@@ -148,7 +148,7 @@ class CourseServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testGetAssignmentSetsOfCourse() {
         courseService.getCourseById(PP_MOCK_COURSE_ID)
 
@@ -178,7 +178,7 @@ class CourseServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testGetAssignmentSetsOfCoursePerPerson() {
         // First test for a person that is not linked to PP course
         val person = getCurrentPerson()
@@ -211,7 +211,7 @@ class CourseServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testGetGroupSetsOfCourse() {
         // Check if group set of PP course can be retrieved properly
         val groupSets = courseService.getGroupSetsOfCourse(PP_MOCK_COURSE_ID)
@@ -225,7 +225,7 @@ class CourseServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testGetParticipantsOfCourse() {
         // First check if a new course has no participants
         val course = courseService.createCourse(newCourse)
@@ -241,7 +241,7 @@ class CourseServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testGetCurrentParticipationInCourse() {
         // First check if initially no participant in new course
         val course = courseService.createCourse(newCourse)
@@ -260,13 +260,13 @@ class CourseServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testCreateAssignmentSetInCourse() {
         // TODO
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testCreateCourse() {
         // Define function that asserts whether course creation went as expected
         val asExpected: (CourseCreateDto, Course) -> Unit = { courseCreate, course ->
@@ -295,7 +295,7 @@ class CourseServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testCreateCourseAlternative() {
         // Define function that asserts whether course creation went as expected
         val asExpected: (CourseCreateDto, Course) -> Unit = { courseCreate, course ->
@@ -328,7 +328,7 @@ class CourseServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testUpdateCourse() {
         // First create a new course which will be updated afterwards
         val course = courseService.createCourse(newCourse)
@@ -364,7 +364,7 @@ class CourseServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testUpdateCourseAlternative() {
         // First create a new course which will be updated afterwards
         val course = courseService.createCourse(newCourse)
@@ -404,13 +404,13 @@ class CourseServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testGetSignOffGroupSearchResults() {
         // TODO
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testGetSignOffResultsFilteredInCourse() {
         // TODO
     }

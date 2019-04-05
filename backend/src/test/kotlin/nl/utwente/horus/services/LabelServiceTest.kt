@@ -18,7 +18,7 @@ class LabelServiceTest : HorusAbstractTest() {
     lateinit var participantService: ParticipantService
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testCreateLabel() {
         val name = "pandora-guy"
         val course = getPPCourse()
@@ -30,7 +30,7 @@ class LabelServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testUpdate() {
         val label = getFreshLabel()
         val oldName = label.name
@@ -46,7 +46,7 @@ class LabelServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testLabelCount() {
         val count = 5L // Has to be long due to comparison to result of getUsageCount()
         val label = getFreshLabel()
@@ -57,7 +57,7 @@ class LabelServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testLabelDelete() {
         val label = getFreshLabel()
         val participant = getStudentParticipant()

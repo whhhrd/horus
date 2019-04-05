@@ -52,7 +52,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     lateinit var roleService: RoleService
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testGetAssignmentSetById() {
         // First try if a valid assignment set is retrieved correctly
         val assignmentSet = assignmentService.getAssignmentSetById(fpAssignmentSetId)
@@ -63,7 +63,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(STUDENT_LOGIN)
+    @WithLoginId(PP_STUDENT_LOGIN)
     fun testGetAssignmentSetsByParticipant() {
         val participant = participantService.getCurrentParticipationInCourse(PP_MOCK_COURSE_ID)
         val assignmentSets = assignmentService.getAssignmentSetsByParticipant(participant)
@@ -88,7 +88,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testGetAssignmentSetsByParticipantPartialCourse() {
         // This intent of this test is to verify whether the getAssignmentSetsByParticipant function also works as
         // expected when a participant only takes part in a non-empty proper subset of the assignment sets of a course.
@@ -124,7 +124,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(STUDENT_LOGIN)
+    @WithLoginId(PP_STUDENT_LOGIN)
     fun testGetAssignmentById() {
         val participant = participantService.getCurrentParticipationInCourse(PP_MOCK_COURSE_ID)
 
@@ -146,7 +146,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testGetAssignmentGroupSetsMappingsInCourse() {
         // First check if initially the PP course has four Assignment Set - Group Set mappings
         val initialMappings = assignmentService.getAssignmentGroupSetsMappingsInCourse(PP_MOCK_COURSE_ID)
@@ -184,7 +184,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(STUDENT_LOGIN)
+    @WithLoginId(PP_STUDENT_LOGIN)
     fun testGetAssignmentsByIds() {
         val participant = participantService.getCurrentParticipationInCourse(PP_MOCK_COURSE_ID)
 
@@ -208,7 +208,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testCreateAssignmentSet() {
         val participant = participantService.getCurrentParticipationInCourse(PP_MOCK_COURSE_ID)
         val ppCourse = courseService.getCourseById(PP_MOCK_COURSE_ID)
@@ -229,7 +229,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testUpdateAssignmentSetName() {
         val creatorPerson = getCurrentPerson()
         val (_, _, assignmentSet) = createSampleTestAssignmentSet()
@@ -252,7 +252,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testUpdateAssignmentMilestone() {
         val (_, _, set) = createSampleTestAssignmentSet()
         val first = set.assignments.first()
@@ -273,7 +273,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testUpdateAssignmentSetNameEmpty() {
         val creatorPerson = getCurrentPerson()
         val (_, _, assignmentSet) = createSampleTestAssignmentSet()
@@ -291,7 +291,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testUpdateAssignmentSetAddGroupSet() {
         val creatorPerson = getCurrentPerson()
         val (course, participant, assignmentSet) = createSampleTestAssignmentSet()
@@ -316,7 +316,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testUpdateAssignmentSetDeleteGroupSet() {
         val creatorPerson = getCurrentPerson()
         val (_, _, assignmentSet) = createSampleTestAssignmentSet()
@@ -340,7 +340,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testUpdateAssignmentSetReplaceGroupSet() {
         val creatorPerson = getCurrentPerson()
         val (course, participant, assignmentSet) = createSampleTestAssignmentSet()
@@ -367,7 +367,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testUpdateAssignmentSetEmptyGroupSet() {
         val creatorPerson = getCurrentPerson()
         val (_, _, assignmentSet) = createSampleTestAssignmentSet()
@@ -390,7 +390,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testUpdateAssignmentSetAddAssignment() {
         val creatorPerson = getCurrentPerson()
         val (_, _, assignmentSet) = createSampleTestAssignmentSet()
@@ -424,7 +424,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testUpdateAssignmentSetDeleteAssignment() {
         val creatorPerson = getCurrentPerson()
         val (_, _, assignmentSet) = createSampleTestAssignmentSet()
@@ -458,7 +458,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testUpdateAssignmentSetReplaceAssignment() {
         val creatorPerson = getCurrentPerson()
         val (_, _, assignmentSet) = createSampleTestAssignmentSet()
@@ -493,7 +493,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testUpdateAssignmentSetAddEmptyNameAssignment() {
         val creatorPerson = getCurrentPerson()
         val (_, _, assignmentSet) = createSampleTestAssignmentSet()
@@ -512,7 +512,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testUpdateAssignmentSetEmptyAssignments() {
         val creatorPerson = getCurrentPerson()
         val (_, _, assignmentSet) = createSampleTestAssignmentSet()
@@ -545,7 +545,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testIsPersonMappedToAssignmentSet() {
         // First check if initially the person is not mapped to the assignment set
         val (course, creatorParticipant, assignmentSet) = createSampleTestAssignmentSet()
@@ -566,7 +566,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testAddThreadToAssignment() {
         val (_, _, assignmentSet) = createSampleTestAssignmentSet()
         val assignment = assignmentSet.assignments.toList()[0]
@@ -583,7 +583,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testDeleteAssignmentSet() {
         // First delete an assignment set containing several of assignments
         val fpAssignmentSet = assignmentService.getAssignmentSetById(fpAssignmentSetId)
@@ -606,7 +606,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
     }
 
     @Test
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     fun testDeleteAssignment() {
         val set = assignmentService.getAssignmentSetById(fpAssignmentSetId)
 

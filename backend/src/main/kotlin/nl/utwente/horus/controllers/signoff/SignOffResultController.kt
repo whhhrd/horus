@@ -5,6 +5,7 @@ import nl.utwente.horus.auth.permissions.HorusResource
 import nl.utwente.horus.controllers.BaseController
 import nl.utwente.horus.entities.assignment.AssignmentSet
 import nl.utwente.horus.entities.assignment.SignOffResult
+import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.exceptions.CommentThreadNotFoundException
 import nl.utwente.horus.representations.assignment.SignOffResultDtoSummary
 import nl.utwente.horus.representations.comment.CommentThreadCreateDto
@@ -64,9 +65,11 @@ class SignOffResultController: BaseController() {
 
     @GetMapping(path = ["/history"])
     fun getSignOffHistory(@RequestParam participantId: Long, @RequestParam assignmentId: Long): List<SignOffResultDtoSummary> {
+        requireAnyPermission(Participant::class, participantId, HorusPermissionType.VIEW, HorusResource.COURSE_SIGNOFFRESULT)
         val results = signOffService.getSignOffHistory(participantId, assignmentId)
 
         if (results.isNotEmpty()) {
+            // Check that
             // Check permission based on first result: will hold for rest as well (since they are for same participant)
             verifyCoursePermission(SignOffResult::class, results.first().id, HorusPermissionType.VIEW)
         }

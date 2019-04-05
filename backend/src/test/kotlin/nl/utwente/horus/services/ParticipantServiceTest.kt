@@ -12,7 +12,7 @@ class ParticipantServiceTest : HorusAbstractTest() {
     @Autowired
     lateinit var participantService: ParticipantService
 
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     @Test
     fun testLabelLinkUnlink() {
         val student = getStudentParticipant()
@@ -31,7 +31,7 @@ class ParticipantServiceTest : HorusAbstractTest() {
         assertFalse(student in label.participants)
     }
 
-    @WithLoginId(TEACHER_LOGIN)
+    @WithLoginId(PP_TEACHER_LOGIN)
     @Test
     fun testGetByList() {
         val amount = 153
