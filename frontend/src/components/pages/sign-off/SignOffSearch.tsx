@@ -13,7 +13,11 @@ import {
 } from "reactstrap";
 import Autosuggest from "react-autosuggest";
 
-import { AssignmentSetDtoBrief } from "../../../api/types";
+import {
+    AssignmentSetDtoBrief,
+    AssignmentGroupSetsMappingDto,
+    GroupDtoFull,
+} from "../../../api/types";
 import { ApplicationState } from "../../../state/state";
 import {
     GroupAssignmentSetCombination,
@@ -23,13 +27,18 @@ import {
 import {
     assignmentSetsFetchRequestedAction,
     AssignmentSetsFetchAction,
+    AssignmentGroupSetMappingFetchRequestedAction,
+    assignmentGroupSetsMappingsFetchRequestedAction,
 } from "../../../state/assignments/actions";
 import {
     signOffSearchQueryAction,
     SignOffSearchQueryAction,
 } from "../../../state/search/action";
 
-import { getAssignmentSets } from "../../../state/assignments/selectors";
+import {
+    getAssignmentSets,
+    getAssignmentGroupSetsMappingDtos,
+} from "../../../state/assignments/selectors";
 import { getSignOffSearchResults } from "../../../state/search/selectors";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -46,18 +55,24 @@ import {
     RemindRequestedAction,
     remindRequestedAction,
 } from "../../../state/queuing/actions";
+import { getGroup } from "../../../state/sign-off/selectors";
 
 interface SignOffSearchProps {
     searchQuery?: string;
 
     searchResult: GroupAssignmentSetCombination[] | null;
-    assignmentSets: () => AssignmentSetDtoBrief[] | null;
+    assignmentSets: AssignmentSetDtoBrief[] | null;
+    assignmentGroupSetsMapping: AssignmentGroupSetsMappingDto[] | null;
+    group: GroupDtoFull | null;
 
     doSearchQuery: (
         courseID: number,
         query: string,
     ) => SignOffSearchQueryAction;
     fetchAssignmentSets: (courseID: number) => AssignmentSetsFetchAction;
+    fetchAssignmentGroupSetsMapping: (
+        courseId: number,
+    ) => AssignmentGroupSetMappingFetchRequestedAction;
     remind: (cid: number, rid: string, id: number) => RemindRequestedAction;
 }
 
@@ -91,6 +106,7 @@ class SignOffSearch extends Component<
     componentDidMount() {
         this.setState(() => ({ searchQuery: "" }));
         this.props.fetchAssignmentSets(this.props.match.params.cid);
+        this.props.fetchAssignmentGroupSetsMapping(this.props.match.params.cid);
     }
 
     render() {
@@ -164,32 +180,40 @@ class SignOffSearch extends Component<
     }
 
     private renderAssignmentSetSelector() {
-        const assignmentSetOptions = [];
-        if (this.props.assignmentSets() != null) {
-            for (const assignmentSet of this.props.assignmentSets()!) {
+        const {
+            assignmentSets,
+            assignmentGroupSetsMapping,
+            group,
+        } = this.props;
+
+        const gid = getFilterParam(this.props.location.search, "g");
+        const assignmentSetOptions: JSX.Element[] = [];
+
+        // If we have not yet selected a group, show all assignment sets
+        if (gid == null && assignmentSets != null) {
+            assignmentSets.forEach((as) => {
                 assignmentSetOptions.push(
-                    <DropdownItem
-                        key={assignmentSet.id}
-                        onClick={() => {
-                            let newQuery = queryString.parse(
-                                this.props.location.search,
-                            );
-                            newQuery = replaceQueryParam(
-                                newQuery,
-                                "as",
-                                assignmentSet.id,
-                            );
-                            this.props.history.push({
-                                ...this.props.history.location,
-                                search: objectToQueryString(newQuery),
-                            });
-                        }}
-                    >
-                        {assignmentSet.name}
-                    </DropdownItem>,
+                    this.renderAssignmentSetDropdownItem(as),
                 );
-            }
+            });
+        } else if (
+            // If we have selected a group, find the mapped assignment sets and add
+            // dropdown items for those assignment sets
+            assignmentGroupSetsMapping != null &&
+            group != null &&
+            gid != null
+        ) {
+            const mapsForThisGroup = assignmentGroupSetsMapping.filter(
+                (mapping) => mapping.groupSet.id === group.groupSet.id,
+            );
+
+            mapsForThisGroup.forEach((mapping) => {
+                assignmentSetOptions.push(
+                    this.renderAssignmentSetDropdownItem(mapping.assignmentSet),
+                );
+            });
         }
+
         const selectedAssignmentSet = this.getAssignmentSetByID(
             Number(queryString.parse(this.props.location.search).as!),
         );
@@ -217,8 +241,44 @@ class SignOffSearch extends Component<
                         </span>
                     </DropdownToggle>
                 </span>
-                <DropdownMenu>{assignmentSetOptions}</DropdownMenu>
+                <DropdownMenu>
+                    {assignmentSetOptions.length > 0 ? (
+                        assignmentSetOptions
+                    ) : (
+                        // This only appears if the course has no assignment sets
+                        // or if the chosen group has no mapped assignment sets (very unlikely)
+                        <DropdownItem className="text-muted p-2">
+                            No assignment sets can be chosen
+                        </DropdownItem>
+                    )}
+                </DropdownMenu>
             </Dropdown>
+        );
+    }
+
+    private renderAssignmentSetDropdownItem(
+        assignmentSet: AssignmentSetDtoBrief,
+    ) {
+        return (
+            <DropdownItem
+                key={assignmentSet.id}
+                onClick={() => {
+                    let newQuery = queryString.parse(
+                        this.props.location.search,
+                    );
+                    newQuery = replaceQueryParam(
+                        newQuery,
+                        "as",
+                        assignmentSet.id,
+                    );
+                    this.props.history.push({
+                        ...this.props.history.location,
+                        search: objectToQueryString(newQuery),
+                    });
+                }}
+            >
+                {assignmentSet.name}
+            </DropdownItem>
         );
     }
 
@@ -408,8 +468,8 @@ class SignOffSearch extends Component<
     }
 
     private getAssignmentSetByID(asid: number): AssignmentSetDtoBrief | null {
-        if (asid != null && this.props.assignmentSets() != null) {
-            for (const assignmentSet of this.props.assignmentSets()!) {
+        if (asid != null && this.props.assignmentSets != null) {
+            for (const assignmentSet of this.props.assignmentSets) {
                 if (assignmentSet.id === asid) {
                     return assignmentSet;
                 }
@@ -442,14 +502,19 @@ export default withRouter(
     connect(
         (state: ApplicationState) => ({
             searchResult: getSignOffSearchResults(state),
-            assignmentSets: () => getAssignmentSets(state),
+            assignmentSets: getAssignmentSets(state),
+            assignmentGroupSetsMapping: getAssignmentGroupSetsMappingDtos(
+                state,
+            ),
+            group: getGroup(state),
         }),
         {
             doSearchQuery: (courseID: number, query: string) =>
                 signOffSearchQueryAction(courseID, query),
-            fetchAssignmentSets: assignmentSetsFetchRequestedAction,
             remind: (cid: number, rid: string, id: number) =>
                 remindRequestedAction(cid, rid, id),
+            fetchAssignmentSets: assignmentSetsFetchRequestedAction,
+            fetchAssignmentGroupSetsMapping: assignmentGroupSetsMappingsFetchRequestedAction,
         },
     )(SignOffSearch),
 );

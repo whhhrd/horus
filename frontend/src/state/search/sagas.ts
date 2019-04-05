@@ -3,7 +3,7 @@ import {
     signOffSearchSucceededAction,
 } from "./action";
 import { notifyError } from "../notifications/constants";
-import { put, takeEvery, call } from "redux-saga/effects";
+import { put, call, takeLatest } from "redux-saga/effects";
 import { SIGN_OFF_SEARCH_QUERY_ACTION } from "./constants";
 import { authenticatedFetchJSON } from "../../api";
 import { GroupAssignmentSetSearchResultDto } from "../../api/types";
@@ -23,5 +23,5 @@ export function* signOffSearchQuery(action: SignOffSearchQueryAction) {
 }
 
 export default function* searchSaga() {
-    yield takeEvery(SIGN_OFF_SEARCH_QUERY_ACTION, signOffSearchQuery);
+    yield takeLatest(SIGN_OFF_SEARCH_QUERY_ACTION, signOffSearchQuery);
 }

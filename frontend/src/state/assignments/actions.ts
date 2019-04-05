@@ -57,6 +57,10 @@ export const assignmentSetFetchSucceededAction = (assignmentSet: AssignmentSetDt
     ({ type: ASSIGNMENT_SET_FETCH_SUCCEEDED_ACTION, assignmentSet });
 
 // MAPPINGS
+export interface AssignmentGroupSetMappingFetchRequestedAction extends Action<string> {
+    courseId: number;
+}
+
 export interface AssignmentGroupSetsMappingsFetchSucceededAction extends Action<string> {
     readonly assignmentGroupSetsMappings: AssignmentGroupSetsMappingDto[];
 }
