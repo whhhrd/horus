@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import {
     CourseDtoFull,
     AssignmentSetDtoFull,
@@ -8,6 +8,7 @@ import {
     GroupDtoFull,
     ParticipantDtoBrief,
     AssignmentSetDtoBrief,
+    RoomDto,
 } from "../../../api/types";
 import { connect } from "react-redux";
 import { getStudentDashboardData } from "../../../state/student-dashboard/selectors";
@@ -16,7 +17,12 @@ import {
     studentDashboardDataRequestedAction,
     StudentDashboardDataRequestedAction,
 } from "../../../state/student-dashboard/actions";
-import { faTimes, faCheck } from "@fortawesome/free-solid-svg-icons";
+import {
+    faTimes,
+    faCheck,
+    faUsers,
+    faStoreAlt,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { buildContent } from "../../pagebuilder";
 import {
@@ -28,37 +34,47 @@ import {
     Col,
     Button,
     UncontrolledCollapse,
-    CardHeader,
     CardTitle,
     CardBody,
     Card,
 } from "reactstrap";
 import { getDisplayedDate } from "../../util";
 import { AutoSizer } from "react-virtualized";
+import {
+    RoomsFetchRequestedAction,
+    roomsFetchRequestedAction,
+} from "../../../state/rooms/action";
+import { getRooms } from "../../../state/rooms/selectors";
+import { RouteComponentProps, withRouter } from "react-router";
 
 interface CourseStudentDashboardProps {
     course: CourseDtoFull;
     dashboard: StudentDashboardDto | null;
+    rooms: RoomDto[] | null;
+
     requestDashboardData: (cid: number) => StudentDashboardDataRequestedAction;
+    fetchRooms: (courseId: number) => RoomsFetchRequestedAction;
 }
 export class CourseStudentDashboard extends Component<
-    CourseStudentDashboardProps
+    CourseStudentDashboardProps & RouteComponentProps<any>
 > {
     scrollToAssignment: Map<number, HTMLTableDataCellElement>;
-    constructor(props: CourseStudentDashboardProps) {
+    constructor(props: CourseStudentDashboardProps & RouteComponentProps<any>) {
         super(props);
         this.scrollToAssignment = new Map<number, HTMLTableDataCellElement>();
     }
 
     componentDidMount() {
         this.props.requestDashboardData(this.props.course.id);
+        this.props.fetchRooms(this.props.course.id);
     }
 
     componentDidUpdate() {
         for (const el of this.scrollToAssignment.values()) {
             const scrollContainer = el.parentElement!.parentElement!
                 .parentElement!.parentElement!;
-            const pixelsToScroll = el.offsetLeft - scrollContainer.parentElement!.offsetWidth / 2;
+            const pixelsToScroll =
+                el.offsetLeft - scrollContainer.parentElement!.offsetWidth / 2;
             scrollContainer.scrollLeft = pixelsToScroll;
         }
     }
@@ -68,30 +84,90 @@ export class CourseStudentDashboard extends Component<
     }
 
     private buildContent() {
-        const { dashboard } = this.props;
-        if (dashboard == null) {
+        const { dashboard, rooms } = this.props;
+        if (dashboard == null || rooms == null) {
             return null;
         } else {
             return (
                 <div className="d-flex flex-column align-items-stretch">
+                    <Row>
+                        <Col xs="12" lg="4">
+                            <h3>Open rooms</h3>
+                            {this.buildOpenRooms(rooms)}
+                        </Col>
+                        <Col xs="12" lg="4">
+                            <h3>Your groups</h3>
+                            {this.buildGroupsList(dashboard.groups)}
+                        </Col>
+                        <Col xs="12" lg="4" className="mb-3">
+                            <h3>Recent events</h3>
+                            {this.buildRecentEvents(dashboard.results)}
+                        </Col>
+                    </Row>
                     <h3>Your progress</h3>
                     <div className="d-flex flex-fill flex-column h-100 w-100 mb-2">
                         {this.buildResultsTable(dashboard.assignmentSets)}
                     </div>
-                    <Row>
-                        <Col xs="12" lg="6" className="mb-3">
-                            <h3>Recent events</h3>
-                            {this.buildRecentEvents(dashboard.results)}
-                        </Col>
-                        <Col xs="12" lg="6">
-                            <h3>Your groups</h3>
-                            {this.buildGroupsList(dashboard.groups)}
-                        </Col>
-                    </Row>
                 </div>
             );
         }
     }
+
+    private buildOpenRooms(rooms: RoomDto[] | null) {
+        if (rooms != null && rooms.length > 0) {
+            return (
+                <Fragment>
+                    {rooms.map((r) => (
+                        <Card className="mb-3" key={r.code}>
+                            <CardBody className="py-2">
+                                <CardTitle
+                                    className="my-auto d-flex align-items-center
+                                        justify-content-between"
+                                >
+                                    <div className="mr-3">
+                                        <FontAwesomeIcon
+                                            icon={faStoreAlt}
+                                            size="lg"
+                                        />
+                                    </div>
+                                    <div className="flex-grow-1 flex-wrap">
+                                        <div>
+                                            <span>{r.name} </span>
+                                        </div>
+                                        <div>
+                                            <small className="text-muted">
+                                                Room code: {r.code}
+                                            </small>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-shrink-0">
+                                        <Button
+                                            outline
+                                            color="primary"
+                                            title="Go to room"
+                                            onClick={() =>
+                                                this.props.history.push({
+                                                    pathname: `/courses/${
+                                                        this.props.course.id
+                                                    }/rooms/${r.code}`,
+                                                })
+                                            }
+                                        >
+                                            Join
+                                        </Button>
+                                    </div>
+                                </CardTitle>
+                            </CardBody>
+                        </Card>
+                    ))}
+                </Fragment>
+            );
+        } else {
+            return <span className="text-muted">There are no open rooms.</span>;
+        }
+    }
+
     private buildResultsTable(assignmentSets: AssignmentSetDtoFull[]) {
         if (assignmentSets.length > 0) {
             return assignmentSets.map((assignmentSet: AssignmentSetDtoFull) => (
@@ -220,21 +296,40 @@ export class CourseStudentDashboard extends Component<
         if (groups.length > 0) {
             return groups.map((group: GroupDtoFull) => (
                 <Card key={group.id} className="mb-3">
-                    <CardHeader>
-                        <CardTitle>
-                            {group.name}
-                            <Button
-                                color="primary"
-                                className="float-right"
-                                id={`toggle-group-${group.id}`}
-                            >
-                                Show
-                            </Button>
+                    <CardBody className="py-2">
+                        <CardTitle
+                            className="my-auto d-flex align-items-center
+                                        justify-content-between"
+                        >
+                            <div className="mr-3">
+                                <FontAwesomeIcon icon={faUsers} size="lg" />
+                            </div>
+                            <div className="flex-grow-1 flex-wrap">
+                                <div>
+                                    <span>{group.name}</span>
+                                </div>
+                                <div>
+                                    <small className="text-muted">
+                                        Current group size:{" "}
+                                        {group.participants.length}
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div className="flex-shrink-0">
+                                <Button
+                                    outline
+                                    color="primary"
+                                    id={`toggle-group-${group.id}`}
+                                >
+                                    Show
+                                </Button>
+                            </div>
                         </CardTitle>
-                    </CardHeader>
-                    <UncontrolledCollapse toggler={`toggle-group-${group.id}`}>
-                        <CardBody>
-                            <ul>
+                        <UncontrolledCollapse
+                            toggler={`toggle-group-${group.id}`}
+                        >
+                            <ul className="mt-2 mb-2 pl-5 ml-4">
                                 {group.participants.map(
                                     (participant: ParticipantDtoBrief) => (
                                         <li
@@ -247,8 +342,8 @@ export class CourseStudentDashboard extends Component<
                                     ),
                                 )}
                             </ul>
-                        </CardBody>
-                    </UncontrolledCollapse>
+                        </UncontrolledCollapse>
+                    </CardBody>
                 </Card>
             ));
         } else {
@@ -341,12 +436,16 @@ export class CourseStudentDashboard extends Component<
         }
     }
 }
-export default connect(
-    (state: ApplicationState) => ({
-        dashboard: getStudentDashboardData(state),
-    }),
-    {
-        requestDashboardData: (cid: number) =>
-            studentDashboardDataRequestedAction(cid),
-    },
-)(CourseStudentDashboard);
+export default withRouter(
+    connect(
+        (state: ApplicationState) => ({
+            dashboard: getStudentDashboardData(state),
+            rooms: getRooms(state),
+        }),
+        {
+            requestDashboardData: (cid: number) =>
+                studentDashboardDataRequestedAction(cid),
+            fetchRooms: roomsFetchRequestedAction,
+        },
+    )(CourseStudentDashboard),
+);

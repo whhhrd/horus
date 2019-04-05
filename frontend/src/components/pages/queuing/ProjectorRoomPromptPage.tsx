@@ -9,7 +9,6 @@ interface PromptValues {
 }
 
 class ProjectorRoomPromptPage extends Component<RouteComponentProps<any>> {
-
     constructor(props: RouteComponentProps<any>) {
         super(props);
         this.isValidRoomCode = this.isValidRoomCode.bind(this);
@@ -22,7 +21,7 @@ class ProjectorRoomPromptPage extends Component<RouteComponentProps<any>> {
 
     onSubmit(values: PromptValues) {
         this.props.history.push({
-            pathname: `/beamer/${values.code}`,
+            pathname: `/beamer/${values.code.toUpperCase()}`,
         });
     }
 
@@ -51,6 +50,7 @@ class ProjectorRoomPromptPage extends Component<RouteComponentProps<any>> {
                                                 <Label>Room code</Label>
                                                 <Input
                                                     tag={Field}
+                                                    style={{textTransform: "uppercase"}}
                                                     bsSize="lg"
                                                     autoFocus={true}
                                                     name="code"
@@ -81,7 +81,6 @@ class ProjectorRoomPromptPage extends Component<RouteComponentProps<any>> {
                                                             }
                                                         }
                                                     }}
-                                                    placeholder="Room Code"
                                                 />
                                                 <Button
                                                     block

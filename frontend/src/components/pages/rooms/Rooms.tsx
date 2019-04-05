@@ -43,6 +43,9 @@ class Rooms extends Component<
     RoomsProps & RouteComponentProps<any>,
     RoomsState
 > {
+    static POLL_INTERVAL = 15000;
+    poller: number;
+
     constructor(props: RoomsProps & RouteComponentProps<any>) {
         super(props);
         this.state = {
@@ -50,6 +53,7 @@ class Rooms extends Component<
             roomCloseModalOpen: false,
             roomToClose: null,
         };
+        this.poller = -1;
         this.toggleRoomCreateModal = this.toggleRoomCreateModal.bind(this);
         this.toggleRoomCloseModal = this.toggleRoomCloseModal.bind(this);
     }
@@ -67,10 +71,24 @@ class Rooms extends Component<
         }));
     }
 
+    poll() {
+        this.poller = setTimeout(() => {
+            if (document.hasFocus()) {
+                this.props.fetchRooms(this.props.match.params.cid);
+            }
+            this.poll();
+        }, Rooms.POLL_INTERVAL);
+    }
+
     componentDidMount() {
         const courseId = this.props.match.params.cid;
         this.props.fetchRooms(courseId);
         this.props.fetchCurrentParticipant(courseId);
+        this.poll();
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.poller);
     }
 
     render() {
@@ -135,7 +153,7 @@ class Rooms extends Component<
                                                         this.goToRoom(r.code)
                                                     }
                                                 >
-                                                    Attend
+                                                    Join
                                                 </Button>
                                                 {currentParticipant.role
                                                     .name !== "STUDENT" && (
