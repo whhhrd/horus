@@ -31,6 +31,7 @@ import { push } from "connected-react-router";
 import { PATH_CANVAS_IMPORT, PATH_CANVAS_TOKEN } from "../../routes";
 import { BooleanResultDto, CanvasCourseDto } from "../../api/types";
 import { jobAddAction } from "../jobs/action";
+import { notificationDirectToTasks } from "../../components/pagebuilder";
 
 export function* submitToken(action: TokenSubmittedAction) {
     try {
@@ -45,17 +46,13 @@ export function* submitToken(action: TokenSubmittedAction) {
 
 export function* importCourse(action: CanvasImportAction) {
     try {
-        yield put(
-            notifyInfo(
-                "Course import started. See the 'Tasks' page for more information.",
-            ),
-        );
         const result = yield call(
             authenticatedFetchJSON,
             "POST",
             `canvas/${action.courseId}`,
         );
         yield put(jobAddAction(result));
+        yield put(notifyInfo(notificationDirectToTasks()));
     } catch (e) {
         yield put(notifyError("Canvas import failed", false));
     }
@@ -122,17 +119,13 @@ export function* refreshSetsList(action: CanvasRefreshSetsListRequestedAction) {
 
 export function* refreshSet(action: CanvasRefreshSetRequestedAction) {
     try {
-        yield put(
-            notifyInfo(
-                "Retrieving groups. See the 'Tasks' page for more information.",
-            ),
-        );
         const result = yield call(
             authenticatedFetchJSON,
             "PUT",
             `canvas/${action.courseId}/sets/${action.groupSetId}`,
         );
         yield put(jobAddAction(result));
+        yield put(notifyInfo(notificationDirectToTasks()));
     } catch (e) {
         yield put(notifyError("Failed to retrieve Canvas groups"));
     }
@@ -140,11 +133,6 @@ export function* refreshSet(action: CanvasRefreshSetRequestedAction) {
 
 export function* importGroupSet(action: CanvasGroupSetImportRequestedAction) {
     try {
-        yield put(
-            notifyInfo(
-                "Importing group set. See the 'Tasks' page for more information.",
-            ),
-        );
         const result = yield call(
             authenticatedFetchJSON,
             "POST",
@@ -156,6 +144,7 @@ export function* importGroupSet(action: CanvasGroupSetImportRequestedAction) {
             true,
         );
         yield put(jobAddAction(result));
+        yield put(notifyInfo(notificationDirectToTasks()));
     } catch (e) {
         yield put(notifyError("Failed to import group set to Canvas"));
     }

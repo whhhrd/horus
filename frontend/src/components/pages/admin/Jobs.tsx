@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { withRouter, RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 
-import { Row, Col } from "reactstrap";
+import { Row, Col, Alert } from "reactstrap";
 import { buildContent } from "../../pagebuilder";
 import { ApplicationState } from "../../../state/state";
 import { BatchJobDto } from "../../../api/types";
@@ -10,6 +10,8 @@ import { Action } from "redux";
 import { jobsFetchRequestedAction } from "../../../state/jobs/action";
 import { getJobs } from "../../../state/jobs/selectors";
 import JobProgress from "../../JobProgress";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 
 interface JobsProps {
     jobs: BatchJobDto[] | null;
@@ -48,6 +50,9 @@ class Jobs extends Component<JobsProps & RouteComponentProps<any>> {
         const created = jobs
             .filter((j) => j.status === "CREATED")
             .sort(this.sortDateDescending);
+
+        const totalLength =
+            running.length + completed.length + aborted.length + created.length;
 
         return (
             <div>
@@ -128,6 +133,20 @@ class Jobs extends Component<JobsProps & RouteComponentProps<any>> {
                                     No tasks aborted
                                 </span>
                             )}
+                        </Col>
+                    </Row>
+                )}
+                {totalLength === 0 && (
+                    <Row className="px-2 d-flex justify-content-center mb-3">
+                        <Col md="12" lg="6">
+                            <h4>Tasks</h4>
+                            <Alert color="info">
+                                <FontAwesomeIcon
+                                    icon={faInfoCircle}
+                                    className="mr-2"
+                                />
+                                No tasks to display
+                            </Alert>
                         </Col>
                     </Row>
                 )}

@@ -1,9 +1,17 @@
 import React, { Component } from "react";
-import { Alert } from "reactstrap";
 import { connect } from "react-redux";
-import { notificationDismissedAction } from "../../state/notifications/actions";
-import { NotificationState, NotificationKind } from "../../state/notifications/types";
-import { NOTIFICATION_TIMEOUT } from "../../state/notifications/constants";
+
+import { Alert } from "reactstrap";
+
+import {
+    NotificationState,
+    NotificationKind,
+} from "../../state/notifications/types";
+import {
+    notificationDismissedAction,
+    NotificationDismissedAction,
+} from "../../state/notifications/actions";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     IconDefinition,
@@ -15,48 +23,62 @@ import {
 
 interface NotificationProps {
     notification: NotificationState;
-    dismissNotification: (id: number) => {
-        type: string,
-    };
+    dismissNotification: (id: number) => NotificationDismissedAction;
 }
 
 interface NotificationLocalState {
     visible: boolean;
 }
 
-let timerId = -1;
+/**
+ * A notification that floats on top of the application, giving the user
+ * useful information about the state and activity of the system.
+ */
+class Notification extends Component<
+    NotificationProps,
+    NotificationLocalState
+> {
+    static NOTIFICATION_TIMEOUT = 4000;
 
-class Notification extends Component<NotificationProps, NotificationLocalState> {
+    timer: number;
 
     constructor(props: NotificationProps) {
         super(props);
         this.state = { visible: true };
+        this.timer = -1;
     }
 
     componentDidMount() {
         if (this.props.notification.fadeAway) {
-            // @ts-ignore
-            timerId = setTimeout(() => {
+            this.timer = setTimeout(() => {
                 this.setState((_) => ({ visible: false }));
                 this.props.dismissNotification(this.props.notification.id);
-            }, NOTIFICATION_TIMEOUT);
+            }, Notification.NOTIFICATION_TIMEOUT);
         }
     }
 
     componentWillUnmount() {
         if (this.props.notification.fadeAway) {
-            clearTimeout(timerId);
+            clearTimeout(this.timer);
         }
     }
 
     render() {
-
-        let icon: IconDefinition | null;
+        // Determine icon based on NotificationKind
+        let icon: IconDefinition | null = null;
         switch (this.props.notification.kind) {
-            case NotificationKind.Error: icon = faTimesCircle; break;
-            case NotificationKind.Info: icon = faInfoCircle; break;
-            case NotificationKind.Success: icon = faCheckCircle; break;
-            case NotificationKind.Warning: icon = faExclamationCircle; break;
+            case NotificationKind.Error:
+                icon = faTimesCircle;
+                break;
+            case NotificationKind.Info:
+                icon = faInfoCircle;
+                break;
+            case NotificationKind.Success:
+                icon = faCheckCircle;
+                break;
+            case NotificationKind.Warning:
+                icon = faExclamationCircle;
+                break;
         }
 
         return (
@@ -67,13 +89,18 @@ class Notification extends Component<NotificationProps, NotificationLocalState> 
                     this.setState((_) => ({ visible: false }));
                     this.props.dismissNotification(this.props.notification.id);
                 }}
-                color={this.props.notification.kind}>
+                color={this.props.notification.kind}
+            >
                 <div className="p-2 d-flex flex-row">
                     <div>
-                        <FontAwesomeIcon className="mr-3" icon={icon!} size="3x" />
+                        <FontAwesomeIcon
+                            className="mr-3"
+                            icon={icon!}
+                            size="3x"
+                        />
                     </div>
                     <div className="my-auto">
-                        <big>{this.props.notification.message}</big>
+                        <big>{this.props.notification.content}</big>
                     </div>
                 </div>
             </Alert>
@@ -81,7 +108,9 @@ class Notification extends Component<NotificationProps, NotificationLocalState> 
     }
 }
 
-export default connect(() => ({
-}), {
+export default connect(
+    () => ({}),
+    {
         dismissNotification: (id: number) => notificationDismissedAction(id),
-    })(Notification);
+    },
+)(Notification);

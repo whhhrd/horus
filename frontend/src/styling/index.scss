@@ -302,12 +302,12 @@ button {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * Notification/error system wrappers and properties
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-.ErrorComponent {
+.NotificationsBody {
     pointer-events: all;
     display: inline-block;
 }
 
-.ErrorComponentWrapper {
+.NotificationsWrapper {
     pointer-events: none;
     text-align: center;
     position: fixed;

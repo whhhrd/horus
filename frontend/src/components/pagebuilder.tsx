@@ -104,3 +104,34 @@ export const buildConnectingSpinner = (text: string) => {
         </div>
     );
 };
+
+/**
+ * Builds notification content for notifications that should link to the 'Tasks' page.
+ * The link is passed into the notification if the object with ID "TasksButton" exists.
+ * A click event on this link will simulate a click event on the TasksButton, which
+ * automatically redirects to the correct URL.
+ */
+export const notificationDirectToTasks = () => {
+    const tasksButton = document.getElementById("TasksButton");
+    if (tasksButton != null) {
+        return (
+            <span>
+                Course import started.{" "}
+                <a
+                    className="text-dark border-bottom border-dark cursor-pointer"
+                    onClick={() => tasksButton.click()}
+                >
+                    Click here
+                </a>{" "}
+                for more information.
+            </span>
+        );
+    } else {
+        return (
+            <span>
+                Course import started. Please view the 'Tasks' page for more
+                information.
+            </span>
+        );
+    }
+};

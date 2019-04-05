@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 
 interface NavigationBarItemProps {
+    id?: string;
     active: boolean;
     icon: IconDefinition;
     title: string;
@@ -18,8 +19,10 @@ export class NavigationBarItem extends Component<NavigationBarItemProps> {
         const classes = "navigation-bar-item-link border-bottom" +
             (this.props.active ? " navigation-bar-item-link-active" : "");
 
+        const id = this.props.id != null ? this.props.id : undefined;
+
         return (
-            <Link onClick={this.props.onClick} to={this.props.url} className={classes}>
+            <Link id={id} onClick={this.props.onClick} to={this.props.url} className={classes}>
                 <ListGroupItem className="text-center bg-light w-100 px-0">
 
                     <FontAwesomeIcon icon={this.props.icon} size="2x" /> <br />

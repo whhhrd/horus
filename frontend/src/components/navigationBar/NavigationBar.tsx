@@ -164,6 +164,7 @@ export class NavigationBar extends Component<
                                 >
                                     {jobs != null && jobs.length > 0 && (
                                         <NavigationBarItem
+                                            id="TasksButton"
                                             title="Tasks"
                                             icon={faHourglassHalf}
                                             active={

@@ -102,12 +102,14 @@ const progressTextGradient = [
 ];
 
 export const gradientColor = (progress: number) => {
-    const colorIndex = Math.floor(progress / 100 * (progressGradient.length - 1));
+    const colorIndex = Math.floor(
+        (progress / 100) * (progressGradient.length - 1),
+    );
     const backgroundColor = progressGradient[colorIndex];
     const borderColor = progressBorderGradient[colorIndex];
     const color = progressTextGradient[colorIndex];
 
-    return {backgroundColor, borderColor, color};
+    return { backgroundColor, borderColor, color };
 };
 
 export const randomColor = (courseName: string) => {
