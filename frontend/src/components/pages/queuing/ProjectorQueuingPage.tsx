@@ -34,6 +34,7 @@ import {
     faBullhorn,
     faDoorClosed,
     faTimes,
+    faSadCry,
 } from "@fortawesome/free-solid-svg-icons";
 import PopupModal from "./PopupModal";
 import History from "./History";
@@ -56,7 +57,7 @@ class ProjectorQueuingPage extends Component<
     ProjectorQueuingPageProps & RouteComponentProps<any>,
     ProjectorQueuingPageState
 > {
-    static NOTIFICATION_DURATION = 3000;
+    static NOTIFICATION_DURATION = 5000;
 
     private sock: WebSocket | null = null;
 
@@ -75,29 +76,38 @@ class ProjectorQueuingPage extends Component<
     render() {
         if (this.props.room != null) {
             return (
-                // A flexible body for the navigation bar, content (including sidebar)
-                <div className="d-none d-lg-flex">
-                    {/* Fills the remaining horizontal space (next to the navbar) */}
-                    <div className="flex-fill">
-                        {/* A wrapper for the content, a flexible row that contains
+                <div style={{ height: "100vh" }}>
+                    <div className="d-none d-lg-flex">
+                        {/* Fills the remaining horizontal space*/}
+                        <div className="flex-fill">
+                            {/* A wrapper for the content, a flexible row that contains
                             the content ans possibly the sidebar */}
-                        <div className="ContentWrapper d-flex flex-row">
-                            {/* The body for the actual content, a flex column that contanis
+                            <div className="ContentWrapper d-flex flex-row">
+                                {/* The body for the actual content, a flex column that contanis
                                 the title and body content */}
-                            <div className="ContentBody d-flex flex-column flex-fill">
-                                {/* The content header box displaying the 'headerTitle' argument */}
-                                <div className="ContentHeader px-3 pt-3 w-100">
-                                    <h2>{"Room: " + this.props.room.name}</h2>
-                                    <hr className="mb-0" />
-                                </div>
+                                <div className="ContentBody d-flex flex-column flex-fill">
+                                    {/* The content header box displaying the 'headerTitle' argument */}
+                                    <div className="ContentHeader px-3 pt-3 w-100">
+                                        <h2>
+                                            {"Room: " + this.props.room.name}
+                                        </h2>
+                                        <hr className="mb-0" />
+                                    </div>
 
-                                {/* The main content box, displaying the elements from the 'content' argument or
-                            the center spinner if the content is Null. */}
-                                <div className="ContentMain px-3 pt-3 pb-3 w-100">
-                                    {this.buildContent()}
+                                    {/* The main content box, displaying the elements from the 'content' argument or
+                                        the center spinner if the content is Null. */}
+                                    <div className="ContentMain px-3 pt-3 pb-3 w-100">
+                                        {this.buildContent()}
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div className="d-lg-none h-100">
+                        {buildBigCenterMessage(
+                            "Screen size not suitable for beamer mode.",
+                            faSadCry,
+                        )}
                     </div>
                 </div>
             );
@@ -228,18 +238,13 @@ class ProjectorQueuingPage extends Component<
 
     private buildPopup() {
         const nextReminder = this.state.reminders[0];
-        if (nextReminder != null) {
-            return (
-                <PopupModal
-                    isOpen={true}
-                    onCloseModal={() => this.removeReminderFromQueue()}
-                    timer={ProjectorQueuingPage.NOTIFICATION_DURATION}
-                    reminder={nextReminder}
-                />
-            );
-        } else {
-            return null;
-        }
+        return (
+            <PopupModal
+                onCloseModal={() => this.removeReminderFromQueue()}
+                timer={ProjectorQueuingPage.NOTIFICATION_DURATION}
+                reminder={nextReminder}
+            />
+        );
     }
 
     private buildAnnouncements() {

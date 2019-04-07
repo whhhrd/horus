@@ -11,7 +11,9 @@ import {
     Jumbotron,
     Modal,
     ModalBody,
-    ModalFooter, Label, ModalHeader,
+    ModalFooter,
+    Label,
+    ModalHeader,
 } from "reactstrap";
 import { Formik, Field } from "formik";
 
@@ -138,9 +140,7 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                         />
                     </svg>
                     <Jumbotron className="Login mx-auto">
-                        <h1 className="display-5">
-                            Horus
-                        </h1>
+                        <h1 className="display-5">Horus</h1>
                         <p className="lead">Sign-off manager</p>
                         <p className="lead mt-5 mb-0">
                             {(code == null || loginError != null) && (
@@ -179,7 +179,9 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                                                 <ModalBody>
                                                     <Form>
                                                         <FormGroup>
-                                                            <Label>Username</Label>
+                                                            <Label>
+                                                                Username
+                                                            </Label>
                                                             <Input
                                                                 tag={Field}
                                                                 id="username"
@@ -201,7 +203,9 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                                                             />
                                                         </FormGroup>
                                                         <FormGroup>
-                                                            <Label>Password</Label>
+                                                            <Label>
+                                                                Password
+                                                            </Label>
                                                             <Input
                                                                 tag={Field}
                                                                 id="password"
@@ -242,63 +246,105 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                                     </Formik>
                                 </Modal>
                             )}
-                            {(code == null || loginError != null) && (
-                                <Modal
-                                    isOpen={this.state.showAboutPage}
-                                    toggle={() => this.toggleAboutPageCollapse()}
-                                    className="AboutPageModal"
-                                >
-                                    <div>
-                                        <ModalHeader>
-                                            About Horus
-                                        </ModalHeader>
-                                        <ModalBody>
-                                            <div>
-                                                Horus is a course management system particularly focussing on the
-                                                "sign-offs" of assignments. Its intent is to take away the
-                                                inconveniences perceived during the sign-off process, both for
-                                                students and Teaching Assistants. In addition, Horus also aims to
-                                                take away some of the manual labor involved in managing courses
-                                                for teachers.
-                                            </div>
-                                            <h4 className="pt-3">Developers</h4>
-                                            <div>
-                                                Horus was originally developed in 2019 as a Design Project
-                                                for the Technical Computer Science curriculum.
-                                                <img className="AboutPageImage pt-2 pb-2"
-                                                     src={groupPicture}
-                                                     alt="Picture of the Horus project group"/>
-                                                This is the project team that made it happen. From left to right,
-                                                the members are <a href="mailto:r.a.h.perera@student.utwente.nl">
-                                                Harindu Perera</a>, <a href="mailto:r.abraham@student.utwente.nl">
-                                                Remco Abraham</a>, <a href="mailto:r.h.devries@student.utwente.nl">
-                                                Rick de Vries</a>, <a href="mailto:j.w.praas@student.utwente.nl">
-                                                Justin Praas</a> & <a href="mailto:d.kooij-1@student.utwente.nl">
-                                                Daan Kooij</a>.
-                                            </div>
-                                        </ModalBody>
-                                        <ModalFooter>
-                                            <Button
-                                                block
-                                                size="md"
-                                                color="primary"
-                                                outline
-                                                onClick={() => this.toggleAboutPageCollapse()}
-                                            >
-                                                Close
-                                            </Button>
-                                        </ModalFooter>
-                                    </div>
-                                </Modal>
-                            )}
+                        </p>
+                        <p className="mt-5">
+                            <Button
+                                color="success"
+                                onClick={() =>
+                                    this.props.history.push({
+                                        pathname: "/beamer",
+                                    })
+                                }
+                            >
+                                Beamer mode
+                            </Button>
                         </p>
                     </Jumbotron>
                     <div className="LoginPageMenu">
-                        <small onClick={() => this.toggleExternalLoginCollapse()}>External Login</small>
+                        <small
+                            className="text-dark"
+                            onClick={() => this.toggleExternalLoginCollapse()}
+                        >
+                            External Login
+                        </small>
                         {divider}
-                        <small onClick={() => this.toggleAboutPageCollapse()}>About</small>
+                        <small
+                            className="text-dark"
+                            onClick={() => this.toggleAboutPageCollapse()}
+                        >
+                            About
+                        </small>
                     </div>
                 </div>
+                {(code == null || loginError != null) && (
+                    <Modal
+                        isOpen={this.state.showAboutPage}
+                        toggle={() => this.toggleAboutPageCollapse()}
+                        className="AboutPageModal"
+                    >
+                        <div>
+                            <ModalHeader>About Horus</ModalHeader>
+                            <ModalBody>
+                                <div>
+                                    Horus is a course management system
+                                    particularly focussing on the "sign-offs" of
+                                    assignments. Its intent is to take away the
+                                    inconveniences perceived during the sign-off
+                                    process, both for students and Teaching
+                                    Assistants. In addition, Horus also aims to
+                                    take away some of the manual labor involved
+                                    in managing courses for teachers.
+                                </div>
+                                <h4 className="pt-3">Developers</h4>
+                                <div>
+                                    Horus was originally developed in 2019 as a
+                                    Design Project for the Technical Computer
+                                    Science curriculum.
+                                    <img
+                                        className="AboutPageImage pt-2 pb-2"
+                                        src={groupPicture}
+                                        alt="Picture of the Horus project group"
+                                    />
+                                    This is the project team that made it
+                                    happen. From left to right, the members are{" "}
+                                    <a href="mailto:r.a.h.perera@student.utwente.nl">
+                                        Harindu Perera
+                                    </a>
+                                    ,{" "}
+                                    <a href="mailto:r.abraham@student.utwente.nl">
+                                        Remco Abraham
+                                    </a>
+                                    ,{" "}
+                                    <a href="mailto:r.h.devries@student.utwente.nl">
+                                        Rick de Vries
+                                    </a>
+                                    ,{" "}
+                                    <a href="mailto:j.w.praas@student.utwente.nl">
+                                        Justin Praas
+                                    </a>{" "}
+                                    &{" "}
+                                    <a href="mailto:d.kooij-1@student.utwente.nl">
+                                        Daan Kooij
+                                    </a>
+                                    .
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button
+                                    block
+                                    size="md"
+                                    color="primary"
+                                    outline
+                                    onClick={() =>
+                                        this.toggleAboutPageCollapse()
+                                    }
+                                >
+                                    Close
+                                </Button>
+                            </ModalFooter>
+                        </div>
+                    </Modal>
+                )}
             </Row>
         );
     }

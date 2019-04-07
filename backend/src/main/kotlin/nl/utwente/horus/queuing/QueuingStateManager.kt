@@ -1,10 +1,7 @@
 package nl.utwente.horus.queuing
 
 import nl.utwente.horus.queuing.exceptions.RoomNotFoundException
-import nl.utwente.horus.representations.queuing.AnnouncementDto
-import nl.utwente.horus.representations.queuing.QueueDto
-import nl.utwente.horus.representations.queuing.QueueParticipantDto
-import nl.utwente.horus.representations.queuing.RoomDto
+import nl.utwente.horus.representations.queuing.*
 import nl.utwente.horus.representations.queuing.updates.AcceptDto
 import nl.utwente.horus.representations.queuing.updates.InitialStateDto
 import nl.utwente.horus.representations.queuing.updates.UpdateDto
@@ -34,7 +31,14 @@ class QueuingStateManager {
 
     fun getRooms(courseId: Long): List<RoomDto> {
         return read {
-            rooms.values.filter { it.courseId == courseId }.map{ it.toDto() }
+            rooms.values.filter { it.courseId == courseId }.map { it.toDto() }
+        }
+    }
+
+    fun getRoomQueueLengths(courseId: Long): List<RoomQueueLengthsDto> {
+        return read {
+            val courseRooms = rooms.values.filter { it.courseId == courseId }
+            courseRooms.map { it.toRoomQueueLengthsDto() }
         }
     }
 

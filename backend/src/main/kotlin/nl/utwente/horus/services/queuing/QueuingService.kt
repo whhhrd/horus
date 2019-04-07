@@ -4,10 +4,7 @@ import nl.utwente.horus.exceptions.AssignmentSetNotFoundException
 import nl.utwente.horus.exceptions.EmptyStringException
 import nl.utwente.horus.exceptions.ParticipantNotFoundException
 import nl.utwente.horus.queuing.QueuingStateManager
-import nl.utwente.horus.representations.queuing.AnnouncementDto
-import nl.utwente.horus.representations.queuing.QueueDto
-import nl.utwente.horus.representations.queuing.QueueParticipantDto
-import nl.utwente.horus.representations.queuing.RoomDto
+import nl.utwente.horus.representations.queuing.*
 import nl.utwente.horus.representations.queuing.updates.AcceptDto
 import nl.utwente.horus.services.assignment.AssignmentService
 import nl.utwente.horus.services.participant.ParticipantService
@@ -30,6 +27,10 @@ class QueuingService {
 
     fun getRooms(courseId: Long): List<RoomDto> {
         return queuingStateManager.getRooms(courseId)
+    }
+
+    fun getRoomQueueLengths(courseId: Long): List<RoomQueueLengthsDto> {
+        return queuingStateManager.getRoomQueueLengths(courseId)
     }
 
     fun createRoom(courseId: Long, name: String): RoomDto {

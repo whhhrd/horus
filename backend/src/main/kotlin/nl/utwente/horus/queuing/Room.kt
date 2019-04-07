@@ -50,6 +50,12 @@ class Room {
         }
     }
 
+    fun toRoomQueueLengthsDto(): RoomQueueLengthsDto {
+        return withLock {
+            RoomQueueLengthsDto(toDto(), queues.values.map { QueueLengthDto(it.name, it.queueLength) })
+        }
+    }
+
     fun close(): CloseRoomDto {
         return withLock {
             val dto = CloseRoomDto(code)

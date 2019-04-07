@@ -5,6 +5,7 @@ import {
     RoomDto,
     ParticipantDtoBrief,
     QueueParticipantDto,
+    RoomQueueLengthsDto,
 } from "../../api/types";
 
 export interface QueueEntry {
@@ -35,6 +36,7 @@ export interface QueuingState {
     queues: QueueDto[];
     room: RoomDto | null;
     participant: ParticipantDtoBrief | null;
+    roomQueueLengths: RoomQueueLengthsDto[] | null;
 }
 
 export interface AcceptedParticipant {

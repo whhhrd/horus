@@ -3,6 +3,8 @@ import { withRouter, RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { Input, Button, FormGroup, Col, Label } from "reactstrap";
 import { Field, Formik } from "formik";
+import { buildBigCenterMessage } from "../../pagebuilder";
+import { faSadCry } from "@fortawesome/free-solid-svg-icons";
 
 interface PromptValues {
     code: string;
@@ -27,84 +29,94 @@ class ProjectorRoomPromptPage extends Component<RouteComponentProps<any>> {
 
     render() {
         return (
-            // A flexibles body for the navigation bar, content (including sidebar)
-            <div className="d-none d-lg-flex">
-                {/* Fills the remaining horizontal space (next to the navbar) */}
-                <div className="flex-fill">
-                    {/* A wrapper for the content, a flexible row that contains
-                            the content ans possibly the sidebar */}
-                    <div className="ContentWrapper d-flex flex-row">
-                        {/* The body for the actual content, a flex column that contanis
+            <div style={{ height: "100vh" }}>
+                <div className="d-none d-lg-flex">
+                    {/* Fills the remaining horizontal space (next to the navbar) */}
+                    <div className="flex-fill">
+                        {/* A wrapper for the content, a flexible row that contains */}
+                        <div className="ContentWrapper d-flex flex-row">
+                            {/* The body for the actual content, a flex column that contanis
                                 the title and body content */}
-                        <div className="ContentBody d-flex flex-column flex-fill">
-                            {/* The main content box, displaying the elements from the 'content' argument or
+                            <div className="ContentBody d-flex flex-column flex-fill">
+                                {/* The main content box, displaying the elements from the 'content' argument or
                             the center spinner if the content is Null. */}
-                            <div className="d-flex align-items-center h-100 justify-content-center">
-                                <Col xs="12" md="6" lg="4" xl="3">
-                                    <Formik
-                                        initialValues={{ code: "" }}
-                                        onSubmit={this.onSubmit}
-                                    >
-                                        {({ handleSubmit, values }) => (
-                                            <FormGroup>
-                                                <Label>Room code</Label>
-                                                <Input
-                                                    tag={Field}
-                                                    style={{textTransform: "uppercase"}}
-                                                    bsSize="lg"
-                                                    autoFocus={true}
-                                                    name="code"
-                                                    maxLength={6}
-                                                    valid={this.isValidRoomCode(
-                                                        values,
-                                                    )}
-                                                    invalid={
-                                                        !this.isValidRoomCode(
+                                <div className="d-flex align-items-center h-100 justify-content-center">
+                                    <Col xs="12" md="6" lg="4" xl="3">
+                                        <Formik
+                                            initialValues={{ code: "" }}
+                                            onSubmit={this.onSubmit}
+                                        >
+                                            {({ handleSubmit, values }) => (
+                                                <FormGroup>
+                                                    <Label>Room code</Label>
+                                                    <Input
+                                                        tag={Field}
+                                                        style={{
+                                                            textTransform:
+                                                                "uppercase",
+                                                        }}
+                                                        bsSize="lg"
+                                                        autoFocus={true}
+                                                        name="code"
+                                                        maxLength={6}
+                                                        valid={this.isValidRoomCode(
                                                             values,
-                                                        )
-                                                    }
-                                                    onKeyDown={(
-                                                        event: KeyboardEvent,
-                                                    ) => {
-                                                        if (
-                                                            event.key ===
-                                                                "Enter" &&
-                                                            !event.shiftKey
-                                                        ) {
-                                                            event.preventDefault();
-                                                            if (
-                                                                this.isValidRoomCode(
-                                                                    values,
-                                                                )
-                                                            ) {
-                                                                handleSubmit();
-                                                            }
+                                                        )}
+                                                        invalid={
+                                                            !this.isValidRoomCode(
+                                                                values,
+                                                            )
                                                         }
-                                                    }}
-                                                />
-                                                <Button
-                                                    block
-                                                    size="lg"
-                                                    color="primary"
-                                                    className="mt-3"
-                                                    disabled={
-                                                        !this.isValidRoomCode(
-                                                            values,
-                                                        )
-                                                    }
-                                                    onClick={() => {
-                                                        handleSubmit();
-                                                    }}
-                                                >
-                                                    Go to room
-                                                </Button>
-                                            </FormGroup>
-                                        )}
-                                    </Formik>
-                                </Col>
+                                                        onKeyDown={(
+                                                            event: KeyboardEvent,
+                                                        ) => {
+                                                            if (
+                                                                event.key ===
+                                                                    "Enter" &&
+                                                                !event.shiftKey
+                                                            ) {
+                                                                event.preventDefault();
+                                                                if (
+                                                                    this.isValidRoomCode(
+                                                                        values,
+                                                                    )
+                                                                ) {
+                                                                    handleSubmit();
+                                                                }
+                                                            }
+                                                        }}
+                                                        placeholder="Room Code"
+                                                    />
+                                                    <Button
+                                                        block
+                                                        size="lg"
+                                                        color="primary"
+                                                        className="mt-3"
+                                                        disabled={
+                                                            !this.isValidRoomCode(
+                                                                values,
+                                                            )
+                                                        }
+                                                        onClick={() => {
+                                                            handleSubmit();
+                                                        }}
+                                                    >
+                                                        Go to room
+                                                    </Button>
+                                                </FormGroup>
+                                            )}
+                                        </Formik>
+                                    </Col>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
+                <div className="d-lg-none h-100">
+                    {buildBigCenterMessage(
+                        "Screen size not suitable for beamer mode.",
+                        faSadCry,
+                    )}
                 </div>
             </div>
         );

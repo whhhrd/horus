@@ -60,7 +60,7 @@ class History extends PureComponent<HistoryProps & RouteComponentProps<any>> {
                         </CardTitle>
                     </CardHeader>
                     <CardBody className="py-0 px-0">
-                        {history.length > 0 ? (
+                        {roomHistory.length > 0 ? (
                             <div
                                 style={{
                                     maxHeight: "500px",

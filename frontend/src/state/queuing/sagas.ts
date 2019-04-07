@@ -14,6 +14,8 @@ import {
     AcceptRequestedAction,
     RemindRequestedAction,
     AcceptNextAction,
+    RoomQueueLengthsRequestedAction,
+    roomQueueLenghtsRequestSucceededAction,
 } from "./actions";
 import { put, takeEvery, call } from "redux-saga/effects";
 import { notifyError } from "../notifications/constants";
@@ -29,6 +31,7 @@ import {
     ACCEPT_REQUESTED_ACTION,
     REMIND_REQUESTED_ACTION,
     ACCEPT_NEXT_ACTION,
+    ROOM_QUEUE_LENGTHS_REQUESTED_ACTION,
 } from "./constants";
 
 export function* getCurrentParticipant(
@@ -216,6 +219,20 @@ export function* acceptNext(action: AcceptNextAction) {
         yield put(notifyError("Failed to accept next participant"));
     }
 }
+
+export function* fetchRoomQueueLengths(action: RoomQueueLengthsRequestedAction) {
+    try {
+        const result = yield call(
+            authenticatedFetchJSON,
+            "GET",
+            `queuing/${action.courseId}/queues`,
+        );
+        yield put(roomQueueLenghtsRequestSucceededAction(result));
+    } catch (e) {
+        yield put(notifyError("Failed to fetch queue lenghts"));
+    }
+}
+
 export default function* queuingSagas() {
     yield takeEvery(
         CURRENT_PARTICIPANT_REQUESTED_ACTION,
@@ -231,4 +248,5 @@ export default function* queuingSagas() {
     yield takeEvery(ACCEPT_REQUESTED_ACTION, accept);
     yield takeEvery(REMIND_REQUESTED_ACTION, remind);
     yield takeEvery(ACCEPT_NEXT_ACTION, acceptNext);
+    yield takeEvery(ROOM_QUEUE_LENGTHS_REQUESTED_ACTION, fetchRoomQueueLengths);
 }

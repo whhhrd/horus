@@ -6,6 +6,9 @@ export const getAnnouncements = (state: ApplicationState) =>
 export const getHistory = (state: ApplicationState) =>
     state.queuing != null ? state.queuing.history : null;
 
+export const getRoomQueueLengths = (state: ApplicationState) =>
+    state.queuing != null ? state.queuing.roomQueueLengths : null;
+
 export const getQueues = (state: ApplicationState) =>
     state.queuing != null ? state.queuing.queues : null;
 

@@ -24,6 +24,7 @@ import nl.utwente.horus.representations.person.PersonDtoFull
 import nl.utwente.horus.representations.queuing.ParticipantDto
 import nl.utwente.horus.representations.queuing.QueueDto
 import nl.utwente.horus.representations.queuing.RoomDto
+import nl.utwente.horus.representations.queuing.RoomQueueLengthsDto
 import nl.utwente.horus.representations.queuing.requests.AnnouncementCreateDto
 import nl.utwente.horus.representations.queuing.requests.QueueCreateDto
 import nl.utwente.horus.representations.queuing.requests.RoomCreateDto
@@ -103,6 +104,7 @@ fun generate() {
                     RoomCreateDto::class,
                     QueueCreateDto::class,
                     AnnouncementCreateDto::class,
+                    RoomQueueLengthsDto::class,
 
                     HorusAuthorityDto::class,
                     HorusResource::class,

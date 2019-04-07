@@ -2,11 +2,14 @@ import { QueuingState } from "./types";
 import {
     UpdateReceivedAction,
     CurrentParticipantReceivedAction,
+    RoomQueueLenghtsRequestSucceededAction,
 } from "./actions";
 import {
     UPDATE_RECEIVED_ACTION,
     HISTORY_SIZE,
     CURRENT_PARTICIPANT_RECEIVED_ACTION,
+    ROOM_QUEUE_LENGTHS_REQUESTED_ACTION,
+    ROOM_QUEUE_LENGTHS_REQUEST_SUCCEEDED_ACTION,
 } from "./constants";
 import {
     AcceptDto,
@@ -25,6 +28,7 @@ import {
 } from "../../api/types";
 
 const initialState: QueuingState = {
+    roomQueueLengths: null,
     announcements: [],
     history: [],
     queues: [],
@@ -33,7 +37,10 @@ const initialState: QueuingState = {
 };
 export default function queueReducer(
     state: QueuingState,
-    action: UpdateReceivedAction | CurrentParticipantReceivedAction,
+    action:
+        | UpdateReceivedAction
+        | CurrentParticipantReceivedAction
+        | RoomQueueLenghtsRequestSucceededAction,
 ): QueuingState {
     if (state == null) {
         return initialState;
@@ -85,6 +92,18 @@ export default function queueReducer(
                 ...state,
                 participant: (action as CurrentParticipantReceivedAction)
                     .participant,
+            };
+
+        case ROOM_QUEUE_LENGTHS_REQUESTED_ACTION:
+            return {
+                ...state,
+                roomQueueLengths: null,
+            };
+        case ROOM_QUEUE_LENGTHS_REQUEST_SUCCEEDED_ACTION:
+            return {
+                ...state,
+                roomQueueLengths: (action as RoomQueueLenghtsRequestSucceededAction)
+                    .queueLengths,
             };
         default:
             return state;

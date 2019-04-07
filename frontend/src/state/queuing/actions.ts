@@ -1,5 +1,9 @@
 import { Action } from "redux";
-import { UpdateDto, ParticipantDtoBrief } from "../../api/types";
+import {
+    UpdateDto,
+    ParticipantDtoBrief,
+    RoomQueueLengthsDto,
+} from "../../api/types";
 import {
     UPDATE_RECEIVED_ACTION,
     ACCEPT_REQUESTED_ACTION,
@@ -15,6 +19,8 @@ import {
     CURRENT_PARTICIPANT_REQUESTED_ACTION,
     CURRENT_PARTICIPANT_RECEIVED_ACTION,
     DEQUEUE_SELF_REQUESTED_ACTION,
+    ROOM_QUEUE_LENGTHS_REQUESTED_ACTION,
+    ROOM_QUEUE_LENGTHS_REQUEST_SUCCEEDED_ACTION,
 } from "./constants";
 
 export interface UpdateReceivedAction extends Action<string> {
@@ -166,5 +172,29 @@ export interface AcceptNextAction extends Action<string> {
 }
 
 export const acceptNextAction = (cid: number, rid: string, qid: string) => ({
-    type: ACCEPT_NEXT_ACTION, cid, rid, qid,
+    type: ACCEPT_NEXT_ACTION,
+    cid,
+    rid,
+    qid,
+});
+
+// REQUEST QUEUE LENGTHS
+export interface RoomQueueLengthsRequestedAction extends Action<string> {
+    courseId: number;
+}
+
+export interface RoomQueueLenghtsRequestSucceededAction extends Action<string> {
+    queueLengths: RoomQueueLengthsDto[];
+}
+
+export const roomQueueLengthsRequestedAction = (courseId: number) => ({
+    type: ROOM_QUEUE_LENGTHS_REQUESTED_ACTION,
+    courseId,
+});
+
+export const roomQueueLenghtsRequestSucceededAction = (
+    queueLengths: RoomQueueLengthsDto[],
+) => ({
+    type: ROOM_QUEUE_LENGTHS_REQUEST_SUCCEEDED_ACTION,
+    queueLengths,
 });

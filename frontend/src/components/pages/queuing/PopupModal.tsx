@@ -1,4 +1,4 @@
-import React, { PureComponent } from "react";
+import React, { PureComponent, Fragment } from "react";
 import { Button, ModalHeader, Modal, ModalBody, ModalFooter } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBullhorn, faBell } from "@fortawesome/free-solid-svg-icons";
@@ -7,31 +7,66 @@ import { RemindDto, AnnouncementDto } from "../../../api/types";
 interface PopupModalProps {
     onCloseModal: () => any;
     timer?: number;
-    isOpen: boolean;
     announcement?: AnnouncementDto;
     reminder?: RemindDto;
     closeable?: boolean;
 }
 
-export default class PopupModal extends PureComponent<PopupModalProps> {
+interface PopupModalState {
+    switching: boolean;
+    reminder: RemindDto | null;
+}
+
+export default class PopupModal extends PureComponent<
+    PopupModalProps,
+    PopupModalState
+> {
     static defaultProps: { closeable: false };
+    timer: number;
 
-    timer = -1;
+    constructor(props: PopupModalProps) {
+        super(props);
+        this.state = { switching: false, reminder: null };
+        this.timer = -1;
+    }
 
-    componentDidMount() {
+    closeModalTimeout() {
+        // Set a time out to close the modal
         if (this.props.timer != null) {
+            clearTimeout(this.timer);
             this.timer = setTimeout(() => {
                 this.props.onCloseModal();
             }, this.props.timer);
         }
     }
 
+    switchModal(currRem: RemindDto) {
+        this.setState(() => ({ switching: true }), () => {
+            setTimeout(() => {
+                this.setState(() => ({
+                    switching: false,
+                    reminder: currRem,
+                }), () => {
+                    this.closeModalTimeout();
+                });
+            }, 250);
+        });
+    }
+
     componentDidUpdate(prProps: PopupModalProps) {
-        if (prProps.reminder !== this.props.reminder) {
-            if (this.props.timer != null) {
-                this.timer = setTimeout(() => {
-                    this.props.onCloseModal();
-                }, this.props.timer);
+        if (this.props.timer != null) {
+            const currRem = this.props.reminder;
+            const prevRem = prProps.reminder;
+
+            if (prevRem == null && currRem != null) {
+                this.setState(() => ({ reminder: currRem }), () => {
+                    this.closeModalTimeout();
+                });
+            } else if (prevRem != null && currRem == null) {
+                this.setState(() => ({ reminder: null }));
+                return;
+            } else if (currRem !== prevRem && currRem != null) {
+                this.switchModal(currRem);
             }
         }
     }
@@ -43,13 +78,13 @@ export default class PopupModal extends PureComponent<PopupModalProps> {
     }
 
     render() {
-        const {
-            isOpen,
-            onCloseModal,
-            announcement,
-            reminder,
-            closeable,
-        } = this.props;
+        const { onCloseModal, announcement, closeable } = this.props;
+
+        const reminder =
+            this.state.reminder != null
+                ? this.state.reminder
+                : this.props.reminder;
+
         let title;
         let bodyText;
         let icon;
@@ -67,29 +102,63 @@ export default class PopupModal extends PureComponent<PopupModalProps> {
             bodyText = "Raise your hand to get the TA's attention.";
             icon = faBell;
         }
-
         return (
-            <Modal isOpen={isOpen}>
-                <ModalHeader
-                    toggle={closeable ? () => onCloseModal() : undefined}
-                >
-                    <FontAwesomeIcon icon={icon} className="mr-3" />
-                    {title}
-                </ModalHeader>
-                <ModalBody>{bodyText}</ModalBody>
-                {closeable && (
-                    <ModalFooter>
-                        <Button
-                            outline
-                            color="primary"
-                            block
-                            onClick={() => onCloseModal()}
-                        >
-                            Close
-                        </Button>
-                    </ModalFooter>
-                )}
-            </Modal>
+            <Fragment>
+                <Modal isOpen={announcement != null}>
+                    <ModalHeader
+                        toggle={closeable ? () => onCloseModal() : undefined}
+                    >
+                        <FontAwesomeIcon icon={icon} className="mr-3" />
+                        {title}
+                    </ModalHeader>
+                    <ModalBody>{bodyText}</ModalBody>
+                    {closeable && (
+                        <ModalFooter>
+                            <Button
+                                outline
+                                color="primary"
+                                block
+                                onClick={() => onCloseModal()}
+                            >
+                                Close
+                            </Button>
+                        </ModalFooter>
+                    )}
+                </Modal>
+                <Modal isOpen={reminder != null && !this.state.switching}>
+                    <ModalBody className="py-5">
+                        <div className="d-flex justify-content-center h-100 flex-wrap">
+                            <div className="my-auto w-100 text-center">
+                                <h1>
+                                    <FontAwesomeIcon
+                                        icon={icon}
+                                        size="3x"
+                                        className="mb-5"
+                                    />{" "}
+                                </h1>
+                                <h1 className="text-muted">
+                                    {reminder != null &&
+                                        reminder.participant.fullName}
+                                    ,
+                                </h1>
+                                <h3 className="text-muted">You are next!</h3>
+                            </div>
+                        </div>
+                    </ModalBody>
+                    {closeable && (
+                        <ModalFooter>
+                            <Button
+                                outline
+                                color="primary"
+                                block
+                                onClick={() => onCloseModal()}
+                            >
+                                Close
+                            </Button>
+                        </ModalFooter>
+                    )}
+                </Modal>
+            </Fragment>
         );
     }
 }

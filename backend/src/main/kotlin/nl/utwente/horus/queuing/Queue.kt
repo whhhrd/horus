@@ -20,6 +20,10 @@ class Queue {
     val createdAt: ZonedDateTime
 
     private val queue = LinkedList<QueueParticipant>()
+
+    val queueLength: Int
+        get() = queue.size
+
     private val memberIds = HashSet<Long>()
 
     constructor(courseId: Long, roomCode: String, name: String, assignmentSetId: Long?) {

@@ -4,10 +4,7 @@ import nl.utwente.horus.auth.permissions.HorusPermissionType
 import nl.utwente.horus.controllers.BaseController
 import nl.utwente.horus.entities.auth.Role
 import nl.utwente.horus.entities.course.Course
-import nl.utwente.horus.representations.queuing.AnnouncementDto
-import nl.utwente.horus.representations.queuing.QueueDto
-import nl.utwente.horus.representations.queuing.QueueParticipantDto
-import nl.utwente.horus.representations.queuing.RoomDto
+import nl.utwente.horus.representations.queuing.*
 import nl.utwente.horus.representations.queuing.requests.AnnouncementCreateDto
 import nl.utwente.horus.representations.queuing.requests.QueueCreateDto
 import nl.utwente.horus.representations.queuing.requests.RoomCreateDto
@@ -33,6 +30,12 @@ class QueuingController: BaseController() {
     fun getRooms(@PathVariable courseId: Long): List<RoomDto> {
         verifyCoursePermission(Course::class, courseId, HorusPermissionType.VIEW)
         return queuingService.getRooms(courseId)
+    }
+
+    @GetMapping("/{courseId}/queues")
+    fun getRoomQueueLengths(@PathVariable courseId: Long): List<RoomQueueLengthsDto> {
+        verifyCoursePermission(Course::class, courseId, HorusPermissionType.VIEW)
+        return queuingService.getRoomQueueLengths(courseId)
     }
 
     @PostMapping("/{courseId}/rooms")

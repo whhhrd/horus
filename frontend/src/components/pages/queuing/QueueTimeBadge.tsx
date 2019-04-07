@@ -33,11 +33,22 @@ export default class QueueTimeBadge extends Component<QueueTimeBadgeProps> {
     }
 
     render() {
-        const queueTime = this.getQueueTime(new Date(this.props.addedAt));
-        const progress = Math.max(0, 100 - 100 * queueTime / QueueTimeBadge.UNACCEPTABLE_WAITING_TIME);
+        const queueTime = Math.max(
+            0,
+            this.getQueueTime(new Date(this.props.addedAt)),
+        );
+        const progress = Math.max(
+            0,
+            100 - (100 * queueTime) / QueueTimeBadge.UNACCEPTABLE_WAITING_TIME,
+        );
         const colors = gradientColor(progress);
+
         return (
-            <Badge pill color="info" style={{backgroundColor: colors.borderColor}}>
+            <Badge
+                pill
+                color="info"
+                style={{ backgroundColor: colors.borderColor }}
+            >
                 {queueTime}m
             </Badge>
         );

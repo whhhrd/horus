@@ -440,6 +440,16 @@ export interface AnnouncementCreateDto {
     content: string;
 }
 
+export interface QueueLengthDto {
+    length: number;
+    name: string;
+}
+
+export interface RoomQueueLengthsDto {
+    queues: QueueLengthDto[];
+    room: RoomDto;
+}
+
 export interface ErrorDto {
     code: string;
     message: string;

@@ -80,6 +80,7 @@ import AnnouncementCreateModal from "./AnnouncementCreateModal";
 import AnnouncementDeleteModal from "./AnnouncementDeleteModal";
 import QueueDeleteModal from "./QueueDeleteModal";
 import History from "./History";
+import Busyness from "./Busyness";
 
 interface QueuingPageProps {
     announcements: AnnouncementDto[] | null;
@@ -338,7 +339,6 @@ class QueuingPage extends Component<
                 <Fragment>
                     {newAnnouncement != null && (
                         <PopupModal
-                            isOpen={true}
                             announcement={newAnnouncement}
                             onCloseModal={() =>
                                 this.setState(() => ({ newAnnouncement: null }))
@@ -351,7 +351,6 @@ class QueuingPage extends Component<
                         reminder.participant.id ===
                             this.props.participant.id && (
                             <PopupModal
-                                isOpen={true}
                                 onCloseModal={() =>
                                     this.setState(() => ({ reminder: null }))
                                 }
@@ -695,7 +694,10 @@ class QueuingPage extends Component<
                     />
                 ))}
                 {mode === QueuingMode.TA && (
-                    <History taMode={mode === QueuingMode.TA} />
+                    <Fragment>
+                        <History taMode={mode === QueuingMode.TA} />
+                        <Busyness roomCode={this.props.match.params.rid} />
+                    </Fragment>
                 )}
             </Row>
         );
