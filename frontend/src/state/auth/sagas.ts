@@ -30,7 +30,6 @@ import {
     LOGIN_SUCCEEDED_ACTION,
     SET_LOGIN_REDIRECT_REQUESTED_ACTION,
     LOGIN_FAILED_ACTION,
-    LOGOUT_COMPLETED_ACTION,
     LOGOUT_REQUESTED_ACTION,
  } from "./constants";
 import { PATH_COURSES } from "../../routes";
@@ -88,6 +87,7 @@ export function* postLogoutRedirect() {
 
 export function* handleAPILogout() {
     yield put(notificationsResetAction());
+    yield postLogoutRedirect();
     yield put(logoutCompletedAction());
 }
 
@@ -110,7 +110,6 @@ export default function* authSagas() {
     yield takeEvery(SET_LOGIN_REDIRECT_REQUESTED_ACTION, setLoginRedirect);
     yield takeEvery(LOGIN_SUCCEEDED_ACTION, postLoginRedirect);
     yield takeEvery(LOGOUT_REQUESTED_ACTION, logOut);
-    yield takeEvery(LOGOUT_COMPLETED_ACTION, postLogoutRedirect);
     yield takeEvery(API_AUTH_LOGOUT_COMPLETED, handleAPILogout);
     yield takeEvery(API_AUTH_TOKEN_REFRESH_SUCCEEDED, updateAuthorities);
     yield takeLeading(LOAD_AUTHENTICATION_REQUESTED_ACTION, loadAuthentication);

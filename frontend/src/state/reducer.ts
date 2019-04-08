@@ -1,5 +1,5 @@
 import { History } from "history";
-import { combineReducers } from "redux";
+import { combineReducers, Action } from "redux";
 
 import authReducer from "./auth/reducer";
 import assignmentSetsReducer from "./assignments/reducer";
@@ -21,26 +21,35 @@ import labelsReducer from "./labels/reducer";
 import rolesReducer from "./roles/reducer";
 import roomsReducer from "./rooms/reducer";
 import jobsReducer from "./jobs/reducer";
+import { LOGOUT_COMPLETED_ACTION } from "./auth/constants";
 
-// TODO: implement cleaning the state on log out.
-export const rootReducer = (history: History) => combineReducers<ApplicationState>({
-    router: connectRouter(history),
-    auth: authReducer,
-    assignmentSets: assignmentSetsReducer,
-    groups: groupsReducer,
-    course: coursesReducer,
-    comments: commentsReducer,
-    navigationBar:  navigationBarReducer,
-    notifications: notificationsReducer,
-    canvasSettings: canvasReducer,
-    signOffs: signOffReducer,
-    search: searchReducer,
-    overview: overviewReducer,
-    queuing: queueReducer,
-    studentDashboard: studentDashboardReducer,
-    participants: participantsReducer,
-    labels: labelsReducer,
-    roles: rolesReducer,
-    rooms: roomsReducer,
-    jobs: jobsReducer,
-} as any);
+export const rootReducer = (history: History) => {
+    const reducer = combineReducers<ApplicationState>({
+        router: connectRouter(history),
+        auth: authReducer,
+        assignmentSets: assignmentSetsReducer,
+        groups: groupsReducer,
+        course: coursesReducer,
+        comments: commentsReducer,
+        navigationBar:  navigationBarReducer,
+        notifications: notificationsReducer,
+        canvasSettings: canvasReducer,
+        signOffs: signOffReducer,
+        search: searchReducer,
+        overview: overviewReducer,
+        queuing: queueReducer,
+        studentDashboard: studentDashboardReducer,
+        participants: participantsReducer,
+        labels: labelsReducer,
+        roles: rolesReducer,
+        rooms: roomsReducer,
+        jobs: jobsReducer,
+    } as any);
+
+    return (state: ApplicationState | undefined, action: Action<string>): ApplicationState => {
+        if (action.type === LOGOUT_COMPLETED_ACTION) {
+            return reducer({}, action);
+        }
+        return reducer(state, action);
+    };
+};
