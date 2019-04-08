@@ -22,5 +22,5 @@ open class CommentDto {
     }
 
     constructor(comment: Comment) : this(comment.id, CommentThreadDtoBrief(comment.thread),
-            PersonDtoBrief(comment.person), comment.content, comment.createdAt, comment.lastEditedAt)
+            PersonDtoBrief(comment.author.person), comment.content, comment.createdAt, comment.lastEditedAt)
 }

@@ -145,7 +145,7 @@ class SignOffService {
             }
         }
 
-        val newThread = dto.comment?.let { commentService.createThread(CommentType.STAFF_ONLY, it, signer.person) }
+        val newThread = dto.comment?.let { commentService.createThread(CommentType.STAFF_ONLY, it, signer) }
 
         return if (last != null && modifiable) {
             // If a last result exists and is modifiable, change existing last result
@@ -182,7 +182,7 @@ class SignOffService {
             existing.archivedBy = archiver
             existing.archivedAt = ZonedDateTime.now()
             if (dto.comment != null) {
-                val comment = commentService.createThread(CommentType.STAFF_ONLY, dto.comment, archiver.person)
+                val comment = commentService.createThread(CommentType.STAFF_ONLY, dto.comment, archiver)
                 existing.commentThread = comment
             }
         }

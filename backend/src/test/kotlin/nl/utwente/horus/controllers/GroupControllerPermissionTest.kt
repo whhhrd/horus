@@ -4,6 +4,7 @@ import nl.utwente.horus.HorusAbstractTest
 import nl.utwente.horus.WithLoginId
 import nl.utwente.horus.controllers.group.GroupController
 import nl.utwente.horus.entities.comment.CommentType
+import nl.utwente.horus.exceptions.ParticipantNotFoundException
 import nl.utwente.horus.representations.comment.CommentThreadCreateDto
 import nl.utwente.horus.services.comment.CommentService
 import nl.utwente.horus.services.group.GroupService
@@ -52,10 +53,9 @@ class GroupControllerPermissionTest: HorusAbstractTest() {
     @Test
     @WithLoginId(SS_NA_LOGIN)
     fun testNAGetGroupComments() {
-        val person = personService.getPersonByLoginId(SS_TEACHER_LOGIN)!!
         val commentThreadCreate = CommentThreadCreateDto(CommentType.STAFF_ONLY, "NewComment")
         val group = groupService.getGroupById(SS_GROUP_ID)
-        val commentThread = commentService.createThread(commentThreadCreate, person)
+        val commentThread = commentService.createThread(commentThreadCreate, getSSTeacherParticipant())
         groupService.addThread(group, commentThread)
         assertInsufficientPermissions { groupController.getGroupComments(SS_GROUP_ID) }
     }
@@ -63,10 +63,9 @@ class GroupControllerPermissionTest: HorusAbstractTest() {
     @Test
     @WithLoginId(SS_STUDENT_LOGIN)
     fun testStudentGetGroupComments() {
-        val person = personService.getPersonByLoginId(SS_TEACHER_LOGIN)!!
         val commentThreadCreate = CommentThreadCreateDto(CommentType.STAFF_ONLY, "NewComment")
         val group = groupService.getGroupById(SS_GROUP_ID)
-        val commentThread = commentService.createThread(commentThreadCreate, person)
+        val commentThread = commentService.createThread(commentThreadCreate, getSSTeacherParticipant())
         groupService.addThread(group, commentThread)
         assertInsufficientPermissions { groupController.getGroupComments(SS_GROUP_ID) }
     }
@@ -74,10 +73,9 @@ class GroupControllerPermissionTest: HorusAbstractTest() {
     @Test
     @WithLoginId(SS_TA_LOGIN)
     fun testTAGetGroupComments() {
-        val person = personService.getPersonByLoginId(SS_TEACHER_LOGIN)!!
         val commentThreadCreate = CommentThreadCreateDto(CommentType.STAFF_ONLY, "NewComment")
         val group = groupService.getGroupById(SS_GROUP_ID)
-        val commentThread = commentService.createThread(commentThreadCreate, person)
+        val commentThread = commentService.createThread(commentThreadCreate, getSSTeacherParticipant())
         groupService.addThread(group, commentThread)
         assertSufficientPermissions { groupController.getGroupComments(SS_GROUP_ID) }
     }
@@ -85,10 +83,9 @@ class GroupControllerPermissionTest: HorusAbstractTest() {
     @Test
     @WithLoginId(SS_TEACHER_LOGIN)
     fun testTeacherGetGroupComments() {
-        val person = personService.getPersonByLoginId(SS_TEACHER_LOGIN)!!
         val commentThreadCreate = CommentThreadCreateDto(CommentType.STAFF_ONLY, "NewComment")
         val group = groupService.getGroupById(SS_GROUP_ID)
-        val commentThread = commentService.createThread(commentThreadCreate, person)
+        val commentThread = commentService.createThread(commentThreadCreate, getSSTeacherParticipant())
         groupService.addThread(group, commentThread)
         assertSufficientPermissions { groupController.getGroupComments(SS_GROUP_ID) }
     }
@@ -97,7 +94,7 @@ class GroupControllerPermissionTest: HorusAbstractTest() {
     @WithLoginId(SS_NA_LOGIN)
     fun testNAAddGroupComments() {
         val commentThreadCreate = CommentThreadCreateDto(CommentType.STAFF_ONLY, "NewComment")
-        assertInsufficientPermissions { groupController.addGroupComments(SS_GROUP_ID, commentThreadCreate) }
+        assertThrows(ParticipantNotFoundException::class) { groupController.addGroupComments(SS_GROUP_ID, commentThreadCreate) }
     }
 
     @Test

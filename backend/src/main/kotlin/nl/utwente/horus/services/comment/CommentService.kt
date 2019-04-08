@@ -1,7 +1,7 @@
 package nl.utwente.horus.services.comment
 
 import nl.utwente.horus.entities.comment.*
-import nl.utwente.horus.entities.person.Person
+import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.exceptions.CommentNotFoundException
 import nl.utwente.horus.exceptions.CommentThreadNotFoundException
 import nl.utwente.horus.representations.comment.CommentCreateDto
@@ -28,12 +28,12 @@ class CommentService {
         return commentThreadRepository.findByIdOrNull(id) ?: throw CommentThreadNotFoundException()
     }
 
-    fun createThread(dto: CommentThreadCreateDto, author: Person): CommentThread {
+    fun createThread(dto: CommentThreadCreateDto, author: Participant): CommentThread {
         return createThread(dto.type, dto.content, author)
     }
 
-    fun createThread(type: CommentType, initialMessage: String, author: Person): CommentThread {
-        val thread = CommentThread(type)
+    fun createThread(type: CommentType, initialMessage: String, author: Participant): CommentThread {
+        val thread = CommentThread(author, type)
         val comment = Comment(author, thread, initialMessage)
         thread.comments.add(comment)
         return commentThreadRepository.save(thread)
@@ -44,11 +44,11 @@ class CommentService {
         return commentRepository.findByIdOrNull(id) ?: throw CommentNotFoundException()
     }
 
-    fun createComment(dto: CommentCreateDto, author: Person): Comment {
+    fun createComment(dto: CommentCreateDto, author: Participant): Comment {
         return createComment(dto.threadId, dto.content, author)
     }
 
-    fun createComment(threadId: Long, content: String, author: Person): Comment {
+    fun createComment(threadId: Long, content: String, author: Participant): Comment {
         val thread = getThreadById(threadId)
         val comment = commentRepository.save(Comment(author, thread, content))
         thread.comments.add(comment)

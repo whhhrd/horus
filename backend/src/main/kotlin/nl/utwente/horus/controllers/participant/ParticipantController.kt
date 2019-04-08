@@ -65,9 +65,9 @@ class ParticipantController: BaseController() {
 
     @PostMapping(path = ["/{pId}/comments"])
     fun addCommentThread(@PathVariable pId: Long, @RequestBody dto: CommentThreadCreateDto): CommentThreadDtoFull {
-        val thread = commentService.createThread(dto, userDetailService.getCurrentPerson())
-        // Update participant, but using new comment thread
         val p = participantService.getParticipantById(pId)
+        val thread = commentService.createThread(dto, getCurrentParticipationInCourse(p.course))
+        // Update participant, but using new comment thread
         participantService.addThread(p, thread)
         verifyCoursePermission(CommentThread::class, thread.id, HorusPermissionType.CREATE, toHorusResource(thread))
         return CommentThreadDtoFull(thread)

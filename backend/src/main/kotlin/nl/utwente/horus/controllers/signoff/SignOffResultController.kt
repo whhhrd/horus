@@ -53,9 +53,10 @@ class SignOffResultController: BaseController() {
 
     @PostMapping(path = ["/{signOffId}/comments"])
     fun addCommentThread(@PathVariable signOffId: Long, @RequestBody dto: CommentThreadCreateDto): CommentThreadDtoFull {
-        val user = userDetailService.getCurrentPerson()
-        val thread = commentService.createThread(dto, user)
         val result = signOffService.getSignOffResultById(signOffId)
+        // Use participant from same course as the participant who created the assignment (shortest way to course)
+        val author = getCurrentParticipationInCourse(result.participant.course)
+        val thread = commentService.createThread(dto, author)
         signOffService.addThreadToSignOffResult(result, thread)
 
         verifyCoursePermission(SignOffResult::class, signOffId, HorusPermissionType.CREATE, toHorusResource(thread))

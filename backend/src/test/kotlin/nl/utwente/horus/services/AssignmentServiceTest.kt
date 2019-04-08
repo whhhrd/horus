@@ -571,7 +571,7 @@ class AssignmentServiceTest : HorusAbstractTest() {
         val (_, _, assignmentSet) = createSampleTestAssignmentSet()
         val assignment = assignmentSet.assignments.toList()[0]
         val thread = commentService.createThread(CommentType.STAFF_ONLY,
-                "This is message :)", getCurrentPerson())
+                "This is message :)", courseService.getCurrentParticipationInCourse(getPPCourse()))
 
         // Check if initially the thread is not linked to the assignment
         assertNull(assignment.commentThread)

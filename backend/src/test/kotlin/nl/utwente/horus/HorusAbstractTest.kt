@@ -11,6 +11,7 @@ import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.course.CourseService
 import nl.utwente.horus.services.participant.LabelService
 import nl.utwente.horus.services.participant.ParticipantService
+import nl.utwente.horus.services.person.PersonService
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -35,6 +36,9 @@ abstract class HorusAbstractTest {
     @Autowired
     private lateinit var labelService: LabelService
 
+    @Autowired
+    private lateinit var personService: PersonService
+
     companion object {
         const val PP_TEACHER_LOGIN = "s1843141"
         const val PP_TA_LOGIN = "s1839047"
@@ -43,7 +47,7 @@ abstract class HorusAbstractTest {
         const val SS_TEACHER_LOGIN = "s1839047"
         const val SS_TA_LOGIN = "s1843141"
         const val SS_STUDENT_LOGIN = "s55619"
-        const val SS_NA_LOGIN = "s95153" // NA = No Access
+        const val SS_NA_LOGIN = "s13622" // NA = No Access
 
         const val COLOR_STR = "8B4513"
 
@@ -60,8 +64,8 @@ abstract class HorusAbstractTest {
 
         val PP_PARTICIPANT_IDS = (11L..500L)
         val SS_PARTICIPANT_IDS = (501L..821L)
-        val SS_PARTICIPANT_ID_WITH_COMMENT_THREAD = 502L
-        val SS_PARTICIPANT_ID_WITHOUT_COMMENT_THREAD = 501L
+        const val SS_PARTICIPANT_ID_WITH_COMMENT_THREAD = 789L
+        const val SS_PARTICIPANT_ID_WITHOUT_COMMENT_THREAD = 790L
         const val PP_GROUPSET_ID = 1L
         const val SS_GROUP_SET_ID = 2L
         const val SS_GROUP_ID = 352L
@@ -71,8 +75,8 @@ abstract class HorusAbstractTest {
 
         const val SS_ASSIGNMENT_ID_WITHOUT_COMMENT_THREAD: Long = 120
 
-        const val SS_SIGN_OFF_RESULT_ID_WITH_COMMENT_THREAD: Long = 25777
-        const val SS_SIGN_OFF_RESULT_ID_WITHOUT_COMMENT_THREAD: Long = 27287
+        const val SS_SIGN_OFF_RESULT_ID_WITH_COMMENT_THREAD: Long = 38544
+        const val SS_SIGN_OFF_RESULT_ID_WITHOUT_COMMENT_THREAD: Long = 38482
 
         const val SS_COMMENT_THREAD_ID: Long = 1569
         const val SS_COMMENT_ID: Long = 1569
@@ -94,8 +98,17 @@ abstract class HorusAbstractTest {
         return participantService.getParticipantById(PP_STUDENT_PARTICIPANT_ID)
     }
 
+    fun getSSTeacherParticipant(): Participant {
+        val person = personService.getPersonByLoginId(SS_TEACHER_LOGIN)!!
+        return participantService.getParticipationInCourse(person, SS_MOCK_COURSE_ID)
+    }
+
     fun getPPCourse(): Course {
         return courseService.getCourseById(PP_MOCK_COURSE_ID)
+    }
+
+    fun getSSCourse(): Course {
+        return courseService.getCourseById(SS_MOCK_COURSE_ID)
     }
 
     fun getFreshLabel(): Label {

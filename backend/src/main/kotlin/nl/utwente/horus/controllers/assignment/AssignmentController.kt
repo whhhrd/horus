@@ -54,9 +54,10 @@ class AssignmentController: BaseController() {
 
     @PostMapping(path = ["/{assignmentId}/comments"])
     fun addCommentThread(@PathVariable assignmentId: Long, @RequestBody dto: CommentThreadCreateDto): CommentThreadDtoFull {
-        val user = userDetailService.getCurrentPerson()
-        val thread = commentService.createThread(dto, user)
         val assignment = assignmentService.getAssignmentById(assignmentId)
+        // Get participant in same course as the assignment which the thread is made for
+        val author = getCurrentParticipationInCourse(assignment.assignmentSet.course)
+        val thread = commentService.createThread(dto, author)
         assignmentService.addThreadToAssignment(assignment, thread)
 
         verifyCoursePermission(CommentThread::class, thread.id, HorusPermissionType.CREATE, toHorusResource(thread))

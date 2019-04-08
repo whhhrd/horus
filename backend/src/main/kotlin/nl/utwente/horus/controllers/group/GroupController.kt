@@ -46,9 +46,10 @@ class GroupController: BaseController() {
 
     @PostMapping(path = ["/{groupId}/comments"])
     fun addGroupComments(@PathVariable groupId: Long, @RequestBody dto: CommentThreadCreateDto): CommentThreadDtoFull {
-        val user = userDetailService.getCurrentPerson()
-        val thread = commentService.createThread(dto, user)
         val group = groupService.getGroupById(groupId)
+        // Use participant in same course as the course of groupSet
+        val author = getCurrentParticipationInCourse(group.groupSet.course)
+        val thread = commentService.createThread(dto, author)
         groupService.addThread(group, thread)
 
         verifyCoursePermission(CommentThread::class, thread.id, HorusPermissionType.CREATE, toHorusResource(thread))

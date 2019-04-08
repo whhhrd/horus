@@ -188,7 +188,7 @@ class CourseServiceTest : HorusAbstractTest() {
         assertEquals(0, assignmentSets.size)
 
         // Then check for a person that is linked to PP course
-        val otherPerson = courseService.getParticipantsOfCourse(PP_MOCK_COURSE_ID)[0].person
+        val otherPerson = courseService.getParticipantsOfCourse(PP_MOCK_COURSE_ID).first { it.role == roleService.getStudentRole() }.person
         val otherAssignmentSets = courseService.getAssignmentSetsOfCourseByPerson(PP_MOCK_COURSE_ID, otherPerson)
 
         // Check if PP course contains 4 assignment sets

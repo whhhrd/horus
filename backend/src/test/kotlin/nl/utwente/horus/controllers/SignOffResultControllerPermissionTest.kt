@@ -4,6 +4,7 @@ import nl.utwente.horus.HorusAbstractTest
 import nl.utwente.horus.WithLoginId
 import nl.utwente.horus.controllers.signoff.SignOffResultController
 import nl.utwente.horus.entities.comment.CommentType
+import nl.utwente.horus.exceptions.ParticipantNotFoundException
 import nl.utwente.horus.representations.comment.CommentThreadCreateDto
 import nl.utwente.horus.representations.signoff.SignOffResultPatchDto
 import org.junit.Test
@@ -74,7 +75,7 @@ class SignOffResultControllerPermissionTest: HorusAbstractTest() {
     @WithLoginId(SS_NA_LOGIN)
     fun testNAAddCommentThread() {
         val commentThreadCreate = CommentThreadCreateDto(CommentType.STAFF_ONLY, "NewComment")
-        assertInsufficientPermissions { signOffResultController.addCommentThread(
+        assertThrows(ParticipantNotFoundException::class) { signOffResultController.addCommentThread(
                 SS_SIGN_OFF_RESULT_ID_WITHOUT_COMMENT_THREAD, commentThreadCreate) }
     }
 

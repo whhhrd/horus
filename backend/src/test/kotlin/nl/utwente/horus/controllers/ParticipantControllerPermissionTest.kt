@@ -4,6 +4,7 @@ import nl.utwente.horus.HorusAbstractTest
 import nl.utwente.horus.WithLoginId
 import nl.utwente.horus.controllers.participant.ParticipantController
 import nl.utwente.horus.entities.comment.CommentType
+import nl.utwente.horus.exceptions.ParticipantNotFoundException
 import nl.utwente.horus.representations.comment.CommentThreadCreateDto
 import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -69,7 +70,7 @@ class ParticipantControllerPermissionTest: HorusAbstractTest() {
     @WithLoginId(SS_NA_LOGIN)
     fun testNAAddCommentThread() {
         val commentThreadCreate = CommentThreadCreateDto(CommentType.STAFF_ONLY, "NewComment")
-        assertInsufficientPermissions { participantController.addCommentThread(
+        assertThrows(ParticipantNotFoundException::class) { participantController.addCommentThread(
                 SS_PARTICIPANT_ID_WITHOUT_COMMENT_THREAD, commentThreadCreate) }
     }
 

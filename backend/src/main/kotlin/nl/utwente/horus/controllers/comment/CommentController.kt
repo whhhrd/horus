@@ -25,7 +25,9 @@ class CommentController: BaseController() {
 
     @PostMapping(path = ["", "/"])
     fun createComment(@RequestBody dto: CommentCreateDto) : CommentThreadDtoFull {
-        val author = userDetailsService.getCurrentPerson()
+        val thread = commentService.getThreadById(dto.threadId)
+        // Use participation in same course as original thread
+        val author = getCurrentParticipationInCourse(thread.author.course)
         val comment = commentService.createComment(dto, author)
 
         verifyCoursePermission(CommentThread::class, dto.threadId, HorusPermissionType.CREATE,

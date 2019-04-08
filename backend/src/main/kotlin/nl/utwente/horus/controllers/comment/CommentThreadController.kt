@@ -3,7 +3,6 @@ package nl.utwente.horus.controllers.comment
 import nl.utwente.horus.auth.permissions.HorusPermissionType
 import nl.utwente.horus.controllers.BaseController
 import nl.utwente.horus.entities.comment.CommentThread
-import nl.utwente.horus.representations.comment.CommentThreadCreateDto
 import nl.utwente.horus.representations.comment.CommentThreadDtoFull
 import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.comment.CommentService
@@ -29,14 +28,6 @@ class CommentThreadController: BaseController() {
             verifyCoursePermission(CommentThread::class, it.id, HorusPermissionType.VIEW, toHorusResource(it))
         }
         return threads.map { CommentThreadDtoFull(it) }
-    }
-
-    @PostMapping(path = ["", "/"])
-    fun createThread(@RequestBody dto: CommentThreadCreateDto): CommentThreadDtoFull {
-        // Unfortunately no security possible: no way to track back to a course....
-        val author = userDetailService.getCurrentPerson()
-        val commentThread = commentService.createThread(dto, author)
-        return CommentThreadDtoFull(commentThread)
     }
 
     @DeleteMapping(path = ["/{threadId}"])

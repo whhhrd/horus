@@ -8,7 +8,6 @@ import nl.utwente.horus.entities.assignment.Assignment
 import nl.utwente.horus.entities.assignment.AssignmentSet
 import nl.utwente.horus.entities.assignment.SignOffResult
 import nl.utwente.horus.entities.auth.ParticipantSupplementaryRoleMapping
-import nl.utwente.horus.entities.auth.Role
 import nl.utwente.horus.entities.auth.SupplementaryRole
 import nl.utwente.horus.entities.comment.Comment
 import nl.utwente.horus.entities.comment.CommentThread
@@ -263,14 +262,14 @@ abstract class BaseController {
                         val course = courseService.getCoursesOfCommentThread(it).firstOrNull() ?: throw InsufficientPermissionsException()
                         course.id
                     },
-                    { person, entity -> entity.comments.map { it.person.id }.any { person.id == it } }
+                    { person, entity -> entity.comments.map { it.author.person.id }.any { person.id == it } }
             ) as EntityBundle<T>
         }
         if (kClass == Comment::class) {
             return EntityBundle<Comment>(
                     commentService::getCommentById,
                     { courseService.getCoursesOfCommentThread(it.thread).first().id }, // Same as with thread
-                    { person, entity -> entity.person.id == person.id}
+                    { person, entity -> entity.author.person.id == person.id}
             ) as EntityBundle<T>
         }
         if (kClass == SignOffResult::class) {
@@ -301,5 +300,13 @@ abstract class BaseController {
     fun executeAsBatchJob(description: String, call: JobCall): BatchJob {
         val issuer = userDetailService.getCurrentPerson()
         return batchJobExecutor.startAddBatchJob(description, issuer, call)
+    }
+
+    fun getCurrentParticipationInCourse(courseId: Long): Participant {
+        return getCurrentParticipationInCourse(courseService.getCourseById(courseId))
+    }
+
+    fun getCurrentParticipationInCourse(course: Course): Participant {
+        return courseService.getCurrentParticipationInCourse(course)
     }
 }
