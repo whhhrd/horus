@@ -111,6 +111,8 @@ class ProjectorQueuingPage extends Component<
                     </div>
                 </div>
             );
+        } else if (this.state.connectionState === ConnectionState.Closed) {
+            return buildBigCenterMessage("Oops! Room not found.", faSadCry);
         } else {
             return buildConnectingSpinner("Connecting to room...");
         }

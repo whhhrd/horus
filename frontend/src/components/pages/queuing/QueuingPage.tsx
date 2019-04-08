@@ -72,6 +72,7 @@ import {
     faDoorClosed,
     faTimes,
     faPlus,
+    faSadCry,
     faBullhorn,
     faExclamationTriangle,
 } from "@fortawesome/free-solid-svg-icons";
@@ -197,13 +198,16 @@ class QueuingPage extends Component<
 
     render() {
         const roomCode = this.props.match.params.rid;
-        if (this.props.room(roomCode) != null) {
+        const room = this.props.room(roomCode);
+        if (room != null) {
             return buildContent(
-                `Room: ${this.props.room(roomCode)!.name} (${
-                    this.props.room(roomCode)!.code
+                `Room: ${room!.name} (${
+                    room!.code
                 })`,
                 this.buildContent(),
             );
+        } else if (this.state.connectionState === ConnectionState.Closed) {
+            return buildBigCenterMessage("Oops! Room not found.", faSadCry);
         } else {
             return buildContent("Connecting to room...", null);
         }
@@ -291,17 +295,6 @@ class QueuingPage extends Component<
                     participantId: participant.id,
                 };
             }
-        } else if (this.state.mode === QueuingMode.Student) {
-            // If student will be helped or is reminded, he should get a notification
-            if (
-                this.state.reminder != null &&
-                this.state.reminder.participant.id ===
-                    this.props.participant!.id
-            ) {
-                this.showNotification("It is your turn!", {
-                    body: "Raise your hand to get the TAs attention.",
-                });
-            }
         }
     }
 
@@ -312,6 +305,18 @@ class QueuingPage extends Component<
             this.sock.removeEventListener("close", this.onSockClose);
             this.sock.removeEventListener("message", this.onSockMessage);
             this.sock.removeEventListener("error", this.onSockError);
+        }
+    }
+
+    private handleReminder(reminder: RemindDto) {
+        if (this.state.mode === QueuingMode.Student) {
+            // If student will be helped or is reminded, he should get a notification
+            if (reminder.participant.id === this.props.participant!.id) {
+                this.setState({ reminder });
+                this.showNotification("It is your turn!", {
+                    body: "Raise your hand to get the TAs attention.",
+                });
+            }
         }
     }
 
@@ -413,12 +418,12 @@ class QueuingPage extends Component<
                     roomCode: (data as AcceptDto).roomCode,
                     type,
                 };
-                this.setState(() => ({ reminder }));
+                this.handleReminder(reminder);
                 break;
             }
             case "REMIND": {
                 const reminder: RemindDto = data as RemindDto;
-                this.setState(() => ({ reminder }));
+                this.handleReminder(reminder);
                 break;
             }
             case "ADD_ANNOUNCEMENT": {
