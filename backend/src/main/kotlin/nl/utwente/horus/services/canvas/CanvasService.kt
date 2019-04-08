@@ -115,11 +115,11 @@ class CanvasService {
         return canvasToken
     }
 
-    fun listCanvasCourses(person: Person, filterStaff: Boolean, filterAlreadyAdded: Boolean): List<CanvasCourseDto> {
+    fun listCanvasCourses(person: Person, filterTeacher: Boolean, filterAlreadyAdded: Boolean): List<CanvasCourseDto> {
         val reader = getReaderWriter(person)
         val courses = reader.getCoursesOfUser()
-        if (filterStaff) {
-            courses.removeIf { !obtainedByStaff(it) }
+        if (filterTeacher) {
+            courses.removeIf { !obtainedByTeacher(it) }
         }
         if (filterAlreadyAdded) {
             courses.removeIf { c -> courseService.existsCourseByExternalId(c.id.toString()) }
@@ -135,7 +135,7 @@ class CanvasService {
         val reader = CanvasReaderWriter(token.token)
         val canvasCourse = reader.readCourse(canvasId)
         // Check pre-conditions before adding
-        if (!obtainedByStaff(canvasCourse) || courseService.existsCourseByExternalId(canvasCourse.id.toString())) {
+        if (!obtainedByTeacher(canvasCourse) || courseService.existsCourseByExternalId(canvasCourse.id.toString())) {
             throw SyncUnauthorizedException()
         }
 
@@ -149,20 +149,20 @@ class CanvasService {
         doFullCanvasSync(course.id, progress)
     }
 
-    private fun obtainedByStaff(c: edu.ksu.canvas.model.Course): Boolean {
+    private fun obtainedByTeacher(c: edu.ksu.canvas.model.Course): Boolean {
         // Course object only contains one enrollment: that of the requesting user
-        return toHorusRole(c.enrollments.first()).id != roleService.getStudentRole().id
+        return toHorusRole(c.enrollments.first()).id == roleService.getTeacherRole().id
     }
 
     fun doFullCanvasSync(courseId: Long, progress: JobProgress? = null) {
         val course = courseService.getCourseById(courseId)
         val author = participantService.getCurrentParticipationInCourse(courseId)
-        doCanvasPersonSync(course)
+        doCanvasParticipantSync(course)
         doCanvasGroupCategoriesFetch(course, author)
         course.groupSets.forEach {doCanvasGroupsSync(it.id, progress)}
     }
 
-    fun doCanvasPersonSync(course: Course) {
+    fun doCanvasParticipantSync(course: Course) {
         val users = fetchCourseUsers(course)
         processCourseUsers(course, users)
     }

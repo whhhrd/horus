@@ -7,6 +7,7 @@ import {
     CanvasRefreshSetsListRequestedAction,
     CanvasRefreshSetRequestedAction,
     CanvasGroupSetImportRequestedAction,
+    CanvasRefreshParticipantsRequestedAction,
 } from "./actions";
 
 import { authenticatedFetchJSON } from "../../api";
@@ -20,6 +21,7 @@ import {
     CANVAS_REFRESH_SETS_LIST_REQUESTED_ACTION,
     CANVAS_REFRESH_SET_REQUESTED_ACTION,
     CANVAS_IMPORT_GROUP_SET_REQUESTED_ACTION,
+    CANVAS_REFRESH_PARTICIPANTS_REQUESTED_ACTION,
 } from "./constants";
 
 import {
@@ -131,6 +133,28 @@ export function* refreshSet(action: CanvasRefreshSetRequestedAction) {
     }
 }
 
+export function* refreshParticipants(action: CanvasRefreshParticipantsRequestedAction) {
+    try {
+        yield put(
+            notifyInfo(
+                "Retrieving participant data. This will take a few seconds...",
+            ),
+        );
+
+        yield call(
+            authenticatedFetchJSON,
+            "PUT",
+            `canvas/${action.courseId}/participants`,
+        );
+
+        yield put(
+            notifySuccess("Succesfully retrieved and updated participants data."),
+        );
+    } catch (e) {
+        yield put(notifyError("Failed to retrieve participants data"));
+    }
+}
+
 export function* importGroupSet(action: CanvasGroupSetImportRequestedAction) {
     try {
         const result = yield call(
@@ -165,4 +189,5 @@ export default function* canvasSaga() {
     yield takeEvery(CANVAS_REFRESH_SETS_LIST_REQUESTED_ACTION, refreshSetsList);
     yield takeEvery(CANVAS_REFRESH_SET_REQUESTED_ACTION, refreshSet);
     yield takeEvery(CANVAS_IMPORT_GROUP_SET_REQUESTED_ACTION, importGroupSet);
+    yield takeEvery(CANVAS_REFRESH_PARTICIPANTS_REQUESTED_ACTION, refreshParticipants);
 }

@@ -11,6 +11,8 @@ import {
     CANVAS_REFRESH_SET_REQUEST_SUCCEEDED_ACTION,
     CANVAS_REFRESH_SET_REQUESTED_ACTION,
     CANVAS_IMPORT_GROUP_SET_REQUESTED_ACTION,
+    CANVAS_REFRESH_PARTICIPANTS_REQUESTED_ACTION,
+    CANVAS_REFRESH_PARTICIPANTS_REQUEST_SUCCEEDED_ACTION,
 } from "./constants";
 
 import {
@@ -103,6 +105,20 @@ export const canvasRefreshSetRequestedAction = (
 export const canvasRefreshSetRequestSucceededAction = (
     groups: GroupDtoFull[],
 ) => ({ type: CANVAS_REFRESH_SET_REQUEST_SUCCEEDED_ACTION, groups });
+
+// REFRESH PARTICIPANTS
+export interface CanvasRefreshParticipantsRequestedAction extends Action<string> {
+    courseId: number;
+}
+
+export const canvasRefreshParticipantsRequestedAction = (courseId: number) => ({
+    type: CANVAS_REFRESH_PARTICIPANTS_REQUESTED_ACTION,
+    courseId,
+});
+
+export const canvasRefreshParticipantsRequestSucceededAction = () => ({
+    type: CANVAS_REFRESH_PARTICIPANTS_REQUEST_SUCCEEDED_ACTION,
+});
 
 // IMPORT GROUP SET
 export interface CanvasGroupSetImportRequestedAction extends Action<string> {

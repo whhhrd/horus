@@ -99,14 +99,14 @@ class CanvasController: BaseController() {
         return BatchJobDto(batch)
     }
 
-    @PutMapping(path = ["/{courseId}/persons"])
-    fun syncPersons(@PathVariable courseId: Long): CourseDtoFull {
+    @PutMapping(path = ["/{courseId}/participants"])
+    fun syncParticipants(@PathVariable courseId: Long): CourseDtoFull {
         requireAnyPermission(Course::class, courseId, HorusPermissionType.CREATE, HorusResource.COURSE_PARTICIPANT)
         requireAnyPermission(Course::class, courseId, HorusPermissionType.EDIT, HorusResource.COURSE_PARTICIPANT)
         requireAnyPermission(Course::class, courseId, HorusPermissionType.DELETE, HorusResource.COURSE_PARTICIPANT)
 
         val course = courseService.getCourseById(courseId)
-        canvasService.doCanvasPersonSync(course)
+        canvasService.doCanvasParticipantSync(course)
         val participant = courseService.getCurrentParticipationInCourse(course)
         return CourseDtoFull(course, RoleDtoBrief(participant.role))
     }

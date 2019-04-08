@@ -77,6 +77,13 @@ export const suppRolesMappingAnyDelete = CourseAuthScheme.anyDelete("COURSE_SUPP
 // Participant permissions
 export const participantsAnyList = CourseAuthScheme.anyList("COURSE_PARTICIPANT");
 export const participantsAnyView = CourseAuthScheme.anyView("COURSE_PARTICIPANT");
+export const participantsAnyCreate = CourseAuthScheme.anyCreate("COURSE_PARTICIPANT");
+export const participantsAnyEdit = CourseAuthScheme.anyEdit("COURSE_PARTICIPANT");
+export const participantsAnyDelete = CourseAuthScheme.anyDelete("COURSE_PARTICIPANT");
+
+// Do a participant sync
+export const participantsAdmin =
+    CourseAuthScheme.every(participantsAnyCreate, participantsAnyEdit, participantsAnyDelete);
 
 // View groups sets admin page
 export const groupSetsAdmin = groupSetsAnyList;
