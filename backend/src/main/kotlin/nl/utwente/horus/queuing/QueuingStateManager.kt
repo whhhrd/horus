@@ -7,7 +7,9 @@ import nl.utwente.horus.representations.queuing.updates.InitialStateDto
 import nl.utwente.horus.representations.queuing.updates.UpdateDto
 import nl.utwente.horus.services.group.GroupService
 import org.apache.commons.lang.RandomStringUtils
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import reactor.core.Disposable
 import java.util.concurrent.locks.ReentrantReadWriteLock
@@ -20,6 +22,8 @@ class QueuingStateManager {
 
     companion object {
         const val ROOM_CODE_LENGTH = 6
+
+        val LOGGER = LoggerFactory.getLogger(QueuingStateManager::class.java)
     }
 
     private val lock = ReentrantReadWriteLock()
@@ -61,6 +65,17 @@ class QueuingStateManager {
             }
             rooms[roomCode]!!.close()
             rooms.remove(roomCode)
+        }
+    }
+
+    // Cron format reminder: second - minute - hour - dayOfMonth - month - dayOfWeek
+    // Do at 4AM at night after a weekday (hence the TUE-SAT: also need to clean rooms of Friday afternoon)
+    @Scheduled(cron = "0 0 4 * * TUE-SAT")
+    fun closeAllRooms() {
+        write {
+            val size = rooms.size
+            rooms.clear()
+            LOGGER.info("Closed $size rooms automatically.")
         }
     }
 
