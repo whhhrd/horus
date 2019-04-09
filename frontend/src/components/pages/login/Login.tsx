@@ -23,6 +23,7 @@ import { ApplicationState } from "../../../state/state";
 import { loginAction } from "../../../state/auth/actions";
 import Spinner from "reactstrap/lib/Spinner";
 import groupPicture from "../../../images/horus_group_picture_compressed.jpg";
+import { setPageTitle } from "../../pagebuilder";
 
 export interface LoginProps {
     logIn: (
@@ -49,6 +50,8 @@ interface LoginValues {
 }
 
 class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
+    static PAGE_TITLE = "Login";
+
     constructor(props: LoginProps & RouteComponentProps) {
         super(props);
         this.state = {
@@ -93,6 +96,8 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
         if (code != null) {
             logIn(null, code as string);
         }
+
+        setPageTitle(Login.PAGE_TITLE);
     }
 
     validate(values: LoginValues) {

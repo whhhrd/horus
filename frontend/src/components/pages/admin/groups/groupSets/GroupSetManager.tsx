@@ -23,7 +23,7 @@ import {
 } from "../../../../../state/canvas-settings/actions";
 import { courseRequestedAction } from "../../../../../state/courses/action";
 import { getCourse } from "../../../../../state/courses/selectors";
-import { buildContent } from "../../../../pagebuilder";
+import { buildContent, setPageTitle } from "../../../../pagebuilder";
 import CoursePermissions from "../../../../../api/permissions";
 import { getCoursePermissions } from "../../../../../state/auth/selectors";
 import {
@@ -62,6 +62,8 @@ class GroupSetManager extends Component<
     GroupSetManagerProps & RouteComponentProps<any>,
     GroupSetManagerState
 > {
+    static PAGE_TITLE = "Group Sets Manager";
+
     constructor(props: GroupSetManagerProps & RouteComponentProps<any>) {
         super(props);
         this.state = {
@@ -84,10 +86,12 @@ class GroupSetManager extends Component<
 
         // Fetch course (for externalId checking)
         this.props.fetchCourse(this.props.match.params.cid);
+
+        setPageTitle(GroupSetManager.PAGE_TITLE);
     }
 
     render() {
-        return buildContent("Group Sets Manager", this.buildContent());
+        return buildContent(GroupSetManager.PAGE_TITLE, this.buildContent());
     }
 
     buildContent() {

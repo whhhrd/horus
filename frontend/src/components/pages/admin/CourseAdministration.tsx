@@ -4,7 +4,7 @@ import { withRouter, RouteComponentProps } from "react-router";
 import { getCurrentAccessToken } from "../../../api";
 
 import { Link } from "react-router-dom";
-import { buildContent } from "../../pagebuilder";
+import { buildContent, setPageTitle } from "../../pagebuilder";
 import { Row, Col } from "reactstrap";
 import CoursePermissions from "../../../api/permissions";
 import { getCoursePermissions } from "../../../state/auth/selectors";
@@ -49,13 +49,16 @@ interface CourseAdministrationProps {
 class CourseAdministration extends PureComponent<
     CourseAdministrationProps & RouteComponentProps<any>
 > {
+    static PAGE_TITLE = "Course Administration";
     componentDidMount() {
         // Fetch course (for externalId checking)
         this.props.fetchCourse(this.props.match.params.cid);
+
+        setPageTitle(CourseAdministration.PAGE_TITLE);
     }
 
     render() {
-        return buildContent("Course Administration", this.buildContent(), null);
+        return buildContent(CourseAdministration.PAGE_TITLE, this.buildContent(), null);
     }
 
     buildContent() {

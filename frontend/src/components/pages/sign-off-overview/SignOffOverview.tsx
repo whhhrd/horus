@@ -1,7 +1,7 @@
 import React, { ReactNode, Component } from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
-import { buildContent } from "../../pagebuilder";
+import { buildContent, setPageTitle } from "../../pagebuilder";
 import queryString from "query-string";
 import { MultiGrid, GridCellProps, AutoSizer, Index } from "react-virtualized";
 import {
@@ -91,6 +91,8 @@ class SignOffOverview extends Component<
     SignOffOverviewProps & RouteComponentProps<any>,
     SignOffOverviewState
 > {
+    static PAGE_TITLE = "Sign-off Overview";
+
     static rowHeight = 30;
     static columnWidth = 50;
     multigrid: MultiGrid | null;
@@ -110,7 +112,7 @@ class SignOffOverview extends Component<
 
     render() {
         return buildContent(
-            "Sign-Off Overview",
+            SignOffOverview.PAGE_TITLE,
             this.buildContent(),
             this.buildSidebar(),
         );
@@ -124,6 +126,8 @@ class SignOffOverview extends Component<
         this.props.fetchOverviewResults(courseId, assignmentSetId);
 
         this.reloadData();
+
+        setPageTitle(SignOffOverview.PAGE_TITLE);
     }
 
     componentDidUpdate(

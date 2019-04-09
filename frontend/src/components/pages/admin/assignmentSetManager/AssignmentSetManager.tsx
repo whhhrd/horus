@@ -33,7 +33,7 @@ import {
     assignmentSetsAnyCreate,
     assignmentsAdmin, assignmentSetsAnyDelete, groupSetsAdmin,
 } from "../../../../state/auth/constants";
-import { buildContent } from "../../../pagebuilder";
+import { buildContent, setPageTitle } from "../../../pagebuilder";
 
 interface AssignmentSetManagerProps {
     assignmentGroupSetsMappingDtos: AssignmentGroupSetsMappingDto[] | null;
@@ -63,6 +63,7 @@ class AssignmentSetManager extends Component<
     AssignmentSetManagerProps & RouteComponentProps<any>,
     AssignmentSetManagerState
 > {
+    static PAGE_TITLE = "Assignment Sets Manager";
     constructor(props: AssignmentSetManagerProps & RouteComponentProps<any>) {
         super(props);
         this.state = {
@@ -85,10 +86,12 @@ class AssignmentSetManager extends Component<
         this.props.fetchAssignmentGroupSetsMappingDtos(
             this.props.match.params.cid,
         );
+
+        setPageTitle(AssignmentSetManager.PAGE_TITLE);
     }
 
     render() {
-        return buildContent("Assignment Set Manager", this.buildContent());
+        return buildContent(AssignmentSetManager.PAGE_TITLE, this.buildContent());
     }
 
     buildContent() {

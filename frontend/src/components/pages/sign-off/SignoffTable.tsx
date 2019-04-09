@@ -37,7 +37,7 @@ import GroupTableCell from "./GroupTableCell";
 import ParticipantTableCell from "./ParticipantTableCell";
 import AssignmentTableCell from "./AssignmentTableCell";
 import SignoffResultTableCell from "./SignoffResultTableCell";
-import { buildContent } from "../../pagebuilder";
+import { buildContent, setPageTitle } from "../../pagebuilder";
 import { getCoursePermissions } from "../../../state/auth/selectors";
 import CoursePermissions from "../../../api/permissions";
 import {
@@ -154,9 +154,13 @@ class SignoffTable extends Component<
         const assignmentSet = this.props.assignmentSet;
         const permissions = this.props.coursePermissions!;
         const canViewSignoffs = signoffAssignmentsView.check(cid, permissions);
-        return buildContent(
+        const title =
             "Sign-off" +
-                (assignmentSet != null ? ": " + assignmentSet.name : ""),
+            (assignmentSet != null ? ": " + assignmentSet.name : "");
+
+        setPageTitle(title);
+        return buildContent(
+            title,
             (canViewSignoffs && this.buildContent()) || null,
             this.buildSidebar(),
             false,

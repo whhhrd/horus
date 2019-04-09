@@ -14,19 +14,21 @@ import {
     API_TEACHER_ROLE,
     COURSE_LIST_STUDENT,
 } from "../../../state/courses/constants";
-import { buildContent } from "../../pagebuilder";
+import { buildContent, setPageTitle } from "../../pagebuilder";
 
 interface CourseSelectionProps {
     courses: CourseDtoSummary[] | null;
     requestCourses: () => {
-        type: string,
+        type: string;
     };
 }
 
 class CourseSelection extends Component<CourseSelectionProps> {
+    static PAGE_TITLE = "Selecting a course";
 
     componentDidMount() {
         this.props.requestCourses();
+        setPageTitle(CourseSelection.PAGE_TITLE);
     }
 
     buildContent() {
@@ -34,31 +36,45 @@ class CourseSelection extends Component<CourseSelectionProps> {
             return null;
         }
 
-        const roles = this.props.courses.map((course: CourseDtoSummary) => course.role.name);
+        const roles = this.props.courses.map(
+            (course: CourseDtoSummary) => course.role.name,
+        );
 
         if (roles.every((r) => r === API_STUDENT_ROLE)) {
-            return <CourseList key={COURSE_LIST_ANY} mode={COURSE_LIST_ANY} courses={this.props.courses} />;
-
+            return (
+                <CourseList
+                    key={COURSE_LIST_ANY}
+                    mode={COURSE_LIST_ANY}
+                    courses={this.props.courses}
+                />
+            );
         } else {
             return (
-                <div><CourseList
-                    mode={COURSE_LIST_TEACHER}
-                    key={COURSE_LIST_TEACHER}
-                    courses={this.props.courses.filter(
-                        (course: CourseDtoSummary) => course.role.name === API_TEACHER_ROLE)
-                    } />
+                <div>
+                    <CourseList
+                        mode={COURSE_LIST_TEACHER}
+                        key={COURSE_LIST_TEACHER}
+                        courses={this.props.courses.filter(
+                            (course: CourseDtoSummary) =>
+                                course.role.name === API_TEACHER_ROLE,
+                        )}
+                    />
                     <CourseList
                         mode={COURSE_LIST_TA}
                         key={COURSE_LIST_TA}
                         courses={this.props.courses.filter(
-                            (course: CourseDtoSummary) => course.role.name === API_TA_ROLE)
-                        } />
+                            (course: CourseDtoSummary) =>
+                                course.role.name === API_TA_ROLE,
+                        )}
+                    />
                     <CourseList
                         mode={COURSE_LIST_STUDENT}
                         key={COURSE_LIST_STUDENT}
                         courses={this.props.courses.filter(
-                            (course: CourseDtoSummary) => course.role.name === API_STUDENT_ROLE)
-                        } />
+                            (course: CourseDtoSummary) =>
+                                course.role.name === API_STUDENT_ROLE,
+                        )}
+                    />
                 </div>
             );
         }
@@ -69,8 +85,11 @@ class CourseSelection extends Component<CourseSelectionProps> {
     }
 }
 
-export default connect((state: ApplicationState) => ({
-    courses: getCourses(state),
-}), {
+export default connect(
+    (state: ApplicationState) => ({
+        courses: getCourses(state),
+    }),
+    {
         requestCourses: coursesRequestedAction,
-    })(CourseSelection);
+    },
+)(CourseSelection);

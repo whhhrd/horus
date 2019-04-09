@@ -2,7 +2,7 @@ import { Component } from "react";
 import { withRouter, RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../state/state";
-import { buildContent } from "../../pagebuilder";
+import { buildContent, setPageTitle } from "../../pagebuilder";
 import React from "react";
 import { RoomDto, ParticipantDtoBrief } from "../../../api/types";
 import {
@@ -43,6 +43,7 @@ class Rooms extends Component<
     RoomsProps & RouteComponentProps<any>,
     RoomsState
 > {
+    static PAGE_TITLE = "Room selection";
     static POLL_INTERVAL = 15000;
     poller: number;
 
@@ -85,6 +86,7 @@ class Rooms extends Component<
         this.props.fetchRooms(courseId);
         this.props.fetchCurrentParticipant(courseId);
         this.poll();
+        setPageTitle(Rooms.PAGE_TITLE);
     }
 
     componentWillUnmount() {
@@ -92,7 +94,7 @@ class Rooms extends Component<
     }
 
     render() {
-        return buildContent("Rooms", this.buildContent(), null);
+        return buildContent(Rooms.PAGE_TITLE, this.buildContent(), null);
     }
 
     buildContent() {

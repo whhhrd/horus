@@ -16,7 +16,7 @@ import {
     ParticipantDtoFull,
     SupplementaryRoleDto,
 } from "../../../../api/types";
-import { buildContent, centerSpinner } from "../../../pagebuilder";
+import { buildContent, centerSpinner, setPageTitle } from "../../../pagebuilder";
 import { ApplicationState } from "../../../../state/state";
 import { getCoursePermissions } from "../../../../state/auth/selectors";
 import CoursePermissions from "../../../../api/permissions";
@@ -91,6 +91,7 @@ class RolesManager extends Component<
     RolesManagerProps & RouteComponentProps<any>,
     RolesManagerState
 > {
+    static PAGE_TITLE = "Roles Manager";
     constructor(props: RolesManagerProps & RouteComponentProps<any>) {
         super(props);
         this.state = initialState;
@@ -102,10 +103,12 @@ class RolesManager extends Component<
         this.props.fetchSuppRoles(cid);
         this.props.fetchSuppRolesMapping(cid);
         this.props.fetchCourseStaff(cid);
+
+        setPageTitle(RolesManager.PAGE_TITLE);
     }
 
     render() {
-        return buildContent("Roles Manager", this.buildContent());
+        return buildContent(RolesManager.PAGE_TITLE, this.buildContent());
     }
 
     buildContent() {

@@ -19,7 +19,7 @@ import {
 } from "../../../../../state/canvas-settings/actions";
 import { courseRequestedAction } from "../../../../../state/courses/action";
 import { getCourse } from "../../../../../state/courses/selectors";
-import { buildContent, centerSpinner } from "../../../../pagebuilder";
+import { buildContent, centerSpinner, setPageTitle } from "../../../../pagebuilder";
 import CommentThread from "../../../../comments/CommentThread";
 import { Action } from "redux";
 import { EntityType } from "../../../../../state/comments/types";
@@ -56,6 +56,8 @@ class GroupManager extends Component<
     GroupManagerProps & RouteComponentProps<any>,
     GroupManagerState
 > {
+    static PAGE_TITLE = "Groups Manager";
+
     constructor(props: GroupManagerProps & RouteComponentProps<any>) {
         super(props);
 
@@ -70,11 +72,13 @@ class GroupManager extends Component<
 
         // Fetch course (for externalId checking)
         this.props.fetchCourse(this.props.match.params.cid);
+
+        setPageTitle(GroupManager.PAGE_TITLE);
     }
 
     render() {
         return buildContent(
-            "Group Sets Manager",
+            GroupManager.PAGE_TITLE,
             this.buildContent(),
             this.buildSidebar(),
         );

@@ -60,6 +60,7 @@ import {
     buildContent,
     buildBigCenterMessage,
     buildConnectingSpinner,
+    setPageTitle,
 } from "../../pagebuilder";
 import { getRoom } from "../../../state/rooms/selectors";
 import {
@@ -200,12 +201,9 @@ class QueuingPage extends Component<
         const roomCode = this.props.match.params.rid;
         const room = this.props.room(roomCode);
         if (room != null) {
-            return buildContent(
-                `Room: ${room!.name} (${
-                    room!.code
-                })`,
-                this.buildContent(),
-            );
+            const title = `Room: ${room!.name} (${room!.code})`;
+            setPageTitle(title);
+            return buildContent(title, this.buildContent());
         } else if (this.state.connectionState === ConnectionState.Closed) {
             return buildBigCenterMessage("Oops! Room not found.", faSadCry);
         } else {

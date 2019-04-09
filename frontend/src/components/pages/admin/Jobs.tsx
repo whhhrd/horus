@@ -3,7 +3,7 @@ import { withRouter, RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 
 import { Row, Col, Alert } from "reactstrap";
-import { buildContent } from "../../pagebuilder";
+import { buildContent, setPageTitle } from "../../pagebuilder";
 import { ApplicationState } from "../../../state/state";
 import { BatchJobDto } from "../../../api/types";
 import { Action } from "redux";
@@ -20,12 +20,16 @@ interface JobsProps {
 }
 
 class Jobs extends Component<JobsProps & RouteComponentProps<any>> {
+    static PAGE_TITLE = "Tasks";
+
     componentDidMount() {
         this.props.fetchJobs();
+
+        setPageTitle(Jobs.PAGE_TITLE);
     }
 
     render() {
-        return buildContent("Tasks", this.buildContent());
+        return buildContent(Jobs.PAGE_TITLE, this.buildContent());
     }
 
     buildContent() {

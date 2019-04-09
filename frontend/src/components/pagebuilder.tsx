@@ -135,3 +135,7 @@ export const notificationDirectToTasks = () => {
         );
     }
 };
+
+export const setPageTitle = (topic: string) => {
+    document.title = "Horus - " + topic;
+};

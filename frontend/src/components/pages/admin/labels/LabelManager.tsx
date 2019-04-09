@@ -10,7 +10,7 @@ import {
     Input,
 } from "reactstrap";
 import { ParticipantDtoFull, LabelDto } from "../../../../api/types";
-import { buildContent, centerSpinner } from "../../../pagebuilder";
+import { buildContent, centerSpinner, setPageTitle } from "../../../pagebuilder";
 import { ApplicationState } from "../../../../state/state";
 import Label from "../../../Label";
 import { faPlus, faEdit, faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -91,6 +91,7 @@ class LabelManager extends Component<
     LabelManagerProps & RouteComponentProps<any>,
     LabelManagerState
 > {
+    static PAGE_TITLE = "Label Manager";
     constructor(props: LabelManagerProps & RouteComponentProps<any>) {
         super(props);
         this.state = initialState;
@@ -102,10 +103,12 @@ class LabelManager extends Component<
     componentDidMount() {
         this.props.fetchCourseParticipants(this.props.match.params.cid);
         this.props.fetchCourse(this.props.match.params.cid);
+
+        setPageTitle(LabelManager.PAGE_TITLE);
     }
 
     render() {
-        return buildContent("Label Manager", this.buildContent());
+        return buildContent(LabelManager.PAGE_TITLE, this.buildContent());
     }
 
     toggleLabelCreatorModal() {

@@ -5,7 +5,7 @@ import {
     tokenSubmitAction,
     checkTokenAndRedirectImportAction,
 } from "../../../state/canvas-settings/actions";
-import { buildContent } from "../../pagebuilder";
+import { buildContent, setPageTitle } from "../../pagebuilder";
 import {
     Form,
     Spinner,
@@ -41,6 +41,7 @@ class CanvasTokenForm extends Component<
     CanvasTokenFormProps,
     CanvasTokenFormState
 > {
+    static PAGE_TITLE = "Canvas Token Import";
     constructor(props: CanvasTokenFormProps) {
         super(props);
         this.state = {
@@ -50,10 +51,12 @@ class CanvasTokenForm extends Component<
 
     componentWillMount() {
         this.props.checkTokenAndRedirect();
+
+        setPageTitle(CanvasTokenForm.PAGE_TITLE);
     }
 
     render() {
-        return buildContent("Canvas Token Import", this.buildContent());
+        return buildContent(CanvasTokenForm.PAGE_TITLE, this.buildContent());
     }
 
     private onSubmit = (token: CanvasTokenValues) => {
