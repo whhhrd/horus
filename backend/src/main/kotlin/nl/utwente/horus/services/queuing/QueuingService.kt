@@ -62,6 +62,13 @@ class QueuingService {
         return queuingStateManager.createQueue(courseId, roomCode, name, assignmentSetId)
     }
 
+    fun editQueue(courseId: Long, roomCode: String, id: String, name: String): QueueDto {
+        if (name.isBlank()) {
+            throw EmptyStringException()
+        }
+        return queuingStateManager.editQueue(courseId, roomCode, id, name)
+    }
+
     fun deleteQueue(courseId: Long, roomCode: String, id: String) {
         return queuingStateManager.deleteQueue(courseId, roomCode, id)
     }

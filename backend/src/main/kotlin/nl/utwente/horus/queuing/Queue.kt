@@ -13,7 +13,6 @@ class Queue {
     val courseId: Long
     val roomCode: String
     var name: String
-        private set
     var assignmentSetId: Long?
         private set
 

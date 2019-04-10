@@ -658,7 +658,7 @@ class QueuingPage extends Component<
             <Row className="row-eq-height">
                 {this.props.queues!.map((queue: QueueDto) => (
                     <Queue
-                        title={queue.name}
+                        queue={queue}
                         entries={queue.participants.map(
                             (participant: QueueParticipantDto) => ({
                                 participant,

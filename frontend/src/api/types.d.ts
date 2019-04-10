@@ -436,6 +436,10 @@ export interface QueueCreateDto {
     name: string;
 }
 
+export interface QueueUpdateDto {
+    name: string;
+}
+
 export interface AnnouncementCreateDto {
     content: string;
 }

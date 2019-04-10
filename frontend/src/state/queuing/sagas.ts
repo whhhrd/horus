@@ -16,6 +16,7 @@ import {
     AcceptNextAction,
     RoomQueueLengthsRequestedAction,
     roomQueueLenghtsRequestSucceededAction,
+    QueueEditRequestedAction,
 } from "./actions";
 import { put, takeEvery, call } from "redux-saga/effects";
 import { notifyError } from "../notifications/constants";
@@ -32,6 +33,7 @@ import {
     REMIND_REQUESTED_ACTION,
     ACCEPT_NEXT_ACTION,
     ROOM_QUEUE_LENGTHS_REQUESTED_ACTION,
+    QUEUE_EDIT_REQUESTED_ACTION,
 } from "./constants";
 
 export function* getCurrentParticipant(
@@ -68,6 +70,21 @@ export function* createQueue(action: QueueCreatedAction) {
         yield put(notifyError("Failed to create queue"));
     }
 }
+
+export function* editQueue(action: QueueEditRequestedAction) {
+    try {
+        yield call(
+            authenticatedFetchJSON,
+            "PUT",
+            `queuing/${action.courseId}/rooms/${action.roomCode}/queues/${action.queueId}`,
+            null,
+            action.queueUpdate,
+        );
+    } catch (e) {
+        yield put(notifyError("Failed to edit queue"));
+    }
+}
+
 export function* createAnnouncement(action: AnnouncementCreatedAction) {
     try {
         yield call(
@@ -249,4 +266,5 @@ export default function* queuingSagas() {
     yield takeEvery(REMIND_REQUESTED_ACTION, remind);
     yield takeEvery(ACCEPT_NEXT_ACTION, acceptNext);
     yield takeEvery(ROOM_QUEUE_LENGTHS_REQUESTED_ACTION, fetchRoomQueueLengths);
+    yield takeEvery(QUEUE_EDIT_REQUESTED_ACTION, editQueue);
 }

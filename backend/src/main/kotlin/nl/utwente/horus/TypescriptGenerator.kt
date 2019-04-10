@@ -27,6 +27,7 @@ import nl.utwente.horus.representations.queuing.RoomDto
 import nl.utwente.horus.representations.queuing.RoomQueueLengthsDto
 import nl.utwente.horus.representations.queuing.requests.AnnouncementCreateDto
 import nl.utwente.horus.representations.queuing.requests.QueueCreateDto
+import nl.utwente.horus.representations.queuing.requests.QueueUpdateDto
 import nl.utwente.horus.representations.queuing.requests.RoomCreateDto
 import nl.utwente.horus.representations.queuing.updates.*
 import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
@@ -103,6 +104,7 @@ fun generate() {
                     InitialStateDto::class,
                     RoomCreateDto::class,
                     QueueCreateDto::class,
+                    QueueUpdateDto::class,
                     AnnouncementCreateDto::class,
                     RoomQueueLengthsDto::class,
 

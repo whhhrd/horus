@@ -98,6 +98,15 @@ class Room {
         }
     }
 
+    fun editQueue(id: String, name: String): QueueDto {
+        return eventEmittingActionWithLock {
+            val queue = queues[id] ?: throw QueueNotFoundException()
+            queue.name = name
+            val dto = queue.toDto()
+            Pair(dto, EditQueueDto(code, dto))
+        }
+    }
+
     fun deleteQueue(id: String) {
         eventEmittingActionWithLock {
             val queue = queues[id] ?: throw QueueNotFoundException()

@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { QueueEntry, QueuingMode } from "../../../state/queuing/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faTimes, faEdit } from "@fortawesome/free-solid-svg-icons";
-import { ParticipantDtoBrief } from "../../../api/types";
+import { ParticipantDtoBrief, QueueDto } from "../../../api/types";
 import {
     Col,
     Card,
@@ -16,9 +16,10 @@ import {
 } from "reactstrap";
 import QueueTimeBadge from "./QueueTimeBadge";
 import { gradientColor } from "../../util";
+import QueueEditModal from "./QueueEditModal";
 
 interface QueueProps {
-    title: string;
+    queue: QueueDto;
     entries: QueueEntry[];
     mode?: QueuingMode;
     currentParticipant?: ParticipantDtoBrief;
@@ -27,33 +28,58 @@ interface QueueProps {
     onAcceptNext?: () => any;
 }
 
-export default class Queue extends Component<QueueProps> {
+interface QueueState {
+    queueToEdit: QueueDto | null;
+}
+
+export default class Queue extends Component<QueueProps, QueueState> {
     static UNACCEPTABLE_QUEUE_LENGTH = 15;
+
+    constructor(props: QueueProps) {
+        super(props);
+        this.state = { queueToEdit: null };
+        this.toggleQueueEditModal = this.toggleQueueEditModal.bind(this);
+    }
+
+    toggleQueueEditModal(queue: QueueDto | null) {
+        this.setState(() => ({
+            queueToEdit: queue,
+        }));
+    }
 
     render() {
         const {
             entries,
-            title,
+            queue,
             onDeleteQueue,
             mode,
             onAcceptNext,
             currentParticipant,
         } = this.props;
+
+        const { queueToEdit } = this.state;
+
         const numOfEntries = entries.length;
 
-        const progress = Math.max(0, 100 - 100 * numOfEntries / Queue.UNACCEPTABLE_QUEUE_LENGTH);
+        const progress = Math.max(
+            0,
+            100 - (100 * numOfEntries) / Queue.UNACCEPTABLE_QUEUE_LENGTH,
+        );
 
         return (
             <Col xs="12" lg="6" xl="4" className="mb-3">
                 <Card className="h-100">
                     <CardHeader>
                         <CardTitle className="d-flex align-items-center justify-content-between">
-                            <div className="ellipsis mr-2" title={title}>
-                                {title}
+                            <div className="ellipsis mr-2" title={queue.name}>
+                                {queue.name}
                             </div>
                             <Badge
                                 pill
-                                style={{backgroundColor: gradientColor(progress).borderColor}}
+                                style={{
+                                    backgroundColor: gradientColor(progress)
+                                        .borderColor,
+                                }}
                                 className="d-none d-lg-inline-block ellipsis mr-2"
                             >
                                 {numOfEntries} in queue
@@ -68,7 +94,7 @@ export default class Queue extends Component<QueueProps> {
                                             color="success"
                                             className="ml-2"
                                             onClick={() =>
-                                                alert("Not implemented")
+                                                this.toggleQueueEditModal(queue)
                                             }
                                         >
                                             <FontAwesomeIcon icon={faEdit} />
@@ -152,8 +178,7 @@ export default class Queue extends Component<QueueProps> {
                                                                 entry
                                                                     .participant
                                                                     .id ===
-                                                                    currentParticipant
-                                                                        .id)) && (
+                                                                    currentParticipant.id)) && (
                                                             <div className="mr-3">
                                                                 <QueueTimeBadge
                                                                     addedAt={
@@ -210,6 +235,13 @@ export default class Queue extends Component<QueueProps> {
                         )}
                     </CardBody>
                 </Card>
+                {queueToEdit != null && (
+                    <QueueEditModal
+                        isOpen={queueToEdit != null}
+                        queue={queueToEdit!}
+                        onCloseModal={() => this.toggleQueueEditModal(null)}
+                    />
+                )}
             </Col>
         );
     }

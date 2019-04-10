@@ -279,7 +279,7 @@ class ProjectorQueuingPage extends Component<
                 {this.props.queues!.map((queue: QueueDto) => (
                     <Queue
                         key={queue.id}
-                        title={queue.name}
+                        queue={queue}
                         entries={queue.participants.map(
                             (participant: QueueParticipantDto) => ({
                                 participant,

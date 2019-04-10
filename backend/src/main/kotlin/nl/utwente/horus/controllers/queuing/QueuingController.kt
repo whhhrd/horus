@@ -7,6 +7,7 @@ import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.representations.queuing.*
 import nl.utwente.horus.representations.queuing.requests.AnnouncementCreateDto
 import nl.utwente.horus.representations.queuing.requests.QueueCreateDto
+import nl.utwente.horus.representations.queuing.requests.QueueUpdateDto
 import nl.utwente.horus.representations.queuing.requests.RoomCreateDto
 import nl.utwente.horus.representations.queuing.updates.AcceptDto
 import nl.utwente.horus.services.participant.ParticipantService
@@ -66,6 +67,12 @@ class QueuingController: BaseController() {
     fun createQueue(@PathVariable courseId: Long, @PathVariable roomCode: String, @RequestBody dto: QueueCreateDto): QueueDto {
         requireCourseRoles(courseId, Role.TEACHER, Role.TEACHING_ASSISTANT)
         return queuingService.createQueue(courseId, roomCode, dto.name, dto.assignmentSetId)
+    }
+
+    @PutMapping("/{courseId}/rooms/{roomCode}/queues/{id}")
+    fun updateQueue(@PathVariable courseId: Long, @PathVariable roomCode: String, @PathVariable id: String, @RequestBody dto: QueueUpdateDto): QueueDto {
+        requireCourseRoles(courseId, Role.TEACHER, Role.TEACHING_ASSISTANT)
+        return queuingService.editQueue(courseId, roomCode, id, dto.name)
     }
 
     @DeleteMapping("/{courseId}/rooms/{roomCode}/queues/{id}")

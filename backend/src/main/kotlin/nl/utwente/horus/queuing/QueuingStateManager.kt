@@ -97,6 +97,12 @@ class QueuingStateManager {
         }
     }
 
+    fun editQueue(courseId: Long, roomCode: String, id: String, name: String): QueueDto {
+        return readOnCourseRoom(courseId, roomCode) {
+            it.editQueue(id, name)
+        }
+    }
+
     fun deleteQueue(courseId: Long, roomCode: String, id: String) {
         readOnCourseRoom(courseId, roomCode) {
             it.deleteQueue(id)

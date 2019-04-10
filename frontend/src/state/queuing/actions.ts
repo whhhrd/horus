@@ -3,6 +3,8 @@ import {
     UpdateDto,
     ParticipantDtoBrief,
     RoomQueueLengthsDto,
+    QueueUpdateDto,
+    QueueDto,
 } from "../../api/types";
 import {
     UPDATE_RECEIVED_ACTION,
@@ -21,6 +23,7 @@ import {
     DEQUEUE_SELF_REQUESTED_ACTION,
     ROOM_QUEUE_LENGTHS_REQUESTED_ACTION,
     ROOM_QUEUE_LENGTHS_REQUEST_SUCCEEDED_ACTION,
+    QUEUE_EDIT_REQUESTED_ACTION,
 } from "./constants";
 
 export interface UpdateReceivedAction extends Action<string> {
@@ -197,4 +200,29 @@ export const roomQueueLenghtsRequestSucceededAction = (
 ) => ({
     type: ROOM_QUEUE_LENGTHS_REQUEST_SUCCEEDED_ACTION,
     queueLengths,
+});
+
+// EDIT QUEUE
+export interface QueueEditRequestedAction extends Action<string> {
+    courseId: number;
+    roomCode: string;
+    queueId: string;
+    queueUpdate: QueueUpdateDto;
+}
+
+export interface QueueEditRequestSucceededAction extends Action<string> {
+    queue: QueueDto;
+}
+
+export const queueEditRequestedAction = (
+    courseId: number,
+    roomCode: string,
+    queueId: string,
+    queueUpdate: QueueUpdateDto,
+) => ({
+    type: QUEUE_EDIT_REQUESTED_ACTION,
+    courseId,
+    roomCode,
+    queueId,
+    queueUpdate,
 });
