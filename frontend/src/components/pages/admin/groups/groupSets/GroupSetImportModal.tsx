@@ -38,8 +38,12 @@ interface ImportValues {
 class GroupSetImportModal extends Component<
     GroupSetImportModalProps & RouteComponentProps<any>
 > {
-    isValid() {
-        return true;
+    isValid(values: ImportValues) {
+        return values.file != null && this.isValidName(values.name);
+    }
+
+    isValidName(name: string) {
+        return name.trim().length > 0;
     }
 
     onSubmit(values: ImportValues) {
@@ -78,6 +82,8 @@ class GroupSetImportModal extends Component<
                                     <Input
                                         tag={Field}
                                         name="name"
+                                        valid={this.isValidName(values.name)}
+                                        invalid={!this.isValidName(values.name)}
                                         autoComplete="off"
                                         autoFocus
                                     />
@@ -88,7 +94,6 @@ class GroupSetImportModal extends Component<
                                         tag={Field}
                                         type="number"
                                         name="excessGroups"
-                                        autoFocus
                                     />
                                 </FormGroup>
                                 <FormGroup>
@@ -114,7 +119,7 @@ class GroupSetImportModal extends Component<
                                 <Button
                                     color="primary"
                                     block
-                                    disabled={!this.isValid()}
+                                    disabled={!this.isValid(values)}
                                     onClick={() => handleSubmit()}
                                 >
                                     Start importing

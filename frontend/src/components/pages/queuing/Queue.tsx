@@ -118,7 +118,7 @@ export default class Queue extends Component<QueueProps> {
                                     )}
                                 <div
                                     style={{
-                                        maxHeight: "500px",
+                                        maxHeight: "350px",
                                         overflow: "auto",
                                     }}
                                 >
@@ -186,7 +186,7 @@ export default class Queue extends Component<QueueProps> {
                                                                     color="danger"
                                                                     outline
                                                                     size="sm"
-                                                                    className="ml-2 px-3"
+                                                                    className="ml-2 mr-1 px-3"
                                                                     onClick={
                                                                         entry.onDeny
                                                                     }

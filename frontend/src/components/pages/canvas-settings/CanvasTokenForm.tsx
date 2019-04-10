@@ -57,6 +57,10 @@ class CanvasTokenForm extends Component<
         return buildContent("Canvas Token Import", this.buildContent());
     }
 
+    isValid(values: CanvasTokenValues) {
+        return values.token.trim().length > 0;
+    }
+
     private onSubmit = (token: CanvasTokenValues) => {
         this.props.submitToken(token.token);
         this.setState({ submitted: true });
@@ -83,18 +87,31 @@ class CanvasTokenForm extends Component<
                             initialValues={{ token: "" }}
                             onSubmit={this.onSubmit}
                         >
-                            {({ handleSubmit }) => (
+                            {({ handleSubmit, values }) => (
                                 <Form className="mt-2">
                                     <FormGroup>
                                         <Label>Token</Label>
                                         <Input
                                             tag={Field}
+                                            valid={this.isValid(values)}
                                             id="token"
                                             name="token"
+                                            onKeyDown={(event) => {
+                                                if (
+                                                    event.key === "Enter" &&
+                                                    !event.shiftKey
+                                                ) {
+                                                    event.preventDefault();
+                                                    if (this.isValid(values)) {
+                                                        handleSubmit();
+                                                    }
+                                                }
+                                            }}
                                         />
                                     </FormGroup>
                                     <Button
                                         color="primary"
+                                        disabled={!this.isValid(values)}
                                         onClick={() => handleSubmit()}
                                     >
                                         Submit

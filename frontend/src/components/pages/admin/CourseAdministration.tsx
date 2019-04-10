@@ -167,12 +167,13 @@ class CourseAdministration extends PureComponent<
                         {canRefreshParticipants &&
                             course != null &&
                             course.externalId != null && (
-                                <a
-                                    onClick={() =>
+                                <Link
+                                    to={this.props.location.pathname}
+                                    onClick={() => {
                                         this.props.refreshParticipants(
                                             course.id,
-                                        )
-                                    }
+                                        );
+                                    }}
                                 >
                                     <FontAwesomeIcon
                                         icon={faDownload}
@@ -181,7 +182,7 @@ class CourseAdministration extends PureComponent<
                                         style={{ width: "30px" }}
                                     />
                                     Retrieve participant data
-                                </a>
+                                </Link>
                             )}
                         <br />
                     </div>

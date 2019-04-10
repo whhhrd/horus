@@ -79,6 +79,14 @@ class LabelCreateModal extends Component<LabelCreateModalProps> {
                                                 valid={this.isValid(values)}
                                                 invalid={!this.isValid(values)}
                                                 autoFocus={true}
+                                                onKeyDown={(event) => {
+                                                    if (event.key === "Enter" && !event.shiftKey) {
+                                                        event.preventDefault();
+                                                        if (this.isValid(values)) {
+                                                            handleSubmit();
+                                                        }
+                                                    }
+                                                }}
                                             />
                                         </FormGroup>
                                         <FormGroup>
