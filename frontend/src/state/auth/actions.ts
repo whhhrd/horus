@@ -9,6 +9,7 @@ import {
     AUTHORITIES_UPDATED_ACTION,
     LOGOUT_COMPLETED_ACTION,
     LOGOUT_REQUESTED_ACTION,
+    AUTHORITIES_UPDATE_REQUESTED_ACTION,
 } from "./constants";
 import { LoginForm } from "./types";
 import { HorusAuthorityDto } from "../../api/types";
@@ -42,6 +43,10 @@ export const loginSucceededAction = (authorities: HorusAuthorityDto[]) => (
 export const loginFailedAction = (error: Error) => ({ type: LOGIN_FAILED_ACTION, error });
 
 export const loadAuthenticationAction = () => ({ type: LOAD_AUTHENTICATION_REQUESTED_ACTION });
+
+export const authoritiesUpdateRequestAction = () => (
+    { type: AUTHORITIES_UPDATE_REQUESTED_ACTION }
+);
 
 export const authoritiesUpdatedAction = (authorities: HorusAuthorityDto[]) => (
     { type: AUTHORITIES_UPDATED_ACTION, authorities});

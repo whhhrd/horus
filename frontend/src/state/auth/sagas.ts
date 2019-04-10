@@ -1,5 +1,5 @@
 import { push } from "connected-react-router";
-import { put, race, take, takeEvery, takeLeading } from "redux-saga/effects";
+import { put, race, take, takeEvery, takeLeading, call } from "redux-saga/effects";
 
 import { notifyError } from "../notifications/constants";
 
@@ -11,6 +11,7 @@ import {
     requestPasswordLogin,
     requestAuthCodeLogin,
     requestTokenLoad,
+    authenticatedFetchJSON,
     API_AUTH_TOKEN_REFRESH_SUCCEEDED,
 } from "../../api";
 
@@ -31,13 +32,14 @@ import {
     SET_LOGIN_REDIRECT_REQUESTED_ACTION,
     LOGIN_FAILED_ACTION,
     LOGOUT_REQUESTED_ACTION,
+    AUTHORITIES_UPDATE_REQUESTED_ACTION,
  } from "./constants";
 import { PATH_COURSES } from "../../routes";
 import { notificationsResetAction } from "../notifications/actions";
 
 const LOGIN_REDIRECT_LS_KEY = "redirectUrl";
 
-export function* logIn(action: LoginAction) {
+function* logIn(action: LoginAction) {
     if (action.form != null)  {
         yield put(requestPasswordLogin(action.form!.username, action.form!.password));
     } else if (action.code != null) {
@@ -54,7 +56,7 @@ export function* logIn(action: LoginAction) {
     }
 }
 
-export function* loadAuthentication() {
+function* loadAuthentication() {
     yield put(requestTokenLoad());
     const { success, failure } = yield race({
         success: take(API_AUTH_AUTHENTICATION_SUCCEEDED),
@@ -68,11 +70,11 @@ export function* loadAuthentication() {
     }
 }
 
-export function* logOut() {
+function* logOut() {
     yield put(requestLogout());
 }
 
-export function* postLoginRedirect() {
+function* postLoginRedirect() {
     const redirectUrl = localStorage.getItem(LOGIN_REDIRECT_LS_KEY);
     if (redirectUrl != null) {
         yield put(push(redirectUrl));
@@ -81,27 +83,36 @@ export function* postLoginRedirect() {
     }
 }
 
-export function* postLogoutRedirect() {
+function* postLogoutRedirect() {
     yield put(push("/login"));
 }
 
-export function* handleAPILogout() {
+function* handleAPILogout() {
     yield put(notificationsResetAction());
     yield postLogoutRedirect();
     yield put(logoutCompletedAction());
 }
 
-export function* setLoginRedirect(action: SetLoginRedirectAction) {
+function* setLoginRedirect(action: SetLoginRedirectAction) {
     localStorage.setItem(LOGIN_REDIRECT_LS_KEY, action.redirectUrl);
     yield;
 }
 
-export function* updateAuthorities(action: AuthoritiesUpdatedAction) {
+function* updateAuthorities(action: AuthoritiesUpdatedAction) {
     yield put(authoritiesUpdatedAction(action.authorities));
 }
 
-export function* loginFailureNotification() {
+function* loginFailureNotification() {
     yield put(notifyError("Authentication failed; please try again."));
+}
+
+function* fetchAuthoritiesAction() {
+    try {
+        const authorities = yield call(authenticatedFetchJSON, "GET", "persons/self/permissions");
+        yield put(authoritiesUpdatedAction(authorities));
+    } catch (e) {
+        yield put(notifyError("Failed to reload permissions; please reload the page."));
+    }
 }
 
 export default function* authSagas() {
@@ -111,6 +122,7 @@ export default function* authSagas() {
     yield takeEvery(LOGIN_SUCCEEDED_ACTION, postLoginRedirect);
     yield takeEvery(LOGOUT_REQUESTED_ACTION, logOut);
     yield takeEvery(API_AUTH_LOGOUT_COMPLETED, handleAPILogout);
+    yield takeEvery(AUTHORITIES_UPDATE_REQUESTED_ACTION, fetchAuthoritiesAction);
     yield takeEvery(API_AUTH_TOKEN_REFRESH_SUCCEEDED, updateAuthorities);
     yield takeLeading(LOAD_AUTHENTICATION_REQUESTED_ACTION, loadAuthentication);
 }

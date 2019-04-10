@@ -15,18 +15,20 @@ import {
     COURSE_LIST_STUDENT,
 } from "../../../state/courses/constants";
 import { buildContent } from "../../pagebuilder";
+import { authoritiesUpdateRequestAction } from "../../../state/auth/actions";
+import { Action } from "redux";
 
 interface CourseSelectionProps {
     courses: CourseDtoSummary[] | null;
-    requestCourses: () => {
-        type: string,
-    };
+    requestCourses: () => Action<string>;
+    requestPermissions: () => Action<string>;
 }
 
 class CourseSelection extends Component<CourseSelectionProps> {
 
     componentDidMount() {
         this.props.requestCourses();
+        this.props.requestPermissions();
     }
 
     buildContent() {
@@ -73,4 +75,5 @@ export default connect((state: ApplicationState) => ({
     courses: getCourses(state),
 }), {
         requestCourses: coursesRequestedAction,
+        requestPermissions: authoritiesUpdateRequestAction,
     })(CourseSelection);
