@@ -1,6 +1,7 @@
 import React from "react";
 import { Switch, withRouter, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
+import { Action } from "redux";
 import { push, Push } from "connected-react-router";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -10,6 +11,7 @@ import "../styling/index.scss";
 import {
     loadAuthenticationAction,
     setLoginRedirectAction,
+    SetLoginRedirectAction,
 } from "../state/auth/actions";
 import { isLoggedIn } from "../state/auth/selectors";
 
@@ -60,20 +62,21 @@ import ProjectorRoomPromptPage from "./pages/queuing/ProjectorRoomPromptPage";
 import Jobs from "./pages/admin/Jobs";
 
 export interface AppProps {
-    loadAuthentication: () => {
-        type: string;
-    };
-    setLoginRedirect: (
-        redirectUrl: string,
-    ) => {
-        type: string;
-    };
     push: Push;
     pathname: string;
     search: string;
     loggedIn: boolean;
+
+    loadAuthentication: () => Action;
+    setLoginRedirect: (redirectUrl: string) => SetLoginRedirectAction;
 }
 
+/**
+ * The core component of the application. Makes sure that
+ * the user is logged in before visiting any page that requires
+ * authentication. Once authenticated, the Switch component determines
+ * which component (pages) to display, based on the URL.
+ */
 class App extends React.Component<AppProps & RouteComponentProps> {
     static HOME_PATH = PATH_COURSES;
 
@@ -84,10 +87,17 @@ class App extends React.Component<AppProps & RouteComponentProps> {
             loadAuthentication,
             location: { hash, search },
         } = this.props;
+
+        // When an empty URL is provided with a slash, redirect to HOME_PATH
         if (pathname === "/") {
             this.props.push(App.HOME_PATH);
             pathname = App.HOME_PATH;
         }
+
+        // When the user visits the login page or the
+        // beamer prompt page, set the redirect to HOME_PATH.
+        // Otherwise, set the redirect to the page they attempted
+        // to visit, so that once logged in they will be redirected there
         if (
             pathname === PATH_LOGIN ||
             pathname.startsWith(PATH_BEAMER_PROMPT)
@@ -96,6 +106,9 @@ class App extends React.Component<AppProps & RouteComponentProps> {
         } else {
             setLoginRedirect(`${pathname}${search}${hash}`);
         }
+
+        // Load authentication except for when the user
+        // attempts to visit the beamer prompt page
         if (!pathname.startsWith(PATH_BEAMER_PROMPT)) {
             loadAuthentication();
         }
@@ -109,20 +122,34 @@ class App extends React.Component<AppProps & RouteComponentProps> {
             loggedIn,
             location: { hash, search },
         } = this.props;
+
+        // If in beamer prompt, do nothing
         if (pathname.startsWith(PATH_BEAMER_PROMPT)) {
             return;
         }
+
+        // If the user is not logged in and the path is login,
+        // set the redirect URL to target their current page.
+        // Brings the user to the login page and, once logged in,
+        // redirect the user to the page they intended to go to
         if (!loggedIn && pathname !== PATH_LOGIN) {
             setLoginRedirect(`${pathname}${search}${hash}`);
             this.props.push(PATH_LOGIN);
             loadAuthentication();
         }
+
+        // If the user attempts to visit the login page but is
+        // already logged in, redirects the user to the HOME_PATH
         if (loggedIn && pathname === PATH_LOGIN) {
             this.props.push(App.HOME_PATH);
         }
     }
 
     render() {
+
+        // Seperate the Login component from the rest of the web-
+        // application. If the current path is not PATH_LOGIN, use
+        // the switch to determine which component to render.
         if (this.props.pathname !== PATH_LOGIN) {
             return (
                 <div>

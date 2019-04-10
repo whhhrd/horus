@@ -1,11 +1,12 @@
-import { Component } from "react";
-import React from "react";
-import { Card, CardHeader, CardBody, CardTitle } from "reactstrap";
-import { randomColor } from "./util";
+import React, { Component } from "react";
+import { withRouter, RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
+
+import { Card, CardHeader, CardBody, CardTitle } from "reactstrap";
+
+import { randomColor } from "./util";
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { withRouter, RouteComponentProps } from "react-router";
 
 interface CanvasCardProps {
     cardTitle: string;
@@ -14,6 +15,12 @@ interface CanvasCardProps {
     clickable?: boolean;
 }
 
+/**
+ * A component that renders a card that represents something similar to the
+ * Cards used in Canvas. Intended to give the user a familiar feeling.
+ * If a URL is provided and the card is specified to be clickable, the card
+ * will redirect the user to a certain page when clicked.
+ */
 class CanvasCard extends Component<CanvasCardProps & RouteComponentProps<any>> {
     static defaultProps = { clickable: true };
 
@@ -47,6 +54,9 @@ class CanvasCard extends Component<CanvasCardProps & RouteComponentProps<any>> {
         );
     }
 
+    /**
+     * Redirects the user to the specified URL.
+     */
     goToCourse(url: string) {
         this.props.history.push({
             pathname: url,

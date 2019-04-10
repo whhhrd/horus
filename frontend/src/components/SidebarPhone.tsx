@@ -8,6 +8,10 @@ interface SidebarPhoneProps {
     content: JSX.Element;
 }
 
+/**
+ * A component that renders the overlay containing the sidebar content.
+ * The sidebar is only rendered when '#sidebar' is specified in the URL.
+ */
 class SidebarPhone extends Component<
     SidebarPhoneProps & RouteComponentProps<any>
 > {

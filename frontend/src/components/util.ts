@@ -1,5 +1,6 @@
 import queryString from "query-string";
 
+// Colours used in components like the CanvasCard
 const palette: string[] = [
     "#D32F2F",
     "#C2185B",
@@ -101,6 +102,16 @@ const progressTextGradient = [
     "#155724",
 ];
 
+/**
+ * Returns a backgorund colour, border colour and text colour based on based
+ * on the progress given. The gradient is as follows:
+ * progress = 0: red
+ * progress = 50: yellow
+ * progress = 100: green
+ * The colours used are hardcoded gradients, manually copy pasted from
+ * http://www.perbang.dk/rgbgradient/.
+ * @param progress A decimal value from 0 to 100, indicating the progress.
+ */
 export const gradientColor = (progress: number) => {
     const colorIndex = Math.floor(
         (progress / 100) * (progressGradient.length - 1),
@@ -112,9 +123,13 @@ export const gradientColor = (progress: number) => {
     return { backgroundColor, borderColor, color };
 };
 
-export const randomColor = (courseName: string) => {
+/**
+ * Returns a random color from the 'palette' based on the
+ * provided seed.
+ */
+export const randomColor = (seed: string) => {
     return palette[
-        Array.from(courseName)
+        Array.from(seed)
             .map((char: string) => char.charCodeAt(0))
             .reduce((curr: number, next: number) => curr + next) %
             palette.length
@@ -123,7 +138,8 @@ export const randomColor = (courseName: string) => {
 
 /**
  * Transforms a date object into a user friendly date string.
- * @param date the date to be transformed
+ * NOTE: Not perfect! Use moment.js in the future.
+ * @param date The date to be transformed.
  */
 export const getDisplayedDate = (date: Date) => {
     const currentDate: Date = new Date();
@@ -142,14 +158,6 @@ export const getDisplayedDate = (date: Date) => {
         date.getDate() === yesterday.getDate() &&
         date.getMonth() === yesterday.getMonth() &&
         date.getFullYear() === yesterday.getFullYear();
-
-    // Debugging purposes
-    // console.log("======");
-    // console.log("Current date: ", new Date().toString());
-    // console.log("Handled date: ", date.toString());
-
-    // console.log("Time diff: ", timeDiff);
-    // console.log("Year diff: ", yearDiff);
 
     let dateString = "";
 
@@ -207,12 +215,11 @@ export const objectToQueryString = (queryObject: object) => {
 /**
  * Replaces the indicated query parameter with the given value. If the
  * property of the indicated name does not exist, then it adds it.
- * If the value is empty, remove the property from the object.
  * @param currentQuery The current query properties.
- * @param name The name/key of the desired replaced/added/deleted property.
+ * @param name The name/key of the desired replaced/added property.
  * @param value The value.
  */
-export const replaceQueryParam = (
+export const addReplaceQueryParam = (
     currentQuery: queryString.ParsedQuery,
     name: string,
     value: any,
@@ -236,6 +243,11 @@ export const replaceQueryParam = (
     return newQuery;
 };
 
+/**
+ * Removes a query parameter from the query properties if it exists.
+ * @param currentQuery The current query properties.
+ * @param name The name/key of the to-be-deleted property.
+ */
 export const removeQueryParam = (
     currentQuery: queryString.ParsedQuery,
     name: string,
@@ -252,6 +264,11 @@ export const removeQueryParam = (
     return newQuery;
 };
 
+/**
+ * Transforms a query property in a list of numbers.
+ * @param search The search parameters from the URL.
+ * @param key The identifier of the query property.
+ */
 export const getListFromQuery = (search: string, key: string) => {
     const queryList = queryString.parse(search)[key];
 
@@ -290,6 +307,11 @@ export const arraysEqual = (a: any[], b: any[]) => {
     return true;
 };
 
+/**
+ * Retrieves the 'string' value of the desired query parameter.
+ * @param search The search parameters from the URL.
+ * @param key The key of the desired query parameter.
+ */
 export const getFilterParam = (search: string, key: string) => {
     return queryString.parse(search)[key];
 };

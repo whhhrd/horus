@@ -1,6 +1,7 @@
 import { Component, Fragment } from "react";
 import React from "react";
 import { connect } from "react-redux";
+
 import {
     CardBody,
     Card,
@@ -10,6 +11,7 @@ import {
     CardTitle,
     Collapse,
 } from "reactstrap";
+
 import { BatchJobDto } from "../api/types";
 import { ApplicationState } from "../state/state";
 import { getJob } from "../state/jobs/selectors";
@@ -19,7 +21,9 @@ import {
     JobRemoveRequestedAction,
     jobRemoveRequestedAction,
 } from "../state/jobs/action";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { getDisplayedDate } from "./util";
 import {
     faCheck,
     faTimes,
@@ -27,7 +31,6 @@ import {
     faChevronDown,
     faTimesCircle,
 } from "@fortawesome/free-solid-svg-icons";
-import { getDisplayedDate } from "./util";
 
 interface JobProgressProps {
     jobId: string;
@@ -44,6 +47,10 @@ interface JobProgressState {
     showError: boolean;
 }
 
+/**
+ * A component that displays 'task/job' details, such as a progress bar,
+ * the status of the task/job and the name of the person who issues the job.
+ */
 class JobProgress extends Component<JobProgressProps, JobProgressState> {
     static defaultProps = { isLast: false };
 
@@ -77,11 +84,14 @@ class JobProgress extends Component<JobProgressProps, JobProgressState> {
             const { job, fetchJob, jobId } = this.props;
             const j = job(jobId);
 
+            // Fetches the job details if the job is known
+            // and the status is processing. Initiates polling again
             if (this.state.canPoll && j != null && j.status === "PROCESSING") {
                 fetchJob(jobId);
                 this.startPolling();
             }
 
+            // Clear the timeout when polling is no longer needed
             if (
                 this.state.pollTimer != null &&
                 j != null &&
@@ -118,7 +128,10 @@ class JobProgress extends Component<JobProgressProps, JobProgressState> {
                     color = "danger";
                     statusIndicator = (
                         <span className="text-danger font-weight-bold">
-                            <FontAwesomeIcon icon={faTimesCircle} className="mr-2" />
+                            <FontAwesomeIcon
+                                icon={faTimesCircle}
+                                className="mr-2"
+                            />
                             ABORTED
                         </span>
                     );

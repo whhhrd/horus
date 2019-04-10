@@ -32,7 +32,7 @@ import Label from "../../Label";
 import queryString from "query-string";
 import {
     objectToQueryString,
-    replaceQueryParam,
+    addReplaceQueryParam,
     getListFromQuery,
     getFilterParam,
     removeQueryParam,
@@ -346,7 +346,7 @@ class SignOffOverviewSearch extends Component<
     }
 
     private setTextSearch(text: string): any {
-        const newQuery = replaceQueryParam(
+        const newQuery = addReplaceQueryParam(
             queryString.parse(this.props.location.search),
             Filter.Search,
             encodeURIComponent(text),
@@ -446,13 +446,13 @@ class SignOffOverviewSearch extends Component<
     }
 
     private setSortByFilter(by: SortType, order: boolean) {
-        let newQuery = replaceQueryParam(
+        let newQuery = addReplaceQueryParam(
             queryString.parse(this.props.location.search),
             Filter.SortBy,
             by,
         );
 
-        newQuery = replaceQueryParam(newQuery, Filter.Order, order ? "1" : "0");
+        newQuery = addReplaceQueryParam(newQuery, Filter.Order, order ? "1" : "0");
 
         this.props.history.push({
             ...this.props.history.location,
@@ -525,7 +525,7 @@ class SignOffOverviewSearch extends Component<
             this.props.location.search,
         );
 
-        const newQuery = replaceQueryParam(
+        const newQuery = addReplaceQueryParam(
             currentQuery,
             Filter.GroupSetId,
             groupSetId,
@@ -625,7 +625,7 @@ class SignOffOverviewSearch extends Component<
             this.props.location.search,
         );
 
-        const newQuery = replaceQueryParam(
+        const newQuery = addReplaceQueryParam(
             currentQuery,
             Filter.Operator,
             operator,
@@ -656,7 +656,7 @@ class SignOffOverviewSearch extends Component<
             this.props.location.search,
         );
 
-        const newQuery = replaceQueryParam(
+        const newQuery = addReplaceQueryParam(
             currentQuery,
             Filter.LabelIds,
             newLabels,

@@ -20,10 +20,21 @@ interface PhoneComponentState {
     width: number;
 }
 
+/**
+ * Renders a mobile compatible user interface. Hides the Navigationbar, renders a
+ * hamburger menu instead. The content header is displayed in the top-middle,
+ * the main content in the middle and, when specified, the sidebar content on
+ * a special overlay, which is displayed on request.
+ *
+ * This component is only rendered when the screen width is below a certain threshold:
+ * PhoneComponent.WIDTH_THRESHOLD.
+ */
 class PhoneComponent extends Component<
     PhoneComponentProps & RouteComponentProps<any>,
     PhoneComponentState
 > {
+    static WIDTH_THRESHOLD = 992;
+
     constructor(props: PhoneComponentProps & RouteComponentProps<any>) {
         super(props);
         this.state = {
@@ -90,9 +101,12 @@ class PhoneComponent extends Component<
             hasPaddingX,
             hasPaddingY,
         } = this.props;
-        if (this.state.width >= 992) {
-            return <div style={{ display: "none" }} />;
+
+        // Hide this component when width is above the threshold
+        if (this.state.width >= PhoneComponent.WIDTH_THRESHOLD) {
+            return null;
         }
+
         return (
             // A flexible wrapper column for the mobile content
             <div className="d-flex ContentWrapper d-lg-none flex-column">

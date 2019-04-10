@@ -48,7 +48,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {
     getFilterParam,
-    replaceQueryParam,
+    addReplaceQueryParam,
     objectToQueryString,
 } from "../../util";
 import {
@@ -266,7 +266,7 @@ class SignOffSearch extends Component<
                     let newQuery = queryString.parse(
                         this.props.location.search,
                     );
-                    newQuery = replaceQueryParam(
+                    newQuery = addReplaceQueryParam(
                         newQuery,
                         "as",
                         assignmentSet.id,
