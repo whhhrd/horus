@@ -5,6 +5,7 @@ import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.group.*
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.person.Person
+import nl.utwente.horus.exceptions.DuplicateAssignmentLinkException
 import nl.utwente.horus.exceptions.ExistingThreadException
 import nl.utwente.horus.exceptions.GroupNotFoundException
 import nl.utwente.horus.exceptions.GroupSetNotFoundException
@@ -12,6 +13,7 @@ import nl.utwente.horus.representations.assignment.AssignmentSetDtoBrief
 import nl.utwente.horus.representations.group.GroupDtoBrief
 import nl.utwente.horus.representations.group.GroupDtoSearch
 import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
+import nl.utwente.horus.services.assignment.AssignmentService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -33,6 +35,9 @@ class GroupService {
 
     @Autowired
     lateinit var groupMemberRepository: GroupMemberRepository
+
+    @Autowired
+    lateinit var assignmentService: AssignmentService
 
     class GroupResult {
         val group: GroupDtoSearch
@@ -118,6 +123,11 @@ class GroupService {
     }
 
     fun addParticipantToGroup(group: Group, p: Participant) {
+        group.groupSet.assignmentSetMappings.forEach {
+            if (assignmentService.isPersonMappedToAssignmentSet(p.person, it.assignmentSet)) {
+                throw DuplicateAssignmentLinkException(p, it.assignmentSet)
+            }
+        }
         val member = GroupMember(group, p)
         groupMemberRepository.save(member)
     }
