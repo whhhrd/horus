@@ -10,6 +10,7 @@ import {
     CURRENT_PARTICIPANT_RECEIVED_ACTION,
     ROOM_QUEUE_LENGTHS_REQUESTED_ACTION,
     ROOM_QUEUE_LENGTHS_REQUEST_SUCCEEDED_ACTION,
+    CURRENT_PARTICIPANT_REQUESTED_ACTION,
 } from "./constants";
 import {
     AcceptDto,
@@ -104,6 +105,11 @@ export default function queueReducer(
                 ...state,
                 roomQueueLengths: (action as RoomQueueLenghtsRequestSucceededAction)
                     .queueLengths,
+            };
+        case CURRENT_PARTICIPANT_REQUESTED_ACTION:
+            return {
+                ...state,
+                participant: null,
             };
         default:
             return state;
