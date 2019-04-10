@@ -60,6 +60,7 @@ import Rooms from "./pages/rooms/Rooms";
 import ProjectorQueuingPage from "./pages/queuing/ProjectorQueuingPage";
 import ProjectorRoomPromptPage from "./pages/queuing/ProjectorRoomPromptPage";
 import Jobs from "./pages/admin/Jobs";
+import NotFound from "./pages/NotFound";
 
 export interface AppProps {
     push: Push;
@@ -307,6 +308,13 @@ class App extends React.Component<AppProps & RouteComponentProps> {
                     exact
                     path={PATH_BEAMER_PROMPT}
                     component={ProjectorRoomPromptPage}
+                    setActiveTab={ActiveTabEnum.NONE}
+                />
+
+                {/* Must be the last element in the switch! */}
+                <RouteExtension
+                    path="*"
+                    component={NotFound}
                     setActiveTab={ActiveTabEnum.NONE}
                 />
             </Switch>

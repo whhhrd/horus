@@ -120,10 +120,19 @@ class SignOffOverview extends Component<
         const params = this.props.match.params;
         const courseId = Number(params.cid);
         const assignmentSetId = Number(params.asid);
-        this.props.fetchAssignmentSet(assignmentSetId);
-        this.props.fetchOverviewResults(courseId, assignmentSetId);
 
-        this.reloadData();
+        const permissions = this.props.coursePermissions!;
+        const canViewSignoffs = signoffAssignmentsView.check(
+            courseId,
+            permissions,
+        );
+
+        if (canViewSignoffs) {
+            this.props.fetchAssignmentSet(assignmentSetId);
+            this.props.fetchOverviewResults(courseId, assignmentSetId);
+
+            this.reloadData();
+        }
     }
 
     componentDidUpdate(
@@ -177,7 +186,7 @@ class SignOffOverview extends Component<
         }
     }
 
-    private buildContent(): JSX.Element | null {
+    private buildContent(): JSX.Element | null | undefined {
         const cid = Number(this.props.match.params.cid);
         const assignmentSetId = Number(this.props.match.params.asid);
         const assignmentSet = this.props.assignmentSet(assignmentSetId)!;
@@ -185,11 +194,9 @@ class SignOffOverview extends Component<
         const canViewSignoffs = signoffAssignmentsView.check(cid, permissions);
         const milestoneData = this.state.milestoneData;
 
-        if (
-            !canViewSignoffs ||
-            assignmentSet == null ||
-            milestoneData == null
-        ) {
+        if (!canViewSignoffs) {
+            return undefined;
+        } else if (assignmentSet == null || milestoneData == null) {
             return null;
         }
 

@@ -66,10 +66,16 @@ class GroupManager extends Component<
     }
 
     componentDidMount() {
-        this.props.fetchGroups(this.props.match.params.gsid);
+        const permissions = this.props.coursePermissions!;
+        const cid = Number(this.props.match.params.cid);
+        const canViewGroups = groupsAnyView.check(cid, permissions);
 
-        // Fetch course (for externalId checking)
-        this.props.fetchCourse(this.props.match.params.cid);
+        if (canViewGroups) {
+            this.props.fetchGroups(this.props.match.params.gsid);
+
+            // Fetch course (for externalId checking)
+            this.props.fetchCourse(this.props.match.params.cid);
+        }
     }
 
     render() {
@@ -102,7 +108,9 @@ class GroupManager extends Component<
 
         const course = this.props.course(this.props.match.params.cid);
 
-        if (course == null || !canViewGroups || groups == null) {
+        if (!canViewGroups) {
+            return undefined;
+        } else if (course == null || groups == null) {
             return null;
         } else {
             return (
@@ -131,7 +139,7 @@ class GroupManager extends Component<
                                         title="This does not change the Canvas groups compositions in
                                             any way. Use this when group compositions change in Canvas, so that
                                             Horus groups are in sync with the groups within this group set."
-                                            className="float-right"
+                                        className="float-right"
                                     >
                                         <FontAwesomeIcon
                                             icon={faInfoCircle}
@@ -240,9 +248,7 @@ class GroupManager extends Component<
                                                 ? p.commentThread.id
                                                 : null
                                         }
-                                        entityType={
-                                            EntityType.Participant
-                                        }
+                                        entityType={EntityType.Participant}
                                         commentThreadSubject={p.person.fullName}
                                         commentThreadOpen={false}
                                     />

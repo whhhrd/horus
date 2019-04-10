@@ -12,9 +12,10 @@ import { ApplicationState } from "../../../state/state";
 import {
     assignmentSetsAnyList,
     groupSetsAnyList,
-    canViewListLabels,
     canExportData,
-    suppRolesAnyView,
+    labelAdmin,
+    courseAdmin,
+    suppRoleAdmin,
     participantsAdmin,
 } from "../../../state/auth/constants";
 import {
@@ -68,7 +69,15 @@ class CourseAdministration extends PureComponent<
             permissions,
         );
 
-        const canViewRoles = suppRolesAnyView.check(cid, permissions);
+        const isCourseAdmin = courseAdmin.check(cid, permissions);
+
+        // If the user has no permission to view this page, return 404
+        if (!isCourseAdmin) {
+            return undefined;
+        }
+
+        const isRoleAdmin = suppRoleAdmin.check(cid, permissions);
+        const isLabelAdmin = labelAdmin.check(cid, permissions);
         const canListGroupSets = groupSetsAnyList.check(cid, permissions);
         const canExport = canExportData.check(cid, permissions);
 
@@ -77,10 +86,6 @@ class CourseAdministration extends PureComponent<
             permissions,
         );
 
-        const canViewListLabelManager = canViewListLabels.check(
-            cid,
-            permissions,
-        );
         const accessToken = getCurrentAccessToken();
 
         return (
@@ -115,7 +120,7 @@ class CourseAdministration extends PureComponent<
                             </Link>
                         )}
                         <br />
-                        {canViewListLabelManager && (
+                        {isLabelAdmin && (
                             <Link
                                 to={`/courses/${
                                     this.props.match.params.cid
@@ -131,7 +136,7 @@ class CourseAdministration extends PureComponent<
                             </Link>
                         )}
                         <br />
-                        {canViewRoles && (
+                        {isRoleAdmin && (
                             <Link
                                 to={`/courses/${
                                     this.props.match.params.cid

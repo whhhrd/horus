@@ -43,11 +43,10 @@ import SuppRoleLabel from "./SuppRoleLabel";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 import {
-    suppRolesAnyList,
-    suppRolesAnyView,
     suppRolesMappingAnyCreate,
     suppRolesMappingAnyDelete,
     suppRolesMappingAnyView,
+    suppRoleAdmin,
 } from "../../../../state/auth/constants";
 
 interface RolesManagerProps {
@@ -99,9 +98,16 @@ class RolesManager extends Component<
 
     componentDidMount() {
         const { cid } = this.props.match.params;
-        this.props.fetchSuppRoles(cid);
-        this.props.fetchSuppRolesMapping(cid);
-        this.props.fetchCourseStaff(cid);
+        const isSuppRoleAdmin = suppRoleAdmin.check(
+            cid,
+            this.props.permissions!,
+        );
+
+        if (isSuppRoleAdmin) {
+            this.props.fetchSuppRoles(cid);
+            this.props.fetchSuppRolesMapping(cid);
+            this.props.fetchCourseStaff(cid);
+        }
     }
 
     render() {
@@ -112,13 +118,12 @@ class RolesManager extends Component<
         const { suppRoles, staff, suppRolesMapping, permissions } = this.props;
         const cid = this.props.match.params.cid;
 
-        const canListSuppRoles = suppRolesAnyList.check(cid, permissions!);
-        const canViewSuppRoles = suppRolesAnyView.check(cid, permissions!);
+        const isSuppRoleAdmin = suppRoleAdmin.check(cid, permissions!);
 
-        if (suppRoles == null || staff == null) {
+        if (!isSuppRoleAdmin) {
+            return undefined;
+        } else if (suppRoles == null || staff == null) {
             return null;
-        } else if (!canListSuppRoles || !canViewSuppRoles) {
-            return <Alert color="danger">No permissions.</Alert>;
         }
 
         return (

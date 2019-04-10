@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { withRouter, RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 
-import { Card, CardBody, Row, Alert } from "reactstrap";
+import { Card, CardBody, Row } from "reactstrap";
 
 import AssignmentSetListEntry from "./AssignmentSetListEntry";
 
@@ -31,7 +31,9 @@ import CoursePermissions from "../../../../api/permissions";
 import {
     assignmentSetsAnyEdit,
     assignmentSetsAnyCreate,
-    assignmentsAdmin, assignmentSetsAnyDelete, groupSetsAdmin,
+    assignmentsAdmin,
+    assignmentSetsAnyDelete,
+    groupSetsAdmin,
 } from "../../../../state/auth/constants";
 import { buildContent } from "../../../pagebuilder";
 
@@ -78,13 +80,19 @@ class AssignmentSetManager extends Component<
     }
 
     componentDidMount() {
-        // Fetch the AssignmentSetDtoBriefs
-        this.props.fetchAssignmentSets(this.props.match.params.cid);
+        const cid = Number(this.props.match.params.cid);
+        const permissions = this.props.permissions!;
+        const canView = assignmentsAdmin.check(cid, permissions);
 
-        // Fetch the AssignmentGroupSets mappings
-        this.props.fetchAssignmentGroupSetsMappingDtos(
-            this.props.match.params.cid,
-        );
+        if (canView) {
+            // Fetch the AssignmentSetDtoBriefs
+            this.props.fetchAssignmentSets(this.props.match.params.cid);
+
+            // Fetch the AssignmentGroupSets mappings
+            this.props.fetchAssignmentGroupSetsMappingDtos(
+                this.props.match.params.cid,
+            );
+        }
     }
 
     render() {
@@ -98,17 +106,13 @@ class AssignmentSetManager extends Component<
 
         const canView = assignmentsAdmin.check(cid, permissions);
 
-        if (
+        if (!canView) {
+            return undefined;
+        } else if (
             assignmentSets === null ||
             this.props.assignmentGroupSetsMappingDtos === null
         ) {
             return null;
-        } else if (!canView) {
-            return (
-                <Alert color="danger">
-                    You don't have permission to view this page
-                </Alert>
-            );
         } else {
             // Prepare the mapping of assignment set with its groupsets
             const preparedASetGroupSetsMapping: Map<

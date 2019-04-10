@@ -2,13 +2,7 @@ import React, { Component } from "react";
 import { withRouter, RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 
-import {
-    Row,
-    Col,
-    Button,
-    Table,
-    Input,
-} from "reactstrap";
+import { Row, Col, Button, Table, Input } from "reactstrap";
 import { ParticipantDtoFull, LabelDto } from "../../../../api/types";
 import { buildContent, centerSpinner } from "../../../pagebuilder";
 import { ApplicationState } from "../../../../state/state";
@@ -36,13 +30,13 @@ import {
 import { getCoursePermissions } from "../../../../state/auth/selectors";
 import CoursePermissions from "../../../../api/permissions";
 import {
-    canViewListLabels,
     labelAnyEdit,
     labelAnyDelete,
     labelAnyCreate,
     participantsAnyView,
     labelMappingAnyCreate,
     labelMappingAnyDelete,
+    labelAdmin,
 } from "../../../../state/auth/constants";
 import LabelAddDropdown from "./LabelAddDropdown";
 
@@ -100,8 +94,13 @@ class LabelManager extends Component<
     }
 
     componentDidMount() {
-        this.props.fetchCourseParticipants(this.props.match.params.cid);
-        this.props.fetchCourse(this.props.match.params.cid);
+        const cid = this.props.match.params.cid;
+        const isLabelAdmin = labelAdmin.check(cid, this.props.permissions!);
+
+        if (isLabelAdmin) {
+            this.props.fetchCourseParticipants(this.props.match.params.cid);
+            this.props.fetchCourse(this.props.match.params.cid);
+        }
     }
 
     render() {
@@ -132,22 +131,25 @@ class LabelManager extends Component<
         const { participants, labels, permissions } = this.props;
         const cid = this.props.match.params.cid;
 
-        if (labels == null || participants == null || permissions == null) {
+        const isLabelAdmin = labelAdmin.check(cid, permissions!);
+        const canAddLabel = labelAnyCreate.check(cid, permissions!);
+        const canEditLabel = labelAnyEdit.check(cid, permissions!);
+        const canDeleteLabel = labelAnyDelete.check(cid, permissions!);
+        const canListParticipants = participantsAnyView.check(
+            cid,
+            permissions!,
+        );
+        const canCreateMapping = labelMappingAnyCreate.check(cid, permissions!);
+        const canDeleteMapping = labelMappingAnyDelete.check(cid, permissions!);
+
+        if (!isLabelAdmin) {
+            return undefined;
+        } else if (labels == null || participants == null) {
             return null;
-        }
-
-        const canViewList = canViewListLabels.check(cid, permissions);
-        const canAddLabel = labelAnyCreate.check(cid, permissions);
-        const canEditLabel = labelAnyEdit.check(cid, permissions);
-        const canDeleteLabel = labelAnyDelete.check(cid, permissions);
-        const canListParticipants = participantsAnyView.check(cid, permissions);
-        const canCreateMapping = labelMappingAnyCreate.check(cid, permissions);
-        const canDeleteMapping = labelMappingAnyDelete.check(cid, permissions);
-
-        return (
-            <div>
-                <Row className="px-2 d-flex justify-content-center">
-                    {canViewList && (
+        } else {
+            return (
+                <div>
+                    <Row className="px-2 d-flex justify-content-center">
                         <Col md="12" lg="6" className="border-bottom">
                             <h4>Course Labels</h4>
                             <div className="mb-3">
@@ -172,74 +174,74 @@ class LabelManager extends Component<
                                 </Button>
                             )}
                         </Col>
-                    )}
-                    {this.state.createLabelModalOpen && canAddLabel && (
-                        <LabelCreateModal
-                            courseId={cid}
-                            isOpen={this.state.createLabelModalOpen}
-                            onCloseModal={this.toggleLabelCreatorModal}
-                        />
-                    )}
-                    {this.state.editLabelModalOpen &&
-                        canEditLabel &&
-                        this.state.labelToEdit != null && (
-                            <LabelEditModal
+                        {this.state.createLabelModalOpen && canAddLabel && (
+                            <LabelCreateModal
                                 courseId={cid}
-                                label={this.state.labelToEdit}
-                                isOpen={this.state.editLabelModalOpen}
-                                onCloseModal={() =>
-                                    this.toggleLabelEditorModal(null)
-                                }
+                                isOpen={this.state.createLabelModalOpen}
+                                onCloseModal={this.toggleLabelCreatorModal}
                             />
                         )}
-                    {this.state.deleteLabelModalOpen &&
-                        canDeleteLabel &&
-                        this.state.labelToDelete != null && (
-                            <LabelDeleteModal
-                                isOpen={this.state.deleteLabelModalOpen}
-                                courseId={cid}
-                                labelId={this.state.labelToDelete.id}
-                                onCloseModal={() =>
-                                    this.toggleLabelDeleteModal(null)
-                                }
-                            />
-                        )}
-                </Row>
-                {canListParticipants && (
-                    <Row className="px-2 d-flex justify-content-center">
-                        <Col md="12" lg="6" className="pt-3">
-                            <h4>Assign labels to students</h4>
-                            <Input
-                                className="form-control-lg mb-3 mt-3"
-                                placeholder="Student name/number... "
-                                onInput={(e) => {
-                                    // @ts-ignore
-                                    this.onSearchQueryInput(e.target.value);
-                                }}
-                            />
-
-                            <Table className="table-bordered mt-3">
-                                <thead className="thead-light">
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>S-number</th>
-                                        <th>Assigned labels</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {this.renderStudentRows(
-                                        participants,
-                                        labels,
-                                        canCreateMapping,
-                                        canDeleteMapping,
-                                    )}
-                                </tbody>
-                            </Table>
-                        </Col>
+                        {this.state.editLabelModalOpen &&
+                            canEditLabel &&
+                            this.state.labelToEdit != null && (
+                                <LabelEditModal
+                                    courseId={cid}
+                                    label={this.state.labelToEdit}
+                                    isOpen={this.state.editLabelModalOpen}
+                                    onCloseModal={() =>
+                                        this.toggleLabelEditorModal(null)
+                                    }
+                                />
+                            )}
+                        {this.state.deleteLabelModalOpen &&
+                            canDeleteLabel &&
+                            this.state.labelToDelete != null && (
+                                <LabelDeleteModal
+                                    isOpen={this.state.deleteLabelModalOpen}
+                                    courseId={cid}
+                                    labelId={this.state.labelToDelete.id}
+                                    onCloseModal={() =>
+                                        this.toggleLabelDeleteModal(null)
+                                    }
+                                />
+                            )}
                     </Row>
-                )}
-            </div>
-        );
+                    {canListParticipants && (
+                        <Row className="px-2 d-flex justify-content-center">
+                            <Col md="12" lg="6" className="pt-3">
+                                <h4>Assign labels to students</h4>
+                                <Input
+                                    className="form-control-lg mb-3 mt-3"
+                                    placeholder="Student name/number... "
+                                    onInput={(e) => {
+                                        // @ts-ignore
+                                        this.onSearchQueryInput(e.target.value);
+                                    }}
+                                />
+
+                                <Table className="table-bordered mt-3">
+                                    <thead className="thead-light">
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>S-number</th>
+                                            <th>Assigned labels</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {this.renderStudentRows(
+                                            participants,
+                                            labels,
+                                            canCreateMapping,
+                                            canDeleteMapping,
+                                        )}
+                                    </tbody>
+                                </Table>
+                            </Col>
+                        </Row>
+                    )}
+                </div>
+            );
+        }
     }
 
     renderStudentRows(

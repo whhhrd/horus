@@ -64,7 +64,7 @@ export const labelMappingAnyCreate = CourseAuthScheme.anyCreate("COURSE_PARTICIP
 export const labelMappingAnyEdit = CourseAuthScheme.anyEdit("COURSE_PARTICIPANT_LABEL_MAPPING");
 export const labelMappingAnyDelete = CourseAuthScheme.anyDelete("COURSE_PARTICIPANT_LABEL_MAPPING");
 
-// Supllementary roles
+// Suplementary roles
 export const suppRolesAnyList = CourseAuthScheme.anyList("COURSE_SUPPLEMENTARY_ROLE");
 export const suppRolesAnyView = CourseAuthScheme.anyView("COURSE_SUPPLEMENTARY_ROLE");
 export const suppRolesAnyCreate = CourseAuthScheme.anyCreate("COURSE_SUPPLEMENTARY_ROLE");
@@ -86,6 +86,30 @@ export const participantsAnyDelete = CourseAuthScheme.anyDelete("COURSE_PARTICIP
 export const participantsAdmin =
     CourseAuthScheme.every(participantsAnyCreate, participantsAnyEdit, participantsAnyDelete);
 
+// Supplementary role admin
+export const suppRoleAdmin = CourseAuthScheme.every(suppRolesAnyList,
+    suppRolesAnyView,
+    suppRolesAnyCreate,
+    suppRolesAnyEdit,
+    suppRolesAnyDelete);
+
+// Conjugated label permissions
+export const labelAssigner = CourseAuthScheme.every(labelAnyList,
+    labelAnyView,
+    labelMappingAnyCreate,
+    labelMappingAnyDelete,
+    labelMappingAnyList,
+    labelMappingAnyView);
+
+export const labelCreator = CourseAuthScheme.every(labelAnyCreate,
+    labelAnyDelete,
+    labelAnyEdit,
+    labelAnyView,
+    labelAnyList);
+
+// View label admin page
+export const labelAdmin = CourseAuthScheme.some(labelAssigner, labelCreator);
+
 // View groups sets admin page
 export const groupSetsAdmin = groupSetsAnyList;
 
@@ -96,7 +120,7 @@ export const groupsAdmin = CourseAuthScheme.every(groupSetsAdmin, groupsAnyList,
 export const assignmentsAdmin = CourseAuthScheme.every(assignmentSetsAnyList, assignmentSetsAnyView);
 
 // View the course admin page
-export const courseAdmin = CourseAuthScheme.some(groupSetsAdmin, assignmentsAdmin);
+export const courseAdmin = CourseAuthScheme.some(groupSetsAdmin, assignmentsAdmin, suppRoleAdmin, labelAdmin);
 
 // View signoff overview page
 export const signoffAssignmentsView = CourseAuthScheme.every(signOffsAnyList, signOffsAnyView,
@@ -115,9 +139,6 @@ export const canvasGroupsSyncPerform = CourseAuthScheme.every(groupsAnyCreate, g
 
 // View comment sidebar
 export const viewCommentSidebar = CourseAuthScheme.every(commentAnyList, commentAnyView);
-
-// View label manager
-export const canViewListLabels = CourseAuthScheme.every(labelAnyView, labelAnyList);
 
 // Export data
 export const canExportData = CourseAuthScheme.every(participantsAnyList, participantsAnyView,

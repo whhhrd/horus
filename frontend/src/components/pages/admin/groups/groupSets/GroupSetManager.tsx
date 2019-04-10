@@ -30,6 +30,7 @@ import {
     canvasGroupSetsSyncPerform,
     groupsAnyView,
     groupsAnyList,
+    groupSetsAnyList,
 } from "../../../../../state/auth/constants";
 import GroupSetImportModal from "./GroupSetImportModal";
 
@@ -79,11 +80,17 @@ class GroupSetManager extends Component<
     }
 
     componentDidMount() {
-        // Fetch the GroupSets
-        this.props.fetchGroupSets(this.props.match.params.cid);
+        const permissions = this.props.coursePermissions!;
+        const cid = Number(this.props.match.params.cid);
+        const canListGroupSets = groupSetsAnyList.check(cid, permissions);
 
-        // Fetch course (for externalId checking)
-        this.props.fetchCourse(this.props.match.params.cid);
+        if (canListGroupSets) {
+            // Fetch the GroupSets
+            this.props.fetchGroupSets(this.props.match.params.cid);
+
+            // Fetch course (for externalId checking)
+            this.props.fetchCourse(this.props.match.params.cid);
+        }
     }
 
     render() {
@@ -97,13 +104,16 @@ class GroupSetManager extends Component<
             cid,
             permissions,
         );
+        const canListGroupSets = groupSetsAnyList.check(cid, permissions);
         const canListGroups = groupsAnyList.check(cid, permissions);
         const canViewGroups = groupsAnyView.check(cid, permissions);
 
         const { groupSets } = this.props;
         const course = this.props.course(cid);
 
-        if (course == null) {
+        if (!canListGroupSets) {
+            return undefined;
+        } else if (course == null) {
             return null;
         } else {
             return (

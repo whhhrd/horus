@@ -249,7 +249,7 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                                 </Modal>
                             )}
                         </p>
-                        <p className="mt-5">
+                        <p className="mt-4 mb-0">
                             <Button
                                 color="success"
                                 onClick={() =>

@@ -4,6 +4,7 @@ import PhoneComponent from "./PhoneComponent";
 import DesktopComponent from "./DesktopComponent";
 import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import NotFound from "./pages/NotFound";
 
 /**
  * Builds the page with the desktop/mobile compatible layouts. Must receive mobile/desktop friendly contents.
@@ -18,28 +19,32 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
  */
 export const buildContent = (
     headerTitle: string,
-    content: JSX.Element | null,
+    content: JSX.Element | null | undefined,
     sidebarContent: JSX.Element | null = null,
     phoneBodyPaddingY: boolean = true,
     phoneBodyPaddingX: boolean = true,
 ): JSX.Element => {
-    setPageTitle(headerTitle);
-    return (
-        <div>
-            <DesktopComponent
-                headerTitle={headerTitle}
-                content={content}
-                sidebarContent={sidebarContent}
-            />
-            <PhoneComponent
-                headerTitle={headerTitle}
-                content={content}
-                sidebarContent={sidebarContent}
-                hasPaddingX={phoneBodyPaddingX}
-                hasPaddingY={phoneBodyPaddingY}
-            />
-        </div>
-    );
+    // If undefined is specifically given, return 404 page
+    if (content === undefined) {
+        return <NotFound />;
+    } else {
+        return (
+            <div>
+                <DesktopComponent
+                    headerTitle={headerTitle}
+                    content={content}
+                    sidebarContent={sidebarContent}
+                />
+                <PhoneComponent
+                    headerTitle={headerTitle}
+                    content={content}
+                    sidebarContent={sidebarContent}
+                    hasPaddingX={phoneBodyPaddingX}
+                    hasPaddingY={phoneBodyPaddingY}
+                />
+            </div>
+        );
+    }
 };
 
 /**
