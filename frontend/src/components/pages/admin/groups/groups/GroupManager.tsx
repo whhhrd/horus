@@ -66,16 +66,12 @@ class GroupManager extends Component<
     }
 
     componentDidMount() {
-        const permissions = this.props.coursePermissions!;
         const cid = Number(this.props.match.params.cid);
-        const canViewGroups = groupsAnyView.check(cid, permissions);
 
-        if (canViewGroups) {
-            this.props.fetchGroups(this.props.match.params.gsid);
+        this.props.fetchGroups(this.props.match.params.gsid);
 
-            // Fetch course (for externalId checking)
-            this.props.fetchCourse(this.props.match.params.cid);
-        }
+        // Fetch course (for externalId checking)
+        this.props.fetchCourse(cid);
     }
 
     render() {

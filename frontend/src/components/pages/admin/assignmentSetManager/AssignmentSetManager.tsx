@@ -14,6 +14,8 @@ import {
 import {
     assignmentGroupSetsMappingsFetchRequestedAction,
     assignmentSetsFetchRequestedAction,
+    AssignmentGroupSetMappingFetchRequestedAction,
+    AssignmentSetsFetchAction,
 } from "../../../../state/assignments/actions";
 
 import {
@@ -39,28 +41,24 @@ import { buildContent } from "../../../pagebuilder";
 
 interface AssignmentSetManagerProps {
     assignmentGroupSetsMappingDtos: AssignmentGroupSetsMappingDto[] | null;
-
     permissions: CoursePermissions | null;
 
     getAssignmentSets: () => AssignmentSetDtoBrief[] | null;
-
+    fetchAssignmentSets: (courseID: number) => AssignmentSetsFetchAction;
     fetchAssignmentGroupSetsMappingDtos: (
         courseID: number,
-    ) => {
-        type: string;
-    };
-
-    fetchAssignmentSets: (
-        courseID: number,
-    ) => {
-        type: string;
-    };
+    ) => AssignmentGroupSetMappingFetchRequestedAction;
 }
 
 interface AssignmentSetManagerState {
     creatorModalOpen: boolean;
 }
 
+/**
+ * A page that displays the existing assignment sets in the current course
+ * to privileged people. Serves the user the ability to edit or create
+ * assignment sets based on their permissions.
+ */
 class AssignmentSetManager extends Component<
     AssignmentSetManagerProps & RouteComponentProps<any>,
     AssignmentSetManagerState
@@ -81,18 +79,11 @@ class AssignmentSetManager extends Component<
 
     componentDidMount() {
         const cid = Number(this.props.match.params.cid);
-        const permissions = this.props.permissions!;
-        const canView = assignmentsAdmin.check(cid, permissions);
+        // Fetch the AssignmentSetDtoBriefs
+        this.props.fetchAssignmentSets(cid);
 
-        if (canView) {
-            // Fetch the AssignmentSetDtoBriefs
-            this.props.fetchAssignmentSets(this.props.match.params.cid);
-
-            // Fetch the AssignmentGroupSets mappings
-            this.props.fetchAssignmentGroupSetsMappingDtos(
-                this.props.match.params.cid,
-            );
-        }
+        // Fetch the AssignmentGroupSets mappings
+        this.props.fetchAssignmentGroupSetsMappingDtos(cid);
     }
 
     render() {
@@ -106,11 +97,12 @@ class AssignmentSetManager extends Component<
 
         const canView = assignmentsAdmin.check(cid, permissions);
 
+        // If the user is not privileged to view the page, return 404
         if (!canView) {
             return undefined;
         } else if (
-            assignmentSets === null ||
-            this.props.assignmentGroupSetsMappingDtos === null
+            assignmentSets == null ||
+            this.props.assignmentGroupSetsMappingDtos == null
         ) {
             return null;
         } else {
@@ -127,6 +119,7 @@ class AssignmentSetManager extends Component<
                 assignmentSets,
                 preparedASetGroupSetsMapping,
             );
+
             return (
                 <Row className="px-2 d-flex justify-content-center justify-content-lg-start">
                     {aSetJSXs}
@@ -188,9 +181,11 @@ class AssignmentSetManager extends Component<
     ) {
         const permissions = this.props.permissions!;
         const cid = Number(this.props.match.params.cid);
+
         // The JSX.Element[] list to be returned
         const aSetJSXs: JSX.Element[] = [];
 
+        // Get the user permissions
         const canCreate = assignmentSetsAnyCreate.check(cid, permissions);
         const canEdit = assignmentSetsAnyEdit.check(cid, permissions);
         const canDelete = assignmentSetsAnyDelete.check(cid, permissions);
@@ -249,11 +244,11 @@ class AssignmentSetManager extends Component<
 export default withRouter(
     connect(
         (state: ApplicationState) => ({
+            permissions: getCoursePermissions(state),
             assignmentGroupSetsMappingDtos: getAssignmentGroupSetsMappingDtos(
                 state,
             ),
             getAssignmentSets: () => getAssignmentSets(state),
-            permissions: getCoursePermissions(state),
         }),
         {
             fetchAssignmentGroupSetsMappingDtos: assignmentGroupSetsMappingsFetchRequestedAction,

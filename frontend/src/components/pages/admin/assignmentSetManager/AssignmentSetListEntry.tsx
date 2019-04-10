@@ -21,6 +21,9 @@ interface AssignmentSetListEntryState {
     editorModalOpen: boolean;
 }
 
+/**
+ * A card like component that holds details of an assignment set.
+ */
 export default class AssignmentSetListEntry
     extends Component<AssignmentSetListEntryProps, AssignmentSetListEntryState> {
 

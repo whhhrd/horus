@@ -95,12 +95,9 @@ class LabelManager extends Component<
 
     componentDidMount() {
         const cid = this.props.match.params.cid;
-        const isLabelAdmin = labelAdmin.check(cid, this.props.permissions!);
 
-        if (isLabelAdmin) {
-            this.props.fetchCourseParticipants(this.props.match.params.cid);
-            this.props.fetchCourse(this.props.match.params.cid);
-        }
+        this.props.fetchCourseParticipants(cid);
+        this.props.fetchCourse(cid);
     }
 
     render() {

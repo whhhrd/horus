@@ -121,18 +121,10 @@ class SignOffOverview extends Component<
         const courseId = Number(params.cid);
         const assignmentSetId = Number(params.asid);
 
-        const permissions = this.props.coursePermissions!;
-        const canViewSignoffs = signoffAssignmentsView.check(
-            courseId,
-            permissions,
-        );
+        this.props.fetchAssignmentSet(assignmentSetId);
+        this.props.fetchOverviewResults(courseId, assignmentSetId);
 
-        if (canViewSignoffs) {
-            this.props.fetchAssignmentSet(assignmentSetId);
-            this.props.fetchOverviewResults(courseId, assignmentSetId);
-
-            this.reloadData();
-        }
+        this.reloadData();
     }
 
     componentDidUpdate(

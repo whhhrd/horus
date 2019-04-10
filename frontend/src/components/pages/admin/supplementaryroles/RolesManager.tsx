@@ -97,17 +97,11 @@ class RolesManager extends Component<
     }
 
     componentDidMount() {
-        const { cid } = this.props.match.params;
-        const isSuppRoleAdmin = suppRoleAdmin.check(
-            cid,
-            this.props.permissions!,
-        );
+        const cid = this.props.match.params.cid;
 
-        if (isSuppRoleAdmin) {
-            this.props.fetchSuppRoles(cid);
-            this.props.fetchSuppRolesMapping(cid);
-            this.props.fetchCourseStaff(cid);
-        }
+        this.props.fetchSuppRoles(cid);
+        this.props.fetchSuppRolesMapping(cid);
+        this.props.fetchCourseStaff(cid);
     }
 
     render() {

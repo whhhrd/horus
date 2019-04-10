@@ -80,17 +80,13 @@ class GroupSetManager extends Component<
     }
 
     componentDidMount() {
-        const permissions = this.props.coursePermissions!;
         const cid = Number(this.props.match.params.cid);
-        const canListGroupSets = groupSetsAnyList.check(cid, permissions);
 
-        if (canListGroupSets) {
-            // Fetch the GroupSets
-            this.props.fetchGroupSets(this.props.match.params.cid);
+        // Fetch the GroupSets
+        this.props.fetchGroupSets(this.props.match.params.cid);
 
-            // Fetch course (for externalId checking)
-            this.props.fetchCourse(this.props.match.params.cid);
-        }
+        // Fetch course (for externalId checking)
+        this.props.fetchCourse(cid);
     }
 
     render() {

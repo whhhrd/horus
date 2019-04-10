@@ -1,74 +1,78 @@
-import React, { Component, RefObject } from "react";
+import React, { Component, Fragment } from "react";
+import { connect } from "react-redux";
+
 import {
     Input,
     Button,
-    Modal, ModalHeader, ModalBody, ModalFooter, Label, Form,
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Label,
+    Form,
 } from "reactstrap";
-import { connect } from "react-redux";
-import { ApplicationState } from "../../../../state/state";
-import {
-    assignmentSetCreateRequestedAction,
-} from "../../../../state/assignments/actions";
+
 import { AssignmentSetCreateDto } from "../../../../api/types";
+import { assignmentSetCreateRequestedAction } from "../../../../state/assignments/actions";
+
 import { Formik, Field } from "formik";
 
 interface AssignmentSetCreatorModalProps {
     isOpen: boolean;
     courseID: number;
 
-    createAssignmentSet: (courseID: number, assignmentSetCreateDto: AssignmentSetCreateDto) => {
-        type: string,
+    createAssignmentSet: (
+        courseID: number,
+        assignmentSetCreateDto: AssignmentSetCreateDto,
+    ) => {
+        type: string;
     };
 
     onCloseModal: () => void;
 }
 
-class AssignmentSetCreatorModal extends Component<AssignmentSetCreatorModalProps> {
-
-    inputRef: RefObject<HTMLInputElement>;
-
-    constructor(props: AssignmentSetCreatorModalProps) {
-        super(props);
-        this.onCloseModal = this.onCloseModal.bind(this);
-        this.inputRef = React.createRef();
-    }
-
-    focusInput() {
-        if (this.inputRef.current != null) {
-            this.inputRef.current!.focus();
-        }
-    }
-
+/**
+ * A modal that allows the privileged user to create an assignment set.
+ */
+class AssignmentSetCreatorModal extends Component<
+    AssignmentSetCreatorModalProps
+> {
     onSubmit = (assignmentSetCreateDto: AssignmentSetCreateDto) => {
-        this.props.createAssignmentSet(this.props.courseID, assignmentSetCreateDto);
-        this.onCloseModal();
-    }
-
-    onCloseModal() {
+        this.props.createAssignmentSet(
+            this.props.courseID,
+            assignmentSetCreateDto,
+        );
         this.props.onCloseModal();
     }
 
     render() {
+        const { isOpen, onCloseModal } = this.props;
         return (
-            <Modal isOpen={this.props.isOpen}>
-                <ModalHeader toggle={this.onCloseModal}>{"Create an assignment set"}</ModalHeader>
+            <Modal autoFocus={false} isOpen={isOpen}>
+                <ModalHeader toggle={onCloseModal}>
+                    {"Create an assignment set"}
+                </ModalHeader>
                 <Formik
                     initialValues={{
                         name: "",
                     }}
-                    onSubmit={this.onSubmit}>
+                    onSubmit={this.onSubmit}
+                >
                     {({ handleSubmit, values, isValid }) => (
-                        <div>
+                        <Fragment>
                             <ModalBody>
                                 <Form>
                                     <Label>Assignment set name</Label>
                                     <Input
                                         tag={Field}
-                                        innerRef={this.inputRef}
                                         name="name"
+                                        autoFocus
                                         valid={values.name.trim().length > 0}
                                         onKeyDown={(event) => {
-                                            if (event.key === "Enter" && !event.shiftKey) {
+                                            if (
+                                                event.key === "Enter" &&
+                                                !event.shiftKey
+                                            ) {
                                                 event.preventDefault();
                                                 if (isValid) {
                                                     handleSubmit();
@@ -79,27 +83,38 @@ class AssignmentSetCreatorModal extends Component<AssignmentSetCreatorModalProps
                                 </Form>
                             </ModalBody>
                             <ModalFooter>
-                                <Button block size="md" color="secondary" outline onClick={this.onCloseModal}>
+                                <Button
+                                    block
+                                    size="md"
+                                    color="secondary"
+                                    outline
+                                    onClick={onCloseModal}
+                                >
                                     Cancel
                                 </Button>
                                 <Button
                                     disabled={!isValid}
-                                    block size="md"
+                                    block
+                                    size="md"
                                     color="primary"
-                                    onClick={() => { handleSubmit(); }}
+                                    onClick={() => {
+                                        handleSubmit();
+                                    }}
                                 >
                                     Create
                                 </Button>
                             </ModalFooter>
-                        </div>
+                        </Fragment>
                     )}
                 </Formik>
-            </Modal >
+            </Modal>
         );
     }
 }
 
-export default connect((_: ApplicationState) => ({
-}), {
+export default connect(
+    () => ({}),
+    {
         createAssignmentSet: assignmentSetCreateRequestedAction,
-    })(AssignmentSetCreatorModal);
+    },
+)(AssignmentSetCreatorModal);

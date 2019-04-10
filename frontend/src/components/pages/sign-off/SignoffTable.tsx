@@ -105,13 +105,7 @@ class SignoffTable extends Component<
      * @override
      */
     componentDidMount() {
-        const cid = Number(this.props.match.params.cid);
-        const permissions = this.props.coursePermissions!;
-        const canViewSignoffs = signoffAssignmentsView.check(cid, permissions);
-
-        if (canViewSignoffs) {
-            this.reloadData();
-        }
+        this.reloadData();
     }
 
     /**
