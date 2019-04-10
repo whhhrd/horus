@@ -1,23 +1,18 @@
-import { Route, RouteProps, match } from "react-router-dom";
+import { Route, RouteProps } from "react-router-dom";
 import { connect } from "react-redux";
-import { ApplicationState } from "../state/state";
 import { ActiveTabEnum } from "../state/navigationBar/types";
 import {
-    navigationBarSetTabRequestedAction,
-    navigationBarSetMatchRequestedAction,
+    navigationBarSetTabAction,
+    SetActiveNavigationTabAction,
 } from "../state/navigationBar/actions";
 import { SwitchProps } from "react-router";
 
 interface RouteExtensionProps {
     setActiveTab: ActiveTabEnum;
 
-    setActiveNavigationBarTabAction: (tab: ActiveTabEnum) => {
-        type: string,
-    };
-
-    setNavigationBarMatchAction: (match: match) => {
-        type: string,
-    };
+    setActiveNavigationBarTabAction: (
+        tab: ActiveTabEnum,
+    ) => SetActiveNavigationTabAction;
 }
 
 /**
@@ -27,16 +22,17 @@ interface RouteExtensionProps {
  * but you also have to supply an ActiveTabEnum, which represents the tab/button in the navigation-
  * bar that should appear active on that path.
  */
-class RouteExtension extends Route<RouteExtensionProps & RouteProps & SwitchProps> {
+class RouteExtension extends Route<
+    RouteExtensionProps & RouteProps & SwitchProps
+> {
     componentDidUpdate() {
-        // @ts-ignore
-        this.props.setNavigationBarMatchAction(this.props.computedMatch);
         this.props.setActiveNavigationBarTabAction(this.props.setActiveTab);
     }
 }
 
-export default connect((_: ApplicationState) => ({
-}), {
-        setNavigationBarMatchAction: navigationBarSetMatchRequestedAction,
-        setActiveNavigationBarTabAction: navigationBarSetTabRequestedAction,
-    })(RouteExtension);
+export default connect(
+    () => ({}),
+    {
+        setActiveNavigationBarTabAction: navigationBarSetTabAction,
+    },
+)(RouteExtension);
