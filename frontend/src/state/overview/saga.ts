@@ -40,7 +40,7 @@ function* getSignOffResults(
             ),
         );
     } catch (e) {
-        yield put(notifyError("Failed to fetch signoffs"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -85,7 +85,7 @@ function* getAssignmentSetGroups(action: SignOffOverviewFetchRequestedAction) {
             ),
         );
     } catch (e) {
-        yield put(notifyError("Failed to fetch signoff groups"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -130,7 +130,7 @@ export function* signOffOverviewFilterQuery(
             yield put(signOffOverviewFilterSucceededAction(page.content, page.last));
         }
     } catch (e) {
-        yield put(notifyError("Failed to execute filter query"));
+        yield put(notifyError(e.message));
     }
 }
 

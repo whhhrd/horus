@@ -33,11 +33,7 @@ export function* createLabel(action: LabelCreateAction) {
         );
         yield put(labelCreateSucceededAction(label));
     } catch (e) {
-        yield put(
-            notifyError(
-                "Failed to create label. Label name can only contain (at most 15) alphanumeric characters and hyphens.",
-            ),
-        );
+        yield put(notifyError(e.message));
     }
 }
 
@@ -52,11 +48,7 @@ export function* updateLabel(action: LabelUpdateAction) {
         );
         yield put(labelUpdateSucceededAction(label));
     } catch (e) {
-        yield put(
-            notifyError(
-                "Failed to update label. Label name can only contain (at most 15) alphanumeric characters and hyphens.",
-            ),
-        );
+        yield put(notifyError(e.message));
     }
 }
 
@@ -69,7 +61,7 @@ export function* deleteLabel(action: LabelDeleteAction) {
         );
         yield put(labelDeleteSucceededAction(action.labelId));
     } catch (e) {
-        yield put(notifyError("Failed to delete label."));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -88,7 +80,7 @@ export function* createLabelMapping(action: LabelMappingCreateAction) {
             ),
         );
     } catch (e) {
-        yield put(notifyError("Failed to map label to student"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -107,7 +99,7 @@ export function* deleteLabelMapping(action: LabelMappingDeleteAction) {
             ),
         );
     } catch (e) {
-        yield put(notifyError("Failed to delete mapped label to student"));
+        yield put(notifyError(e.message));
     }
 }
 

@@ -2,7 +2,11 @@ import { notifyError } from "../notifications/constants";
 import { put, takeEvery, call } from "redux-saga/effects";
 import { authenticatedFetchJSON } from "../../api";
 import { BatchJobDto } from "../../api/types";
-import { JOBS_FETCH_REQUESTED_ACTION, JOB_ID_FETCH_REQUESTED_ACTION, JOB_REMOVE_REQUESTED_ACTION } from "./constants";
+import {
+    JOBS_FETCH_REQUESTED_ACTION,
+    JOB_ID_FETCH_REQUESTED_ACTION,
+    JOB_REMOVE_REQUESTED_ACTION,
+} from "./constants";
 import {
     jobsFetchRequestSucceededAction,
     JobIdFetchRequestedAction,
@@ -20,7 +24,7 @@ export function* getOwnJobs() {
         );
         yield put(jobsFetchRequestSucceededAction(jobs));
     } catch (e) {
-        yield put(notifyError("Failed to fetch jobs"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -33,20 +37,16 @@ export function* getJobWithId(action: JobIdFetchRequestedAction) {
         );
         yield put(jobIdFetchRequestSucceededAction(job));
     } catch (e) {
-        yield put(notifyError("Failed to fetch job"));
+        yield put(notifyError(e.message));
     }
 }
 
 export function* removeJob(action: JobRemoveRequestedAction) {
     try {
-        yield call(
-            authenticatedFetchJSON,
-            "DELETE",
-            `jobs/${action.jobId}`,
-        );
+        yield call(authenticatedFetchJSON, "DELETE", `jobs/${action.jobId}`);
         yield put(jobRemoveRequestSucceededAction(action.jobId));
     } catch (e) {
-        yield put(notifyError("Failed to remove job"));
+        yield put(notifyError(e.message));
     }
 }
 

@@ -25,7 +25,7 @@ export function* getRooms(action: RoomsFetchRequestedAction) {
         );
         yield put(roomsFetchRequestSucceededAction(rooms));
     } catch (e) {
-        yield put(notifyError("Failed to fetch rooms"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -40,7 +40,7 @@ export function* openRoom(action: RoomOpenRequestedAction) {
         );
         yield put(roomOpenRequestSucceededAction(room));
     } catch (e) {
-        yield put(notifyError("Failed to open room"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -53,7 +53,7 @@ export function* closeRoom(action: RoomCloseRequestedAction) {
         );
         yield put(roomCloseRequestSucceededAction(action.roomCode));
     } catch (e) {
-        yield put(notifyError("Failed to close room"));
+        yield put(notifyError(e.message));
     }
 }
 

@@ -47,7 +47,7 @@ export function* requestSignoffs(action: SignOffResultsRequestedAction) {
             ),
         );
     } catch (e) {
-        yield put(notifyError("Failed to fetch signoffs"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -64,7 +64,7 @@ export function* requestSignOffHistory(action: SignOffHistoryRequestedAction) {
         );
         yield put(signOffHistoryRequestSucceededAction(result));
     } catch (e) {
-        yield put(notifyError("Failed to fetch signoff history"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -111,11 +111,11 @@ export function* pushChanges(action: SignOffSaveRequestedAction) {
             try {
                 yield put(signOffHistoryRequestedAction(pid, aid));
             } catch (f) {
-                yield put(notifyError("Signoff history fetching failed"));
+                yield put(notifyError(f.message));
             }
         }
     } catch (e) {
-        yield put(notifyError("Saving signoff changes failed"));
+        yield put(notifyError(e.message));
     }
 }
 

@@ -33,15 +33,12 @@ import { AssignmentValue } from "./types";
 
 export function* fetchAssignmentSets(action: AssignmentSetsFetchAction) {
     try {
-        // Fetch AssignmentSetDtoBriefs using the API
         const assignmentSets: AssignmentSetDtoBrief[] =
             yield call(authenticatedFetchJSON, "GET", "courses/" + action.courseId + "/assignmentSets");
 
-        // If successful, update the state
         yield put(assignmentSetsFetchSucceededAction(assignmentSets));
     } catch (e) {
-        // Something went wrong, send an error to the AssignmentSetState
-        yield put(notifyError("Failed to fetch assignment sets"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -50,11 +47,9 @@ export function* fetchAssignmentGroupSetsMappings(action: AssignmentSetsFetchAct
         const assignmentGroupSetsMappings: AssignmentGroupSetsMappingDto[] =
             yield call(authenticatedFetchJSON, "GET", "courses/" + action.courseId + "/assignmentgroupsetsmappings");
 
-        // If successful, update the state
         yield put(assignmentGroupSetsMappingsFetchSucceededAction(assignmentGroupSetsMappings));
     } catch (e) {
-        // Something went wrong, send an error to the AssignmentSetState
-        yield put(notifyError("Failed to fetch assignment sets/group sets mapping"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -64,11 +59,9 @@ export function* fetchAssignmentSet(action: AssignmentSetFetchAction) {
         const assignmentSet: AssignmentSetDtoFull =
             yield call(authenticatedFetchJSON, "GET", "assignmentSets/" + action.assignmentSetId);
 
-        // If successful, update the state
         yield put(assignmentSetFetchSucceededAction(assignmentSet));
     } catch (e) {
-        // Something went wrong, send an error to the AssignmentSetState
-        yield put(notifyError("Failed to fetch assignment sets"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -81,7 +74,7 @@ export function* updateAssignmentSet(action: AssignmentSetUpdateRequestedAction)
         yield put(assignmentSetUpdateSucceededAction(assignmentSetDtoFull));
         yield put(notifySuccess("Assignment set successfully edited!"));
     } catch (e) {
-        yield put(notifyError("Editing the assignment set failed"));
+        yield put(notifyError(e.message));
     }
 
 }
@@ -95,7 +88,7 @@ export function* createAssignmentSet(action: AssignmentSetCreateRequestedAction)
         yield put(assignmentSetCreateSucceededAction(assignmentSet));
         yield put(notifySuccess("Assignment set successfully created!"));
     } catch (e) {
-        yield put(notifyError("Creating the assignment set failed"));
+        yield put(notifyError(e.message));
     }
 
 }
@@ -109,7 +102,7 @@ export function* checkAssignmentsDelete(action: AssignmentsDeleteCheckAction) {
                 { assignmentIds: action.assignments.map((assignment: AssignmentValue) => assignment.id) });
             yield put(assignmentssDeleteCheckSucceededAction(action.assignments.filter((_, i: number) => !result[i])));
         } catch (e) {
-            yield put(notifyError("Failed to do a safety check on assignment delete"));
+            yield put(notifyError(e.message));
         }
     }
 }
@@ -118,7 +111,7 @@ export function* deleteAssignmentSet(action: AssignmentSetDeleteAction) {
         yield call(authenticatedFetchJSON, "DELETE", `assignmentSets/${action.asid}`);
         yield put(assignmentSetDeleteRequestSuccededAction(action.asid));
     } catch (e) {
-        yield put(notifyError("Failed to delete assignment set"));
+        yield put(notifyError(e.message));
     }
 }
 export default function* assignmentSetSagas() {

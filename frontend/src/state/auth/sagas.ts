@@ -111,7 +111,7 @@ function* fetchAuthoritiesAction() {
         const authorities = yield call(authenticatedFetchJSON, "GET", "persons/self/permissions");
         yield put(authoritiesUpdatedAction(authorities));
     } catch (e) {
-        yield put(notifyError("Failed to reload permissions; please reload the page."));
+        yield put(notifyError(e.message));
     }
 }
 

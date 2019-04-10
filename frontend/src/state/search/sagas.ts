@@ -18,7 +18,7 @@ export function* signOffSearchQuery(action: SignOffSearchQueryAction) {
         );
         yield put(signOffSearchSucceededAction(result));
     } catch (e) {
-        yield put(notifyError("Failed to execute search query"));
+        yield put(notifyError(e.message));
     }
 }
 

@@ -42,7 +42,7 @@ export function* submitToken(action: TokenSubmittedAction) {
         });
         yield put(push(PATH_CANVAS_IMPORT));
     } catch (e) {
-        yield put(notifyError("Token submit failed"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -56,7 +56,7 @@ export function* importCourse(action: CanvasImportAction) {
         yield put(jobAddAction(result));
         yield put(notifyInfo(notificationDirectToTasks()));
     } catch (e) {
-        yield put(notifyError("Canvas import failed", false));
+        yield put(notifyError(e.message));
     }
     yield put(importCanvasCourseFinishedAction(action.courseId));
 }
@@ -72,7 +72,7 @@ export function* checkAndRedirectImport() {
             yield put(push(PATH_CANVAS_IMPORT));
         }
     } catch (e) {
-        yield put(notifyError("Could not check token"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -85,7 +85,7 @@ export function* retrieveCourses() {
         );
         yield put(canvasCoursesRequestSucceeededAction(result));
     } catch (e) {
-        yield put(notifyError("Failed to retrieve courses from Canvas"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -102,7 +102,7 @@ export function* checkAndRedirectToken() {
             yield put(canvasCoursesRequestedAction());
         }
     } catch (e) {
-        yield put(notifyError("Could not check token"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -115,7 +115,7 @@ export function* refreshSetsList(action: CanvasRefreshSetsListRequestedAction) {
         );
         yield put(notifySuccess("Succesfully retrieved group sets"));
     } catch (e) {
-        yield put(notifyError("Failed to retrieve Canvas group sets"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -129,7 +129,7 @@ export function* refreshSet(action: CanvasRefreshSetRequestedAction) {
         yield put(jobAddAction(result));
         yield put(notifyInfo(notificationDirectToTasks()));
     } catch (e) {
-        yield put(notifyError("Failed to retrieve Canvas groups"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -151,7 +151,7 @@ export function* refreshParticipants(action: CanvasRefreshParticipantsRequestedA
             notifySuccess("Succesfully retrieved and updated participants data."),
         );
     } catch (e) {
-        yield put(notifyError("Failed to retrieve participants data"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -170,7 +170,7 @@ export function* importGroupSet(action: CanvasGroupSetImportRequestedAction) {
         yield put(jobAddAction(result));
         yield put(notifyInfo(notificationDirectToTasks()));
     } catch (e) {
-        yield put(notifyError("Failed to import group set to Canvas"));
+        yield put(notifyError(e.message));
     }
 }
 

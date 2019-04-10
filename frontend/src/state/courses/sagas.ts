@@ -15,7 +15,7 @@ export function* requestCourses() {
         );
         yield put(coursesRequestSucceededAction(result));
     } catch (e) {
-        yield put(notifyError("Failed to fetch courses"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -28,7 +28,7 @@ export function* requestCourse(action: CoursesRequestedAction) {
         );
         yield put(courseRequestSucceededAction(result));
     } catch (e) {
-        yield put(notifyError("Failed to fetch courseDtoFull"));
+        yield put(notifyError(e.message));
     }
 }
 

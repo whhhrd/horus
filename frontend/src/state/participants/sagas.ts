@@ -19,7 +19,6 @@ import {
 
 export function* fetchParticipants(action: ParticipantsFetchAction) {
     try {
-        // Fetch participants using the API
         const participants: ParticipantDtoFull[] = yield call(
             authenticatedFetchJSON,
             "GET",
@@ -27,11 +26,9 @@ export function* fetchParticipants(action: ParticipantsFetchAction) {
             { participantIds: action.participantIds.join(",") },
         );
 
-        // If successful, update the state
         yield put(participantsFetchSucceededAction(participants));
     } catch (e) {
-        // Something went wrong, send an error
-        yield put(notifyError("Failed to fetch participants"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -39,18 +36,15 @@ export function* fetchCourseParticipants(
     action: CourseParticipantsFetchAction,
 ) {
     try {
-        // Fetch participants using the API
         const participants: ParticipantDtoFull[] = yield call(
             authenticatedFetchJSON,
             "GET",
             `courses/${action.courseId}/participants`,
         );
 
-        // If successful, update the state
         yield put(courseParticipantsFetchSucceededAction(participants));
     } catch (e) {
-        // Something went wrong, send an error
-        yield put(notifyError("Failed to fetch course participants"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -66,7 +60,7 @@ export function* fetchCourseStaffParticipants(
 
         yield put(courseStaffParticipantsFetchSucceededAction(staff));
     } catch (e) {
-        yield put(notifyError("Failed to fetch course staff participants"));
+        yield put(notifyError(e.message));
     }
 }
 

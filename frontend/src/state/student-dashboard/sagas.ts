@@ -20,7 +20,7 @@ export function* requestStudentDashboardData(
         );
         yield put(studentDashboardDataRequestSucceededAction(result));
     } catch (e) {
-        yield put(notifyError("Failed to retrieve your information"));
+        yield put(notifyError(e.message));
     }
 }
 

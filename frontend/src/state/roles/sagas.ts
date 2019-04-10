@@ -32,7 +32,7 @@ export function* fetchSuppRoles(action: SuppRolesFetchRequestedAction) {
         );
         yield put(suppRolesFetchRequestSucceededAction(result));
     } catch (e) {
-        yield put(notifyError("Failed to fetch supplementary roles"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -48,7 +48,7 @@ export function* fetchSuppRolesMapping(
         );
         yield put(suppRolesMappingFetchRequestSucceededAction(result));
     } catch (e) {
-        yield put(notifyError("Failed to fetch supplementary roles mapping"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -63,7 +63,7 @@ export function* createSuppRoleMapping(action: SuppRoleMappingCreateAction) {
             suppRoleMappingCreateSucceededAction(participantId, suppRole),
         );
     } catch (e) {
-        yield put(notifyError("Failed to map role to teaching assistant"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -78,7 +78,7 @@ export function* deleteSuppRoleMapping(action: SuppRoleMappingDeleteAction) {
             suppRoleMappingDeleteSucceededAction(participantId, suppRole),
         );
     } catch (e) {
-        yield put(notifyError("Failed to delete mapped role to student"));
+        yield put(notifyError(e.message));
     }
 }
 

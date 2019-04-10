@@ -67,7 +67,7 @@ export function* createQueue(action: QueueCreatedAction) {
             },
         );
     } catch (e) {
-        yield put(notifyError("Failed to create queue"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -81,7 +81,7 @@ export function* editQueue(action: QueueEditRequestedAction) {
             action.queueUpdate,
         );
     } catch (e) {
-        yield put(notifyError("Failed to edit queue"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -97,7 +97,7 @@ export function* createAnnouncement(action: AnnouncementCreatedAction) {
             },
         );
     } catch (e) {
-        yield put(notifyError("Failed to create announcement"));
+        yield put(notifyError(e.message));
     }
 }
 export function* removeAnnouncement(action: AnnouncementRemovedAction) {
@@ -110,7 +110,7 @@ export function* removeAnnouncement(action: AnnouncementRemovedAction) {
             }`,
         );
     } catch (e) {
-        yield put(notifyError("Failed to delete announcement"));
+        yield put(notifyError(e.message));
     }
 }
 export function* removeQueue(action: QueueRemovedAction) {
@@ -123,7 +123,7 @@ export function* removeQueue(action: QueueRemovedAction) {
             }`,
         );
     } catch (e) {
-        yield put(notifyError("Failed to delete queue"));
+        yield put(notifyError(e.message));
     }
 }
 export function* enqueue(action: EnterQueueAction) {
@@ -136,7 +136,7 @@ export function* enqueue(action: EnterQueueAction) {
             }/participants/self`,
         );
     } catch (e) {
-        yield put(notifyError("Failed to enqueue"));
+        yield put(notifyError(e.message));
     }
 }
 export function* dequeue(action: DequeueRequestedAction) {
@@ -149,7 +149,7 @@ export function* dequeue(action: DequeueRequestedAction) {
             }/participants/${action.participantId}`,
         );
     } catch (e) {
-        yield put(notifyError("Failed to dequeue participant"));
+        yield put(notifyError(e.message));
     }
 }
 export function* dequeueSelf(action: DequeueSelfRequestedAction) {
@@ -162,7 +162,7 @@ export function* dequeueSelf(action: DequeueSelfRequestedAction) {
             }/participants/self`,
         );
     } catch (e) {
-        yield put(notifyError("Removing you from the queue failed"));
+        yield put(notifyError(e.message));
     }
 }
 export function* accept(action: AcceptRequestedAction) {
@@ -191,7 +191,7 @@ export function* accept(action: AcceptRequestedAction) {
             );
         }
     } catch (e) {
-        yield put(notifyError("Failed to accept participant"));
+        yield put(notifyError(e.message));
     }
 }
 export function* remind(action: RemindRequestedAction) {
@@ -204,7 +204,7 @@ export function* remind(action: RemindRequestedAction) {
             }/remind`,
         );
     } catch (e) {
-        yield put(notifyError("Failed to send reminder"));
+        yield put(notifyError(e.message));
     }
 }
 export function* acceptNext(action: AcceptNextAction) {
@@ -233,7 +233,7 @@ export function* acceptNext(action: AcceptNextAction) {
             );
         }
     } catch (e) {
-        yield put(notifyError("Failed to accept next participant"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -246,7 +246,7 @@ export function* fetchRoomQueueLengths(action: RoomQueueLengthsRequestedAction) 
         );
         yield put(roomQueueLenghtsRequestSucceededAction(result));
     } catch (e) {
-        yield put(notifyError("Failed to fetch queue lenghts"));
+        yield put(notifyError(e.message));
     }
 }
 

@@ -56,7 +56,7 @@ export function* requestCommentThread(action: CommentThreadRequestedAction) {
             ),
         );
     } catch (e) {
-        yield put(notifyError("Could not fetch comments"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -82,7 +82,7 @@ export function* createCommentThread(action: CommentThreadCreateAction) {
             ),
         );
     } catch (e) {
-        yield put(notifyError("Could not create comment"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -100,7 +100,7 @@ export function* createComment(action: CommentCreateRequestAction) {
             commentCreateRequestSucceededAction(entityId, entityType, result),
         );
     } catch (e) {
-        yield put(notifyError("Could not create comment"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -116,7 +116,7 @@ export function* deleteComment(action: CommentDeleteRequestAction) {
             commentDeleteRequestSucceededAction(entityId, entityType, result),
         );
     } catch (e) {
-        yield put(notifyError("Could not delete comment"));
+        yield put(notifyError(e.message));
     }
 }
 
@@ -134,7 +134,7 @@ export function* updateComment(action: CommentUpdateRequestAction) {
             commentUpdateRequestSucceededAction(entityId, entityType, result),
         );
     } catch (e) {
-        yield put(notifyError("Could not edit comment"));
+        yield put(notifyError(e.message));
     }
 }
 

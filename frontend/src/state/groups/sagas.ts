@@ -18,29 +18,29 @@ import { notifyError } from "../notifications/constants";
 
 export function* fetchGroupSets(action: GroupSetsFetchAction) {
     try {
-        // Fetch AssignmentSetDtoBriefs using the API
-        const groupSets: GroupSetDtoSummary[] =
-            yield call(authenticatedFetchJSON, "GET", "courses/" + action.courseId + "/groupSets");
+        const groupSets: GroupSetDtoSummary[] = yield call(
+            authenticatedFetchJSON,
+            "GET",
+            "courses/" + action.courseId + "/groupSets",
+        );
 
-        // If successful, update the state
         yield put(groupSetsFetchSucceededAction(groupSets));
     } catch (e) {
-        // Something went wrong, send an error
-        yield put(notifyError("Failed to fetch group sets"));
+        yield put(notifyError(e.message));
     }
 }
 
 export function* fetchGroups(action: GroupsFetchAction) {
     try {
-        // Fetch AssignmentSetDtoBriefs using the API
-        const groups: GroupDtoFull[] =
-            yield call(authenticatedFetchJSON, "GET", "groupSets/" + action.groupSetId + "/groups");
+        const groups: GroupDtoFull[] = yield call(
+            authenticatedFetchJSON,
+            "GET",
+            "groupSets/" + action.groupSetId + "/groups",
+        );
 
-        // If successful, update the state
         yield put(groupsFetchSucceededAction(groups));
     } catch (e) {
-        // Something went wrong, send an error
-        yield put(notifyError("Failed to fetch groups"));
+        yield put(notifyError(e.message));
     }
 }
 

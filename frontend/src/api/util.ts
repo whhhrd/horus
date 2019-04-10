@@ -15,7 +15,11 @@ export type FetchFunction = (
 /**
  * Fetch JSON from a URL
  */
-export async function fetchJSON(url: string, options: RequestOptions, isJSON: boolean = true) {
+export async function fetchJSON(
+    url: string,
+    options: RequestOptions,
+    isJSON: boolean = true,
+) {
     let newOptions = {};
     if (options) {
         const headers = { ...options.headers };
@@ -25,16 +29,28 @@ export async function fetchJSON(url: string, options: RequestOptions, isJSON: bo
         }
         newOptions = {
             method: options.method,
-            body: options.body != null ? (isJSON ? JSON.stringify(options.body) : options.body) : null,
+            body:
+                options.body != null
+                    ? isJSON
+                        ? JSON.stringify(options.body)
+                        : options.body
+                    : null,
             headers,
         };
     }
     const response = await fetch(url, newOptions);
     const content = await response.text();
+    const contentJson = content.length > 0 ? JSON.parse(content) : null;
+
     if (!response.ok) {
-        throw new APIError("Error while fetching from backend", response.status);
+        throw new APIError(
+            contentJson != null
+                ? contentJson.message
+                : "An unknown error occured.",
+            response.status,
+        );
     }
-    return content.length > 0 ? JSON.parse(content) : null;
+    return contentJson;
 }
 
 /**
