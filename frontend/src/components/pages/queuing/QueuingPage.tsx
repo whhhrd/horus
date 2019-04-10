@@ -75,6 +75,7 @@ import {
     faSadCry,
     faBullhorn,
     faExclamationTriangle,
+    faBell,
 } from "@fortawesome/free-solid-svg-icons";
 import QueueCreateModal from "./QueueCreateModal";
 import AnnouncementCreateModal from "./AnnouncementCreateModal";
@@ -201,9 +202,7 @@ class QueuingPage extends Component<
         const room = this.props.room(roomCode);
         if (room != null) {
             return buildContent(
-                `Room: ${room!.name} (${
-                    room!.code
-                })`,
+                `Room: ${room!.name} (${room!.code})`,
                 this.buildContent(),
             );
         } else if (this.state.connectionState === ConnectionState.Closed) {
@@ -465,50 +464,64 @@ class QueuingPage extends Component<
         ) {
             return (
                 <div>
-                    {"Notification" in window &&
-                        Notification.permission !== "granted" && (
-                            <Alert color="danger">
-                                <FontAwesomeIcon
-                                    icon={faExclamationTriangle}
-                                    size="lg"
-                                    className="mr-3"
-                                />
-                                We highly recommend{" "}
-                                <a
-                                    className="border-bottom cursor-pointer border-dark text-dark"
-                                    onClick={() => {
-                                        Notification.requestPermission().then(
-                                            (p) => {
-                                                if (p === "granted") {
-                                                    window.location.reload();
-                                                }
-                                            },
-                                        );
-                                    }}
-                                >
-                                    allowing browser notifications
-                                </a>{" "}
-                                in order to effectively make use of the queuing
-                                system.
-                                <small className="ml-2">
-                                    <abbr
-                                        title="You can manually set the notification
-                                permissions by clicking the lock icon next to the URL. Make sure to refresh
-                                the page after you have made changes to the permissions."
-                                    >
-                                        More help
-                                    </abbr>
-                                </small>
-                            </Alert>
-                        )}
+                    {this.buildNotificationWarning()}
                     {this.buildTaTools()}
                     {this.buildAnnouncements()}
                     {this.buildQueues()}
                     {this.buildPopup()}
+                    {this.buildNotificationWarning()}
                 </div>
             );
         } else {
             return buildBigCenterMessage("Unknown error occurred", faTimes);
+        }
+    }
+
+    private buildNotificationWarning() {
+        if ("Notification" in window && Notification.permission !== "granted") {
+            return (
+                <Alert
+                    color="danger"
+                    style={{ fontSize: "16pt" }}
+                    className="d-flex flex-row flex-nowrap align-items-center"
+                >
+                    <div className="mr-5 ml-3 flex-nowrap d-flex flex-shrink-0">
+                        <FontAwesomeIcon
+                            icon={faExclamationTriangle}
+                            size="2x"
+                            className="mr-5"
+                        />
+                        <Button
+                            color="danger"
+                            onClick={() => {
+                                Notification.requestPermission().then((p) => {
+                                    if (p === "granted") {
+                                        window.location.reload();
+                                    }
+                                });
+                            }}
+                        >
+                            <FontAwesomeIcon icon={faBell} className="mr-2" />{" "}
+                            Enable browser notifications
+                        </Button>{" "}
+                    </div>
+                    <div className="text-center">
+                        We highly recommend allowing browser notifications in
+                        order to effectively make use of the queuing system.
+                        <small className="ml-2">
+                            <abbr
+                                title="You can manually set the notification
+                    permissions by clicking the lock icon next to the URL. Make sure to refresh
+                    the page after you have made changes to the permissions."
+                            >
+                                More help
+                            </abbr>
+                        </small>
+                    </div>
+                </Alert>
+            );
+        } else {
+            return null;
         }
     }
 
