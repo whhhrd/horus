@@ -74,7 +74,7 @@ class GroupManager extends Component<
 
     render() {
         return buildContent(
-            "Group Sets Manager",
+            "Group Manager",
             this.buildContent(),
             this.buildSidebar(),
         );

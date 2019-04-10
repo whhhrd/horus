@@ -3,7 +3,7 @@ import { withRouter, RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { Input, Button, FormGroup, Col, Label } from "reactstrap";
 import { Field, Formik } from "formik";
-import { buildBigCenterMessage } from "../../pagebuilder";
+import { buildBigCenterMessage, setPageTitle } from "../../pagebuilder";
 import { faSadCry } from "@fortawesome/free-solid-svg-icons";
 
 interface PromptValues {
@@ -15,6 +15,10 @@ class ProjectorRoomPromptPage extends Component<RouteComponentProps<any>> {
         super(props);
         this.isValidRoomCode = this.isValidRoomCode.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+    }
+
+    componentDidMount() {
+        setPageTitle("Enter room code");
     }
 
     isValidRoomCode(values: PromptValues) {

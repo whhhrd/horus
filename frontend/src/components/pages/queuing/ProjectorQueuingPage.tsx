@@ -27,6 +27,7 @@ import { ApplicationState } from "../../../state/state";
 import {
     buildConnectingSpinner,
     buildBigCenterMessage,
+    setPageTitle,
 } from "../../pagebuilder";
 import { Alert, Row } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -74,7 +75,9 @@ class ProjectorQueuingPage extends Component<
     }
 
     render() {
-        if (this.props.room != null) {
+        const room = this.props.room;
+        if (room != null) {
+            setPageTitle("Room: " + room.name + `(${room.code})`);
             return (
                 <div style={{ height: "100vh" }}>
                     <div className="d-none d-lg-flex">
@@ -89,7 +92,7 @@ class ProjectorQueuingPage extends Component<
                                     {/* The content header box displaying the 'headerTitle' argument */}
                                     <div className="ContentHeader px-3 pt-3 w-100">
                                         <h2>
-                                            {"Room: " + this.props.room.name}
+                                            {"Room: " + room.name}
                                         </h2>
                                         <hr className="mb-0" />
                                     </div>

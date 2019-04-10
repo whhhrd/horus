@@ -5,7 +5,7 @@ import {
     tokenSubmitAction,
     checkTokenAndRedirectImportAction,
 } from "../../../state/canvas-settings/actions";
-import { buildContent } from "../../pagebuilder";
+import { buildContent, setPageTitle } from "../../pagebuilder";
 import {
     Form,
     Spinner,
@@ -50,6 +50,7 @@ class CanvasTokenForm extends Component<
 
     componentWillMount() {
         this.props.checkTokenAndRedirect();
+        setPageTitle("Canvas Token Import");
     }
 
     render() {

@@ -5,7 +5,7 @@ import { ApplicationState } from "../../../state/state";
 import { getCanvasCourses, isImporting } from "../../../state/canvas-settings/selectors";
 import { CanvasCourseDto } from "../../../api/types";
 import { Formik, Field } from "formik";
-import { buildContent } from "../../pagebuilder";
+import { buildContent, setPageTitle } from "../../pagebuilder";
 import { Row, Col, Form, FormGroup, Button, Alert } from "reactstrap";
 
 interface CanvasCourseImportProps {
@@ -28,6 +28,7 @@ interface CanvasCourseValue {
 class CanvasCourseImport extends Component<CanvasCourseImportProps> {
     componentDidMount() {
         this.props.checkToken();
+        setPageTitle("Canvas Course Import");
     }
     render() {
         return buildContent("Canvas Course Import", this.buildContent());

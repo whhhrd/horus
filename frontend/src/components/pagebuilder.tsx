@@ -23,6 +23,7 @@ export const buildContent = (
     phoneBodyPaddingY: boolean = true,
     phoneBodyPaddingX: boolean = true,
 ): JSX.Element => {
+    setPageTitle(headerTitle);
     return (
         <div>
             <DesktopComponent
@@ -134,4 +135,8 @@ export const notificationDirectToTasks = () => {
             </span>
         );
     }
+};
+
+export const setPageTitle = (titleSuffix: string) => {
+    document.title = "Horus - " + titleSuffix;
 };
