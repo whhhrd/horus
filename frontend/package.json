@@ -7,7 +7,7 @@
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
     "build": "cp sw.js dist/sw.js && webpack --progress --colors --mode=production",
-    "dev": "cp sw.js dist/sw.js && webpack-dev-server --config webpack.config.js --progress --colors --open --mode=development --host 0.0.0.0"
+    "dev": "cp sw.js dist/sw.js && webpack-dev-server --config webpack.config.js --progress --colors --open --mode=development --host localhost"
   },
   "author": "Harindu Perera <harinduenator@gmail.com>",
   "license": "UNLICENSED",

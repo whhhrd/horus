@@ -81,7 +81,7 @@ export interface AppProps {
 class App extends React.Component<AppProps & RouteComponentProps> {
     static HOME_PATH = PATH_COURSES;
 
-    componentDidMount() {
+    componentWillMount() {
         let pathname = this.props.pathname;
         const {
             setLoginRedirect,
@@ -170,6 +170,37 @@ class App extends React.Component<AppProps & RouteComponentProps> {
 
     /** Returns the Switch component. Was extracted from the render method for readability. */
     switch() {
+        const {
+            pathname,
+            loggedIn,
+        } = this.props;
+        if (pathname.startsWith(PATH_BEAMER_PROMPT)) {
+            return (
+                <Switch>
+                    <RouteExtension
+                        exact
+                        path={PATH_BEAMER_MODE}
+                        component={ProjectorQueuingPage}
+                        setActiveTab={ActiveTabEnum.NONE}
+                    />
+
+                    <RouteExtension
+                        exact
+                        path={PATH_BEAMER_PROMPT}
+                        component={ProjectorRoomPromptPage}
+                        setActiveTab={ActiveTabEnum.NONE}
+                    />
+
+                    <RouteExtension
+                        path="*"
+                        component={NotFound}
+                        setActiveTab={ActiveTabEnum.NONE}
+                    />
+                </Switch>
+            );
+        } else if (!loggedIn) {
+            return null;
+        }
         return (
             <Switch>
                 <RouteExtension
@@ -295,20 +326,6 @@ class App extends React.Component<AppProps & RouteComponentProps> {
                     path={PATH_ROOMS}
                     component={Rooms}
                     setActiveTab={ActiveTabEnum.ROOMS}
-                />
-
-                <RouteExtension
-                    exact
-                    path={PATH_BEAMER_MODE}
-                    component={ProjectorQueuingPage}
-                    setActiveTab={ActiveTabEnum.NONE}
-                />
-
-                <RouteExtension
-                    exact
-                    path={PATH_BEAMER_PROMPT}
-                    component={ProjectorRoomPromptPage}
-                    setActiveTab={ActiveTabEnum.NONE}
                 />
 
                 {/* Must be the last element in the switch! */}

@@ -35,7 +35,6 @@ import {
 import { getAssignmentSet } from "../../../state/assignments/selectors";
 import CoursePermissions from "../../../api/permissions";
 import { getCoursePermissions } from "../../../state/auth/selectors";
-import { signoffAssignmentsView } from "../../../state/auth/constants";
 import GroupTableCell from "./GroupTableCell";
 import ParticipantTableCell from "./ParticipantTableCell";
 import AssignmentTableCell from "./AssignmentTableCell";
@@ -178,17 +177,12 @@ class SignOffOverview extends Component<
         }
     }
 
-    private buildContent(): JSX.Element | null | undefined {
-        const cid = Number(this.props.match.params.cid);
+    private buildContent(): JSX.Element | null {
         const assignmentSetId = Number(this.props.match.params.asid);
         const assignmentSet = this.props.assignmentSet(assignmentSetId)!;
-        const permissions = this.props.coursePermissions!;
-        const canViewSignoffs = signoffAssignmentsView.check(cid, permissions);
         const milestoneData = this.state.milestoneData;
 
-        if (!canViewSignoffs) {
-            return undefined;
-        } else if (assignmentSet == null || milestoneData == null) {
+        if (assignmentSet == null || milestoneData == null) {
             return null;
         }
 
