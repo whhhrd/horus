@@ -81,7 +81,7 @@ export interface AppProps {
 class App extends React.Component<AppProps & RouteComponentProps> {
     static HOME_PATH = PATH_COURSES;
 
-    componentWillMount() {
+    componentDidMount() {
         let pathname = this.props.pathname;
         const {
             setLoginRedirect,
