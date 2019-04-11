@@ -469,7 +469,6 @@ class QueuingPage extends Component<
                     {this.buildAnnouncements()}
                     {this.buildQueues()}
                     {this.buildPopup()}
-                    {this.buildNotificationWarning()}
                 </div>
             );
         } else {
@@ -479,46 +478,98 @@ class QueuingPage extends Component<
 
     private buildNotificationWarning() {
         if ("Notification" in window && Notification.permission !== "granted") {
-            return (
-                <Alert
-                    color="danger"
-                    style={{ fontSize: "16pt" }}
-                    className="d-flex flex-row flex-nowrap align-items-center"
+            const abbr = (
+                <abbr
+                    title="You can manually set the notification
+                        permissions by clicking the lock icon next to the URL. Make sure to refresh
+                        the page after you have made changes to the permissions."
                 >
-                    <div className="mr-5 ml-3 flex-nowrap d-flex flex-shrink-0">
-                        <FontAwesomeIcon
-                            icon={faExclamationTriangle}
-                            size="2x"
-                            className="mr-5"
-                        />
-                        <Button
-                            color="danger"
-                            onClick={() => {
-                                Notification.requestPermission().then((p) => {
-                                    if (p === "granted") {
-                                        window.location.reload();
-                                    }
-                                });
-                            }}
-                        >
-                            <FontAwesomeIcon icon={faBell} className="mr-2" />{" "}
-                            Enable browser notifications
-                        </Button>{" "}
-                    </div>
-                    <div className="text-center">
-                        We highly recommend allowing browser notifications in
-                        order to effectively make use of the queuing system.
-                        <small className="ml-2">
-                            <abbr
-                                title="You can manually set the notification
-                    permissions by clicking the lock icon next to the URL. Make sure to refresh
-                    the page after you have made changes to the permissions."
+                    More help
+                </abbr>
+            );
+
+            const alertText =
+                "We highly recommend allowing browser notifications in " +
+                "order to effectively make use of the queuing system.";
+
+            return (
+                <Fragment>
+                    {/* For desktop: */}
+                    <Alert
+                        color="danger"
+                        style={{ fontSize: "16pt" }}
+                        className="d-none d-lg-flex flex-row flex-nowrap align-items-center"
+                    >
+                        <div className="mr-5 ml-3 flex-nowrap d-flex flex-shrink-0">
+                            <FontAwesomeIcon
+                                icon={faExclamationTriangle}
+                                size="2x"
+                                className="mr-5"
+                            />
+                            <Button
+                                color="danger"
+                                onClick={() => {
+                                    Notification.requestPermission().then(
+                                        (p) => {
+                                            if (p === "granted") {
+                                                window.location.reload();
+                                            }
+                                        },
+                                    );
+                                }}
                             >
-                                More help
-                            </abbr>
-                        </small>
-                    </div>
-                </Alert>
+                                <FontAwesomeIcon
+                                    icon={faBell}
+                                    className="mr-2"
+                                />{" "}
+                                Enable browser notifications
+                            </Button>{" "}
+                        </div>
+                        <div className="text-center">
+                            {alertText}
+                            <small className="ml-2">{abbr}</small>
+                        </div>
+                    </Alert>
+
+                    {/* For phone: */}
+                    <Alert
+                        color="danger"
+                        style={{ fontSize: "14pt" }}
+                        className="d-flex flex-column d-lg-none flex-nowrap align-items-center"
+                    >
+                        <div className="mb-4 mt-2">
+                            <FontAwesomeIcon
+                                icon={faExclamationTriangle}
+                                size="3x"
+                            />
+                        </div>
+                        <div className="text-center mb-3">
+                            {alertText}
+                        </div>
+                        <div className="w-100 mb-2">
+                            <Button
+                                color="danger"
+                                block
+                                size="lg"
+                                onClick={() => {
+                                    Notification.requestPermission().then(
+                                        (p) => {
+                                            if (p === "granted") {
+                                                window.location.reload();
+                                            }
+                                        },
+                                    );
+                                }}
+                            >
+                                <FontAwesomeIcon
+                                    icon={faBell}
+                                    className="mr-2"
+                                />{" "}
+                                Enable browser notifications
+                            </Button>{" "}
+                        </div>
+                    </Alert>
+                </Fragment>
             );
         } else {
             return null;
