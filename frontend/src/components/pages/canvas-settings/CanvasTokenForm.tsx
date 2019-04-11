@@ -1,11 +1,7 @@
 import React, { Component } from "react";
-import { Formik, Field } from "formik";
+import { Action } from "redux";
 import { connect } from "react-redux";
-import {
-    tokenSubmitAction,
-    checkTokenAndRedirectImportAction,
-} from "../../../state/canvas-settings/actions";
-import { buildContent, setPageTitle } from "../../pagebuilder";
+
 import {
     Form,
     Spinner,
@@ -17,16 +13,18 @@ import {
     Col,
 } from "reactstrap";
 
-interface CanvasTokenFormProps {
-    submitToken: (
-        token: string,
-    ) => {
-        type: string;
-    };
+import {
+    tokenSubmitAction,
+    checkTokenAndRedirectImportAction,
+    TokenSubmittedAction,
+} from "../../../state/canvas-settings/actions";
 
-    checkTokenAndRedirect: () => {
-        type: string;
-    };
+import { buildContent, setPageTitle } from "../../pagebuilder";
+import { Formik, Field } from "formik";
+
+interface CanvasTokenFormProps {
+    submitToken: (token: string) => TokenSubmittedAction;
+    checkTokenAndRedirect: () => Action;
 }
 
 interface CanvasTokenFormState {
@@ -37,6 +35,11 @@ interface CanvasTokenValues {
     token: string;
 }
 
+/**
+ * A simple page where a user can submit their Canvas token.
+ * When the submitted token is valid, the page will redirect
+ * the user to CanvasCourseImport.
+ */
 class CanvasTokenForm extends Component<
     CanvasTokenFormProps,
     CanvasTokenFormState

@@ -1,30 +1,7 @@
 import React, { Component, Fragment } from "react";
-import {
-    CourseDtoFull,
-    AssignmentSetDtoFull,
-    AssignmentDtoBrief,
-    StudentDashboardDto,
-    SignOffResultDtoStudent,
-    GroupDtoFull,
-    ParticipantDtoBrief,
-    AssignmentSetDtoBrief,
-    RoomDto,
-} from "../../../api/types";
+import { RouteComponentProps, withRouter } from "react-router";
 import { connect } from "react-redux";
-import { getStudentDashboardData } from "../../../state/student-dashboard/selectors";
-import { ApplicationState } from "../../../state/state";
-import {
-    studentDashboardDataRequestedAction,
-    StudentDashboardDataRequestedAction,
-} from "../../../state/student-dashboard/actions";
-import {
-    faTimes,
-    faCheck,
-    faUsers,
-    faStoreAlt,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { buildContent } from "../../pagebuilder";
+
 import {
     UncontrolledTooltip,
     ListGroup,
@@ -38,14 +15,40 @@ import {
     CardBody,
     Card,
 } from "reactstrap";
-import { getDisplayedDate } from "../../util";
-import { AutoSizer } from "react-virtualized";
+
+import {
+    CourseDtoFull,
+    AssignmentSetDtoFull,
+    AssignmentDtoBrief,
+    StudentDashboardDto,
+    SignOffResultDtoStudent,
+    GroupDtoFull,
+    ParticipantDtoBrief,
+    AssignmentSetDtoBrief,
+    RoomDto,
+} from "../../../api/types";
+import { getStudentDashboardData } from "../../../state/student-dashboard/selectors";
+import { ApplicationState } from "../../../state/state";
+import {
+    studentDashboardDataRequestedAction,
+    StudentDashboardDataRequestedAction,
+} from "../../../state/student-dashboard/actions";
 import {
     RoomsFetchRequestedAction,
     roomsFetchRequestedAction,
 } from "../../../state/rooms/action";
 import { getRooms } from "../../../state/rooms/selectors";
-import { RouteComponentProps, withRouter } from "react-router";
+
+import { buildContent } from "../../pagebuilder";
+import { getDisplayedDate } from "../../util";
+import { AutoSizer } from "react-virtualized";
+import {
+    faTimes,
+    faCheck,
+    faUsers,
+    faStoreAlt,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface CourseStudentDashboardProps {
     course: CourseDtoFull;
@@ -55,10 +58,23 @@ interface CourseStudentDashboardProps {
     requestDashboardData: (cid: number) => StudentDashboardDataRequestedAction;
     fetchRooms: (courseId: number) => RoomsFetchRequestedAction;
 }
+
+/**
+ * An overview page for the students. Contains information
+ * and details about the groups they are in and recent
+ * sign-off history as well as the full sign-off details
+ * on each assignment set. Furthermore, when any room is open
+ * within the course, it will be displayed in this overview page
+ * as well.
+ */
 export class CourseStudentDashboard extends Component<
     CourseStudentDashboardProps & RouteComponentProps<any>
 > {
+    // Maps the assignment set ID to the first table cell that contains
+    // either an insufficient sign-off result or no sign-off result at
+    // all.
     scrollToAssignment: Map<number, HTMLTableDataCellElement>;
+
     constructor(props: CourseStudentDashboardProps & RouteComponentProps<any>) {
         super(props);
         this.scrollToAssignment = new Map<number, HTMLTableDataCellElement>();
@@ -113,6 +129,11 @@ export class CourseStudentDashboard extends Component<
         }
     }
 
+    /**
+     * Builds a list of open rooms within the course as
+     * well as a button to quickly join those rooms.
+     * @param rooms The open rooms within the course.
+     */
     private buildOpenRooms(rooms: RoomDto[] | null) {
         if (rooms != null && rooms.length > 0) {
             return (
@@ -168,6 +189,11 @@ export class CourseStudentDashboard extends Component<
         }
     }
 
+    /**
+     * Shows tables for each assignment set that holds the progress
+     * of the student for said assignments.
+     * @param assignmentSets The assignment sets within the course.
+     */
     private buildResultsTable(assignmentSets: AssignmentSetDtoFull[]) {
         if (assignmentSets.length > 0) {
             return assignmentSets.map((assignmentSet: AssignmentSetDtoFull) => (
@@ -241,6 +267,12 @@ export class CourseStudentDashboard extends Component<
         }
     }
 
+    /**
+     * Builds a table cell for the specific sign-off result
+     * of the assignment linked to the student.
+     * @param assignment The assignment bound to the result.
+     * @param asid The assignment set ID of the assignment.
+     */
     private buildTableCell(
         assignment: AssignmentDtoBrief,
         asid: number,
@@ -249,6 +281,8 @@ export class CourseStudentDashboard extends Component<
             (signOff: SignOffResultDtoStudent) =>
                 signOff.assignmentId === assignment.id,
         );
+
+        // Display an empty cell and set the ref
         if (result == null) {
             return (
                 <td
@@ -259,6 +293,7 @@ export class CourseStudentDashboard extends Component<
                 />
             );
         }
+
         return (
             <td
                 key={`res${result.assignmentId}+${result.participantId}+${
@@ -292,6 +327,12 @@ export class CourseStudentDashboard extends Component<
         );
     }
 
+    /**
+     * Builds a list of groups and the group details.
+     * The group list items can be opened and collapsed
+     * to view more details.
+     * @param groups The groups attached to the student.
+     */
     private buildGroupsList(groups: GroupDtoFull[]) {
         if (groups.length > 0) {
             return groups.map((group: GroupDtoFull) => (
@@ -355,6 +396,11 @@ export class CourseStudentDashboard extends Component<
         }
     }
 
+    /**
+     * Builds a couple of the most recent sign-off events. The sign-off
+     * events display who has signed off what and at what date/time.
+     * @param results The results from which the events are derived.
+     */
     private buildRecentEvents(results: SignOffResultDtoStudent[]) {
         if (results.length > 0) {
             return (
