@@ -26,8 +26,10 @@ export const buildContent = (
 ): JSX.Element => {
     // If undefined is specifically given, return 404 page
     if (content === undefined) {
+        setPageTitle("404");
         return <NotFound />;
     } else {
+        setPageTitle(headerTitle);
         return (
             <div>
                 <DesktopComponent
