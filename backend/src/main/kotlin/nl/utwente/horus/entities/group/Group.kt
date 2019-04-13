@@ -36,7 +36,7 @@ data class Group (
 ) {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "id.group", cascade = [CascadeType.ALL], orphanRemoval = true)
-    private val members: MutableSet<GroupMember> = HashSet()
+    val members: MutableSet<GroupMember> = HashSet()
 
     val participants
         get() = this.members.map { member -> member.participant }

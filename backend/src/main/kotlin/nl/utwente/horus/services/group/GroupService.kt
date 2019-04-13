@@ -128,8 +128,8 @@ class GroupService {
                 throw DuplicateAssignmentLinkException(p, it.assignmentSet)
             }
         }
-        val member = GroupMember(group, p)
-        groupMemberRepository.save(member)
+        val member = groupMemberRepository.save(GroupMember(group, p))
+        group.members.add(member)
     }
 
     fun addGroup(groupSet: GroupSet, externalId: String?, name: String, author: Participant): Group {
@@ -179,7 +179,7 @@ class GroupService {
         return gs
     }
 
-    fun deleteGroupSetById(id: String) {
+    fun deleteGroupSetByExternalId(id: String) {
         deleteGroupSet(getGroupSetByExternalId(id) ?: throw GroupSetNotFoundException())
     }
 

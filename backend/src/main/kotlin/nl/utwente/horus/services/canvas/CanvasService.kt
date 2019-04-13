@@ -205,7 +205,7 @@ class CanvasService {
         val categories = reader.getCourseGroupCategories(course.externalId ?: throw SyncUnauthorizedException())
 
         val deletedIds = course.groupSets.filter { it.externalId != null }.map { it.externalId!!} - categories.map { it.groupCategoryId.toString() }
-        deletedIds.forEach { groupService.deleteGroupSetById(it) }
+        deletedIds.forEach { groupService.deleteGroupSetByExternalId(it) }
 
         categories.forEach { cat ->
             convertSaveCategory(course, cat, author)

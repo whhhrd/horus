@@ -74,6 +74,7 @@ abstract class HorusAbstractTest {
 
         const val SS_ASSIGNMENT_SET_ID: Long = 5
         val CC_ASSIGNMENT_IDS = (1L..35L)
+        val PP_SIGN_OFF_RESULT_IDS = (100L..1000L)
 
         const val SS_ASSIGNMENT_ID_WITHOUT_COMMENT_THREAD: Long = 120
 

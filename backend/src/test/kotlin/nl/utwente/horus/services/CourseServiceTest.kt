@@ -5,8 +5,10 @@ import nl.utwente.horus.WithLoginId
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.exceptions.CourseNotFoundException
 import nl.utwente.horus.exceptions.ParticipantNotFoundException
+import nl.utwente.horus.representations.assignment.AssignmentSetCreateDto
 import nl.utwente.horus.representations.course.CourseCreateDto
 import nl.utwente.horus.representations.course.CourseUpdateDto
+import nl.utwente.horus.services.assignment.AssignmentService
 import nl.utwente.horus.services.auth.RoleService
 import nl.utwente.horus.services.course.CourseService
 import nl.utwente.horus.services.participant.ParticipantService
@@ -24,6 +26,7 @@ class CourseServiceTest : HorusAbstractTest() {
     val ppCourseCode = "84736"
     val ppGroupSetId = 1L
     val fakeCourseId = 8138123912L
+    val ppGroup1MemberName = "Hellwing"
 
     @Autowired
     lateinit var courseService: CourseService
@@ -39,6 +42,9 @@ class CourseServiceTest : HorusAbstractTest() {
 
     @Autowired
     private lateinit var roleService: RoleService
+
+    @Autowired
+    lateinit var assignmentService: AssignmentService
 
     @Test
     @WithLoginId(PP_TEACHER_LOGIN)
@@ -262,7 +268,11 @@ class CourseServiceTest : HorusAbstractTest() {
     @Test
     @WithLoginId(PP_TEACHER_LOGIN)
     fun testCreateAssignmentSetInCourse() {
-        // TODO
+        val expectedAssignmentSet = courseService.createAssignmentSetInCourse(
+                getCurrentPerson(), PP_MOCK_COURSE_ID, AssignmentSetCreateDto("NewSet"))
+        assertEquals("NewSet", expectedAssignmentSet.name)
+        val actualAssignmentSet = assignmentService.getAssignmentSetById(expectedAssignmentSet.id)
+        assertEquals(expectedAssignmentSet, actualAssignmentSet)
     }
 
     @Test
@@ -406,13 +416,19 @@ class CourseServiceTest : HorusAbstractTest() {
     @Test
     @WithLoginId(PP_TEACHER_LOGIN)
     fun testGetSignOffGroupSearchResults() {
-        // TODO
+        // Actually a function of CourseService
+        val searchResult = courseService.getSignOffGroupSearchResults(PP_MOCK_COURSE_ID, ppGroup1MemberName)
+        var found = false
+        for (group in searchResult.groups) {
+            for (memberName in group.memberNames) {
+                if (memberName.toLowerCase().contains(ppGroup1MemberName.toLowerCase())) {
+                    found = true
+                }
+            }
+        }
+        assertTrue(found)
     }
 
-    @Test
-    @WithLoginId(PP_TEACHER_LOGIN)
-    fun testGetSignOffResultsFilteredInCourse() {
-        // TODO
-    }
+    // Note: the function getSignOffResultsFilteredInCourse is tested in SignOffServiceTest instead.
 
 }

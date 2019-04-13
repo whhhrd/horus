@@ -91,7 +91,7 @@ class SignOffService {
             throw DifferentAssignmentSetException()
         }
         // Verify that all participants belong to the same course as the set
-        val participantIds = dto.create.map { it.participantId } + deletionSignOffs.map { it.participant.id }
+        val participantIds = (dto.create.map { it.participantId } + deletionSignOffs.map { it.participant.id }).toSet()
         val participants = participantService.getParticipantsById(participantIds)
         if (participants.any { it.course.id != course.id }) {
             throw CourseMismatchException()
