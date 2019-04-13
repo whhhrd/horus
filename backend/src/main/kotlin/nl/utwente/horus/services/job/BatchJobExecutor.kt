@@ -37,7 +37,7 @@ class BatchJobExecutor {
         return getBatchJobByIdOrNull(id) ?: throw JobNotFoundException()
     }
 
-    fun getBachJobsByIssuer(personId: Long): List<BatchJob> {
+    fun getBatchJobsByIssuer(personId: Long): List<BatchJob> {
         return runningJobs.values.filter { it.issuer.id == personId }
     }
 

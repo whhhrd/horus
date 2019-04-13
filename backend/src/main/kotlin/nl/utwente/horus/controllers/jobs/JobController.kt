@@ -23,7 +23,7 @@ class JobController: BaseController() {
     @GetMapping(path = ["/self"])
     fun getOwnJobsInfo(): List<BatchJobDto> {
         val personId = userDetailService.getCurrentPerson().id
-        return batchJobExecutor.getBachJobsByIssuer(personId).map { BatchJobDto(it) }
+        return batchJobExecutor.getBatchJobsByIssuer(personId).map { BatchJobDto(it) }
     }
 
     @GetMapping(path = ["/{jobId}"])
