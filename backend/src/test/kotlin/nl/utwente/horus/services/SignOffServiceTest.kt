@@ -327,7 +327,7 @@ class SignOffServiceTest : HorusAbstractTest() {
                 && it.assignment.name == "2a" }.size)
         assertEquals(0, newSignOffResults.filter { it.participant == participant
                 && it.assignment.name == "1a" }.size)
-        assertEquals(signOffResults.filter { it.assignment.name == "1b" }[0],
+        assertEquals(signOffResults.filter { it.participant == participant && it.assignment.name == "1b" }[0],
                 newSignOffResults.filter { it.participant == participant && it.assignment.name == "1b" }[0])
     }
 
