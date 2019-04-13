@@ -46,13 +46,13 @@ class RoleServiceTest : HorusAbstractTest() {
     fun testAssignUnassignRole() {
         // Check that previously permissions weren't added
         val role = createFreshSupplementaryRole()
-        val receiver = getStudentParticipant()
+        val receiver = getPPStudentParticipant()
         val oldAuthorities = receiver.person.getAuthorities().filter { PP_MOCK_COURSE_ID in it.courseIds }
         ADDED_PERMISSIONS.forEach { permission -> assertFalse(permission in oldAuthorities.map { it.permission }) }
         assertFalse(supplementaryRoleService.isSupplementaryRoleAssigned(receiver, role))
 
         // Now assign supplementary role
-        val assigner = getTeacherParticipant()
+        val assigner = getPPTeacherParticipant()
         supplementaryRoleService.assignSupplementaryRole(role, receiver, assigner)
 
         // Check that new permissions are now available

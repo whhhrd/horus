@@ -63,6 +63,8 @@ abstract class HorusAbstractTest {
         const val SS_MOCK_COURSE_ID: Long = 2
 
         val PP_PARTICIPANT_IDS = (11L..500L)
+        val PP_STAFF_PARTICIPANT_IDS = (1L..5L)
+        val PP_STAFF_PERSON_IDS = (491L..495L)
         val SS_PARTICIPANT_IDS = (501L..821L)
         const val SS_PARTICIPANT_ID_WITH_COMMENT_THREAD = 789L
         const val SS_PARTICIPANT_ID_WITHOUT_COMMENT_THREAD = 790L
@@ -90,11 +92,11 @@ abstract class HorusAbstractTest {
         return userDetailService.getCurrentPerson()
     }
 
-    fun getTeacherParticipant(): Participant {
+    fun getPPTeacherParticipant(): Participant {
         return participantService.getParticipantById(PP_TEACHER_PARTICIPANT_ID)
     }
 
-    fun getStudentParticipant(): Participant {
+    fun getPPStudentParticipant(): Participant {
         return participantService.getParticipantById(PP_STUDENT_PARTICIPANT_ID)
     }
 

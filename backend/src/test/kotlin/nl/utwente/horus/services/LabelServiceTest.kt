@@ -60,7 +60,7 @@ class LabelServiceTest : HorusAbstractTest() {
     @WithLoginId(PP_TEACHER_LOGIN)
     fun testLabelDelete() {
         val label = getFreshLabel()
-        val participant = getStudentParticipant()
+        val participant = getPPStudentParticipant()
         val oldCount = participant.labels.size
 
         participantService.addLabel(participant, label)

@@ -57,7 +57,7 @@ class SignOffServiceTest : HorusAbstractTest() {
     }
 
     private fun createAssignmentSet(): AssignmentSet {
-        val set = assignmentService.createAssignmentSet(getTeacherParticipant(), getPPCourse(), AssignmentSetCreateDto("set"))
+        val set = assignmentService.createAssignmentSet(getPPTeacherParticipant(), getPPCourse(), AssignmentSetCreateDto("set"))
         assignmentService.updateAssignmentSet(getCurrentPerson(), set.id, AssignmentSetUpdateDto("set", listOf(PP_GROUPSET_ID),
                 listOf(
                         AssignmentCreateUpdateDto(null, "1.1", true),
