@@ -9,6 +9,7 @@ import {
 import { Action } from "redux";
 import { GroupSetDtoSummary, GroupDtoFull } from "../../api/types";
 
+// GROUP SETS FETCH
 export interface GroupSetsFetchAction extends Action<string> {
     readonly courseId: number;
 }
@@ -23,6 +24,7 @@ export const groupSetsFetchRequestedAction = (courseId: number) =>
 export const groupSetsFetchSucceededAction = (groupSets: GroupSetDtoSummary[]) =>
     ({ type: GROUP_SETS_FETCH_SUCCEEDED_ACTION, groupSets });
 
+// GROUPS FETCH
 export interface GroupsFetchAction extends Action<string> {
     readonly groupSetId: number;
 }

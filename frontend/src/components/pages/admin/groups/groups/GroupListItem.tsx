@@ -4,20 +4,14 @@ import { Card, CardTitle, CardBody, Col, Badge, Button } from "reactstrap";
 
 interface GroupListItemProps {
     group: GroupDtoFull;
-    onShowClick: (gid: number) => any;
     showButton: boolean;
+    onShowClick: (gid: number) => any;
 }
 
+/**
+ * Represents a list item, tailored for displaying main group details.
+ */
 export default class GroupListItem extends PureComponent<GroupListItemProps> {
-    constructor(props: GroupListItemProps) {
-        super(props);
-        this.onShowClick = this.onShowClick.bind(this);
-    }
-
-    onShowClick(gid: number) {
-        this.props.onShowClick(gid);
-    }
-
     render() {
         const { name, participants } = this.props.group;
 
@@ -47,7 +41,7 @@ export default class GroupListItem extends PureComponent<GroupListItemProps> {
                                         color="primary"
                                         size="sm"
                                         onClick={() =>
-                                            this.onShowClick(
+                                            this.props.onShowClick(
                                                 this.props.group.id,
                                             )
                                         }

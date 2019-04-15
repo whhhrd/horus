@@ -5,7 +5,10 @@ import { connect } from "react-redux";
 import { Row, Col, Button } from "reactstrap";
 
 import { getGroupSets } from "../../../../../state/groups/selectors";
-import { groupSetsFetchRequestedAction } from "../../../../../state/groups/actions";
+import {
+    groupSetsFetchRequestedAction,
+    GroupSetsFetchAction,
+} from "../../../../../state/groups/actions";
 
 import { GroupSetDtoSummary, CourseDtoSummary } from "../../../../../api/types";
 import { ApplicationState } from "../../../../../state/state";
@@ -21,7 +24,10 @@ import {
     canvasRefreshSetsListRequestedAction,
     CanvasRefreshSetsListRequestedAction,
 } from "../../../../../state/canvas-settings/actions";
-import { courseRequestedAction } from "../../../../../state/courses/action";
+import {
+    courseRequestedAction,
+    CourseRequestedAction,
+} from "../../../../../state/courses/action";
 import { getCourse } from "../../../../../state/courses/selectors";
 import { buildContent } from "../../../../pagebuilder";
 import CoursePermissions from "../../../../../api/permissions";
@@ -36,29 +42,23 @@ import GroupSetImportModal from "./GroupSetImportModal";
 
 interface GroupSetManagerProps {
     groupSets: GroupSetDtoSummary[] | null;
-
+    coursePermissions: CoursePermissions | null;
     course: (id: number) => CourseDtoSummary | null;
 
-    fetchGroupSets: (
-        courseId: number,
-    ) => {
-        type: string;
-    };
-
-    fetchCourse: (
-        id: number,
-    ) => {
-        type: string;
-    };
-
+    fetchGroupSets: (courseId: number) => GroupSetsFetchAction;
+    fetchCourse: (id: number) => CourseRequestedAction;
     refreshSetsList: (courseId: number) => CanvasRefreshSetsListRequestedAction;
-    coursePermissions: CoursePermissions | null;
 }
 
 interface GroupSetManagerState {
     showGroupSetImportModal: boolean;
 }
 
+/**
+ * A page that shows the group sets within the course to
+ * permitted users. Clicking on a group set will redirect
+ * the user to the groups manager of the corresponding groupset
+ */
 class GroupSetManager extends Component<
     GroupSetManagerProps & RouteComponentProps<any>,
     GroupSetManagerState
@@ -94,19 +94,21 @@ class GroupSetManager extends Component<
     }
 
     buildContent() {
-        const permissions = this.props.coursePermissions!;
         const cid = Number(this.props.match.params.cid);
+        const { groupSets } = this.props;
+        const course = this.props.course(cid);
+
+        // Get user permissions
+        const permissions = this.props.coursePermissions!;
+        const canListGroupSets = groupSetsAnyList.check(cid, permissions);
+        const canListGroups = groupsAnyList.check(cid, permissions);
+        const canViewGroups = groupsAnyView.check(cid, permissions);
         const canPerformCanvasSync = canvasGroupSetsSyncPerform.check(
             cid,
             permissions,
         );
-        const canListGroupSets = groupSetsAnyList.check(cid, permissions);
-        const canListGroups = groupsAnyList.check(cid, permissions);
-        const canViewGroups = groupsAnyView.check(cid, permissions);
 
-        const { groupSets } = this.props;
-        const course = this.props.course(cid);
-
+        // If the user is not permitted to view the page, display 404
         if (!canListGroupSets) {
             return undefined;
         } else if (course == null) {

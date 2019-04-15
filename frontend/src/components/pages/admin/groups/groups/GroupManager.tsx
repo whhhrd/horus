@@ -33,32 +33,32 @@ import {
 
 interface GroupManagerProps {
     groups: GroupDtoFull[] | null;
+    coursePermissions: CoursePermissions | null;
 
     course: (id: number) => CourseDtoSummary | null;
-
     fetchCourse: (id: number) => Action;
-
     fetchGroups: (groupSetId: number) => GroupsFetchAction;
-
     refreshSet: (
         courseId: number,
         groupSetId: number,
     ) => CanvasRefreshSetRequestedAction;
-
-    coursePermissions: CoursePermissions | null;
 }
 
 interface GroupManagerState {
     searchQuery: string;
 }
 
+/**
+ * A manager displaying all the groups within the selected group set.
+ * Permitted users can click on the 'Show' button on any group item,
+ * which will then display a sidebar with group details and comments.
+ */
 class GroupManager extends Component<
     GroupManagerProps & RouteComponentProps<any>,
     GroupManagerState
 > {
     constructor(props: GroupManagerProps & RouteComponentProps<any>) {
         super(props);
-
         this.state = {
             searchQuery: "",
         };
@@ -82,6 +82,11 @@ class GroupManager extends Component<
         );
     }
 
+    /**
+     * Passes the group ID of the clicked group
+     * into the search parameters.
+     * @param gid The group ID.
+     */
     onShowClick(gid: number) {
         const { history } = this.props;
         history.push({
@@ -92,18 +97,19 @@ class GroupManager extends Component<
     }
 
     buildContent() {
-        const permissions = this.props.coursePermissions!;
         const cid = Number(this.props.match.params.cid);
+        const { groups } = this.props;
+        const course = this.props.course(this.props.match.params.cid);
+
+        // Get the user's permissions
+        const permissions = this.props.coursePermissions!;
+        const canViewGroups = groupsAnyView.check(cid, permissions);
         const canPerformCanvasSync = canvasGroupsSyncPerform.check(
             cid,
             permissions,
         );
-        const canViewGroups = groupsAnyView.check(cid, permissions);
 
-        const { groups } = this.props;
-
-        const course = this.props.course(this.props.match.params.cid);
-
+        // If the user is not permitted to view the page, display 404
         if (!canViewGroups) {
             return undefined;
         } else if (course == null || groups == null) {
@@ -173,10 +179,12 @@ class GroupManager extends Component<
     }
 
     buildSidebar() {
-        const permissions = this.props.coursePermissions!;
         const cid = Number(this.props.match.params.cid);
-        const canViewComments = viewCommentSidebar.check(cid, permissions);
         const gid = Number(queryString.parse(this.props.location.search).gid);
+
+        // Get user permissions
+        const permissions = this.props.coursePermissions!;
+        const canViewComments = viewCommentSidebar.check(cid, permissions);
 
         let currentlyShownGroup = null;
 
@@ -260,6 +268,10 @@ class GroupManager extends Component<
         this.setState(() => ({ searchQuery: newValue.toLowerCase() }));
     }
 
+    /**
+     * Filters out the groups that conform to the search criteria
+     * and returns a list of GroupListItems for the resulting groups.
+     */
     private renderGroups(groups: GroupDtoFull[] | null) {
         const permissions = this.props.coursePermissions!;
         const cid = Number(this.props.match.params.cid);

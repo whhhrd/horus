@@ -35,6 +35,10 @@ interface ImportValues {
     file: File | null;
 }
 
+/**
+ * A modal that gives the permitted user the ability
+ * to import a group set to canvas.
+ */
 class GroupSetImportModal extends Component<
     GroupSetImportModalProps & RouteComponentProps<any>
 > {
