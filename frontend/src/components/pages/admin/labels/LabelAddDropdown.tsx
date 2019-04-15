@@ -1,14 +1,17 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+
 import { Dropdown, DropdownToggle, DropdownMenu } from "reactstrap";
+
+import { LabelDto } from "../../../../api/types";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { LabelDto } from "../../../../api/types";
-import { connect } from "react-redux";
+import Label from "../../../Label";
 import {
     labelMappingCreateAction,
     LabelMappingCreateAction,
 } from "../../../../state/labels/action";
-import Label from "../../../Label";
 
 interface LabelAddDropdownProps {
     assignedLabels: LabelDto[];
@@ -57,6 +60,7 @@ class LabelAddDropdown extends Component<
             className,
         } = this.props;
 
+        // Determine which labels are still assignable to the student
         const assignableLabels: LabelDto[] = [];
         if (this.state.dropdownOpen) {
             allLabels.forEach((l) => {

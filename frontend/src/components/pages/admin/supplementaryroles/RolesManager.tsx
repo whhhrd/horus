@@ -12,11 +12,11 @@ import {
     DropdownMenu,
     Alert,
 } from "reactstrap";
+
 import {
     ParticipantDtoFull,
     SupplementaryRoleDto,
 } from "../../../../api/types";
-import { buildContent, centerSpinner } from "../../../pagebuilder";
 import { ApplicationState } from "../../../../state/state";
 import { getCoursePermissions } from "../../../../state/auth/selectors";
 import CoursePermissions from "../../../../api/permissions";
@@ -39,7 +39,10 @@ import {
     courseStaffParticipantsFetchAction,
 } from "../../../../state/participants/actions";
 import { getStaffParticipants } from "../../../../state/participants/selectors";
+
 import SuppRoleLabel from "./SuppRoleLabel";
+import { buildContent, centerSpinner } from "../../../pagebuilder";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -60,12 +63,10 @@ interface RolesManagerProps {
         courseId: number,
     ) => SuppRolesMappingFetchRequestedAction;
     fetchCourseStaff: (courseId: number) => CourseStaffParticipantsFetchAction;
-
     createRoleMapping: (
         participantId: number,
         role: SupplementaryRoleDto,
     ) => SuppRoleMappingCreateAction;
-
     deleteRoleMapping: (
         participantId: number,
         role: SupplementaryRoleDto,
@@ -86,6 +87,12 @@ const initialState = {
     dropdownElement: "",
 };
 
+/**
+ * A page that displays the existing supplementary roles within
+ * the course. A permitted user can also view the supplementary
+ * roles assigned to the teaching staff within the course. Furthermore,
+ * a permitted user can assign or remove supplementary roles from staff.
+ */
 class RolesManager extends Component<
     RolesManagerProps & RouteComponentProps<any>,
     RolesManagerState
@@ -104,6 +111,13 @@ class RolesManager extends Component<
         this.props.fetchCourseStaff(cid);
     }
 
+    toggleDropdown(id: string) {
+        this.setState((state) => ({
+            dropdownOpen: !state.dropdownOpen,
+            dropdownElement: id,
+        }));
+    }
+
     render() {
         return buildContent("Roles Manager", this.buildContent());
     }
@@ -114,6 +128,7 @@ class RolesManager extends Component<
 
         const isSuppRoleAdmin = suppRoleAdmin.check(cid, permissions!);
 
+        // If the user is not permitted to view the page, display 404
         if (!isSuppRoleAdmin) {
             return undefined;
         } else if (suppRoles == null || staff == null) {
@@ -164,6 +179,11 @@ class RolesManager extends Component<
         );
     }
 
+    /**
+     * Builds badge like components for each supplementary
+     * role in the course.
+     * @param roles The supplementary roles of the course.sss
+     */
     buildSupplementaryRoles(roles: SupplementaryRoleDto[]) {
         const numberOfRoles = roles.length;
 
@@ -180,6 +200,15 @@ class RolesManager extends Component<
         }
     }
 
+    /**
+     * Generates a table row for each staff participant within
+     * the course. Also displays the assigned supplementary roles
+     * of each individual staff member and allows for the option
+     * to add or remove supplementary roles from the participant.
+     * @param staff The staff participants in the course.
+     * @param suppRoles The supplementary roles in the course.
+     * @param suppRolesMapping The mappings between supp. role and staff.
+     */
     renderParticipantEntries(
         staff: ParticipantDtoFull[] | null,
         suppRoles: SupplementaryRoleDto[],
@@ -187,21 +216,19 @@ class RolesManager extends Component<
     ) {
         const searchQuery = this.state.searchQuery;
         const studentRender = [];
-
-        const { permissions } = this.props;
         const cid = this.props.match.params.cid;
 
+        // Get user permissions
+        const { permissions } = this.props;
+        const canViewMapping = suppRolesMappingAnyView.check(cid, permissions!);
         const canAddMapping = suppRolesMappingAnyCreate.check(
             cid,
             permissions!,
         );
-
         const canDeleteMapping = suppRolesMappingAnyDelete.check(
             cid,
             permissions!,
         );
-
-        const canViewMapping = suppRolesMappingAnyView.check(cid, permissions!);
 
         if (staff == null || suppRoles == null) {
             return (
@@ -277,13 +304,16 @@ class RolesManager extends Component<
         }
     }
 
-    toggleDropdown(id: string) {
-        this.setState((state) => ({
-            dropdownOpen: !state.dropdownOpen,
-            dropdownElement: id,
-        }));
-    }
-
+    /**
+     * Generates a dropdown which can be used for adding supplementary
+     * roles to a participant. Subtracts the existing roles of the
+     * participant from all the roles, which results in the roles
+     * that will be displayed in the dropdown.
+     * @param id An identifier for this specific dropdown.
+     * @param assignedRoles The assigned roles to the participant.
+     * @param allRoles All the supplementary roles in the course.
+     * @param participantId The ID of the staff participant.
+     */
     buildAddRoleDropdown(
         id: string,
         assignedRoles: number[],

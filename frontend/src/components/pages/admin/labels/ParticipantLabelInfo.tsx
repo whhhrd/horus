@@ -1,27 +1,25 @@
 import React, { Component } from "react";
-import { Card, CardBody, Dropdown, DropdownToggle, Badge } from "reactstrap";
-import { LabelDto, ParticipantDtoFull } from "../../../../api/types";
 import { connect } from "react-redux";
+import { RouteComponentProps, withRouter } from "react-router";
+
+import { Card, CardBody, Dropdown, DropdownToggle, Badge } from "reactstrap";
+
+import { LabelDto, ParticipantDtoFull } from "../../../../api/types";
 import {
     labelMappingCreateAction,
     LabelMappingCreateAction,
     LabelMappingDeleteAction,
     labelMappingDeleteAction,
 } from "../../../../state/labels/action";
-import Label from "../../../Label";
-import LabelAddDropdown from "./LabelAddDropdown";
 import { getParticipant } from "../../../../state/participants/selectors";
 import { getLabels } from "../../../../state/labels/selectors";
 import { ApplicationState } from "../../../../state/state";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes, faPlus } from "@fortawesome/free-solid-svg-icons";
 import CoursePermissions from "../../../../api/permissions";
 import { getCoursePermissions } from "../../../../state/auth/selectors";
 import {
     labelMappingAnyDelete,
     labelMappingAnyCreate,
 } from "../../../../state/auth/constants";
-import { RouteComponentProps, withRouter } from "react-router";
 import {
     ParticipantsFetchAction,
     participantsFetchAction,
@@ -31,25 +29,26 @@ import {
     courseRequestedAction,
 } from "../../../../state/courses/action";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes, faPlus } from "@fortawesome/free-solid-svg-icons";
+import Label from "../../../Label";
+import LabelAddDropdown from "./LabelAddDropdown";
+
 interface ParticipantLabelInfoProps {
-    participant: (participantId: number) => ParticipantDtoFull | null;
     participantId: number;
     permissions: CoursePermissions | null;
-
     labels: LabelDto[] | null;
+    participant: (participantId: number) => ParticipantDtoFull | null;
 
     createLabelMapping: (
         participantdId: number,
         label: LabelDto,
     ) => LabelMappingCreateAction;
-
     deleteLabelMapping: (
         participantId: number,
         label: LabelDto,
     ) => LabelMappingDeleteAction;
-
     fetchParticipants: (participantIds: number[]) => ParticipantsFetchAction;
-
     fetchCourse: (id: number) => CourseRequestedAction;
 }
 
@@ -151,8 +150,7 @@ class ParticipantLabelInfo extends Component<
                     >
                         {"Loading..."}
                     </Badge>
-                    <Dropdown
-                        toggle={() => null}>
+                    <Dropdown toggle={() => null}>
                         <DropdownToggle
                             disabled
                             outline

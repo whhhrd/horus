@@ -1,11 +1,12 @@
-import React, { PureComponent } from "react";
-import { connect } from "react-redux";
+import React, { PureComponent, Fragment } from "react";
 import { withRouter, RouteComponentProps } from "react-router";
+import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+
 import { getCurrentAccessToken } from "../../../api";
 
-import { Link } from "react-router-dom";
-import { buildContent } from "../../pagebuilder";
 import { Row, Col } from "reactstrap";
+
 import CoursePermissions from "../../../api/permissions";
 import { getCoursePermissions } from "../../../state/auth/selectors";
 import { ApplicationState } from "../../../state/state";
@@ -28,6 +29,9 @@ import {
     CanvasRefreshParticipantsRequestedAction,
     canvasRefreshParticipantsRequestedAction,
 } from "../../../state/canvas-settings/actions";
+
+import { buildContent } from "../../pagebuilder";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faTasks,
@@ -47,6 +51,10 @@ interface CourseAdministrationProps {
     ) => CanvasRefreshParticipantsRequestedAction;
 }
 
+/**
+ * A simplistic overview for different kinds of administrators.
+ * Shows links to administration panels for permitted users.
+ */
 class CourseAdministration extends PureComponent<
     CourseAdministrationProps & RouteComponentProps<any>
 > {
@@ -93,92 +101,80 @@ class CourseAdministration extends PureComponent<
                 <Col xs="12">
                     <div className="w-100 lead">
                         {canListAssignmentSets && (
-                            <Link
-                                to={`/courses/${cid}/administration/assignmentsets`}
-                            >
-                                <FontAwesomeIcon
-                                    icon={faTasks}
-                                    className="mr-2"
-                                    size="sm"
-                                    style={{ width: "30px" }}
-                                />
-                                Manage assignment sets
-                            </Link>
-                        )}
-                        <br />
-                        {canListGroupSets && (
-                            <Link
-                                to={`/courses/${cid}/administration/groupsets`}
-                            >
-                                <FontAwesomeIcon
-                                    icon={faUsers}
-                                    className="mr-2"
-                                    size="sm"
-                                    style={{ width: "30px" }}
-                                />
-                                Manage group sets
-                            </Link>
-                        )}
-                        <br />
-                        {isLabelAdmin && (
-                            <Link
-                                to={`/courses/${
-                                    this.props.match.params.cid
-                                }/administration/labels`}
-                            >
-                                <FontAwesomeIcon
-                                    icon={faTags}
-                                    className="mr-2"
-                                    size="sm"
-                                    style={{ width: "30px" }}
-                                />
-                                Manage course labels
-                            </Link>
-                        )}
-                        <br />
-                        {isRoleAdmin && (
-                            <Link
-                                to={`/courses/${
-                                    this.props.match.params.cid
-                                }/administration/roles`}
-                            >
-                                <FontAwesomeIcon
-                                    icon={faUsersCog}
-                                    className="mr-2"
-                                    size="sm"
-                                    style={{ width: "30px" }}
-                                />
-                                Manage roles
-                            </Link>
-                        )}
-                        <br />
-                        {canExport && accessToken != null && (
-                            <a
-                                href={`/api/courses/${
-                                    this.props.match.params.cid
-                                }/export?token=${accessToken}`}
-                                target="_blank"
-                            >
-                                <FontAwesomeIcon
-                                    icon={faDownload}
-                                    className="mr-2"
-                                    size="sm"
-                                    style={{ width: "30px" }}
-                                />
-                                Export course data to spreadsheets
-                            </a>
-                        )}
-                        <br />
-                        {canRefreshParticipants &&
-                            course != null &&
-                            course.externalId != null && (
+                            <Fragment>
                                 <Link
-                                    to={this.props.location.pathname}
-                                    onClick={() => {
-                                        this.props.refreshParticipants(
-                                            course.id,
-                                        );
-                                    }}
+                                    to={`/courses/${cid}/administration/assignmentsets`}
+                                >
+                                    <FontAwesomeIcon
+                                        icon={faTasks}
+                                        className="mr-2"
+                                        size="sm"
+                                        style={{ width: "30px" }}
+                                    />
+                                    Manage assignment sets
+                                </Link>
+                                <br />
+                            </Fragment>
+                        )}
+                        {canListGroupSets && (
+                            <Fragment>
+                                <Link
+                                    to={`/courses/${cid}/administration/groupsets`}
+                                >
+                                    <FontAwesomeIcon
+                                        icon={faUsers}
+                                        className="mr-2"
+                                        size="sm"
+                                        style={{ width: "30px" }}
+                                    />
+                                    Manage group sets
+                                </Link>
+                                <br />
+                            </Fragment>
+                        )}
+                        {isLabelAdmin && (
+                            <Fragment>
+                                <Link
+                                    to={`/courses/${
+                                        this.props.match.params.cid
+                                    }/administration/labels`}
+                                >
+                                    <FontAwesomeIcon
+                                        icon={faTags}
+                                        className="mr-2"
+                                        size="sm"
+                                        style={{ width: "30px" }}
+                                    />
+                                    Manage course labels
+                                </Link>
+                                <br />
+                            </Fragment>
+                        )}
+                        {isRoleAdmin && (
+                            <Fragment>
+                                <Link
+                                    to={`/courses/${
+                                        this.props.match.params.cid
+                                    }/administration/roles`}
+                                >
+                                    <FontAwesomeIcon
+                                        icon={faUsersCog}
+                                        className="mr-2"
+                                        size="sm"
+                                        style={{ width: "30px" }}
+                                    />
+                                    Manage roles
+                                </Link>
+                                <br />
+                            </Fragment>
+                        )}
+                        {canExport && accessToken != null && (
+                            <Fragment>
+                                <a
+                                    href={`/api/courses/${
+                                        this.props.match.params.cid
+                                    }/export?token=${accessToken}`}
+                                    target="_blank"
                                 >
                                     <FontAwesomeIcon
                                         icon={faDownload}
@@ -186,10 +182,34 @@ class CourseAdministration extends PureComponent<
                                         size="sm"
                                         style={{ width: "30px" }}
                                     />
-                                    Retrieve participant data
-                                </Link>
+                                    Export course data to spreadsheets
+                                </a>
+                                <br />
+                            </Fragment>
+                        )}
+                        {canRefreshParticipants &&
+                            course != null &&
+                            course.externalId != null && (
+                                <Fragment>
+                                    <Link
+                                        to={this.props.location.pathname}
+                                        onClick={() => {
+                                            this.props.refreshParticipants(
+                                                course.id,
+                                            );
+                                        }}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faDownload}
+                                            className="mr-2"
+                                            size="sm"
+                                            style={{ width: "30px" }}
+                                        />
+                                        Retrieve participant data
+                                    </Link>
+                                    <br />
+                                </Fragment>
                             )}
-                        <br />
                     </div>
                 </Col>
             </Row>

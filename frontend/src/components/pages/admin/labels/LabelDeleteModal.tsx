@@ -1,10 +1,12 @@
-import { Component } from "react";
-import React from "react";
-import { Button, Modal, ModalHeader, ModalBody } from "reactstrap";
+import React, { Component } from "react";
 import { connect } from "react-redux";
-import ModalFooter from "reactstrap/lib/ModalFooter";
-import { labelDeleteAction, LabelDeleteAction } from "../../../../state/labels/action";
-import { ApplicationState } from "../../../../state/state";
+
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+
+import {
+    labelDeleteAction,
+    LabelDeleteAction,
+} from "../../../../state/labels/action";
 
 interface LabelDeleteModalProps {
     isOpen: boolean;
@@ -16,22 +18,22 @@ interface LabelDeleteModalProps {
     onCloseModal: () => void;
 }
 
+/**
+ * A modal that allows the permitted user to delete a label.
+ */
 class LabelDeleteModal extends Component<LabelDeleteModalProps> {
-    constructor(props: LabelDeleteModalProps) {
-        super(props);
-        this.onCloseModal = this.onCloseModal.bind(this);
-    }
-
-    onCloseModal() {
-        this.props.onCloseModal();
-    }
-
     render() {
+        const {
+            isOpen,
+            onCloseModal,
+            deleteLabel,
+            labelId,
+            courseId,
+        } = this.props;
+
         return (
-            <Modal isOpen={this.props.isOpen}>
-                <ModalHeader toggle={this.onCloseModal}>
-                    Delete label
-                </ModalHeader>
+            <Modal isOpen={isOpen}>
+                <ModalHeader toggle={onCloseModal}>Delete label</ModalHeader>
                 <ModalBody>
                     <span>Are you sure you want to delete this label?</span>
                 </ModalBody>
@@ -40,7 +42,7 @@ class LabelDeleteModal extends Component<LabelDeleteModalProps> {
                         block
                         className="mr-3"
                         color="secondary"
-                        onClick={this.onCloseModal}
+                        onClick={onCloseModal}
                     >
                         No
                     </Button>
@@ -48,13 +50,9 @@ class LabelDeleteModal extends Component<LabelDeleteModalProps> {
                         block
                         color="primary"
                         onClick={() => {
-                            this.props.deleteLabel(
-                                this.props.courseId,
-                                this.props.labelId,
-                            );
-                            this.onCloseModal();
-                        }
-                        }
+                            deleteLabel(courseId, labelId);
+                            onCloseModal();
+                        }}
                     >
                         Yes
                     </Button>
@@ -65,11 +63,9 @@ class LabelDeleteModal extends Component<LabelDeleteModalProps> {
 }
 
 export default connect(
-    (_: ApplicationState) => ({}),
+    () => ({}),
     {
-        deleteLabel: (
-            courseId: number,
-            labelId: number,
-        ) => labelDeleteAction(courseId, labelId),
+        deleteLabel: (courseId: number, labelId: number) =>
+            labelDeleteAction(courseId, labelId),
     },
 )(LabelDeleteModal);

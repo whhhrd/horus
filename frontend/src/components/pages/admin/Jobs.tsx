@@ -1,14 +1,16 @@
 import React, { Component } from "react";
 import { withRouter, RouteComponentProps } from "react-router";
+import { Action } from "redux";
 import { connect } from "react-redux";
 
 import { Row, Col, Alert } from "reactstrap";
-import { buildContent } from "../../pagebuilder";
+
 import { ApplicationState } from "../../../state/state";
 import { BatchJobDto } from "../../../api/types";
-import { Action } from "redux";
 import { jobsFetchRequestedAction } from "../../../state/jobs/action";
 import { getJobs } from "../../../state/jobs/selectors";
+
+import { buildContent } from "../../pagebuilder";
 import JobProgress from "../../JobProgress";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
@@ -19,6 +21,10 @@ interface JobsProps {
     fetchJobs: () => Action;
 }
 
+/**
+ * An overview of the current, completed, aborted or created jobs (tasks)
+ * of the user.
+ */
 class Jobs extends Component<JobsProps & RouteComponentProps<any>> {
     componentDidMount() {
         this.props.fetchJobs();

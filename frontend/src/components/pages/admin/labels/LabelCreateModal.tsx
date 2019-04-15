@@ -1,6 +1,6 @@
-import { Component } from "react";
-import React from "react";
-import { Formik, Field } from "formik";
+import React, { Component, Fragment } from "react";
+import { connect } from "react-redux";
+
 import {
     Form,
     Button,
@@ -12,7 +12,7 @@ import {
     FormGroup,
     Input,
 } from "reactstrap";
-import { connect } from "react-redux";
+
 import { ApplicationState } from "../../../../state/state";
 import { LabelCreateUpdateDto } from "../../../../api/types";
 import {
@@ -20,45 +20,44 @@ import {
     labelCreateAction,
 } from "../../../../state/labels/action";
 
+import { Formik, Field } from "formik";
+
 interface LabelCreateModalProps {
     isOpen: boolean;
     courseId: number;
 
-    createLabel: (courseId: number, labelCreate: LabelCreateUpdateDto) => LabelCreateAction;
+    createLabel: (
+        courseId: number,
+        labelCreate: LabelCreateUpdateDto,
+    ) => LabelCreateAction;
 
     onCloseModal: () => void;
 }
 
+/**
+ * A modal that allows the permitted user to create a label
+ * with a name and a self-defined colour.
+ */
 class LabelCreateModal extends Component<LabelCreateModalProps> {
-    constructor(props: LabelCreateModalProps) {
-        super(props);
-        this.onCloseModal = this.onCloseModal.bind(this);
-    }
-
     onSubmit = (labelCreate: LabelCreateUpdateDto) => {
         labelCreate.color = labelCreate.color.replace("#", "");
         labelCreate.name = labelCreate.name.toLowerCase();
         this.props.createLabel(this.props.courseId, labelCreate);
-        this.onCloseModal();
-    }
-
-    onCloseModal() {
         this.props.onCloseModal();
     }
 
     isValid(labelCreate: LabelCreateUpdateDto) {
-        return (
-            labelCreate.name.trim().match("^[-a-z0-9]{1,15}$") != null
-        );
+        return labelCreate.name.trim().match("^[-a-z0-9]{1,15}$") != null;
     }
 
     render() {
+        const { isOpen, onCloseModal } = this.props;
         return (
-            <Modal autoFocus={false} isOpen={this.props.isOpen}>
-                <ModalHeader toggle={this.onCloseModal}>
+            <Modal autoFocus={false} isOpen={isOpen}>
+                <ModalHeader toggle={onCloseModal}>
                     {"Create a new label"}
                 </ModalHeader>
-                {this.props.isOpen && (
+                {isOpen && (
                     <Formik
                         initialValues={{
                             color: "#000000",
@@ -67,7 +66,7 @@ class LabelCreateModal extends Component<LabelCreateModalProps> {
                         onSubmit={this.onSubmit}
                     >
                         {({ handleSubmit, values }) => (
-                            <div>
+                            <Fragment>
                                 <ModalBody>
                                     <Form>
                                         <FormGroup>
@@ -80,9 +79,14 @@ class LabelCreateModal extends Component<LabelCreateModalProps> {
                                                 invalid={!this.isValid(values)}
                                                 autoFocus={true}
                                                 onKeyDown={(event) => {
-                                                    if (event.key === "Enter" && !event.shiftKey) {
+                                                    if (
+                                                        event.key === "Enter" &&
+                                                        !event.shiftKey
+                                                    ) {
                                                         event.preventDefault();
-                                                        if (this.isValid(values)) {
+                                                        if (
+                                                            this.isValid(values)
+                                                        ) {
                                                             handleSubmit();
                                                         }
                                                     }
@@ -105,7 +109,7 @@ class LabelCreateModal extends Component<LabelCreateModalProps> {
                                         size="md"
                                         color="secondary"
                                         outline
-                                        onClick={this.onCloseModal}
+                                        onClick={onCloseModal}
                                     >
                                         Cancel
                                     </Button>
@@ -121,7 +125,7 @@ class LabelCreateModal extends Component<LabelCreateModalProps> {
                                         Create
                                     </Button>
                                 </ModalFooter>
-                            </div>
+                            </Fragment>
                         )}
                     </Formik>
                 )}

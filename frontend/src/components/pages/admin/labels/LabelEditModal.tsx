@@ -1,6 +1,6 @@
-import { Component } from "react";
-import React from "react";
-import { Formik, Field } from "formik";
+import React, { Component } from "react";
+import { connect } from "react-redux";
+
 import {
     Form,
     Button,
@@ -12,10 +12,14 @@ import {
     FormGroup,
     Input,
 } from "reactstrap";
-import { connect } from "react-redux";
-import { ApplicationState } from "../../../../state/state";
+
 import { LabelCreateUpdateDto, LabelDto } from "../../../../api/types";
-import { LabelUpdateAction, labelUpdateAction } from "../../../../state/labels/action";
+import {
+    LabelUpdateAction,
+    labelUpdateAction,
+} from "../../../../state/labels/action";
+
+import { Formik, Field } from "formik";
 
 interface LabelEditModalProps {
     isOpen: boolean;
@@ -32,11 +36,6 @@ interface LabelEditModalProps {
 }
 
 class LabelEditModal extends Component<LabelEditModalProps> {
-    constructor(props: LabelEditModalProps) {
-        super(props);
-        this.onCloseModal = this.onCloseModal.bind(this);
-    }
-
     onSubmit = (labelUpdate: LabelCreateUpdateDto) => {
         labelUpdate.color = labelUpdate.color.replace("#", "");
         labelUpdate.name = labelUpdate.name.toLowerCase();
@@ -45,24 +44,18 @@ class LabelEditModal extends Component<LabelEditModalProps> {
             this.props.label.id,
             labelUpdate,
         );
-        this.onCloseModal();
-    }
-
-    onCloseModal() {
         this.props.onCloseModal();
     }
 
     isValid(labelUpdate: LabelCreateUpdateDto) {
-        return (
-            labelUpdate.name.trim().match("^[-a-z0-9]{1,15}$") != null
-        );
+        return labelUpdate.name.trim().match("^[-a-z0-9]{1,15}$") != null;
     }
 
     render() {
-        const { isOpen, label } = this.props;
+        const { isOpen, label, onCloseModal } = this.props;
         return (
-            <Modal autoFocus={false} isOpen={this.props.isOpen}>
-                <ModalHeader toggle={this.onCloseModal}>
+            <Modal autoFocus={false} isOpen={isOpen}>
+                <ModalHeader toggle={onCloseModal}>
                     Editing label <strong>{label.name}</strong>
                 </ModalHeader>
                 {isOpen && (
@@ -87,9 +80,14 @@ class LabelEditModal extends Component<LabelEditModalProps> {
                                                 invalid={!this.isValid(values)}
                                                 autoFocus={true}
                                                 onKeyDown={(event) => {
-                                                    if (event.key === "Enter" && !event.shiftKey) {
+                                                    if (
+                                                        event.key === "Enter" &&
+                                                        !event.shiftKey
+                                                    ) {
                                                         event.preventDefault();
-                                                        if (this.isValid(values)) {
+                                                        if (
+                                                            this.isValid(values)
+                                                        ) {
                                                             handleSubmit();
                                                         }
                                                     }
@@ -112,7 +110,7 @@ class LabelEditModal extends Component<LabelEditModalProps> {
                                         size="md"
                                         color="secondary"
                                         outline
-                                        onClick={this.onCloseModal}
+                                        onClick={onCloseModal}
                                     >
                                         Cancel
                                     </Button>
@@ -138,6 +136,6 @@ class LabelEditModal extends Component<LabelEditModalProps> {
 }
 
 export default connect(
-    (_: ApplicationState) => ({}),
+    () => ({}),
     { updateLabel: labelUpdateAction },
 )(LabelEditModal);

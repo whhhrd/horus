@@ -1,5 +1,4 @@
-import { PureComponent } from "react";
-import React from "react";
+import React, { PureComponent } from "react";
 import { Badge } from "reactstrap";
 import { SupplementaryRoleDto } from "../../../../api/types";
 
@@ -8,6 +7,9 @@ interface SuppRoleLabelProps {
     className?: string;
 }
 
+/**
+ * Represents a supplementary roles in the form of a badge like component.
+ */
 export default class SuppRoleLabel extends PureComponent<SuppRoleLabelProps> {
     render() {
         const { name } = this.props.role;

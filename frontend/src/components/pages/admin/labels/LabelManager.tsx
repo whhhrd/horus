@@ -3,15 +3,11 @@ import { withRouter, RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 
 import { Row, Col, Button, Table, Input } from "reactstrap";
+
+import { getCoursePermissions } from "../../../../state/auth/selectors";
+import CoursePermissions from "../../../../api/permissions";
 import { ParticipantDtoFull, LabelDto } from "../../../../api/types";
-import { buildContent, centerSpinner } from "../../../pagebuilder";
 import { ApplicationState } from "../../../../state/state";
-import Label from "../../../Label";
-import { faPlus, faEdit, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import LabelCreateModal from "./LabelCreateModal";
-import LabelEditModal from "./LabelEditModal";
-import LabelDeleteModal from "./LabelDeleteModal";
 import { getLabels } from "../../../../state/labels/selectors";
 import {
     CourseRequestedAction,
@@ -27,8 +23,6 @@ import {
     LabelMappingDeleteAction,
     labelMappingCreateAction,
 } from "../../../../state/labels/action";
-import { getCoursePermissions } from "../../../../state/auth/selectors";
-import CoursePermissions from "../../../../api/permissions";
 import {
     labelAnyEdit,
     labelAnyDelete,
@@ -38,7 +32,16 @@ import {
     labelMappingAnyDelete,
     labelAdmin,
 } from "../../../../state/auth/constants";
+
+import LabelCreateModal from "./LabelCreateModal";
+import LabelEditModal from "./LabelEditModal";
+import LabelDeleteModal from "./LabelDeleteModal";
+import Label from "../../../Label";
 import LabelAddDropdown from "./LabelAddDropdown";
+import { buildContent, centerSpinner } from "../../../pagebuilder";
+
+import { faPlus, faEdit, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface LabelManagerProps {
     participants: ParticipantDtoFull[] | null;
@@ -81,6 +84,10 @@ const initialState = {
     searchQuery: "",
 };
 
+/**
+ * A page the serves as an manager of existing labels, allows for
+ * creating new labels and assigning labels to students.
+ */
 class LabelManager extends Component<
     LabelManagerProps & RouteComponentProps<any>,
     LabelManagerState
@@ -124,21 +131,23 @@ class LabelManager extends Component<
         }));
     }
 
-    buildContent() {
+    private buildContent() {
         const { participants, labels, permissions } = this.props;
         const cid = this.props.match.params.cid;
 
+        // Get user permissions
         const isLabelAdmin = labelAdmin.check(cid, permissions!);
         const canAddLabel = labelAnyCreate.check(cid, permissions!);
         const canEditLabel = labelAnyEdit.check(cid, permissions!);
         const canDeleteLabel = labelAnyDelete.check(cid, permissions!);
+        const canCreateMapping = labelMappingAnyCreate.check(cid, permissions!);
+        const canDeleteMapping = labelMappingAnyDelete.check(cid, permissions!);
         const canListParticipants = participantsAnyView.check(
             cid,
             permissions!,
         );
-        const canCreateMapping = labelMappingAnyCreate.check(cid, permissions!);
-        const canDeleteMapping = labelMappingAnyDelete.check(cid, permissions!);
 
+        // If the user is not permitted to view this page, display 404
         if (!isLabelAdmin) {
             return undefined;
         } else if (labels == null || participants == null) {
@@ -241,7 +250,16 @@ class LabelManager extends Component<
         }
     }
 
-    renderStudentRows(
+    /**
+     * Generates table rows for each student of a course. Each row
+     * also allows for assigning and deleting label mappings by permitted
+     * users.
+     * @param participants The course participants.
+     * @param labels The labels of the course.
+     * @param canDeleteMapping The user's delete mapping permission.
+     * @param canAddMapping The user's add mapping permission.
+     */
+    private renderStudentRows(
         participants: ParticipantDtoFull[] | null,
         labels: LabelDto[],
         canDeleteMapping: boolean,
@@ -314,7 +332,14 @@ class LabelManager extends Component<
         }
     }
 
-    buildCourseLabels(
+    /**
+     * Generates for each existing course label a Label component,
+     * which the permitted user can edit or delete.
+     * @param labels The labels that exist in the course.
+     * @param canEditLabel The user's permission to edit labels.
+     * @param canDeleteLabel The user's permission to delete labels.
+     */
+    private buildCourseLabels(
         labels: LabelDto[],
         canEditLabel: boolean,
         canDeleteLabel: boolean,
