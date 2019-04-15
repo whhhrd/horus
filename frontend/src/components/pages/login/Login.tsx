@@ -49,6 +49,11 @@ interface LoginValues {
     password: string;
 }
 
+/**
+ * The login page of the application. The user also
+ * has the ability to enter 'beamer' mode. Furthermore,
+ * this page contains the 'about' details.
+ */
 class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
     constructor(props: LoginProps & RouteComponentProps) {
         super(props);

@@ -1,22 +1,24 @@
 import React, { Component, Fragment } from "react";
+import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+
+import { Col, Alert, Button, Row } from "reactstrap";
+
 import {
     CourseDtoFull,
     AssignmentSetDtoBrief,
     RoomDto,
 } from "../../../api/types";
-import Row from "reactstrap/lib/Row";
-import { faTasks, faStoreAlt } from "@fortawesome/free-solid-svg-icons";
-import CanvasCard from "../../CanvasCard";
-import { Col, Alert, Button } from "reactstrap";
-import { buildContent } from "../../pagebuilder";
-import { Link } from "react-router-dom";
 import { ApplicationState } from "../../../state/state";
+import { getRooms } from "../../../state/rooms/selectors";
 import {
     roomsFetchRequestedAction,
     RoomsFetchRequestedAction,
 } from "../../../state/rooms/action";
-import { connect } from "react-redux";
-import { getRooms } from "../../../state/rooms/selectors";
+
+import { faTasks, faStoreAlt } from "@fortawesome/free-solid-svg-icons";
+import CanvasCard from "../../CanvasCard";
+import { buildContent } from "../../pagebuilder";
 
 interface CourseTATeacherDashboardProps {
     course: CourseDtoFull;
@@ -24,6 +26,10 @@ interface CourseTATeacherDashboardProps {
     fetchRooms: (courseId: number) => RoomsFetchRequestedAction;
 }
 
+/**
+ * An overview for teaching staff that displays quick access
+ * options for open rooms and progress overviews of assignment sets.
+ */
 class CourseTATeacherDashboard extends Component<
     CourseTATeacherDashboardProps
 > {
@@ -34,6 +40,7 @@ class CourseTATeacherDashboard extends Component<
     render() {
         return buildContent(this.props.course.name, this.buildContent());
     }
+
     private buildContent() {
         const { rooms } = this.props;
         return (
@@ -61,7 +68,9 @@ class CourseTATeacherDashboard extends Component<
                         {rooms.map((r) => (
                             <CanvasCard
                                 cardTitle={r.name}
-                                url={`/courses/${this.props.course.id}/rooms/${r.code}`}
+                                url={`/courses/${this.props.course.id}/rooms/${
+                                    r.code
+                                }`}
                                 key={r.code}
                                 watermarkIcon={faStoreAlt}
                             />

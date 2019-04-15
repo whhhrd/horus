@@ -1,10 +1,11 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Action } from "redux";
+
+import { CourseDtoSummary } from "../../../api/types";
 import { ApplicationState } from "../../../state/state";
 import { getCourses } from "../../../state/courses/selectors";
 import { coursesRequestedAction } from "../../../state/courses/action";
-import { CourseDtoSummary } from "../../../api/types";
-import CourseList from "./CourseList";
 import {
     COURSE_LIST_TA,
     API_STUDENT_ROLE,
@@ -14,9 +15,10 @@ import {
     API_TEACHER_ROLE,
     COURSE_LIST_STUDENT,
 } from "../../../state/courses/constants";
-import { buildContent } from "../../pagebuilder";
 import { authoritiesUpdateRequestAction } from "../../../state/auth/actions";
-import { Action } from "redux";
+
+import CourseList from "./CourseList";
+import { buildContent } from "../../pagebuilder";
 
 interface CourseSelectionProps {
     courses: CourseDtoSummary[] | null;
@@ -24,6 +26,10 @@ interface CourseSelectionProps {
     requestPermissions: () => Action<string>;
 }
 
+/**
+ * A page where the user can select the course.
+ * Courses to which the user is linked are displayed.
+ */
 class CourseSelection extends Component<CourseSelectionProps> {
 
     componentDidMount() {
