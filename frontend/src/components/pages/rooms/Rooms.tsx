@@ -1,9 +1,10 @@
-import { Component } from "react";
+import React, { Component } from "react";
 import { withRouter, RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
+
+import { Row, Col, Button, Card, CardBody, CardTitle } from "reactstrap";
+
 import { ApplicationState } from "../../../state/state";
-import { buildContent } from "../../pagebuilder";
-import React from "react";
 import { RoomDto, ParticipantDtoBrief } from "../../../api/types";
 import {
     RoomsFetchRequestedAction,
@@ -11,16 +12,18 @@ import {
     roomOpenRequestedAction,
 } from "../../../state/rooms/action";
 import { getRooms } from "../../../state/rooms/selectors";
-import { Row, Col, Button, Card, CardBody, CardTitle } from "reactstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
-import RoomCreateModal from "./RoomCreateModal";
-import RoomDeleteModal from "./RoomDeleteModal";
 import {
     CurrentParticipantRequestedAction,
     currentParticipantRequestedAction,
 } from "../../../state/queuing/actions";
 import { getCurrentParticipant } from "../../../state/queuing/selectors";
+
+import { buildContent } from "../../pagebuilder";
+import RoomCreateModal from "./RoomCreateModal";
+import RoomDeleteModal from "./RoomDeleteModal";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 interface RoomsProps {
     rooms: RoomDto[] | null;
@@ -39,6 +42,13 @@ interface RoomsState {
     roomToClose: RoomDto | null;
 }
 
+/**
+ * A page that displays the open rooms within a course.
+ * Permitted users can create or close rooms. All users
+ * can join the room.
+ *
+ * Rooms are refreshed every POLL_INTERVAL seconds.
+ */
 class Rooms extends Component<
     RoomsProps & RouteComponentProps<any>,
     RoomsState
@@ -71,6 +81,10 @@ class Rooms extends Component<
         }));
     }
 
+    /**
+     * Fetches the rooms and starts polling again
+     * when the timer runs out.
+     */
     poll() {
         this.poller = setTimeout(() => {
             if (document.hasFocus()) {
@@ -205,6 +219,10 @@ class Rooms extends Component<
         );
     }
 
+    /**
+     * Redirects the user to the room with the given room code.
+     * @param roomCode The room code of the 'joined' room.
+     */
     goToRoom(roomCode: string) {
         this.props.history.push({
             ...this.props.history.location,

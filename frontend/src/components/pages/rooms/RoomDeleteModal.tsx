@@ -19,26 +19,20 @@ interface RoomDeleteModalProps {
     onCloseModal: () => void;
 }
 
+/**
+ * A modal that allows the permitted user to close and remove a room.
+ */
 class RoomDeleteModal extends Component<RoomDeleteModalProps> {
-    constructor(props: RoomDeleteModalProps) {
-        super(props);
-        this.onCloseModal = this.onCloseModal.bind(this);
-    }
-
     closeRoom() {
         const { courseId, room, closeRoom } = this.props;
         closeRoom(courseId, room.code);
-        this.onCloseModal();
-    }
-
-    onCloseModal() {
         this.props.onCloseModal();
     }
 
     render() {
         return (
             <Modal autoFocus={false} isOpen={this.props.isOpen}>
-                <ModalHeader toggle={this.onCloseModal}>
+                <ModalHeader toggle={this.props.onCloseModal}>
                     Closing room{" "}
                     <span className="font-weight-bold">
                         {this.props.room.name}
@@ -55,7 +49,7 @@ class RoomDeleteModal extends Component<RoomDeleteModalProps> {
                                 size="md"
                                 color="secondary"
                                 outline
-                                onClick={this.onCloseModal}
+                                onClick={this.props.onCloseModal}
                             >
                                 Cancel
                             </Button>

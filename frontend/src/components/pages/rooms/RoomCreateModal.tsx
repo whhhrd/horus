@@ -1,6 +1,7 @@
-import { Component } from "react";
-import React from "react";
+import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Formik, Field } from "formik";
+
 import {
     Form,
     Button,
@@ -12,7 +13,7 @@ import {
     FormGroup,
     Input,
 } from "reactstrap";
-import { connect } from "react-redux";
+
 import { RoomCreateDto } from "../../../api/types";
 import { roomOpenRequestedAction, RoomOpenRequestedAction } from "../../../state/rooms/action";
 import { ApplicationState } from "../../../state/state";
@@ -29,18 +30,12 @@ interface RoomCreateModalProps {
     onCloseModal: () => void;
 }
 
+/**
+ * A modal that allows the permitted user to create a room.
+ */
 class RoomCreateModal extends Component<RoomCreateModalProps> {
-    constructor(props: RoomCreateModalProps) {
-        super(props);
-        this.onCloseModal = this.onCloseModal.bind(this);
-    }
-
     onSubmit = (roomCreate: RoomCreateDto) => {
         this.props.openRoom(this.props.courseId, roomCreate);
-        this.onCloseModal();
-    }
-
-    onCloseModal() {
         this.props.onCloseModal();
     }
 
@@ -51,7 +46,7 @@ class RoomCreateModal extends Component<RoomCreateModalProps> {
     render() {
         return (
             <Modal autoFocus={false} isOpen={this.props.isOpen}>
-                <ModalHeader toggle={this.onCloseModal}>
+                <ModalHeader toggle={this.props.onCloseModal}>
                     {"Opening a new room"}
                 </ModalHeader>
                 {this.props.isOpen && (
@@ -95,7 +90,7 @@ class RoomCreateModal extends Component<RoomCreateModalProps> {
                                         size="md"
                                         color="secondary"
                                         outline
-                                        onClick={this.onCloseModal}
+                                        onClick={this.props.onCloseModal}
                                     >
                                         Cancel
                                     </Button>
