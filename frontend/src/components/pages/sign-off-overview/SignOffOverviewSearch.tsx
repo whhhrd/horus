@@ -1,6 +1,7 @@
 import React, { Component, KeyboardEvent } from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
+
 import {
     Input,
     Dropdown,
@@ -11,6 +12,30 @@ import {
     DropdownItem,
     Badge,
 } from "reactstrap";
+
+import { LabelDto, GroupSetDtoSummary } from "../../../api/types";
+import { getLabels } from "../../../state/labels/selectors";
+import {
+    CourseRequestedAction,
+    courseRequestedAction,
+} from "../../../state/courses/action";
+import {
+    GroupSetsFetchAction,
+    groupSetsFetchRequestedAction,
+} from "../../../state/groups/actions";
+import { getGroupSets } from "../../../state/groups/selectors";
+import { getOverviewLoading } from "../../../state/overview/selectors";
+
+import Label from "../../Label";
+import queryString from "query-string";
+import {
+    objectToQueryString,
+    addReplaceQueryParam,
+    getListFromQuery,
+    getFilterParam,
+    removeQueryParam,
+} from "../../util";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faUsers,
@@ -22,27 +47,6 @@ import {
     faSortAmountUp,
     faTimes,
 } from "@fortawesome/free-solid-svg-icons";
-import { LabelDto, GroupSetDtoSummary } from "../../../api/types";
-import { getLabels } from "../../../state/labels/selectors";
-import {
-    CourseRequestedAction,
-    courseRequestedAction,
-} from "../../../state/courses/action";
-import Label from "../../Label";
-import queryString from "query-string";
-import {
-    objectToQueryString,
-    addReplaceQueryParam,
-    getListFromQuery,
-    getFilterParam,
-    removeQueryParam,
-} from "../../util";
-import {
-    GroupSetsFetchAction,
-    groupSetsFetchRequestedAction,
-} from "../../../state/groups/actions";
-import { getGroupSets } from "../../../state/groups/selectors";
-import { getOverviewLoading } from "../../../state/overview/selectors";
 
 interface SignOffOverviewProps {
     labels: LabelDto[] | null;
@@ -79,6 +83,17 @@ const initialState = {
     sortByDropdownOpen: false,
 };
 
+/**
+ * A component that allows the user to filter the sign-off
+ * details of students and groups. Possible filters currently are:
+ * 1. filter on search term
+ * 2. sort based on group name or total progress
+ * 3. filter on group sets
+ * 4. filter on labels, either union or intersection
+ * A user can also clear the filters with one mouse click or can
+ * clear the filters individually by removing the badges below the
+ * filters.
+ */
 class SignOffOverviewSearch extends Component<
     SignOffOverviewProps & RouteComponentProps<any>,
     SignOffOverviewState
@@ -138,6 +153,7 @@ class SignOffOverviewSearch extends Component<
                 <InputGroup>
                     {/* Build the search bar */}
                     <Input
+                        id="SearchInput"
                         className="form-control-lg rounded"
                         placeholder="Group name/number or student name/number"
                         autoFocus={true}
@@ -176,6 +192,12 @@ class SignOffOverviewSearch extends Component<
         );
     }
 
+    /**
+     * Builds the badges that are displayed below the filters,
+     * which indicate the current active filters. Allows the user
+     * to remove the filters by displaying a clickable X on each
+     * badge.
+     */
     private buildFilterPills() {
         const search = this.props.location.search;
         const parsedQuery = queryString.parse(search);
@@ -214,6 +236,9 @@ class SignOffOverviewSearch extends Component<
                                             ),
                                         ),
                                     });
+                                    const input: HTMLElement = document.getElementById("SearchInput")!;
+                                    // @ts-ignore
+                                    input.value = "";
                                 }
                             }}
                         >
@@ -346,18 +371,27 @@ class SignOffOverviewSearch extends Component<
     }
 
     private setTextSearch(text: string): any {
-        const newQuery = addReplaceQueryParam(
-            queryString.parse(this.props.location.search),
-            Filter.Search,
-            encodeURIComponent(text),
-        );
+        if (text.trim().length > 0) {
+            const newQuery = addReplaceQueryParam(
+                queryString.parse(this.props.location.search),
+                Filter.Search,
+                encodeURIComponent(text),
+            );
 
-        this.props.history.push({
-            ...this.props.history.location,
-            search: objectToQueryString(newQuery),
-        });
+            this.props.history.push({
+                ...this.props.history.location,
+                search: objectToQueryString(newQuery),
+            });
+        }
     }
 
+    /**
+     * Builds the sort by dropdown, currently displaying 4 options:
+     * 1. group name, ascending
+     * 2. group name, descending,
+     * 3. total progress, ascending,
+     * 4. total progress, descending
+     */
     private buildSortByDropdown() {
         return (
             <Dropdown
@@ -377,7 +411,7 @@ class SignOffOverviewSearch extends Component<
                 <DropdownMenu>
                     <DropdownItem
                         className="py-2"
-                        active={this.isSortPreference(SortType.GroupName, true)}
+                        active={this.isSortActive(SortType.GroupName, true)}
                         onClick={() =>
                             this.setSortByFilter(SortType.GroupName, true)
                         }
@@ -391,10 +425,7 @@ class SignOffOverviewSearch extends Component<
                     </DropdownItem>
                     <DropdownItem
                         className="py-2"
-                        active={this.isSortPreference(
-                            SortType.GroupName,
-                            false,
-                        )}
+                        active={this.isSortActive(SortType.GroupName, false)}
                         onClick={() =>
                             this.setSortByFilter(SortType.GroupName, false)
                         }
@@ -408,10 +439,7 @@ class SignOffOverviewSearch extends Component<
                     </DropdownItem>
                     <DropdownItem
                         className="py-2"
-                        active={this.isSortPreference(
-                            SortType.TotalProgress,
-                            true,
-                        )}
+                        active={this.isSortActive(SortType.TotalProgress, true)}
                         onClick={() =>
                             this.setSortByFilter(SortType.TotalProgress, true)
                         }
@@ -425,7 +453,7 @@ class SignOffOverviewSearch extends Component<
                     </DropdownItem>
                     <DropdownItem
                         className="py-2"
-                        active={this.isSortPreference(
+                        active={this.isSortActive(
                             SortType.TotalProgress,
                             false,
                         )}
@@ -445,6 +473,9 @@ class SignOffOverviewSearch extends Component<
         );
     }
 
+    /**
+     * Sets the chosen filter in the search parameters.
+     */
     private setSortByFilter(by: SortType, order: boolean) {
         let newQuery = addReplaceQueryParam(
             queryString.parse(this.props.location.search),
@@ -452,7 +483,11 @@ class SignOffOverviewSearch extends Component<
             by,
         );
 
-        newQuery = addReplaceQueryParam(newQuery, Filter.Order, order ? "1" : "0");
+        newQuery = addReplaceQueryParam(
+            newQuery,
+            Filter.Order,
+            order ? "1" : "0",
+        );
 
         this.props.history.push({
             ...this.props.history.location,
@@ -460,7 +495,12 @@ class SignOffOverviewSearch extends Component<
         });
     }
 
-    private isSortPreference(by: SortType, order: boolean) {
+    /**
+     * Determines if the given sorting filter is active based on the
+     * query parameters. When no query parameters are given, the
+     * groupname ascending sort is active.
+     */
+    private isSortActive(by: SortType, order: boolean) {
         const queryOrder = queryString.parse(this.props.location.search).order;
         const querySortBy = queryString.parse(this.props.location.search)
             .sortby;
@@ -479,6 +519,9 @@ class SignOffOverviewSearch extends Component<
         }
     }
 
+    /**
+     * Builds the group sets filter dropdown.
+     */
     private buildFilterGroupSetsDropdown() {
         const { groupSets } = this.props;
 
@@ -520,6 +563,9 @@ class SignOffOverviewSearch extends Component<
         );
     }
 
+    /**
+     * Sets the chosen groupset filter in the search parameter.
+     */
     private setGroupSetInFilter(groupSetId: number) {
         const currentQuery: queryString.ParsedQuery = queryString.parse(
             this.props.location.search,
@@ -537,6 +583,9 @@ class SignOffOverviewSearch extends Component<
         });
     }
 
+    /**
+     * Builds the label filter dropdown.
+     */
     private buildFilterLabelDropdown() {
         if (this.props.labels == null) {
             return null;
@@ -620,6 +669,10 @@ class SignOffOverviewSearch extends Component<
         );
     }
 
+    /**
+     * Sets label operator filter in the search parameters.
+     * Operators can be: AND | OR.
+     */
     private setLabelFilterOperator(operator: string) {
         const currentQuery: queryString.ParsedQuery = queryString.parse(
             this.props.location.search,
@@ -637,6 +690,10 @@ class SignOffOverviewSearch extends Component<
         });
     }
 
+    /**
+     * Toggles the chosen label from the filter
+     * in the search parameters.
+     */
     private toggleLabelInFilter(labelId: number) {
         const newLabels = getListFromQuery(
             this.props.location.search,

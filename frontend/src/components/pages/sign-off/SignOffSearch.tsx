@@ -82,6 +82,12 @@ interface SignOffSearchState {
     selectedAssignmentSet: AssignmentSetDtoBrief | null;
 }
 
+/**
+ * A component that allows the permitted user to
+ * search for sign-off tables of students and groups.
+ * The user can also filter on assignment set, which makes
+ * it easier during a session to find the right results.
+ */
 class SignOffSearch extends Component<
     SignOffSearchProps & RouteComponentProps<any>,
     SignOffSearchState

@@ -18,6 +18,12 @@ export interface CommentModalProps {
     onCommentClick?: (comment: string) => void;
 }
 
+/**
+ * A modal that is displayed whenever a sign-off is
+ * marked as insufficient. The modal prompts the user
+ * to enter details about the insufficient assignment,
+ * but doesn't force the user to enter those details.
+ */
 export default class CommentModal extends PureComponent<CommentModalProps> {
     constructor(props: CommentModalProps) {
         super(props);

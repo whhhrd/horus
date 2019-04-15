@@ -1,18 +1,21 @@
-import { Component } from "react";
-import { ApplicationState } from "../../../state/state";
+import React, { Component } from "react";
 import { connect } from "react-redux";
+
+import { Card, CardBody, Button, Alert } from "reactstrap";
+
+import { ApplicationState } from "../../../state/state";
 import { getSignOffHistory } from "../../../state/sign-off/selectors";
 import {
     SignOffHistoryRequestedAction,
     signOffHistoryRequestedAction,
 } from "../../../state/sign-off/actions";
-import React from "react";
-import { Card, CardBody, Button, Alert } from "reactstrap";
+import {SignOffInformation} from "../../../state/sign-off/types";
+
 import { getDisplayedDate } from "../../util";
 import SignOffHistoryModal from "./SignOffHistoryModal";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHistory } from "@fortawesome/free-solid-svg-icons";
-import {SignOffInformation} from "../../../state/sign-off/types";
 
 interface SignOffDetailsProps {
     participantId: number;
@@ -29,6 +32,11 @@ interface SignOffDetailsState {
     signOffHistoryModalOpen: boolean;
 }
 
+/**
+ * A component that displays sign-off details about
+ * a specific sign-off entity, namely: who signed it off,
+ * when was it signed off and how was it signed off.
+ */
 class SignOffDetails extends Component<
     SignOffDetailsProps,
     SignOffDetailsState

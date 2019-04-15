@@ -1,10 +1,9 @@
-import { Component } from "react";
+import React, { Component } from "react";
+import { Table, Modal, ModalHeader, ModalBody } from "reactstrap";
 import {
     ParticipantDtoBrief,
 } from "../../../api/types";
 import { centerSpinner } from "../../pagebuilder";
-import React from "react";
-import { Table, Modal, ModalHeader, ModalBody } from "reactstrap";
 import { getDisplayedDate } from "../../util";
 import {SignOffInformation} from "../../../state/sign-off/types";
 
@@ -15,6 +14,11 @@ interface SignOffHistoryModalProps {
     onCloseModal: () => void;
 }
 
+/**
+ * A modal that displays the sign-off history of a given
+ * sign-off, for a specific combination of student and
+ * assignment.
+ */
 export default class SignOffHistoryModal extends Component<
     SignOffHistoryModalProps
 > {

@@ -83,6 +83,7 @@ const initialState = {
     comments: null,
     modal: null,
 };
+
 /**
  * Sign off table page component.
  */

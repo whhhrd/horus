@@ -86,6 +86,13 @@ interface Row {
     isSeperatorRow?: true;
 }
 
+/**
+ * A page where the module coordinator or
+ * any other 'administrative' teaching staff can
+ * observe the global progress of the students within
+ * an assignment set. Filters enable the permitted user to
+ * more easily get a hold on the information they want to observe.
+ */
 class SignOffOverview extends Component<
     SignOffOverviewProps & RouteComponentProps<any>,
     SignOffOverviewState
