@@ -10,6 +10,11 @@ interface PromptValues {
     code: string;
 }
 
+/**
+ * A simple page prompting the user to enter a room code.
+ * The user will be directed to the room (regardless of validity)
+ * when they submit the code.
+ */
 class ProjectorRoomPromptPage extends Component<RouteComponentProps<any>> {
     constructor(props: RouteComponentProps<any>) {
         super(props);

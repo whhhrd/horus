@@ -1,7 +1,8 @@
-import { Component, KeyboardEvent } from "react";
-import React from "react";
+import React, { Component, KeyboardEvent } from "react";
+import { connect } from "react-redux";
+import { RouteComponentProps, withRouter } from "react-router";
 import { Formik, Field } from "formik";
-import { QueueDto, QueueUpdateDto } from "../../../api/types";
+
 import {
     ModalHeader,
     ModalBody,
@@ -12,12 +13,12 @@ import {
     Input,
     Button,
 } from "reactstrap";
+import { QueueDto, QueueUpdateDto } from "../../../api/types";
+
 import {
     QueueEditRequestedAction,
     queueEditRequestedAction,
 } from "../../../state/queuing/actions";
-import { connect } from "react-redux";
-import { RouteComponentProps, withRouter } from "react-router";
 
 interface QueueEditModalProps {
     queue: QueueDto;
@@ -35,6 +36,9 @@ interface QueueCreatorValues {
     name: string;
 }
 
+/**
+ * A modal that allows the permitted user to edit a queue.
+ */
 class QueueEditModal extends Component<
     QueueEditModalProps & RouteComponentProps<any>
 > {

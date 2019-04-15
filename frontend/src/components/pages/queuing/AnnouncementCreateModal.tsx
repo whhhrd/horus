@@ -22,6 +22,9 @@ interface AnnouncementValues {
     announcement: string;
 }
 
+/**
+ * A modal that allows the user to create an announcement.
+ */
 export default class AnnouncementCreateModal extends Component<
     AnnouncementCreateModalProps
 > {
@@ -32,7 +35,7 @@ export default class AnnouncementCreateModal extends Component<
     render() {
         return (
             <Modal autoFocus={false} isOpen={this.props.isOpen}>
-                <ModalHeader toggle={() => this.onCloseModal()}>
+                <ModalHeader toggle={() => this.props.onCloseModal()}>
                     Creating an announcement for this room
                 </ModalHeader>
 
@@ -40,7 +43,7 @@ export default class AnnouncementCreateModal extends Component<
                     initialValues={{ announcement: "" }}
                     onSubmit={(result: AnnouncementValues) => {
                         this.props.onCreate(result.announcement);
-                        this.onCloseModal();
+                        this.props.onCloseModal();
                     }}
                 >
                     {({ handleSubmit, values }) => (
@@ -79,7 +82,7 @@ export default class AnnouncementCreateModal extends Component<
                                     outline
                                     block
                                     color="secondary"
-                                    onClick={() => this.onCloseModal()}
+                                    onClick={() => this.props.onCloseModal()}
                                 >
                                     Cancel
                                 </Button>
@@ -97,9 +100,5 @@ export default class AnnouncementCreateModal extends Component<
                 </Formik>
             </Modal>
         );
-    }
-
-    onCloseModal() {
-        this.props.onCloseModal();
     }
 }

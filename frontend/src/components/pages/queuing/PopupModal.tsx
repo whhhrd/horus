@@ -17,6 +17,20 @@ interface PopupModalState {
     reminder: RemindDto | null;
 }
 
+/**
+ * A modal that is used for a variety of purposes.
+ * The main purpose is to notify students (on their own device)
+ * that it is their turn to and to let them know they should raise
+ * their hands.
+ *
+ * Another important usage of this modal is for the beamer view. When
+ * a student is accepted (or notified again), this modal pops ups for
+ * as long as the given 'timer' (in ms) specifies. When multiple
+ * students are accepted simultaneously, the modals are queued.
+ *
+ * Finally, this modal can also be used for displaying queue notifications
+ * to students on their own device.
+ */
 export default class PopupModal extends PureComponent<
     PopupModalProps,
     PopupModalState
@@ -41,16 +55,22 @@ export default class PopupModal extends PureComponent<
     }
 
     switchModal(currRem: RemindDto) {
-        this.setState(() => ({ switching: true }), () => {
-            setTimeout(() => {
-                this.setState(() => ({
-                    switching: false,
-                    reminder: currRem,
-                }), () => {
-                    this.closeModalTimeout();
-                });
-            }, 250);
-        });
+        this.setState(
+            () => ({ switching: true }),
+            () => {
+                setTimeout(() => {
+                    this.setState(
+                        () => ({
+                            switching: false,
+                            reminder: currRem,
+                        }),
+                        () => {
+                            this.closeModalTimeout();
+                        },
+                    );
+                }, 250);
+            },
+        );
     }
 
     componentDidUpdate(prProps: PopupModalProps) {
@@ -59,9 +79,12 @@ export default class PopupModal extends PureComponent<
             const prevRem = prProps.reminder;
 
             if (prevRem == null && currRem != null) {
-                this.setState(() => ({ reminder: currRem }), () => {
-                    this.closeModalTimeout();
-                });
+                this.setState(
+                    () => ({ reminder: currRem }),
+                    () => {
+                        this.closeModalTimeout();
+                    },
+                );
             } else if (prevRem != null && currRem == null) {
                 this.setState(() => ({ reminder: null }));
                 return;

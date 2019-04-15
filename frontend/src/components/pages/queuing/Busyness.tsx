@@ -1,19 +1,21 @@
-import { RoomQueueLengthsDto, QueueLengthDto } from "../../../api/types";
-import { PureComponent } from "react";
+import React, { PureComponent } from "react";
 import { RouteComponentProps, withRouter } from "react-router";
 import { connect } from "react-redux";
+
+import { Col, Card, CardHeader, CardTitle, CardBody, Badge } from "reactstrap";
+
+import { RoomQueueLengthsDto, QueueLengthDto } from "../../../api/types";
 import { ApplicationState } from "../../../state/state";
 import { getRoomQueueLengths } from "../../../state/queuing/selectors";
-import { Col, Card, CardHeader, CardTitle, CardBody, Badge } from "reactstrap";
-import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStoreAlt } from "@fortawesome/free-solid-svg-icons";
-import Queue from "./Queue";
-import { gradientColor } from "../../util";
 import {
     RoomQueueLengthsRequestedAction,
     roomQueueLengthsRequestedAction,
 } from "../../../state/queuing/actions";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStoreAlt } from "@fortawesome/free-solid-svg-icons";
+import Queue from "./Queue";
+import { gradientColor } from "../../util";
 
 interface BusynessProps {
     roomCode: string;
@@ -24,6 +26,13 @@ interface BusynessProps {
     ) => RoomQueueLengthsRequestedAction;
 }
 
+/**
+ * A queue compliant card component that displays the
+ * busyness in other rooms that are linked to the course.
+ * Only shows the two queues in the other rooms that have
+ * the most queued students.
+ * Polls the busyness every POLL_INTERVAL seconds.
+ */
 class Busyness extends PureComponent<BusynessProps & RouteComponentProps<any>> {
     static POLL_INTERVAL = 30000;
     poller: number;
@@ -99,12 +108,20 @@ class Busyness extends PureComponent<BusynessProps & RouteComponentProps<any>> {
                                                             </p>
                                                         </div>
                                                         <div className="d-flex flex-column flex-grow-1 py-2">
-                                                            {rql.queues.map(
-                                                                (q) =>
+                                                            {rql.queues
+                                                                .sort((a, b) =>
+                                                                    a.length <=
+                                                                    b.length
+                                                                        ? 1
+                                                                        : -1,
+                                                                )
+                                                                .slice(0, 2)
+                                                                .map((q, i) =>
                                                                     this.buildQueueEntry(
                                                                         q,
+                                                                        i,
                                                                     ),
-                                                            )}
+                                                                )}
                                                         </div>
                                                     </div>
                                                 </CardBody>
@@ -120,7 +137,7 @@ class Busyness extends PureComponent<BusynessProps & RouteComponentProps<any>> {
         }
     }
 
-    buildQueueEntry(queue: QueueLengthDto) {
+    buildQueueEntry(queue: QueueLengthDto, index: number) {
         const numOfEntries = queue.length;
         const progress = Math.max(
             0,
@@ -128,7 +145,7 @@ class Busyness extends PureComponent<BusynessProps & RouteComponentProps<any>> {
         );
         return (
             <div
-                key={queue.name}
+                key={queue.name + index}
                 className="d-flex flex-row justify-content-between w-100 my-1 pl-2"
             >
                 <div>{queue.name}</div>

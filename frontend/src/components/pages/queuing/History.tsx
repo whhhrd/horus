@@ -1,13 +1,7 @@
-import { AcceptDto, QueueDto } from "../../../api/types";
-import {
-    RemindRequestedAction,
-    remindRequestedAction,
-} from "../../../state/queuing/actions";
-import { PureComponent } from "react";
-import { RouteComponentProps, withRouter } from "react-router";
+import React, { PureComponent } from "react";
 import { connect } from "react-redux";
-import { ApplicationState } from "../../../state/state";
-import { getHistory, getQueues } from "../../../state/queuing/selectors";
+import { RouteComponentProps, withRouter } from "react-router";
+
 import {
     Col,
     Card,
@@ -17,12 +11,19 @@ import {
     Table,
     Button,
 } from "reactstrap";
-import React from "react";
+
+import { AcceptDto, QueueDto } from "../../../api/types";
+import {
+    RemindRequestedAction,
+    remindRequestedAction,
+} from "../../../state/queuing/actions";
+import { ApplicationState } from "../../../state/state";
+import { getHistory, getQueues } from "../../../state/queuing/selectors";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHistory, faBell } from "@fortawesome/free-solid-svg-icons";
 
 interface HistoryProps {
-    size?: number;
     taMode?: boolean;
     roomHistory: AcceptDto[] | null;
     queues: QueueDto[] | null;
@@ -34,14 +35,23 @@ interface HistoryProps {
     ) => RemindRequestedAction;
 }
 
+/**
+ * A queue compliant card that displays the history/activity in the
+ * rooms. Each activity is displayed as a table row with the
+ * accepted student, the TA that accepted the student and, for
+ * permitted users, a button to remind the accepted student again
+ * if they did not raise their hands.
+ * Only shows HISTORY_SIZE activity entries.
+ */
 class History extends PureComponent<HistoryProps & RouteComponentProps<any>> {
+    static HISTORY_SIZE = 5;
+
     static defaultProps = {
-        size: 5,
         taMode: false,
     };
 
     render() {
-        const { taMode, roomHistory, queues, size } = this.props;
+        const { taMode, roomHistory, queues } = this.props;
 
         if (queues == null || roomHistory == null) {
             return null;
@@ -78,7 +88,7 @@ class History extends PureComponent<HistoryProps & RouteComponentProps<any>> {
                                     </thead>
                                     <tbody>
                                         {roomHistory
-                                            .slice(0, size)
+                                            .slice(0, History.HISTORY_SIZE)
                                             .map((h, i) => (
                                                 <tr
                                                     key={

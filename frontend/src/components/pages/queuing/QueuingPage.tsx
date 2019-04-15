@@ -1,10 +1,9 @@
 import React, { Component, Fragment } from "react";
-import {
-    QueuingMode,
-    AcceptedParticipant,
-    ConnectionState,
-} from "../../../state/queuing/types";
-import Queue from "./Queue";
+import { withRouter, RouteComponentProps } from "react-router";
+import { connect } from "react-redux";
+
+import { Row, Button, Alert } from "reactstrap";
+
 import {
     RoomDto,
     AnnouncementDto,
@@ -18,6 +17,11 @@ import {
     UpdateType,
     AddAnnouncementDto,
 } from "../../../api/types";
+import {
+    QueuingMode,
+    AcceptedParticipant,
+    ConnectionState,
+} from "../../../state/queuing/types";
 import {
     announcementCreatedAction,
     announcementRemovedAction,
@@ -40,8 +44,6 @@ import {
     acceptNextAction,
     AcceptNextAction,
 } from "../../../state/queuing/actions";
-import { withRouter, RouteComponentProps } from "react-router";
-import { connect } from "react-redux";
 import {
     getAnnouncements,
     getQueues,
@@ -55,18 +57,27 @@ import {
     AssignmentSetsFetchAction,
 } from "../../../state/assignments/actions";
 import { getAssignmentSets } from "../../../state/assignments/selectors";
+import { getRoom } from "../../../state/rooms/selectors";
+import {
+    RoomsFetchRequestedAction,
+    roomsFetchRequestedAction,
+} from "../../../state/rooms/action";
+
+import QueueCreateModal from "./QueueCreateModal";
+import AnnouncementCreateModal from "./AnnouncementCreateModal";
+import AnnouncementDeleteModal from "./AnnouncementDeleteModal";
+import QueueDeleteModal from "./QueueDeleteModal";
+import History from "./History";
+import Busyness from "./Busyness";
+import { QueuingSocket } from "./QueuingSocket";
+import Queue from "./Queue";
 import PopupModal from "./PopupModal";
 import {
     buildContent,
     buildBigCenterMessage,
     buildConnectingSpinner,
 } from "../../pagebuilder";
-import { getRoom } from "../../../state/rooms/selectors";
-import {
-    RoomsFetchRequestedAction,
-    roomsFetchRequestedAction,
-} from "../../../state/rooms/action";
-import { Row, Button, Alert } from "reactstrap";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faDoorClosed,
@@ -77,12 +88,6 @@ import {
     faExclamationTriangle,
     faBell,
 } from "@fortawesome/free-solid-svg-icons";
-import QueueCreateModal from "./QueueCreateModal";
-import AnnouncementCreateModal from "./AnnouncementCreateModal";
-import AnnouncementDeleteModal from "./AnnouncementDeleteModal";
-import QueueDeleteModal from "./QueueDeleteModal";
-import History from "./History";
-import Busyness from "./Busyness";
 
 interface QueuingPageProps {
     announcements: AnnouncementDto[] | null;
@@ -142,12 +147,24 @@ interface QueuingPageState {
     newAnnouncement: AnnouncementDto | null;
     reminder: RemindDto | null;
 }
+
+/**
+ * A page that displays the existing queues within a given room.
+ * Besides displaying the queues, it displays the existing
+ * announcements and room history, as well as the busyness in other
+ * rooms.
+ *
+ * Depending on the permissions of the user, multiple actions can be
+ * performed, such as creating a new queue and creating an announcement.
+ *
+ * A student is only permitted to join and leave a queue.
+ */
 class QueuingPage extends Component<
     QueuingPageProps & RouteComponentProps<any>,
     QueuingPageState
 > {
     private acceptedParticipant: AcceptedParticipant | null = null;
-    private sock: WebSocket | null = null;
+    private queuingSocket: QueuingSocket | null = null;
     constructor(props: QueuingPageProps & RouteComponentProps<any>) {
         super(props);
         this.state = {
@@ -160,10 +177,6 @@ class QueuingPage extends Component<
             newAnnouncement: null,
             reminder: null,
         };
-        this.onSockClose = this.onSockClose.bind(this);
-        this.onSockError = this.onSockError.bind(this);
-        this.onSockMessage = this.onSockMessage.bind(this);
-        this.onSockOpen = this.onSockOpen.bind(this);
         this.toggleAnnouncementCreateModal = this.toggleAnnouncementCreateModal.bind(
             this,
         );
@@ -218,6 +231,7 @@ class QueuingPage extends Component<
         );
         this.props.fetchRooms(this.props.match.params.cid);
         this.props.requestAssignmentSets(Number(this.props.match.params.cid));
+
         // Start listening to our service worker for responses to the notifications
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.addEventListener(
@@ -240,8 +254,15 @@ class QueuingPage extends Component<
                 },
             );
         }
-        // Start listening to the websocket for changes to the queuing state
-        this.connect();
+
+        this.queuingSocket = new QueuingSocket(
+            this.props.match.params.rid,
+            this.onSockOpen,
+            this.onSockClose,
+            this.onSockMessage,
+            this.onSockError,
+            this,
+        );
     }
 
     componentDidUpdate(
@@ -298,12 +319,8 @@ class QueuingPage extends Component<
     }
 
     componentWillUnmount() {
-        if (this.sock != null) {
-            this.sock.close();
-            this.sock.removeEventListener("open", this.onSockOpen);
-            this.sock.removeEventListener("close", this.onSockClose);
-            this.sock.removeEventListener("message", this.onSockMessage);
-            this.sock.removeEventListener("error", this.onSockError);
+        if (this.queuingSocket != null) {
+            this.queuingSocket.shutdown();
         }
     }
 
@@ -369,28 +386,6 @@ class QueuingPage extends Component<
         }
     }
 
-    // TODO proper error handling and recovering connection
-    private connect() {
-        // TODO remove this crap when not needed anymore
-        const protocol = location.protocol === "https:" ? "wss" : "ws";
-        const port = location.port.length > 0 ? `:${location.port}` : "";
-        const wsUrl = `${protocol}://${
-            location.hostname
-        }${port}/ws/queuing/rooms/${this.props.match.params.rid}/feed`;
-        if (this.sock != null) {
-            this.sock.close();
-            this.sock.removeEventListener("open", this.onSockOpen);
-            this.sock.removeEventListener("close", this.onSockClose);
-            this.sock.removeEventListener("message", this.onSockMessage);
-            this.sock.removeEventListener("error", this.onSockError);
-        }
-        this.sock = new WebSocket(wsUrl);
-        this.sock.addEventListener("open", this.onSockOpen);
-        this.sock.addEventListener("close", this.onSockClose);
-        this.sock.addEventListener("message", this.onSockMessage);
-        this.sock.addEventListener("error", this.onSockError);
-    }
-
     private onSockOpen() {
         this.setState({ connectionState: ConnectionState.Connected });
     }
@@ -402,7 +397,18 @@ class QueuingPage extends Component<
             });
         } else {
             this.setState({ connectionState: ConnectionState.Reconnecting });
-            setTimeout(() => this.connect(), 2000);
+            setTimeout(
+                () =>
+                    (this.queuingSocket = new QueuingSocket(
+                        this.props.match.params.rid,
+                        this.onSockOpen,
+                        this.onSockClose,
+                        this.onSockMessage,
+                        this.onSockError,
+                        this,
+                    )),
+                2000,
+            );
         }
     }
 
@@ -476,6 +482,11 @@ class QueuingPage extends Component<
         }
     }
 
+    /**
+     * Builds a warning when the user has not accepted the permissions
+     * for browser notifications. A button will be displayed which, when
+     * clicked, opens the notification permission prompt.
+     */
     private buildNotificationWarning() {
         if ("Notification" in window && Notification.permission !== "granted") {
             const abbr = (
@@ -576,6 +587,11 @@ class QueuingPage extends Component<
         }
     }
 
+    /**
+     * Builds the buttons and the modals that the
+     * teaching staff will need to manage the room,
+     * such ass the ability to create rooms and announcement.
+     */
     private buildTaTools() {
         if (this.state.mode !== QueuingMode.TA) {
             return null;
@@ -690,6 +706,10 @@ class QueuingPage extends Component<
         }
     }
 
+    /**
+     * Builds the announcement that are currently
+     * active within the room.
+     */
     private buildAnnouncements() {
         const { announcements } = this.props;
 
@@ -716,6 +736,9 @@ class QueuingPage extends Component<
         }
     }
 
+    /**
+     * Builds the queues that exist within the room
+     */
     private buildQueues() {
         const { mode } = this.state;
         return (

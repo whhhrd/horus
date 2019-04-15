@@ -1,8 +1,4 @@
 import React, { Component } from "react";
-import { QueueEntry, QueuingMode } from "../../../state/queuing/types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faTimes, faEdit } from "@fortawesome/free-solid-svg-icons";
-import { ParticipantDtoBrief, QueueDto } from "../../../api/types";
 import {
     Col,
     Card,
@@ -14,9 +10,15 @@ import {
     ListGroupItem,
     Badge,
 } from "reactstrap";
+
+import { QueueEntry, QueuingMode } from "../../../state/queuing/types";
+import { ParticipantDtoBrief, QueueDto } from "../../../api/types";
+
 import QueueTimeBadge from "./QueueTimeBadge";
-import { gradientColor } from "../../util";
 import QueueEditModal from "./QueueEditModal";
+import { gradientColor } from "../../util";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faTimes, faEdit } from "@fortawesome/free-solid-svg-icons";
 
 interface QueueProps {
     queue: QueueDto;
@@ -32,6 +34,15 @@ interface QueueState {
     queueToEdit: QueueDto | null;
 }
 
+/**
+ * Displays a component that holds details and options of a room queue.
+ * Details that will be displayed can be the students in the queue,
+ * the queue name, the number of students in the queue and the time
+ * a student has been in the queue.
+ *
+ * Options that are displayed, such as editing, deleting and accepting
+ * people from the queue, depend on the permissions of the user.
+ */
 export default class Queue extends Component<QueueProps, QueueState> {
     static UNACCEPTABLE_QUEUE_LENGTH = 15;
 
@@ -246,7 +257,13 @@ export default class Queue extends Component<QueueProps, QueueState> {
         );
     }
 
-    private buildJoinLeaveButton(numOfEntries: number) {
+    /**
+     * Builds a join queue/leave queue button. When the user
+     * is on a phone, the number of queued students is displayed
+     * inside of this button instead of to the left of it.
+     * @param numOfQueuedStudents The number of queued students.
+     */
+    private buildJoinLeaveButton(numOfQueuedStudents: number) {
         const { mode, currentParticipant, onJoinQueue, entries } = this.props;
         if (
             mode === QueuingMode.Student &&
@@ -268,7 +285,7 @@ export default class Queue extends Component<QueueProps, QueueState> {
                     >
                         Join Queue{" "}
                         <Badge pill className="d-lg-none ml-1" color="success">
-                            {numOfEntries}
+                            {numOfQueuedStudents}
                         </Badge>
                     </Button>
                 );

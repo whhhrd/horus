@@ -30,6 +30,9 @@ interface QueueCreateModalState {
     isSignOffQueue: boolean;
 }
 
+/**
+ * A modal that allows the permitted user to create a queue.
+ */
 export default class QueueCreateModal extends Component<
     QueueCreateModalProps,
     QueueCreateModalState

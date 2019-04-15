@@ -1,6 +1,10 @@
 import React, { Component } from "react";
+import { withRouter, RouteComponentProps } from "react-router";
+import { connect } from "react-redux";
+
+import { Alert, Row } from "reactstrap";
+
 import { ConnectionState } from "../../../state/queuing/types";
-import Queue from "./Queue";
 import {
     RoomDto,
     AnnouncementDto,
@@ -15,8 +19,6 @@ import {
     updateReceivedAction,
     UpdateReceivedAction,
 } from "../../../state/queuing/actions";
-import { withRouter, RouteComponentProps } from "react-router";
-import { connect } from "react-redux";
 import {
     getAnnouncements,
     getHistory,
@@ -24,12 +26,16 @@ import {
     getRoom,
 } from "../../../state/queuing/selectors";
 import { ApplicationState } from "../../../state/state";
+
 import {
     buildConnectingSpinner,
     buildBigCenterMessage,
     setPageTitle,
 } from "../../pagebuilder";
-import { Alert, Row } from "reactstrap";
+import PopupModal from "./PopupModal";
+import History from "./History";
+import Queue from "./Queue";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faBullhorn,
@@ -37,13 +43,11 @@ import {
     faTimes,
     faSadCry,
 } from "@fortawesome/free-solid-svg-icons";
-import PopupModal from "./PopupModal";
-import History from "./History";
+import { QueuingSocket } from "./QueuingSocket";
 
 interface ProjectorQueuingPageProps {
     newAnnouncement: AnnouncementDto | null;
     announcements: AnnouncementDto[] | null;
-    // queueHistory: AcceptDto[] | null;
     queues: QueueDto[] | null;
     room: RoomDto | null;
     updateReceived: (update: UpdateDto) => UpdateReceivedAction;
@@ -54,13 +58,21 @@ interface ProjectorQueuingPageState {
     reminders: RemindDto[];
 }
 
+/**
+ * This component is used to display the queues and history on
+ * a beamer view. This page can be accessed by specifying the
+ * room code in the URL or by submitting the room code in the
+ * beamer prompt page ProjectorRoomPromptPage. When students
+ * are accepted on any queue, a PopupModal will be generated
+ * which will be visible for NOTIFICATION_DURATION milliseconds.
+ */
 class ProjectorQueuingPage extends Component<
     ProjectorQueuingPageProps & RouteComponentProps<any>,
     ProjectorQueuingPageState
 > {
     static NOTIFICATION_DURATION = 5000;
 
-    private sock: WebSocket | null = null;
+    private queuingSocket: QueuingSocket | null = null;
 
     constructor(props: ProjectorQueuingPageProps & RouteComponentProps<any>) {
         super(props);
@@ -68,15 +80,30 @@ class ProjectorQueuingPage extends Component<
             connectionState: ConnectionState.Connecting,
             reminders: [],
         };
-        this.onSockClose = this.onSockClose.bind(this);
-        this.onSockError = this.onSockError.bind(this);
-        this.onSockMessage = this.onSockMessage.bind(this);
-        this.onSockOpen = this.onSockOpen.bind(this);
     }
 
     render() {
-        const room = this.props.room;
-        if (room != null) {
+        const { room, queues } = this.props;
+        const { connectionState } = this.state;
+
+        if (
+            connectionState === ConnectionState.Connecting ||
+            (connectionState === ConnectionState.Connected && queues == null)
+        ) {
+            return buildConnectingSpinner("Connecting...");
+        }
+
+        if (this.state.connectionState === ConnectionState.Reconnecting) {
+            return buildConnectingSpinner("Reconnecting...");
+        }
+
+        if (this.state.connectionState === ConnectionState.Closed) {
+            return buildBigCenterMessage("Room is closed", faDoorClosed);
+        } else if (
+            this.state.connectionState === ConnectionState.Connected &&
+            this.props.queues != null &&
+            room != null
+        ) {
             setPageTitle("Room: " + room.name + `(${room.code})`);
             return (
                 <div style={{ height: "100vh" }}>
@@ -91,9 +118,7 @@ class ProjectorQueuingPage extends Component<
                                 <div className="ContentBody d-flex flex-column flex-fill">
                                     {/* The content header box displaying the 'headerTitle' argument */}
                                     <div className="ContentHeader px-3 pt-3 w-100">
-                                        <h2>
-                                            {"Room: " + room.name}
-                                        </h2>
+                                        <h2>{"Room: " + room.name}</h2>
                                         <hr className="mb-0" />
                                     </div>
 
@@ -114,56 +139,26 @@ class ProjectorQueuingPage extends Component<
                     </div>
                 </div>
             );
-        } else if (this.state.connectionState === ConnectionState.Closed) {
-            return buildBigCenterMessage("Oops! Room not found.", faSadCry);
         } else {
-            return buildConnectingSpinner("Connecting to room...");
+            return buildBigCenterMessage("Unknown error occurred", faTimes);
         }
     }
 
-    componentDidMount() {
-        // Start listening to the websocket for changes to the queuing state
-        this.connect();
+    componentWillMount() {
+        this.queuingSocket = new QueuingSocket(
+            this.props.match.params.rid,
+            this.onSockOpen,
+            this.onSockClose,
+            this.onSockMessage,
+            this.onSockError,
+            this,
+        );
     }
 
     componentWillUnmount() {
-        if (this.sock != null) {
-            this.sock.close();
-            this.sock.removeEventListener("open", this.onSockOpen);
-            this.sock.removeEventListener("close", this.onSockClose);
-            this.sock.removeEventListener("message", this.onSockMessage);
-            this.sock.removeEventListener("error", this.onSockError);
+        if (this.queuingSocket != null) {
+            this.queuingSocket.shutdown();
         }
-    }
-
-    // TODO proper error handling and recovering connection
-    private connect() {
-        // TODO remove this crap when not needed anymore
-        let protocol = "ws";
-        if (location.protocol === "https:") {
-            protocol = protocol + "s";
-        }
-        let port = "";
-        if (location.port === "8081") {
-            port = ":8080";
-        } else if (location.port.length > 0) {
-            port = ":" + location.port;
-        }
-        const wsUrl = `${protocol}://${
-            location.hostname
-        }${port}/ws/queuing/rooms/${this.props.match.params.rid}/feed`;
-        if (this.sock != null) {
-            this.sock.close();
-            this.sock.removeEventListener("open", this.onSockOpen);
-            this.sock.removeEventListener("close", this.onSockClose);
-            this.sock.removeEventListener("message", this.onSockMessage);
-            this.sock.removeEventListener("error", this.onSockError);
-        }
-        this.sock = new WebSocket(wsUrl);
-        this.sock.addEventListener("open", this.onSockOpen);
-        this.sock.addEventListener("close", this.onSockClose);
-        this.sock.addEventListener("message", this.onSockMessage);
-        this.sock.addEventListener("error", this.onSockError);
     }
 
     private onSockOpen() {
@@ -177,7 +172,18 @@ class ProjectorQueuingPage extends Component<
             });
         } else {
             this.setState({ connectionState: ConnectionState.Reconnecting });
-            setTimeout(() => this.connect(), 2000);
+            setTimeout(
+                () =>
+                    (this.queuingSocket = new QueuingSocket(
+                        this.props.match.params.rid,
+                        this.onSockOpen,
+                        this.onSockClose,
+                        this.onSockMessage,
+                        this.onSockError,
+                        this,
+                    )),
+                2000,
+            );
         }
     }
 
@@ -241,6 +247,12 @@ class ProjectorQueuingPage extends Component<
         }
     }
 
+    /**
+     * Generates a PopupModal with the first reminder in the
+     * queue. Sets the timer field for the reminder, which causes
+     * the PopupModal to expire after the specified duration, clearing
+     * the first element in the queue and displaying the next (if exists).
+     */
     private buildPopup() {
         const nextReminder = this.state.reminders[0];
         return (
@@ -252,6 +264,10 @@ class ProjectorQueuingPage extends Component<
         );
     }
 
+    /**
+     * Builds the Alerts that display the current
+     * announcements visible in the room.
+     */
     private buildAnnouncements() {
         const { announcements } = this.props;
 
@@ -273,6 +289,9 @@ class ProjectorQueuingPage extends Component<
         }
     }
 
+    /**
+     * Builds the queues and the history.
+     */
     private buildQueues() {
         return (
             <Row className="row-eq-height">
@@ -293,6 +312,11 @@ class ProjectorQueuingPage extends Component<
         );
     }
 
+    /**
+     * Adds a reminder to the queue, which the PopupModal will
+     * eventually display.
+     * @param reminder The reminder to be added to the queue.
+     */
     private addReminderToQueue(reminder: RemindDto) {
         this.setState((state) => {
             const existingReminder = state.reminders.find(
@@ -309,6 +333,11 @@ class ProjectorQueuingPage extends Component<
         });
     }
 
+    /**
+     * Removes the first reminder from the queue,
+     * most likely because it has been displayed and
+     * dismissed by the PopupModal onCloseModal callback.
+     */
     private removeReminderFromQueue() {
         this.setState((state) => {
             const newReminders = state.reminders.slice();

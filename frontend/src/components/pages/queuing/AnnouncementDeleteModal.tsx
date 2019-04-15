@@ -11,8 +11,8 @@ import {
 
 interface AnnouncementDeleteModalProps {
     isOpen: boolean;
-    onCloseModal: () => void;
     announcement: AnnouncementDto;
+    onCloseModal: () => void;
     deleteAnnouncement: (
         rid: string,
         cid: number,
@@ -20,6 +20,9 @@ interface AnnouncementDeleteModalProps {
     ) => AnnouncementRemovedAction;
 }
 
+/**
+ * A modal that allows the user to delete an announcement.
+ */
 class AnnouncementDeleteModal extends Component<
     AnnouncementDeleteModalProps & RouteComponentProps<any>
 > {
@@ -59,10 +62,6 @@ class AnnouncementDeleteModal extends Component<
             Number(this.props.match.params.cid),
             this.props.announcement.id,
         );
-        this.onCloseModal();
-    }
-
-    onCloseModal() {
         this.props.onCloseModal();
     }
 }

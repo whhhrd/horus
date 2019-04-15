@@ -1,5 +1,7 @@
-import { Component } from "react";
-import React from "react";
+import React, { Component } from "react";
+import { withRouter, RouteComponentProps } from "react-router";
+import { connect } from "react-redux";
+
 import {
     ModalHeader,
     ModalBody,
@@ -8,20 +10,20 @@ import {
     Button,
     Alert,
 } from "reactstrap";
+
 import { QueueDto } from "../../../api/types";
-import { withRouter, RouteComponentProps } from "react-router";
-import { connect } from "react-redux";
 import {
     QueueRemovedAction,
     queueRemovedAction,
 } from "../../../state/queuing/actions";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 
 interface QueueDeleteModalProps {
     isOpen: boolean;
-    onCloseModal: () => void;
     queue: QueueDto;
+    onCloseModal: () => void;
     deleteQueue: (
         rid: string,
         cid: number,
@@ -29,6 +31,9 @@ interface QueueDeleteModalProps {
     ) => QueueRemovedAction;
 }
 
+/**
+ * A modal that allows the permitted user to delete a queue.
+ */
 class QueueDeleteModal extends Component<
     QueueDeleteModalProps & RouteComponentProps<any>
 > {
