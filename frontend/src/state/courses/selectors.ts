@@ -21,3 +21,6 @@ export const getCourseFull = (state: ApplicationState, id: number) => {
         return course != null ? course : null;
     }
 };
+
+export const getCurrentParticipant = (state: ApplicationState) =>
+    state.course != null ? state.course.currentParticipant : null;

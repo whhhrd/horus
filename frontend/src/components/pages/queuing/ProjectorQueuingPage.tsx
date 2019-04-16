@@ -40,7 +40,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faBullhorn,
     faDoorClosed,
-    faTimes,
     faSadCry,
 } from "@fortawesome/free-solid-svg-icons";
 import { QueuingSocket } from "./QueuingSocket";
@@ -83,27 +82,10 @@ class ProjectorQueuingPage extends Component<
     }
 
     render() {
-        const { room, queues } = this.props;
+        const { room } = this.props;
         const { connectionState } = this.state;
 
-        if (
-            connectionState === ConnectionState.Connecting ||
-            (connectionState === ConnectionState.Connected && queues == null)
-        ) {
-            return buildConnectingSpinner("Connecting...");
-        }
-
-        if (this.state.connectionState === ConnectionState.Reconnecting) {
-            return buildConnectingSpinner("Reconnecting...");
-        }
-
-        if (this.state.connectionState === ConnectionState.Closed) {
-            return buildBigCenterMessage("Room is closed", faDoorClosed);
-        } else if (
-            this.state.connectionState === ConnectionState.Connected &&
-            this.props.queues != null &&
-            room != null
-        ) {
+        if (room != null) {
             setPageTitle("Room: " + room.name + `(${room.code})`);
             return (
                 <div style={{ height: "100vh" }}>
@@ -125,7 +107,9 @@ class ProjectorQueuingPage extends Component<
                                     {/* The main content box, displaying the elements from the 'content' argument or
                                         the center spinner if the content is Null. */}
                                     <div className="ContentMain px-3 pt-3 pb-3 w-100">
-                                        {this.buildContent()}
+                                        {this.buildAnnouncements()}
+                                        {this.buildQueues()}
+                                        {this.buildPopup()}
                                     </div>
                                 </div>
                             </div>
@@ -139,8 +123,27 @@ class ProjectorQueuingPage extends Component<
                     </div>
                 </div>
             );
+        } else if (connectionState === ConnectionState.NotFound) {
+            setPageTitle("");
+            return (
+                <div style={{ height: "100vh" }}>
+                    {buildBigCenterMessage("Oops! Room not found.", faSadCry)}
+                </div>
+            );
+        } else if (this.state.connectionState === ConnectionState.Closed) {
+            setPageTitle("");
+            return (
+                <div style={{ height: "100vh" }}>
+                    {buildBigCenterMessage("Rooms is closed.", faDoorClosed)}
+                </div>
+            );
         } else {
-            return buildBigCenterMessage("Unknown error occurred", faTimes);
+            setPageTitle("");
+            return (
+                <div style={{ height: "100vh" }}>
+                    {buildConnectingSpinner("Connecting to room...")}
+                </div>
+            );
         }
     }
 
@@ -166,7 +169,11 @@ class ProjectorQueuingPage extends Component<
     }
 
     private onSockClose(event: CloseEvent) {
-        if (event.code === 1007 || event.code === 1000) {
+        if (event.code === 1007) {
+            this.setState({
+                connectionState: ConnectionState.NotFound,
+            });
+        } else if (event.code === 1000) {
             this.setState({
                 connectionState: ConnectionState.Closed,
             });
@@ -214,37 +221,6 @@ class ProjectorQueuingPage extends Component<
 
     private onSockError() {
         this.setState({ connectionState: ConnectionState.Reconnecting });
-    }
-
-    private buildContent() {
-        if (
-            this.state.connectionState === ConnectionState.Connecting ||
-            (this.state.connectionState === ConnectionState.Connected &&
-                this.props.queues == null)
-        ) {
-            return buildConnectingSpinner("Connecting...");
-        }
-
-        if (this.state.connectionState === ConnectionState.Reconnecting) {
-            return buildConnectingSpinner("Reconnecting...");
-        }
-
-        if (this.state.connectionState === ConnectionState.Closed) {
-            return buildBigCenterMessage("Room is closed", faDoorClosed);
-        } else if (
-            this.state.connectionState === ConnectionState.Connected &&
-            this.props.queues != null
-        ) {
-            return (
-                <div>
-                    {this.buildAnnouncements()}
-                    {this.buildQueues()}
-                    {this.buildPopup()}
-                </div>
-            );
-        } else {
-            return buildBigCenterMessage("Unknown error occurred", faTimes);
-        }
     }
 
     /**

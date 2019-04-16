@@ -145,5 +145,6 @@ export const notificationDirectToTasks = () => {
 };
 
 export const setPageTitle = (titleSuffix: string) => {
-    document.title = "Horus - " + titleSuffix;
+    document.title =
+        titleSuffix.trim().length > 0 ? "Horus - " + titleSuffix : "Horus";
 };

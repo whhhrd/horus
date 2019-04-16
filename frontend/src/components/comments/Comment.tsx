@@ -22,11 +22,8 @@ import {
     commentAnyDelete,
     commentOwnEdit,
 } from "../../state/auth/constants";
-import {
-    CurrentParticipantRequestedAction,
-    currentParticipantRequestedAction,
-} from "../../state/queuing/actions";
-import { getCurrentParticipant } from "../../state/queuing/selectors";
+import { CurrentParticipantRequestedAction, currentParticipantRequestedAction } from "../../state/courses/action";
+import { getCurrentParticipant } from "../../state/courses/selectors";
 
 interface CommentProps {
     entityId: number;

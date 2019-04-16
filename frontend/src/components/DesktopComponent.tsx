@@ -70,10 +70,10 @@ class DesktopComponent extends Component<
                         {/* The body for the actual content, a flex column that contanis the title and body content */}
                         <div className="ContentBody d-flex flex-column flex-fill">
                             {/* The content header box displaying the 'headerTitle' argument */}
-                            <div className="ContentHeader px-3 pt-3 w-100">
+                            {headerTitle.trim().length > 0 && <div className="ContentHeader px-3 pt-3 w-100">
                                 <h2>{headerTitle}</h2>
                                 <hr className="mb-0" />
-                            </div>
+                            </div>}
 
                             {/* The main content box, displaying the elements from the 'content' argument or
                                 the center spinner if the content is Null. */}

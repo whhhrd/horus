@@ -3,7 +3,6 @@ import {
     AcceptDto,
     QueueDto,
     RoomDto,
-    ParticipantDtoBrief,
     QueueParticipantDto,
     RoomQueueLengthsDto,
 } from "../../api/types";
@@ -35,7 +34,6 @@ export interface QueuingState {
     history: AcceptDto[];
     queues: QueueDto[];
     room: RoomDto | null;
-    participant: ParticipantDtoBrief | null;
     roomQueueLengths: RoomQueueLengthsDto[] | null;
 }
 
@@ -48,5 +46,6 @@ export enum ConnectionState {
     Connecting,
     Reconnecting,
     Connected,
+    NotFound,
     Closed,
 }

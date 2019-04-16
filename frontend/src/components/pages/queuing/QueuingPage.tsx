@@ -31,8 +31,6 @@ import {
     AcceptRequestedAction,
     updateReceivedAction,
     UpdateReceivedAction,
-    currentParticipantRequestedAction,
-    CurrentParticipantRequestedAction,
     queueCreatedAction,
     QueueCreatedAction,
     dequeueRequestedAction,
@@ -47,7 +45,6 @@ import {
 import {
     getAnnouncements,
     getQueues,
-    getCurrentParticipant,
 } from "../../../state/queuing/selectors";
 import { ApplicationState } from "../../../state/state";
 import { registration } from "../../..";
@@ -88,6 +85,8 @@ import {
     faExclamationTriangle,
     faBell,
 } from "@fortawesome/free-solid-svg-icons";
+import { CurrentParticipantRequestedAction, currentParticipantRequestedAction } from "../../../state/courses/action";
+import { getCurrentParticipant } from "../../../state/courses/selectors";
 
 interface QueuingPageProps {
     announcements: AnnouncementDto[] | null;
@@ -213,13 +212,22 @@ class QueuingPage extends Component<
     render() {
         const roomCode = this.props.match.params.rid;
         const room = this.props.room(roomCode);
+
         if (room != null) {
             return buildContent(
                 `Room: ${room!.name} (${room!.code})`,
                 this.buildContent(),
             );
+        } else if (this.state.connectionState === ConnectionState.NotFound) {
+            return buildContent(
+                "",
+                buildBigCenterMessage("Oops! Room not found.", faSadCry),
+            );
         } else if (this.state.connectionState === ConnectionState.Closed) {
-            return buildBigCenterMessage("Oops! Room not found.", faSadCry);
+            return buildContent(
+                "",
+                buildBigCenterMessage("Rooms is closed.", faDoorClosed),
+            );
         } else {
             return buildContent("Connecting to room...", null);
         }
@@ -391,7 +399,11 @@ class QueuingPage extends Component<
     }
 
     private onSockClose(event: CloseEvent) {
-        if (event.code === 1007 || event.code === 1000) {
+        if (event.code === 1007) {
+            this.setState({
+                connectionState: ConnectionState.NotFound,
+            });
+        } else if (event.code === 1000) {
             this.setState({
                 connectionState: ConnectionState.Closed,
             });
@@ -554,9 +566,7 @@ class QueuingPage extends Component<
                                 size="3x"
                             />
                         </div>
-                        <div className="text-center mb-3">
-                            {alertText}
-                        </div>
+                        <div className="text-center mb-3">{alertText}</div>
                         <div className="w-100 mb-2">
                             <Button
                                 color="danger"

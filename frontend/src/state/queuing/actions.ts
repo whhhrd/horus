@@ -1,7 +1,6 @@
 import { Action } from "redux";
 import {
     UpdateDto,
-    ParticipantDtoBrief,
     RoomQueueLengthsDto,
     QueueUpdateDto,
     QueueDto,
@@ -18,8 +17,6 @@ import {
     ENTER_QUEUE_ACTION,
     DEQUEUE_REQUESTED_ACTION,
     REMIND_REQUESTED_ACTION,
-    CURRENT_PARTICIPANT_REQUESTED_ACTION,
-    CURRENT_PARTICIPANT_RECEIVED_ACTION,
     DEQUEUE_SELF_REQUESTED_ACTION,
     ROOM_QUEUE_LENGTHS_REQUESTED_ACTION,
     ROOM_QUEUE_LENGTHS_REQUEST_SUCCEEDED_ACTION,
@@ -139,23 +136,6 @@ export const queueRemovedAction = (
     rid: string,
     queueId: string,
 ) => ({ type: QUEUE_REMOVED_ACTION, cid, rid, queueId });
-
-export interface CurrentParticipantRequestedAction extends Action<string> {
-    cid: number;
-}
-
-export const currentParticipantRequestedAction = (cid: number) => ({
-    type: CURRENT_PARTICIPANT_REQUESTED_ACTION,
-    cid,
-});
-
-export interface CurrentParticipantReceivedAction extends Action<string> {
-    readonly participant: ParticipantDtoBrief;
-}
-
-export const currentParticipantReceivedAction = (
-    participant: ParticipantDtoBrief,
-) => ({ type: CURRENT_PARTICIPANT_RECEIVED_ACTION, participant });
 
 export interface DequeueSelfRequestedAction extends Action<string> {
     cid: number;

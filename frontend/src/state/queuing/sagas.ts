@@ -1,9 +1,7 @@
-import { ParticipantDtoBrief, AcceptDto } from "../../api/types";
+import { AcceptDto } from "../../api/types";
 import { push } from "connected-react-router";
 import { authenticatedFetchJSON } from "../../api";
 import {
-    CurrentParticipantRequestedAction,
-    currentParticipantReceivedAction,
     QueueCreatedAction,
     AnnouncementCreatedAction,
     AnnouncementRemovedAction,
@@ -21,7 +19,6 @@ import {
 import { put, takeEvery, call } from "redux-saga/effects";
 import { notifyError } from "../notifications/constants";
 import {
-    CURRENT_PARTICIPANT_REQUESTED_ACTION,
     QUEUE_CREATED_ACTION,
     ANNOUNCEMENT_CREATED_ACTION,
     ANNOUNCEMENT_REMOVED_ACTION,
@@ -36,24 +33,6 @@ import {
     QUEUE_EDIT_REQUESTED_ACTION,
 } from "./constants";
 
-export function* getCurrentParticipant(
-    action: CurrentParticipantRequestedAction,
-) {
-    try {
-        const participant: ParticipantDtoBrief = yield call(
-            authenticatedFetchJSON,
-            "GET",
-            `courses/${action.cid}/participants/self`,
-        );
-        yield put(currentParticipantReceivedAction(participant));
-    } catch (e) {
-        yield put(
-            notifyError(
-                "An error occured while retrieving your details, try refreshing the page",
-            ),
-        );
-    }
-}
 export function* createQueue(action: QueueCreatedAction) {
     try {
         yield call(
@@ -251,10 +230,6 @@ export function* fetchRoomQueueLengths(action: RoomQueueLengthsRequestedAction) 
 }
 
 export default function* queuingSagas() {
-    yield takeEvery(
-        CURRENT_PARTICIPANT_REQUESTED_ACTION,
-        getCurrentParticipant,
-    );
     yield takeEvery(QUEUE_CREATED_ACTION, createQueue);
     yield takeEvery(ANNOUNCEMENT_CREATED_ACTION, createAnnouncement);
     yield takeEvery(ANNOUNCEMENT_REMOVED_ACTION, removeAnnouncement);

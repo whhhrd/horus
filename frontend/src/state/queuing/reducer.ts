@@ -1,16 +1,13 @@
 import { QueuingState } from "./types";
 import {
     UpdateReceivedAction,
-    CurrentParticipantReceivedAction,
     RoomQueueLenghtsRequestSucceededAction,
 } from "./actions";
 import {
     UPDATE_RECEIVED_ACTION,
     HISTORY_SIZE,
-    CURRENT_PARTICIPANT_RECEIVED_ACTION,
     ROOM_QUEUE_LENGTHS_REQUESTED_ACTION,
     ROOM_QUEUE_LENGTHS_REQUEST_SUCCEEDED_ACTION,
-    CURRENT_PARTICIPANT_REQUESTED_ACTION,
 } from "./constants";
 import {
     AcceptDto,
@@ -34,13 +31,11 @@ const initialState: QueuingState = {
     history: [],
     queues: [],
     room: null,
-    participant: null,
 };
 export default function queueReducer(
     state: QueuingState,
     action:
         | UpdateReceivedAction
-        | CurrentParticipantReceivedAction
         | RoomQueueLenghtsRequestSucceededAction,
 ): QueuingState {
     if (state == null) {
@@ -88,12 +83,6 @@ export default function queueReducer(
                 default:
                     return state;
             }
-        case CURRENT_PARTICIPANT_RECEIVED_ACTION:
-            return {
-                ...state,
-                participant: (action as CurrentParticipantReceivedAction)
-                    .participant,
-            };
 
         case ROOM_QUEUE_LENGTHS_REQUESTED_ACTION:
             return {
@@ -106,11 +95,6 @@ export default function queueReducer(
                 roomQueueLengths: (action as RoomQueueLenghtsRequestSucceededAction)
                     .queueLengths,
             };
-        case CURRENT_PARTICIPANT_REQUESTED_ACTION:
-            return {
-                ...state,
-                participant: null,
-            };
         default:
             return state;
     }
@@ -121,15 +105,6 @@ function accept(state: QueuingState, acceptDto: AcceptDto) {
     const newHistory = [acceptDto].concat(state.history);
     // Cut of last element if needed
     newHistory.slice(0, HISTORY_SIZE - 1);
-    if (
-        state.participant != null &&
-        state.participant.id === acceptDto.participant.id
-    ) {
-        return {
-            ...state,
-            history: newHistory,
-        };
-    }
     return {
         ...state,
         history: newHistory,

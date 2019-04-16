@@ -12,11 +12,6 @@ import {
     roomOpenRequestedAction,
 } from "../../../state/rooms/action";
 import { getRooms } from "../../../state/rooms/selectors";
-import {
-    CurrentParticipantRequestedAction,
-    currentParticipantRequestedAction,
-} from "../../../state/queuing/actions";
-import { getCurrentParticipant } from "../../../state/queuing/selectors";
 
 import { buildContent } from "../../pagebuilder";
 import RoomCreateModal from "./RoomCreateModal";
@@ -24,6 +19,8 @@ import RoomDeleteModal from "./RoomDeleteModal";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { CurrentParticipantRequestedAction, currentParticipantRequestedAction } from "../../../state/courses/action";
+import { getCurrentParticipant } from "../../../state/courses/selectors";
 
 interface RoomsProps {
     rooms: RoomDto[] | null;
