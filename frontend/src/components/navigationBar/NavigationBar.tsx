@@ -24,7 +24,7 @@ import { ApplicationState } from "../../state/state";
 import { getActiveTab } from "../../state/navigationBar/selectors";
 import { getCoursePermissions } from "../../state/auth/selectors";
 
-import logoWhite from "../../images/university_of_twente_logo_black.png";
+import horus from "../../images/horus_symbol.png";
 import { NavigationBarItem } from "./NavigationBarItem";
 import {
     faTachometerAlt,
@@ -100,14 +100,14 @@ export class NavigationBar extends Component<
                             {!onPhone && (
                                 <div>
                                     <Link
-                                        className="NavigationBarLogo py-3"
+                                        className="NavigationBarLogo py-3 px-4"
                                         to={
                                             inCourse
                                                 ? `/courses/${match.params.cid}`
                                                 : "/courses"
                                         }
                                     >
-                                        <img src={logoWhite} />
+                                        <img src={horus} />
                                     </Link>
                                 </div>
                             )}

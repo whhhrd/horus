@@ -1,5 +1,6 @@
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 const path = require('path');
 const APP_PATH = path.resolve(__dirname, 'src');
 
@@ -40,5 +41,9 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({ inject: true, template: path.join(APP_PATH, 'index.html') }),
-    new ForkTsCheckerWebpackPlugin()
+    new ForkTsCheckerWebpackPlugin(),
+    new CopyPlugin([
+      { from: path.join(APP_PATH, 'static/*'), to: './', flatten: true },
+      { from: path.join(APP_PATH, 'sw.js'), to: './', flatten: true },
+    ]),
 ]}

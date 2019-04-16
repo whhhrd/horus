@@ -26,6 +26,8 @@ import groupPicture from "../../../images/horus_group_picture_compressed.jpg";
 import { setPageTitle } from "../../pagebuilder";
 import { PATH_PROJECTOR_PROMPT } from "../../../routes";
 
+import horus from "../../../images/horus.png";
+
 export interface LoginProps {
     logIn: (
         form: LoginForm | null,
@@ -148,7 +150,7 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                         />
                     </svg>
                     <Jumbotron className="Login mx-auto">
-                        <h1 className="display-5">Horus</h1>
+                        <img className="w-100 pb-3" src={horus} />
                         <p className="lead">Sign-off manager</p>
                         <p className="lead mt-5 mb-0">
                             {(code == null || loginError != null) && (
