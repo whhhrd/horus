@@ -13,6 +13,8 @@ import {
     CANVAS_IMPORT_GROUP_SET_REQUESTED_ACTION,
     CANVAS_REFRESH_PARTICIPANTS_REQUESTED_ACTION,
     CANVAS_REFRESH_PARTICIPANTS_REQUEST_SUCCEEDED_ACTION,
+    CANVAS_REFRESH_COURSE_REQUESTED_ACTION,
+    CANVAS_REFRESH_COURSE_REQUEST_SUCCEEDED_ACTION,
 } from "./constants";
 
 import {
@@ -133,4 +135,18 @@ export const canvasGroupSetImportRequestedAction = (
     type: CANVAS_IMPORT_GROUP_SET_REQUESTED_ACTION,
     courseId,
     formData,
+});
+
+// REFRESH COURSE
+export interface CanvasRefreshCourseRequestedAction extends Action<string> {
+    courseId: number;
+}
+
+export const canvasRefreshCourseRequestedAction = (courseId: number) => ({
+    type: CANVAS_REFRESH_COURSE_REQUESTED_ACTION,
+    courseId,
+});
+
+export const canvasRefreshCourseRequestSucceededAction = () => ({
+    type: CANVAS_REFRESH_COURSE_REQUEST_SUCCEEDED_ACTION,
 });

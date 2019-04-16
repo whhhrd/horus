@@ -45,8 +45,8 @@ import {
     PATH_COURSE_LABEL_MANAGER,
     PATH_COURSE_ROLES_MANAGER,
     PATH_ROOMS,
-    PATH_BEAMER_MODE,
-    PATH_BEAMER_PROMPT,
+    PATH_PROJECTOR_MODE,
+    PATH_PROJECTOR_PROMPT,
     PATH_JOBS,
     PATH_JOBS_ALT,
 } from "../routes";
@@ -62,9 +62,6 @@ import ProjectorQueuingPage from "./pages/queuing/ProjectorQueuingPage";
 import ProjectorRoomPromptPage from "./pages/queuing/ProjectorRoomPromptPage";
 import Jobs from "./pages/admin/Jobs";
 import NotFound from "./pages/NotFound";
-import {
-    LOCAL_STORAGE_REFRESH_TOKEN_KEY,
-} from "../api";
 
 export interface AppProps {
     push: Push;
@@ -86,11 +83,6 @@ export interface AppProps {
 class App extends React.PureComponent<AppProps & RouteComponentProps> {
     static HOME_PATH = PATH_COURSES;
 
-    constructor(props: AppProps & RouteComponentProps) {
-        super(props);
-        this.onLocalStorageUpdate = this.onLocalStorageUpdate.bind(this);
-    }
-
     componentDidMount() {
         let pathname = this.props.pathname;
         const {
@@ -111,7 +103,7 @@ class App extends React.PureComponent<AppProps & RouteComponentProps> {
         // to visit, so that once logged in they will be redirected there
         if (
             pathname === PATH_LOGIN ||
-            pathname.startsWith(PATH_BEAMER_PROMPT)
+            pathname.startsWith(PATH_PROJECTOR_PROMPT)
         ) {
             setLoginRedirect(App.HOME_PATH);
         } else {
@@ -120,7 +112,7 @@ class App extends React.PureComponent<AppProps & RouteComponentProps> {
 
         // Load authentication except for when the user
         // attempts to visit the beamer prompt page
-        if (!pathname.startsWith(PATH_BEAMER_PROMPT)) {
+        if (!pathname.startsWith(PATH_PROJECTOR_PROMPT)) {
             loadAuthentication();
         }
     }
@@ -135,7 +127,7 @@ class App extends React.PureComponent<AppProps & RouteComponentProps> {
         } = this.props;
 
         // If in beamer prompt, do nothing
-        if (pathname.startsWith(PATH_BEAMER_PROMPT)) {
+        if (pathname.startsWith(PATH_PROJECTOR_PROMPT)) {
             return;
         }
 
@@ -154,14 +146,6 @@ class App extends React.PureComponent<AppProps & RouteComponentProps> {
         if (loggedIn && pathname === PATH_LOGIN) {
             this.props.push(App.HOME_PATH);
         }
-    }
-
-    componentWillMount() {
-        window.addEventListener("storage", this.onLocalStorageUpdate);
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener("storage", this.onLocalStorageUpdate);
     }
 
     render() {
@@ -192,19 +176,19 @@ class App extends React.PureComponent<AppProps & RouteComponentProps> {
             pathname,
             loggedIn,
         } = this.props;
-        if (pathname.startsWith(PATH_BEAMER_PROMPT)) {
+        if (pathname.startsWith(PATH_PROJECTOR_PROMPT)) {
             return (
                 <Switch>
                     <RouteExtension
                         exact
-                        path={PATH_BEAMER_MODE}
+                        path={PATH_PROJECTOR_MODE}
                         component={ProjectorQueuingPage}
                         setActiveTab={ActiveTabEnum.NONE}
                     />
 
                     <RouteExtension
                         exact
-                        path={PATH_BEAMER_PROMPT}
+                        path={PATH_PROJECTOR_PROMPT}
                         component={ProjectorRoomPromptPage}
                         setActiveTab={ActiveTabEnum.NONE}
                     />
@@ -354,21 +338,6 @@ class App extends React.PureComponent<AppProps & RouteComponentProps> {
                 />
             </Switch>
         );
-    }
-
-    /**
-     * Handler to refresh upon a refresh token save in LocalStorage
-     * @param event the StorageEvent corresponding to the change
-     */
-    private onLocalStorageUpdate(event: StorageEvent) {
-        if (event.key === LOCAL_STORAGE_REFRESH_TOKEN_KEY) {
-            if (event.newValue == null) {
-                push(PATH_LOGIN);
-                this.props.requestLogout();
-            } else {
-                location.reload();
-            }
-        }
     }
 }
 

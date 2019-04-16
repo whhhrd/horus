@@ -15,8 +15,6 @@ import { ApplicationState } from "../../../../../state/state";
 import CanvasCard from "../../../../CanvasCard";
 import {
     faUsers,
-    faInfoCircle,
-    faDownload,
     faUpload,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -118,32 +116,6 @@ class GroupSetManager extends Component<
                 <Row className="px-2 d-flex justify-content-center justify-content-lg-start">
                     {canPerformCanvasSync && course.externalId != null && (
                         <Col xs="12" md="12">
-                            <Button
-                                color="primary"
-                                size="lg"
-                                className="mb-3 mr-3"
-                                onClick={() =>
-                                    this.props.refreshSetsList(
-                                        this.props.match.params.cid,
-                                    )
-                                }
-                            >
-                                <FontAwesomeIcon
-                                    icon={faDownload}
-                                    className="mr-2"
-                                />
-                                Retrieve Canvas group sets{" "}
-                                <abbr
-                                    title="This does not change the Canvas course settings in
-                                            any way. Use this when group sets in canvas are deleted or added."
-                                    className="float-right"
-                                >
-                                    <FontAwesomeIcon
-                                        icon={faInfoCircle}
-                                        className="ml-2"
-                                    />
-                                </abbr>
-                            </Button>
                             <Button
                                 color="primary"
                                 size="lg"

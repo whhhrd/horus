@@ -137,6 +137,13 @@ export const canvasGroupSetsSyncPerform = CourseAuthScheme.every(
 // Sync groups with Canvas
 export const canvasGroupsSyncPerform = CourseAuthScheme.every(groupsAnyCreate, groupsAnyEdit, groupsAnyDelete);
 
+// Sync existing canvas course
+export const canvasCourseSyncPerform = CourseAuthScheme.every(
+    canvasGroupSetsSyncPerform,
+    canvasGroupSetsSyncPerform,
+    participantsAdmin,
+);
+
 // View comment sidebar
 export const viewCommentSidebar = CourseAuthScheme.every(commentAnyList, commentAnyView);
 

@@ -28,7 +28,7 @@ export default function roomsReducer(
         case ROOMS_FETCH_REQUESTED_ACTION:
             return {
                 ...state,
-                rooms: null,
+                rooms: [],
             };
         case ROOMS_FETCH_REQUEST_SUCCEEDED_ACTION:
             const rooms = (action as RoomsFetchRequestSucceededAction).rooms;

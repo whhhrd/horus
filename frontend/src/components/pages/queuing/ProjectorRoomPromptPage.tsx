@@ -5,6 +5,7 @@ import { Input, Button, FormGroup, Col, Label } from "reactstrap";
 import { Field, Formik } from "formik";
 import { buildBigCenterMessage, setPageTitle } from "../../pagebuilder";
 import { faSadCry } from "@fortawesome/free-solid-svg-icons";
+import { PATH_PROJECTOR_PROMPT } from "../../../routes";
 
 interface PromptValues {
     code: string;
@@ -32,7 +33,7 @@ class ProjectorRoomPromptPage extends Component<RouteComponentProps<any>> {
 
     onSubmit(values: PromptValues) {
         this.props.history.push({
-            pathname: `/beamer/${values.code.toUpperCase()}`,
+            pathname: `${PATH_PROJECTOR_PROMPT}/${values.code.toUpperCase()}`,
         });
     }
 

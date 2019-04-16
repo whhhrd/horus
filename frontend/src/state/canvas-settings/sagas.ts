@@ -22,6 +22,7 @@ import {
     CANVAS_REFRESH_SET_REQUESTED_ACTION,
     CANVAS_IMPORT_GROUP_SET_REQUESTED_ACTION,
     CANVAS_REFRESH_PARTICIPANTS_REQUESTED_ACTION,
+    CANVAS_REFRESH_COURSE_REQUESTED_ACTION,
 } from "./constants";
 
 import {
@@ -40,10 +41,10 @@ export function* submitToken(action: TokenSubmittedAction) {
         yield call(authenticatedFetchJSON, "POST", "canvas", null, {
             token: action.token,
         });
-        yield put(push(PATH_CANVAS_IMPORT));
     } catch (e) {
         yield put(notifyError(e.message));
     }
+    yield put(push(PATH_CANVAS_IMPORT));
 }
 
 export function* importCourse(action: CanvasImportAction) {
@@ -155,6 +156,20 @@ export function* refreshParticipants(action: CanvasRefreshParticipantsRequestedA
     }
 }
 
+export function* refreshCourse(action: CanvasRefreshParticipantsRequestedAction) {
+    try {
+        const result = yield call(
+            authenticatedFetchJSON,
+            "PUT",
+            `canvas/${action.courseId}/all`,
+        );
+        yield put(jobAddAction(result));
+        yield put(notifyInfo(notificationDirectToTasks()));
+    } catch (e) {
+        yield put(notifyError(e.message));
+    }
+}
+
 export function* importGroupSet(action: CanvasGroupSetImportRequestedAction) {
     try {
         const result = yield call(
@@ -190,4 +205,5 @@ export default function* canvasSaga() {
     yield takeEvery(CANVAS_REFRESH_SET_REQUESTED_ACTION, refreshSet);
     yield takeEvery(CANVAS_IMPORT_GROUP_SET_REQUESTED_ACTION, importGroupSet);
     yield takeEvery(CANVAS_REFRESH_PARTICIPANTS_REQUESTED_ACTION, refreshParticipants);
+    yield takeEvery(CANVAS_REFRESH_COURSE_REQUESTED_ACTION, refreshCourse);
 }

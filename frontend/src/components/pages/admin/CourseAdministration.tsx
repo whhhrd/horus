@@ -18,6 +18,7 @@ import {
     courseAdmin,
     suppRoleAdmin,
     participantsAdmin,
+    canvasCourseSyncPerform,
 } from "../../../state/auth/constants";
 import {
     CourseRequestedAction,
@@ -28,6 +29,8 @@ import { getCourse } from "../../../state/courses/selectors";
 import {
     CanvasRefreshParticipantsRequestedAction,
     canvasRefreshParticipantsRequestedAction,
+    canvasRefreshCourseRequestedAction,
+    CanvasRefreshCourseRequestedAction,
 } from "../../../state/canvas-settings/actions";
 
 import { buildContent } from "../../pagebuilder";
@@ -39,6 +42,7 @@ import {
     faTags,
     faUsersCog,
     faDownload,
+    faSave,
 } from "@fortawesome/free-solid-svg-icons";
 
 interface CourseAdministrationProps {
@@ -49,6 +53,9 @@ interface CourseAdministrationProps {
     refreshParticipants: (
         courseId: number,
     ) => CanvasRefreshParticipantsRequestedAction;
+    refreshCourse: (
+        courseId: number,
+    ) => CanvasRefreshCourseRequestedAction;
 }
 
 /**
@@ -90,6 +97,11 @@ class CourseAdministration extends PureComponent<
         const canExport = canExportData.check(cid, permissions);
 
         const canRefreshParticipants = participantsAdmin.check(
+            cid,
+            permissions,
+        );
+
+        const canRefreshCourse = canvasCourseSyncPerform.check(
             cid,
             permissions,
         );
@@ -177,7 +189,7 @@ class CourseAdministration extends PureComponent<
                                     target="_blank"
                                 >
                                     <FontAwesomeIcon
-                                        icon={faDownload}
+                                        icon={faSave}
                                         className="mr-2"
                                         size="sm"
                                         style={{ width: "30px" }}
@@ -205,7 +217,30 @@ class CourseAdministration extends PureComponent<
                                             size="sm"
                                             style={{ width: "30px" }}
                                         />
-                                        Retrieve participant data
+                                        Reload participants from Canvas
+                                    </Link>
+                                    <br />
+                                </Fragment>
+                            )}
+                        {canRefreshCourse &&
+                            course != null &&
+                            course.externalId != null && (
+                                <Fragment>
+                                    <Link
+                                        to={this.props.location.pathname}
+                                        onClick={() => {
+                                            this.props.refreshCourse(
+                                                course.id,
+                                            );
+                                        }}
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faDownload}
+                                            className="mr-2"
+                                            size="sm"
+                                            style={{ width: "30px" }}
+                                        />
+                                        Reload course from Canvas
                                     </Link>
                                     <br />
                                 </Fragment>
@@ -226,6 +261,7 @@ export default withRouter(
         {
             fetchCourse: courseRequestedAction,
             refreshParticipants: canvasRefreshParticipantsRequestedAction,
+            refreshCourse: canvasRefreshCourseRequestedAction,
         },
     )(CourseAdministration),
 );

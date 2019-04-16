@@ -20,5 +20,5 @@ export const PATH_GROUP_SET_GROUPS_MANAGER = `${PATH_COURSES}/:cid/administratio
 export const PATH_SIGNOFF_TABLE            = `${PATH_COURSES}/:cid/assignmentsets/:asid/signoff/table`;
 export const PATH_ROOMS                    = `${PATH_COURSES}/:cid/rooms`;
 export const PATH_QUEUE                    = `${PATH_COURSES}/:cid/rooms/:rid`;
-export const PATH_BEAMER_PROMPT            = `/beamer`;
-export const PATH_BEAMER_MODE              = `${PATH_BEAMER_PROMPT}/:rid`;
+export const PATH_PROJECTOR_PROMPT            = `/projector`;
+export const PATH_PROJECTOR_MODE              = `${PATH_PROJECTOR_PROMPT}/:rid`;

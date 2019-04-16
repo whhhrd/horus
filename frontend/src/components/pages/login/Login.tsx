@@ -24,6 +24,7 @@ import { loginAction } from "../../../state/auth/actions";
 import Spinner from "reactstrap/lib/Spinner";
 import groupPicture from "../../../images/horus_group_picture_compressed.jpg";
 import { setPageTitle } from "../../pagebuilder";
+import { PATH_PROJECTOR_PROMPT } from "../../../routes";
 
 export interface LoginProps {
     logIn: (
@@ -257,13 +258,14 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                         <p className="mt-4 mb-0">
                             <Button
                                 color="success"
+                                outline
                                 onClick={() =>
                                     this.props.history.push({
-                                        pathname: "/beamer",
+                                        pathname: PATH_PROJECTOR_PROMPT,
                                     })
                                 }
                             >
-                                Beamer mode
+                                Projector mode
                             </Button>
                         </p>
                     </Jumbotron>
@@ -329,7 +331,7 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                                     <a href="mailto:j.w.praas@student.utwente.nl">
                                         Justin Praas
                                     </a>{" "}
-                                    &{" "}
+                                    &amp;{" "}
                                     <a href="mailto:d.kooij-1@student.utwente.nl">
                                         Daan Kooij
                                     </a>

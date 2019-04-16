@@ -477,7 +477,7 @@ class AssignmentSetEditorModal extends Component<
                         <Button
                             block
                             size="lg"
-                            outline
+                            color="primary"
                             onClick={this.props.onCloseModal}
                         >
                             Cancel

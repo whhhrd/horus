@@ -6,7 +6,6 @@ import {
 import {
     UPDATE_RECEIVED_ACTION,
     HISTORY_SIZE,
-    ROOM_QUEUE_LENGTHS_REQUESTED_ACTION,
     ROOM_QUEUE_LENGTHS_REQUEST_SUCCEEDED_ACTION,
 } from "./constants";
 import {
@@ -83,12 +82,6 @@ export default function queueReducer(
                 default:
                     return state;
             }
-
-        case ROOM_QUEUE_LENGTHS_REQUESTED_ACTION:
-            return {
-                ...state,
-                roomQueueLengths: null,
-            };
         case ROOM_QUEUE_LENGTHS_REQUEST_SUCCEEDED_ACTION:
             return {
                 ...state,

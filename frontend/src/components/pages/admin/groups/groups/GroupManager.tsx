@@ -136,9 +136,9 @@ class GroupManager extends Component<
                                         icon={faDownload}
                                         className="mr-2"
                                     />
-                                    Retrieve groups from Canvas
+                                    Reload groups from Canvas
                                     <abbr
-                                        title="This does not change the Canvas groups compositions in
+                                        title="This does not change the Canvas group compositions in
                                             any way. Use this when group compositions change in Canvas, so that
                                             Horus groups are in sync with the groups within this group set."
                                         className="float-right"
