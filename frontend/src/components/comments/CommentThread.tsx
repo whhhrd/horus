@@ -164,11 +164,7 @@ class CommentThread extends Component<
         const canView = viewCommentSidebar.check(cid, permissions);
         const canCreate = commentAnyCreate.check(cid, permissions);
 
-        if (
-            (!this.props.commentThreadMutable &&
-                this.props.commentThreadId == null) ||
-            !canView
-        ) {
+        if (!canView) {
             return null;
         } else {
             // Determine left border color of the comment thread

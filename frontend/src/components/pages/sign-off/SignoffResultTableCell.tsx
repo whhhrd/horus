@@ -192,7 +192,7 @@ class SignoffResultTableCell extends Component<
                         entityId={assignment.id}
                         entityType={EntityType.Assignment}
                         commentThreadOpen={false}
-                        commentThreadMutable={true}
+                        commentThreadMutable={false}
                     />
                 </div>
             );
