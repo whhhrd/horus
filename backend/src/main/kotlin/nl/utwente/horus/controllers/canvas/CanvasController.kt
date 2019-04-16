@@ -148,6 +148,8 @@ class CanvasController: BaseController() {
         requireAnyPermission(Course::class, courseId, HorusPermissionType.DELETE, HorusResource.COURSE_GROUP)
         val set = groupService.getGroupSetById(setId)
         val batch = executeAsBatchJob("Group set sync for ${set.name} in ${set.course.name}") {
+            val course = courseService.getCourseById(courseId)
+            canvasService.doCanvasParticipantSync(course)
             canvasService.doCanvasGroupsSync(setId, it)
         }
         return BatchJobDto(batch)
