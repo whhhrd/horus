@@ -16,12 +16,14 @@ export {
     requestTokenLoad,
     requestPasswordLogin,
     requestAuthCodeLogin,
+    requestAuthenticationRefresh,
     requestLogout,
 } from "./actions";
 
 export { fetchJSON } from "./util";
 
 export {
+    LOCAL_STORAGE_REFRESH_TOKEN_KEY,
     authenticationFlow,
     authenticatedFetch,
     authenticatedFetchJSON,

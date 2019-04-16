@@ -12,6 +12,7 @@ import {
     loadAuthenticationAction,
     setLoginRedirectAction,
     SetLoginRedirectAction,
+    logoutRequestedAction,
 } from "../state/auth/actions";
 import { isLoggedIn } from "../state/auth/selectors";
 
@@ -61,6 +62,9 @@ import ProjectorQueuingPage from "./pages/queuing/ProjectorQueuingPage";
 import ProjectorRoomPromptPage from "./pages/queuing/ProjectorRoomPromptPage";
 import Jobs from "./pages/admin/Jobs";
 import NotFound from "./pages/NotFound";
+import {
+    LOCAL_STORAGE_REFRESH_TOKEN_KEY,
+} from "../api";
 
 export interface AppProps {
     push: Push;
@@ -70,6 +74,7 @@ export interface AppProps {
 
     loadAuthentication: () => Action;
     setLoginRedirect: (redirectUrl: string) => SetLoginRedirectAction;
+    requestLogout: () => Action;
 }
 
 /**
@@ -78,8 +83,13 @@ export interface AppProps {
  * authentication. Once authenticated, the Switch component determines
  * which component (pages) to display, based on the URL.
  */
-class App extends React.Component<AppProps & RouteComponentProps> {
+class App extends React.PureComponent<AppProps & RouteComponentProps> {
     static HOME_PATH = PATH_COURSES;
+
+    constructor(props: AppProps & RouteComponentProps) {
+        super(props);
+        this.onLocalStorageUpdate = this.onLocalStorageUpdate.bind(this);
+    }
 
     componentDidMount() {
         let pathname = this.props.pathname;
@@ -144,6 +154,14 @@ class App extends React.Component<AppProps & RouteComponentProps> {
         if (loggedIn && pathname === PATH_LOGIN) {
             this.props.push(App.HOME_PATH);
         }
+    }
+
+    componentWillMount() {
+        window.addEventListener("storage", this.onLocalStorageUpdate);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("storage", this.onLocalStorageUpdate);
     }
 
     render() {
@@ -337,6 +355,20 @@ class App extends React.Component<AppProps & RouteComponentProps> {
             </Switch>
         );
     }
+
+    /**
+     * Handler to refresh upon a refresh token save in LocalStorage
+     * @param event the StorageEvent corresponding to the change
+     */
+    private onLocalStorageUpdate(event: StorageEvent) {
+        if (event.key === LOCAL_STORAGE_REFRESH_TOKEN_KEY) {
+            if (event.newValue == null) {
+                this.props.requestLogout();
+            } else {
+                location.reload();
+            }
+        }
+    }
 }
 
 export default withRouter(
@@ -349,6 +381,7 @@ export default withRouter(
         {
             loadAuthentication: loadAuthenticationAction,
             setLoginRedirect: setLoginRedirectAction,
+            requestLogout: logoutRequestedAction,
             push,
         },
     )(App),

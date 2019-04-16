@@ -38,7 +38,7 @@ const endponts = {
     passwordLogin: "auth/login/password",
     codeLogin: "auth/login/code",
 };
-const LOCAL_STORAGE_REFRESH_TOKEN_KEY = "refreshToken";
+export const LOCAL_STORAGE_REFRESH_TOKEN_KEY = "refreshToken";
 
 interface AuthenticationState {
     authenticated: boolean;
@@ -188,6 +188,7 @@ function* authenticationFlowLoop() {
             });
 
             if (authRefreshRequest != null || authRefreshTimeout != null) {
+                loadAuthFromLocalStorage();
                 yield fork(
                     updateAccessToken,
                     authenticationState.refreshToken!,

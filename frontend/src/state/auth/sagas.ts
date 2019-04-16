@@ -109,7 +109,7 @@ function* loginFailureNotification() {
 function* fetchAuthoritiesAction() {
     try {
         const authorities = yield call(authenticatedFetchJSON, "GET", "persons/self/permissions");
-        yield put(authoritiesUpdatedAction(authorities));
+        yield put(authoritiesUpdatedAction(authorities != null ? authorities : []));
     } catch (e) {
         yield put(notifyError(e.message));
     }
