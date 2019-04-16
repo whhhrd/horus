@@ -363,6 +363,7 @@ class App extends React.PureComponent<AppProps & RouteComponentProps> {
     private onLocalStorageUpdate(event: StorageEvent) {
         if (event.key === LOCAL_STORAGE_REFRESH_TOKEN_KEY) {
             if (event.newValue == null) {
+                push(PATH_LOGIN);
                 this.props.requestLogout();
             } else {
                 location.reload();

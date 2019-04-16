@@ -194,6 +194,7 @@ function* authenticationFlowLoop() {
                     authenticationState.refreshToken!,
                 );
             } else {
+                loadAuthFromLocalStorage();
                 clearAuthTokenFromStorage();
                 yield fork(logout, authenticationState.refreshToken!);
 
@@ -375,15 +376,17 @@ function* codeLogin(code: string) {
  */
 function* logout(refreshToken: string) {
     try {
-        yield call(
-            asyncCallBackendFetch,
-            fetchJSON,
-            "POST",
-            endponts.logout,
-            null,
-            null,
-            refreshToken,
-        );
+        if (refreshToken != null && refreshToken.length > 0) {
+            yield call(
+                asyncCallBackendFetch,
+                fetchJSON,
+                "POST",
+                endponts.logout,
+                null,
+                null,
+                refreshToken,
+            );
+        }
     } catch (error) {
         // do nothing now
     }
