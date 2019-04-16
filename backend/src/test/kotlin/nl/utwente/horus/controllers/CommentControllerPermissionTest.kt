@@ -3,6 +3,7 @@ package nl.utwente.horus.controllers
 import nl.utwente.horus.HorusAbstractTest
 import nl.utwente.horus.WithLoginId
 import nl.utwente.horus.controllers.comment.CommentController
+import nl.utwente.horus.exceptions.ParticipantNotFoundException
 import nl.utwente.horus.representations.comment.CommentCreateDto
 import nl.utwente.horus.representations.comment.CommentUpdateDto
 import org.junit.Test
@@ -17,7 +18,7 @@ class CommentControllerPermissionTest: HorusAbstractTest() {
     @WithLoginId(SS_NA_LOGIN)
     fun testNACreateComment() {
         val commentCreate = CommentCreateDto(SS_COMMENT_THREAD_ID, "NewComment")
-        assertInsufficientPermissions { commentController.createComment(commentCreate) }
+        assertThrows(ParticipantNotFoundException::class) { commentController.createComment(commentCreate) }
     }
 
     @Test
@@ -57,9 +58,16 @@ class CommentControllerPermissionTest: HorusAbstractTest() {
 
     @Test
     @WithLoginId(SS_TA_LOGIN)
-    fun testTAUpdateComment() {
+    fun testAuthorTAUpdateComment() {
         val commentUpdate = CommentUpdateDto("UpdatedComment")
         assertSufficientPermissions { commentController.updateComment(SS_COMMENT_ID, commentUpdate) }
+    }
+
+    @Test
+    @WithLoginId(SS_ALT_TA_LOGIN)
+    fun testNotAuthorTAUpdateComment() {
+        val commentUpdate = CommentUpdateDto("UpdatedComment")
+        assertInsufficientPermissions { commentController.updateComment(SS_COMMENT_ID, commentUpdate) }
     }
 
     @Test

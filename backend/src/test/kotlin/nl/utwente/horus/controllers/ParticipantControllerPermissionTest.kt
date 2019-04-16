@@ -113,7 +113,7 @@ class ParticipantControllerPermissionTest: HorusAbstractTest() {
     @Test
     @WithLoginId(SS_TA_LOGIN)
     fun testTAAddLabelMapping() {
-        assertSufficientPermissions { participantController.addLabelMapping(SS_PARTICIPANT_IDS.first, SS_LABEL_ID_1) }
+        assertInsufficientPermissions { participantController.addLabelMapping(SS_PARTICIPANT_IDS.first, SS_LABEL_ID_1) }
     }
 
     @Test
@@ -139,7 +139,7 @@ class ParticipantControllerPermissionTest: HorusAbstractTest() {
     @Test
     @WithLoginId(SS_TA_LOGIN)
     fun testTADeleteLabelMapping() {
-        assertSufficientPermissions { participantController.deleteLabelMapping(
+        assertInsufficientPermissions { participantController.deleteLabelMapping(
                 SS_PARTICIPANT_IDS.first, SS_LABEL_ID_2) }
     }
 

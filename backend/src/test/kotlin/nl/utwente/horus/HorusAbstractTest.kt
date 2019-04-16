@@ -46,6 +46,7 @@ abstract class HorusAbstractTest {
 
         const val SS_TEACHER_LOGIN = "s1839047"
         const val SS_TA_LOGIN = "s1843141"
+        const val SS_ALT_TA_LOGIN = "s1782215"
         const val SS_STUDENT_LOGIN = "s55619"
         const val SS_NA_LOGIN = "s13622" // NA = No Access
 
@@ -81,8 +82,8 @@ abstract class HorusAbstractTest {
         const val SS_SIGN_OFF_RESULT_ID_WITH_COMMENT_THREAD: Long = 38544
         const val SS_SIGN_OFF_RESULT_ID_WITHOUT_COMMENT_THREAD: Long = 38482
 
-        const val SS_COMMENT_THREAD_ID: Long = 1569
-        const val SS_COMMENT_ID: Long = 1569
+        const val SS_COMMENT_THREAD_ID: Long = 2433
+        const val SS_COMMENT_ID: Long = 2433
 
         const val TEST_LABEL_ID: Long = 1
         const val SS_LABEL_ID_1: Long = 17 // Should not be assigned to first participant of SS
