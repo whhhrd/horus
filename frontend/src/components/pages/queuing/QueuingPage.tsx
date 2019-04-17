@@ -42,10 +42,7 @@ import {
     acceptNextAction,
     AcceptNextAction,
 } from "../../../state/queuing/actions";
-import {
-    getAnnouncements,
-    getQueues,
-} from "../../../state/queuing/selectors";
+import { getAnnouncements, getQueues } from "../../../state/queuing/selectors";
 import { ApplicationState } from "../../../state/state";
 import { registration } from "../../..";
 import { API_STUDENT_ROLE } from "../../../state/courses/constants";
@@ -53,7 +50,10 @@ import {
     assignmentSetsFetchRequestedAction,
     AssignmentSetsFetchAction,
 } from "../../../state/assignments/actions";
-import { getAssignmentSets } from "../../../state/assignments/selectors";
+import {
+    getAssignmentSets,
+    getAssignmentGroupSetsMappingDtos,
+} from "../../../state/assignments/selectors";
 import { getRoom } from "../../../state/rooms/selectors";
 import {
     RoomsFetchRequestedAction,
@@ -85,7 +85,10 @@ import {
     faExclamationTriangle,
     faBell,
 } from "@fortawesome/free-solid-svg-icons";
-import { CurrentParticipantRequestedAction, currentParticipantRequestedAction } from "../../../state/courses/action";
+import {
+    CurrentParticipantRequestedAction,
+    currentParticipantRequestedAction,
+} from "../../../state/courses/action";
 import { getCurrentParticipant } from "../../../state/courses/selectors";
 
 interface QueuingPageProps {
@@ -234,11 +237,10 @@ class QueuingPage extends Component<
     }
 
     componentDidMount() {
-        this.props.requestCurrentParticipant(
-            Number(this.props.match.params.cid),
-        );
-        this.props.fetchRooms(this.props.match.params.cid);
-        this.props.requestAssignmentSets(Number(this.props.match.params.cid));
+        const courseId = this.props.match.params.cid;
+        this.props.requestCurrentParticipant(Number(courseId));
+        this.props.fetchRooms(courseId);
+        this.props.requestAssignmentSets(Number(courseId));
 
         // Start listening to our service worker for responses to the notifications
         if ("serviceWorker" in navigator) {
@@ -751,50 +753,76 @@ class QueuingPage extends Component<
      */
     private buildQueues() {
         const { mode } = this.state;
+        const { assignmentSets } = this.props;
+
+        if (assignmentSets == null) {
+            return null;
+        }
+
         return (
             <Row className="row-eq-height">
-                {this.props.queues!.map((queue: QueueDto) => (
-                    <Queue
-                        queue={queue}
-                        entries={queue.participants.map(
-                            (participant: QueueParticipantDto) => ({
-                                participant,
-                                onAccept: () =>
-                                    this.props.acceptParticipant(
-                                        Number(this.props.match.params.cid),
-                                        this.props.match.params.rid,
-                                        queue.id,
-                                        participant.id,
-                                    ),
-                                onDeny: () =>
-                                    this.props.dequeueParticipant(
-                                        Number(this.props.match.params.cid),
-                                        this.props.match.params.rid,
-                                        queue.id,
-                                        participant.id,
-                                    ),
-                            }),
-                        )}
-                        currentParticipant={this.props.participant!}
-                        key={queue.id}
-                        mode={this.state.mode!}
-                        onJoinQueue={() =>
-                            this.props.enqueue(
-                                Number(this.props.match.params.cid),
-                                this.props.match.params.rid,
-                                queue.id,
-                            )
-                        }
-                        onDeleteQueue={() => this.toggleQueueDeleteModal(queue)}
-                        onAcceptNext={() =>
-                            this.props.acceptNext(
-                                Number(this.props.match.params.cid),
-                                this.props.match.params.rid,
-                                queue.id,
-                            )
-                        }
-                    />
-                ))}
+                {this.props.queues!.map((queue: QueueDto) => {
+                    // Check if the participant can join the queue
+                    // Can only join the queue if the participant is a student
+                    // and if the student is mapped via a group to the assignment set
+                    const asid = queue.assignmentSetId;
+                    const linkedAssignmentSet = assignmentSets.find(
+                        (as) => as.id === asid,
+                    );
+                    const canJoin =
+                        mode === QueuingMode.Student &&
+                        linkedAssignmentSet != null;
+
+                    return (
+                        <Queue
+                            queue={queue}
+                            entries={queue.participants.map(
+                                (participant: QueueParticipantDto) => ({
+                                    participant,
+                                    onAccept: () =>
+                                        this.props.acceptParticipant(
+                                            Number(this.props.match.params.cid),
+                                            this.props.match.params.rid,
+                                            queue.id,
+                                            participant.id,
+                                        ),
+                                    onDeny: () =>
+                                        this.props.dequeueParticipant(
+                                            Number(this.props.match.params.cid),
+                                            this.props.match.params.rid,
+                                            queue.id,
+                                            participant.id,
+                                        ),
+                                }),
+                            )}
+                            currentParticipant={this.props.participant!}
+                            key={queue.id}
+                            mode={this.state.mode!}
+                            onJoinQueue={
+                                canJoin
+                                    ? () =>
+                                          this.props.enqueue(
+                                              Number(
+                                                  this.props.match.params.cid,
+                                              ),
+                                              this.props.match.params.rid,
+                                              queue.id,
+                                          )
+                                    : undefined
+                            }
+                            onDeleteQueue={() =>
+                                this.toggleQueueDeleteModal(queue)
+                            }
+                            onAcceptNext={() =>
+                                this.props.acceptNext(
+                                    Number(this.props.match.params.cid),
+                                    this.props.match.params.rid,
+                                    queue.id,
+                                )
+                            }
+                        />
+                    );
+                })}
                 {mode === QueuingMode.TA && (
                     <Fragment>
                         <History taMode={mode === QueuingMode.TA} />
@@ -813,6 +841,9 @@ export default withRouter(
             queues: getQueues(state),
             participant: getCurrentParticipant(state),
             assignmentSets: getAssignmentSets(state),
+            assignmentGroupSetMappings: getAssignmentGroupSetsMappingDtos(
+                state,
+            ),
             room: (roomCode: string) => getRoom(state, roomCode),
         }),
         {
