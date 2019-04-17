@@ -21,15 +21,19 @@ import org.springframework.transaction.annotation.Transactional
 class DummyPasswordLoginProvider: AuthenticationProvider {
 
     @Autowired
-    lateinit var personService: PersonService
+    private lateinit var personService: PersonService
 
     @Autowired
-    lateinit var tokenFactory: TokenFactory
+    private lateinit var tokenFactory: TokenFactory
+
+    companion object {
+        const val DUMMY_PASSWORD = "password"
+    }
 
     override fun authenticate(authentication: Authentication?): Authentication {
         if (authentication is UsernamePasswordToken) {
             // Check if password is "password"
-            if (authentication.password != "password") {
+            if (authentication.password != DUMMY_PASSWORD) {
                 authentication.eraseCredentials()
                 throw BadCredentialsException("Invalid credentials")
             }

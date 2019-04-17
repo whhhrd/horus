@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 class AccessTokenRequestAuthenticationProvider: AuthenticationProvider {
 
     @Autowired
-    lateinit var tokenFactory: TokenFactory
+    private lateinit var tokenFactory: TokenFactory
 
     override fun authenticate(authentication: Authentication?): Authentication {
         // Check whether a RefreshToken is present and valid

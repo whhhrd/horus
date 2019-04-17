@@ -15,10 +15,10 @@ import org.springframework.transaction.annotation.Transactional
 class SAML2SSOAuthenticationProvider: AuthenticationProvider {
 
     @Autowired
-    lateinit var personService: PersonService
+    private lateinit var personService: PersonService
 
     @Autowired
-    lateinit var tokenFactory: TokenFactory
+    private lateinit var tokenFactory: TokenFactory
 
     override fun authenticate(authentication: Authentication?): Authentication {
         if (authentication is SAML2AuthenticationCredentials) {

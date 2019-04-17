@@ -25,13 +25,13 @@ import java.time.ZonedDateTime
 class JWTAuthenticationProvider: AuthenticationProvider {
 
     @Autowired
-    lateinit var personService: PersonService
+    private lateinit var personService: PersonService
 
     @Autowired
-    lateinit var configurationProperties: HorusConfigurationProperties
+    private lateinit var configurationProperties: HorusConfigurationProperties
 
     @Autowired
-    lateinit var refreshTokenService: RefreshTokenService
+    private lateinit var refreshTokenService: RefreshTokenService
 
     override fun authenticate(authentication: Authentication?): Authentication {
         // Check if authentication is a RawToken
