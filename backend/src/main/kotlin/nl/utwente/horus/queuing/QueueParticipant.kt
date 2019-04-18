@@ -5,11 +5,26 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
+/**
+ * Represents an enqueued participant.
+ */
 class QueueParticipant: Comparable<QueueParticipant> {
+
+    // participant ID (the same as the internal course participant ID)
     val id: Long
+
+    // full name for displaying in all the queueing parts
     val fullName: String
+
+    // timestamp at which the participant was added to the queue
     val addedAt: Instant
 
+    /**
+     * Creates a new <code>QueueParticipant</code>.
+     * @param id the ID of the participant.
+     * @param fullName full name of the participant.
+     * @param addedAt the time at which the participant was enqueued.
+     */
     constructor(id: Long, fullName: String, addedAt: Instant) {
         this.id = id
         this.fullName = fullName

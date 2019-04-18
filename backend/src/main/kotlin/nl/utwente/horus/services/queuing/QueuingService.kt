@@ -17,13 +17,13 @@ import org.springframework.transaction.annotation.Transactional
 class QueuingService {
 
     @Autowired
-    lateinit var queuingStateManager: QueuingStateManager
+    private lateinit var queuingStateManager: QueuingStateManager
 
     @Autowired
-    lateinit var participantService: ParticipantService
+    private lateinit var participantService: ParticipantService
 
     @Autowired
-    lateinit var assignmentService: AssignmentService
+    private lateinit var assignmentService: AssignmentService
 
     fun getRooms(courseId: Long): List<RoomDto> {
         return queuingStateManager.getRooms(courseId)
