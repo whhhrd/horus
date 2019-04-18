@@ -72,20 +72,36 @@ class CanvasService {
         return getTokenByCourse(courseService.getCourseById(courseId))
     }
 
+    /**
+     * Fetches the Canvas token associated to the given Course.
+     * By default, this is the same token as used when importing.
+     */
     fun getTokenByCourse(course: Course): CanvasToken {
         val source =  tokenSourceRepository.getTokenSourceByCourse(course) ?: throw CanvasTokenNotFoundException()
         return source.canvasToken
     }
 
+    /**
+     * Fetches Canvas token of the given Person
+     */
     fun getTokenByPerson(person: Person): CanvasToken {
         return canvasTokenRepository.getCanvasTokenByPerson(person) ?: throw CanvasTokenNotFoundException()
     }
 
+    /**
+     * Checks if the given Person has a valid Canvas token associated.
+     * @see checkCanvasTokenValid
+     */
     fun checkPersonCanvasTokenValid(person: Person): Boolean {
         val token = canvasTokenRepository.getCanvasTokenByPerson(person) ?: return false
         return checkCanvasTokenValid(token)
     }
 
+    /**
+     * Checks if the given canvas token is valid.
+     * Explicitly does NOT check if the token actually belongs to the current user.
+     * It is only checked if the Canvas token is accepted by the Canvas API for basic calls.
+     */
     fun checkCanvasTokenValid(token: CanvasToken): Boolean {
         val reader = getReaderWriter(token)
         return try {
@@ -97,7 +113,7 @@ class CanvasService {
 
     /**
      * Adds Canvas token to repository.
-     * Result is null when the token turned out to be invalid.
+     * @throws InvalidCanvasTokenException If the canvas token is invalid.
      */
     fun addToken(person: Person, token: String): CanvasToken {
         var canvasToken = canvasTokenRepository.getCanvasTokenByPerson(person)
@@ -115,6 +131,12 @@ class CanvasService {
         return canvasToken
     }
 
+    /**
+     * Lists the current user's Canvas courses
+     * @param person The Person (with an associated token) to list the Canvas courses for
+     * @param filterTeacher Only return courses for which the current user is a Teacher in Canvas
+     * @param filterAlreadyAdded Only include courses which are not already added to Horus
+     */
     fun listCanvasCourses(person: Person, filterTeacher: Boolean, filterAlreadyAdded: Boolean): List<CanvasCourseDto> {
         val reader = getReaderWriter(person)
         val courses = reader.getCoursesOfUser()
@@ -129,6 +151,9 @@ class CanvasService {
                 else ZonedDateTime.ofInstant(c.startAt.toInstant(), ZoneId.systemDefault())) }
     }
 
+    /**
+     * Adds the course with the given Canvas ID to the DB, synchronizing all people and groups in the Course as well.
+     */
     fun addCanvasCourse(canvasId: String, progress: JobProgress? = null) {
         val person = userDetailsService.getCurrentPerson()
         val token = getTokenByPerson(person)
@@ -149,11 +174,17 @@ class CanvasService {
         doFullCanvasSync(course.id, progress)
     }
 
+    /**
+     * Checks if the given Canvas course was obtained by a Canvas Teacher
+     */
     private fun obtainedByTeacher(c: edu.ksu.canvas.model.Course): Boolean {
         // Course object only contains one enrollment: that of the requesting user
         return toHorusRole(c.enrollments.first()).id == roleService.getTeacherRole().id
     }
 
+    /**
+     * Re-syncs an already imported Canvas course, importing changed participants and changed groups.
+     */
     fun doFullCanvasSync(courseId: Long, progress: JobProgress? = null) {
         val course = courseService.getCourseById(courseId)
         val author = participantService.getCurrentParticipationInCourse(courseId)
@@ -162,11 +193,19 @@ class CanvasService {
         course.groupSets.forEach {doCanvasGroupsSync(it.id, progress)}
     }
 
+    /**
+     * Executes Canvas participants sync, potentially adding new Persons to the system.
+     */
     fun doCanvasParticipantSync(course: Course) {
         val users = fetchCourseUsers(course)
         processCourseUsers(course, users)
     }
 
+    /**
+     *  Processes results from Canvas API into the DB.
+     *  Might create new Persons or update their properties, disable or create Participants, or update existing
+     *  Participants' role.
+     */
     fun processCourseUsers(course: Course, users: List<User>) {
         val disappeared = course.enabledParticipants.map { it.person.loginId }.toSet() - users.map { it.loginId }.toSet()
         course.enabledParticipants.filter { p -> disappeared.contains(p.person.loginId) }.forEach { p -> p.enabled = false }
@@ -193,12 +232,24 @@ class CanvasService {
 
     }
 
+    /**
+     * Fetches a course's Users from the Canvas API.
+     * Does NOT process these into the DB.
+     */
     fun fetchCourseUsers(course: Course): List<User> {
         // Get all enrollments (which include personal data) of the course
         val reader = getReaderWriter(course)
         return reader.getCourseUsers(course.externalId ?: throw SyncUnauthorizedException())
     }
 
+    /**
+     * Does a "shallow group categories" sync.
+     *
+     * Detects new group categories, and adds them as Group Sets into the DB.
+     * Explicitly does NOT sync the contents in these new group sets: they will initially be empty.
+     *
+     * Also detects deleted group categories: these groups will be deleted from the DB.
+     */
     fun doCanvasGroupCategoriesFetch(course: Course, author: Participant) {
         // Pull all group categories
         val reader = getReaderWriter(course)
@@ -212,6 +263,9 @@ class CanvasService {
         }
     }
 
+    /**
+     * Helper function to save a Canvas Group Category as a Horus GroupSet
+     */
     fun convertSaveCategory(course: Course, cat: GroupCategory, author: Participant): GroupSet {
         // Check for existence within course, and act upon that
         val existing = course.groupSets.firstOrNull { gs -> gs.externalId == cat.groupCategoryId.toString() }
@@ -224,6 +278,13 @@ class CanvasService {
         }
     }
 
+    /**
+     * Synchronizes the groups INSIDE a group set.
+     *
+     * When group compositions have changed, the old groups will be archived and a new Horus group will be created.
+     * Moving a student from one Canvas group to the other will thus result in two new Horus groups: one for each group
+     * that was changed.
+     */
     fun doCanvasGroupsSync(groupSetId: Long, jobProgress: JobProgress? = null) {
         val groupSet = groupService.getGroupSetById(groupSetId)
         LOGGER.info("Initiating Canvas sync for groupset $groupSetId (${groupSet.name})")
@@ -260,6 +321,9 @@ class CanvasService {
 
     }
 
+    /**
+     * Saves a Canvas group into Horus, potentially archiving an existing group if the composition has changed.
+     */
     fun saveCanvasGroup(canvasGroup: edu.ksu.canvas.model.Group, groupSet: GroupSet, author: Participant, newCanvasLoginIds: Set<String>?) {
         val existing = groupService.getGroupByExternalId(canvasGroup.groupId.toString())
         if (existing.isEmpty()) {
@@ -280,6 +344,9 @@ class CanvasService {
         }
     }
 
+    /**
+     * Saves the given Canvas group as a group into Horus, including the composition as reported by the Canvas API.
+     */
     private fun convertSaveGroup(canvas: edu.ksu.canvas.model.Group, groupSet: GroupSet, author: Participant): Group {
         val reader = getReaderWriter(groupSet.course)
         val result = groupService.addGroup(Group(groupSet, canvas.groupId.toString(), canvas.name, author))
@@ -292,12 +359,20 @@ class CanvasService {
         return result
     }
 
+    /**
+     * Creates a Canvas Group Category inside Canvas.
+     */
     fun createCanvasGroupCategory(course: Course, name: String, numberGroups: Int, groupSize: Int): GroupCategory {
         val writer = getReaderWriter(course)
         return writer.createGroupCategory(name,
                 course.externalId ?: throw NoCanvasEntityException(), numberGroups, groupSize)
     }
 
+    /**
+     * Adds the given Canvas user IDs into Canvas.
+     * @param groupId the Canvas group ID
+     * @param canvasUserIds The user IDs of the to-be-added Canvas users. Note that these are different from login IDs!
+     */
     fun fillCanvasGroup(course: Course, groupId: String, canvasUserIds: List<Int>): List<GroupMembership> {
         val writer = getReaderWriter(course)
         return canvasUserIds.map {
@@ -305,20 +380,32 @@ class CanvasService {
         }
     }
 
+    /**
+     * Gets a Canvas reader and writer object using the Canvas token associated to the given course.
+     */
     fun getReaderWriter(course: Course): CanvasReaderWriter {
         val tokenSource = tokenSourceRepository.getTokenSourceByCourse(course) ?: throw CanvasTokenNotFoundException()
         return getReaderWriter(tokenSource.canvasToken)
     }
 
+    /**
+     * Gets a Canvas reader and writer object using the Canvas token associated to the given Person.
+     */
     fun getReaderWriter(tokenHolder: Person): CanvasReaderWriter {
         val token = getTokenByPerson(tokenHolder)
         return getReaderWriter(token)
     }
 
+    /**
+     * Composes a Canvas reader and writer object using the given token.
+     */
     fun getReaderWriter(canvasToken: CanvasToken): CanvasReaderWriter {
         return CanvasReaderWriter(canvasToken.token)
     }
 
+    /**
+     * Converts a Canvas enrollment to a Horus role.
+     */
     private fun toHorusRole(enrollment: Enrollment): Role {
         val type = enrollment.type
         if (type.contains("Teacher", ignoreCase = true)) {

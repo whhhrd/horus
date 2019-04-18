@@ -11,8 +11,8 @@ import nl.utwente.horus.representations.course.CourseUpdateDto
 import nl.utwente.horus.representations.participant.LabelCreateUpdateDto
 import nl.utwente.horus.representations.participant.ParticipantCreateDto
 import nl.utwente.horus.representations.participant.ParticipantUpdateDto
-import org.springframework.beans.factory.annotation.Autowired
 import org.junit.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import javax.servlet.http.HttpServletResponse
 
@@ -54,7 +54,7 @@ class CourseControllerPermissionTest : HorusAbstractTest() {
     fun testNACreateCourse() {
         // TODO: Adapt for global permissions
         val courseCreate = CourseCreateDto("TestCourse", null, null)
-        assertSufficientPermissions { courseController.createCourse(courseCreate) }
+        assertInsufficientPermissions { courseController.createCourse(courseCreate) }
     }
 
     @Test
@@ -62,7 +62,7 @@ class CourseControllerPermissionTest : HorusAbstractTest() {
     fun testStudentCreateCourse() {
         // TODO: Adapt for global permissions
         val courseCreate = CourseCreateDto("TestCourse", null, null)
-        assertSufficientPermissions { courseController.createCourse(courseCreate) }
+        assertInsufficientPermissions { courseController.createCourse(courseCreate) }
     }
 
     @Test
@@ -70,7 +70,7 @@ class CourseControllerPermissionTest : HorusAbstractTest() {
     fun testTACreateCourse() {
         // TODO: Adapt for global permissions
         val courseCreate = CourseCreateDto("TestCourse", null, null)
-        assertSufficientPermissions { courseController.createCourse(courseCreate) }
+        assertInsufficientPermissions { courseController.createCourse(courseCreate) }
     }
 
     @Test
@@ -78,7 +78,7 @@ class CourseControllerPermissionTest : HorusAbstractTest() {
     fun testTeacherCreateCourse() {
         // TODO: Adapt for global permissions
         val courseCreate = CourseCreateDto("TestCourse", null, null)
-        assertSufficientPermissions { courseController.createCourse(courseCreate) }
+        assertInsufficientPermissions { courseController.createCourse(courseCreate) }
     }
 
     @Test

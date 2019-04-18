@@ -14,6 +14,12 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * Executor to execute arbitrary functions in a background-thread, while still in a Transactional context.
+ *
+ * This allows for returning from an API call early, and reporting progress on the background task
+ * via the different Progress handles.
+ */
 @Component
 class BatchJobExecutor {
 
@@ -41,6 +47,12 @@ class BatchJobExecutor {
         return runningJobs.values.filter { it.issuer.id == personId }
     }
 
+    /**
+     * Removes batch job from registry.
+     * This does not (and cannot) actually stop a running job, it will merely remove it from the bookkeeping.
+     *
+     * @throws UndeletableJobException When the removed job is still running.
+     */
     fun removeBatchJob(id: String) {
         val job = getBatchJobById(id)
         if (job.status == BatchJobStatus.ABORTED || job.status == BatchJobStatus.COMPLETED) {
@@ -50,6 +62,13 @@ class BatchJobExecutor {
         }
     }
 
+    /**
+     * Creates batch job to execute the given function in a Transactional context.
+     *
+     * @param description One-line job description of the function. Will be displayed to user.
+     * @param issuer The user who started the given function. Will also be used as security-context in later calls.
+     * @param job The function to execute in the background.
+     */
     fun startAddBatchJob(description: String, issuer: Person, job: JobCall): BatchJob {
         // Create job object
         val uuid = UUID.randomUUID().toString()
@@ -62,6 +81,9 @@ class BatchJobExecutor {
         return batch
     }
 
+    /**
+     * Internal function to start a batch job. For bookkeeping purposes, use startAddBatchJob.
+     */
     @Transactional
     fun executeSingleJob(batch: BatchJob, security: SecurityContext) {
         SecurityContextHolder.setContext(security)
