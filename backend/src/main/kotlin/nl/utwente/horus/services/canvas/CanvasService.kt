@@ -168,8 +168,8 @@ class CanvasService {
     }
 
     fun processCourseUsers(course: Course, users: List<User>) {
-        val disappeared = course.participants.map { it.person.loginId }.toSet() - users.map { it.loginId }.toSet()
-        course.participants.filter { p -> disappeared.contains(p.person.loginId) }.forEach { p -> p.enabled = false }
+        val disappeared = course.enabledParticipants.map { it.person.loginId }.toSet() - users.map { it.loginId }.toSet()
+        course.enabledParticipants.filter { p -> disappeared.contains(p.person.loginId) }.forEach { p -> p.enabled = false }
         // Check for each user if they are known as "person", and if they are already a participant
         users.forEach { user ->
             // Check and update user existence
@@ -182,7 +182,7 @@ class CanvasService {
                 person.sortableName = user.sortableName
             }
             // Check and update user participation
-            val participant = person.participations.firstOrNull { it.course.id == course.id }
+            val participant = person.enabledAndDisabledParticipations.firstOrNull { it.course.id == course.id }
             if (participant == null) {
                 participantService.createParticipant(person, course, toHorusRole(enrollment))
             } else {

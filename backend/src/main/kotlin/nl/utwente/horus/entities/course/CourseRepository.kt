@@ -13,8 +13,8 @@ interface CourseRepository: JpaRepository<Course, Long> {
 
     fun findCourseByExternalId(externalId: String): Course?
 
-    @Query("SELECT c FROM Course c INNER JOIN Participant p ON p.person = ?1 AND p.course = c")
-    fun findCoursesByPerson(person: Person): List<Course>
+    @Query("SELECT c FROM Course c INNER JOIN Participant p ON p.person = ?1 AND p.course = c AND p.enabled = true")
+    fun findCoursesByPersonEnabled(person: Person): List<Course>
 
     fun existsCourseByExternalId(externalId: String): Boolean
 

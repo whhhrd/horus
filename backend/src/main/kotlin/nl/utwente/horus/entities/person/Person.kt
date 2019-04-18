@@ -20,14 +20,23 @@ data class Person(
 ) {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "person", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val participations: MutableSet<Participant> = HashSet()
+    private val participations: MutableSet<Participant> = HashSet()
+
+    val enabledParticipations
+        get() = participations.filter { it.enabled }
+
+    val disabledParticipations
+        get() = participations.filter { !it.enabled }
+
+    val enabledAndDisabledParticipations
+        get() = enabledParticipations + disabledParticipations
 
     constructor(loginId: String, fullName: String, shortName: String, sortableName: String, email: String?): this(id = 0, loginId = loginId, shortName = shortName, fullName = fullName, sortableName = sortableName, email = email, createdAt = ZonedDateTime.now())
 
     fun getAuthorities(): Collection<HorusAuthority> {
         // Convert both "normal" roles (TA/teacher
-        val authorities = participations.map { part -> part.role.permissions.map { perm -> HorusAuthority(listOf(part.course), perm) } }.flatten() +
-                participations.map { it.supplementaryRoles }.flatten().map { role -> role.permissions.map { HorusAuthority(listOf(role.course), it) } }.flatten()
+        val authorities = enabledParticipations.map { part -> part.role.permissions.map { perm -> HorusAuthority(listOf(part.course), perm) } }.flatten() +
+                enabledParticipations.asSequence().map { it.supplementaryRoles }.flatten().map { role -> role.permissions.map { HorusAuthority(listOf(role.course), it) } }.flatten().toList()
         val permissionCourseMap = HashMap<HorusPermission, MutableSet<Long>>()
         authorities.forEach {
             if (permissionCourseMap.containsKey(it.permission)) {
@@ -37,6 +46,10 @@ data class Person(
             }
         }
         return permissionCourseMap.map { HorusAuthority(it.value, it.key) }
+    }
+
+    fun addParticipation(participant: Participant) {
+        participations.add(participant)
     }
 
 }

@@ -9,7 +9,7 @@ class PersonDtoFull : PersonDtoBrief {
     val authorities: List<HorusAuthorityDto>
 
     constructor(person: Person) : super(person) {
-        this.participations = person.participations.map { ParticipantDtoFull(it) }
+        this.participations = person.enabledParticipations.map { ParticipantDtoFull(it) }
         this.authorities = person.getAuthorities().map { HorusAuthorityDto(it) }
     }
 }

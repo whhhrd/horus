@@ -16,7 +16,7 @@ interface AssignmentSetRepository: JpaRepository<AssignmentSet, Long> {
      * by being in a group belonging to a group set that allowed for the given assignment set.
      */
     @Query("SELECT CASE WHEN COUNT(DISTINCT agm.id.assignmentSet) > 0 THEN TRUE ELSE FALSE END FROM Person p " +
-            "INNER JOIN Participant part ON part.person = p " +
+            "INNER JOIN Participant part ON part.person = p AND part.enabled = true " +
             "INNER JOIN GroupMember gm ON gm.id.participant = part " +
             "INNER JOIN Group g ON gm.id.group = g " +
             "INNER JOIN GroupSet gs ON g.groupSet = gs " +
@@ -33,6 +33,6 @@ interface AssignmentSetRepository: JpaRepository<AssignmentSet, Long> {
             "INNER JOIN Group g ON gm.id.group = g " +
             "INNER JOIN GroupSet gs ON g.groupSet = gs " +
             "INNER JOIN AssignmentGroupSetsMapping agm ON agm.id.groupSet = gs " +
-            "WHERE gm.id.participant = ?1")
+            "WHERE gm.id.participant = ?1 AND gm.id.participant.enabled = true")
     fun getAssignmentSetsMappedToParticipant(participant: Participant): List<AssignmentSet>
 }

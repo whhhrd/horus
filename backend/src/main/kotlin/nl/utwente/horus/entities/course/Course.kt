@@ -25,7 +25,16 @@ data class Course (
 ) {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "course", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val participants: MutableSet<Participant> = HashSet()
+    private val participants: MutableSet<Participant> = HashSet()
+
+    val enabledParticipants
+        get() = participants.filter { it.enabled }
+
+    val disabledParticipants
+        get() = participants.filter { !it.enabled }
+
+    val enabledAndDisabledParticipants
+        get() = enabledParticipants + disabledParticipants
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "course", cascade = [CascadeType.ALL], orphanRemoval = true)
     @OrderBy("id ASC")
@@ -43,4 +52,8 @@ data class Course (
         get() = archivedAt != null
 
     constructor(courseCode: String?, externalId: String?, name: String): this(0, courseCode, externalId, name, ZonedDateTime.now(), null)
+
+    fun addParticipant(participant: Participant) {
+        participants.add(participant)
+    }
 }

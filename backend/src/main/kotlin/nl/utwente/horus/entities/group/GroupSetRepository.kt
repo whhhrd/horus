@@ -12,7 +12,7 @@ interface GroupSetRepository: JpaRepository<GroupSet, Long> {
 
     fun getGroupSetByExternalId(externalId: String): GroupSet?
 
-    @Query("SELECT CASE WHEN COUNT(person) > 0 THEN TRUE ELSE FALSE END FROM Person person INNER JOIN Participant part ON part.person = person INNER JOIN GroupMember gm ON gm.id.participant = part WHERE person = ?1 AND gm.id.group.groupSet = ?2")
+    @Query("SELECT CASE WHEN COUNT(person) > 0 THEN TRUE ELSE FALSE END FROM Person person INNER JOIN Participant part ON part.person = person AND part.enabled = true INNER JOIN GroupMember gm ON gm.id.participant = part WHERE person = ?1 AND gm.id.group.groupSet = ?2 AND gm.id.group.archivedAt IS NULL")
     fun isPersonMemberOfGroupSet(person: Person, gs: GroupSet): Boolean
 
 }

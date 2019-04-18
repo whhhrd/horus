@@ -224,7 +224,7 @@ abstract class BaseController {
             return EntityBundle<Course>(
                     courseService::getCourseById,
                     {it.id},
-                    {person, entity -> participantService.doesParticipantExist(person.id, entity.id) }
+                    {person, entity -> participantService.doesParticipantExistAndIsEnabled(person.id, entity.id) }
             ) as EntityBundle<T>
         }
         if (kClass == Participant::class) {
