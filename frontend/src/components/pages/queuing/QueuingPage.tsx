@@ -770,8 +770,8 @@ class QueuingPage extends Component<
                         (as) => as.id === asid,
                     );
                     const canJoin =
-                        mode === QueuingMode.Student &&
-                        linkedAssignmentSet != null;
+                        mode === QueuingMode.Student && (asid == null ||
+                        linkedAssignmentSet != null);
 
                     return (
                         <Queue
