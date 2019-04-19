@@ -34,7 +34,7 @@ import {
     LOGOUT_REQUESTED_ACTION,
     AUTHORITIES_UPDATE_REQUESTED_ACTION,
  } from "./constants";
-import { PATH_COURSES } from "../../routes";
+import { PATH_LOGIN, PATH_HOME } from "../../routes";
 import { notificationsResetAction } from "../notifications/actions";
 
 const LOGIN_REDIRECT_LS_KEY = "redirectUrl";
@@ -75,16 +75,17 @@ function* logOut() {
 }
 
 function* postLoginRedirect() {
-    const redirectUrl = localStorage.getItem(LOGIN_REDIRECT_LS_KEY);
-    if (redirectUrl != null) {
+    const redirectUrl = sessionStorage.getItem(LOGIN_REDIRECT_LS_KEY);
+    if (redirectUrl != null && redirectUrl.length > 0) {
         yield put(push(redirectUrl));
+        sessionStorage.removeItem(LOGIN_REDIRECT_LS_KEY);
     } else {
-        yield put(push(PATH_COURSES[0]));
+        yield put(push(PATH_HOME));
     }
 }
 
 function* postLogoutRedirect() {
-    yield put(push("/login"));
+    yield put(push(PATH_LOGIN));
 }
 
 function* handleAPILogout() {
@@ -94,7 +95,7 @@ function* handleAPILogout() {
 }
 
 function* setLoginRedirect(action: SetLoginRedirectAction) {
-    localStorage.setItem(LOGIN_REDIRECT_LS_KEY, action.redirectUrl);
+    sessionStorage.setItem(LOGIN_REDIRECT_LS_KEY, action.redirectUrl);
     yield;
 }
 
