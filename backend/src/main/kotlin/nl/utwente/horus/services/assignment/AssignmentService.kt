@@ -115,15 +115,13 @@ class AssignmentService {
             if (groupSet.course.id != assignmentSet.course.id) {
                 throw InvalidAssignmentGroupSetsMappingCreateRequestException("GroupSet ID $newGroupId does not belong to the same course as the assignment set requested to update.")
             }
-            groupSet.groups.map { it.participants }.flatten().forEach {
-                if (isPersonMappedToAssignmentSet(it.person, assignmentSet)) {
-                    throw DuplicateAssignmentLinkException(it, assignmentSet)
-                }
-            }
             val mapping = assignmentGroupSetsMappingRepository.save(AssignmentGroupSetsMapping(assignmentSet, groupSet))
             groupSet.assignmentSetMappings.add(mapping)
             assignmentSet.groupSetMappings.add(mapping)
         }
+
+        // Could be that constraint is violated now
+        checkParticipantAssignmentSetMappings(assignmentSet)
 
         return assignmentSet
     }
@@ -160,6 +158,22 @@ class AssignmentService {
     fun isPersonMappedToAssignmentSet(person: Person, assignmentSet: AssignmentSet): Boolean {
         return assignmentSetRepository.isAssignmentSetMappedToPerson(assignmentSet, person)
     }
+
+    fun checkParticipantAssignmentSetMappings(assignmentSet: AssignmentSet, participants: Collection<Participant>? = null) {
+        val mappings = if (participants == null)
+            groupService.getParticipantMappingsToAssignmentSet(assignmentSet) else
+            groupService.getParticipantMappingsToAssignmentSet(participants, assignmentSet)
+        val pairWise = mappings.groupBy { it.participant }
+        val filtered = pairWise.filter { it.value.size > 1 }
+        if (filtered.isNotEmpty()) {
+            val errorStr = "Some participants are mapped to ${assignmentSet.name} via multiple groups: " +
+                    filtered.map { entry -> "${entry.key.person.fullName} (${entry.key.person.loginId}) " +
+                            "via ${entry.value.joinToString { it.group.name }}" }.joinToString("\n")
+            throw DuplicateAssignmentLinksException(errorStr)
+        }
+    }
+
+
 
     fun addThreadToAssignment(assignment: Assignment, thread: CommentThread) {
         if (assignment.commentThread == null) {
