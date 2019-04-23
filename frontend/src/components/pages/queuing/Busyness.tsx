@@ -156,7 +156,7 @@ class Busyness extends PureComponent<BusynessProps & RouteComponentProps<any>> {
                             backgroundColor: gradientColor(progress)
                                 .borderColor,
                         }}
-                        className="d-none d-lg-inline-block ellipsis mr-2"
+                        className="ellipsis mr-2"
                     >
                         {numOfEntries} in queue
                     </Badge>
