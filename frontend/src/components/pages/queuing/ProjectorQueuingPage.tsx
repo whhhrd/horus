@@ -85,7 +85,21 @@ class ProjectorQueuingPage extends Component<
         const { room } = this.props;
         const { connectionState } = this.state;
 
-        if (room != null) {
+        if (connectionState === ConnectionState.NotFound) {
+            setPageTitle("");
+            return (
+                <div style={{ height: "100vh" }}>
+                    {buildBigCenterMessage("Oops! Room not found.", faSadCry)}
+                </div>
+            );
+        } else if (this.state.connectionState === ConnectionState.Closed) {
+            setPageTitle("");
+            return (
+                <div style={{ height: "100vh" }}>
+                    {buildBigCenterMessage("Room is closed.", faDoorClosed)}
+                </div>
+            );
+        } else if (room != null) {
             setPageTitle("Room: " + room.name + `(${room.code})`);
             return (
                 <div style={{ height: "100vh" }}>
@@ -121,20 +135,6 @@ class ProjectorQueuingPage extends Component<
                             faSadCry,
                         )}
                     </div>
-                </div>
-            );
-        } else if (connectionState === ConnectionState.NotFound) {
-            setPageTitle("");
-            return (
-                <div style={{ height: "100vh" }}>
-                    {buildBigCenterMessage("Oops! Room not found.", faSadCry)}
-                </div>
-            );
-        } else if (this.state.connectionState === ConnectionState.Closed) {
-            setPageTitle("");
-            return (
-                <div style={{ height: "100vh" }}>
-                    {buildBigCenterMessage("Rooms is closed.", faDoorClosed)}
                 </div>
             );
         } else {
