@@ -115,11 +115,13 @@ class SignOffOverview extends Component<
     }
 
     render() {
-        return buildContent(
-            "Sign-Off Overview",
-            this.buildContent(),
-            this.buildSidebar(),
-        );
+        const assSet = this.props.assignmentSet(this.props.match.params.asid);
+        const title =
+            assSet != null
+                ? "Sign-off Overview: " + assSet.name
+                : "Sign-off Overview";
+
+        return buildContent(title, this.buildContent(), this.buildSidebar());
     }
 
     componentDidMount() {
