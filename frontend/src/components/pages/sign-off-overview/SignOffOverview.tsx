@@ -1,7 +1,7 @@
-import React, { ReactNode, Component } from "react";
+import React, { ReactNode, Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
-import { buildContent } from "../../pagebuilder";
+import { buildContent, buildBigCenterMessage } from "../../pagebuilder";
 import queryString from "query-string";
 import { MultiGrid, GridCellProps, AutoSizer, Index } from "react-virtualized";
 import {
@@ -45,6 +45,7 @@ import SignOffOverviewSearch, {
     Filter,
 } from "./SignOffOverviewSearch";
 import { getListFromQuery, arraysEqual, getFilterParam } from "../../util";
+import { faSadTear } from "@fortawesome/free-solid-svg-icons";
 
 interface SignOffOverviewProps {
     results: SignOffResultsMap | null;
@@ -197,50 +198,58 @@ class SignOffOverview extends Component<
 
         const rowArray = this.groupsToRowArray(this.props.groups);
         return (
-            <div className="d-flex flex-column align-items-stretch h-100">
-                <div className="mb-2">
-                    <SignOffOverviewSearch />
+            <Fragment>
+                <div className="d-none d-md-flex flex-column align-items-stretch h-100">
+                    <div className="mb-2">
+                        <SignOffOverviewSearch />
+                    </div>
+                    <div className="flex-fill h-100 w-100">
+                        <AutoSizer>
+                            {({ width, height }) => (
+                                <MultiGrid
+                                    styleBottomRightGrid={{ outline: "none" }}
+                                    classNameBottomLeftGrid="overview-bottom-left-grid"
+                                    enableFixedColumnScroll
+                                    ref={(r) => (this.multigrid = r)}
+                                    cellRenderer={(cellProps) =>
+                                        this.renderCell(
+                                            assignmentSet.assignments,
+                                            rowArray,
+                                            milestoneData,
+                                            cellProps,
+                                        )
+                                    }
+                                    columnWidth={this.getColumnWidth.bind(this)}
+                                    columnCount={
+                                        assignmentSet!.assignments.length +
+                                        milestoneData.length +
+                                        2
+                                    }
+                                    fixedColumnCount={2}
+                                    fixedRowCount={1}
+                                    height={height}
+                                    rowHeight={(index) =>
+                                        this.getRowHeight(
+                                            rowArray[index.index],
+                                            index,
+                                        )
+                                    }
+                                    rowCount={rowArray.length}
+                                    width={width}
+                                    overscanColumnCount={10}
+                                    overscanRowCount={10}
+                                />
+                            )}
+                        </AutoSizer>
+                    </div>
                 </div>
-                <div className="flex-fill h-100 w-100">
-                    <AutoSizer>
-                        {({ width, height }) => (
-                            <MultiGrid
-                                styleBottomRightGrid={{ outline: "none" }}
-                                classNameBottomLeftGrid="overview-bottom-left-grid"
-                                enableFixedColumnScroll
-                                ref={(r) => (this.multigrid = r)}
-                                cellRenderer={(cellProps) =>
-                                    this.renderCell(
-                                        assignmentSet.assignments,
-                                        rowArray,
-                                        milestoneData,
-                                        cellProps,
-                                    )
-                                }
-                                columnWidth={this.getColumnWidth.bind(this)}
-                                columnCount={
-                                    assignmentSet!.assignments.length +
-                                    milestoneData.length +
-                                    2
-                                }
-                                fixedColumnCount={2}
-                                fixedRowCount={1}
-                                height={height}
-                                rowHeight={(index) =>
-                                    this.getRowHeight(
-                                        rowArray[index.index],
-                                        index,
-                                    )
-                                }
-                                rowCount={rowArray.length}
-                                width={width}
-                                overscanColumnCount={10}
-                                overscanRowCount={10}
-                            />
-                        )}
-                    </AutoSizer>
+                <div className="d-flex my-auto d-md-none h-100">
+                    {buildBigCenterMessage(
+                        "This view is not compatible with your screensize...",
+                        faSadTear,
+                    )}
                 </div>
-            </div>
+            </Fragment>
         );
     }
 
