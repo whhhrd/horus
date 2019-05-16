@@ -290,6 +290,28 @@ class QueuingPage extends Component<
             });
         }
 
+        // Check if the room has changed
+        const prevRoom = prevprops.match.params.rid;
+        const currRoom = this.props.match.params.rid;
+
+        if (prevRoom != null && currRoom != null && prevRoom !== currRoom) {
+
+            // Close the existing socket
+            if (this.queuingSocket != null) {
+                this.queuingSocket.shutdown();
+            }
+
+            // Create new socket for th enew room
+            this.queuingSocket = new QueuingSocket(
+                this.props.match.params.rid,
+                this.onSockOpen,
+                this.onSockClose,
+                this.onSockMessage,
+                this.onSockError,
+                this,
+            );
+        }
+
         // Send notifications to TA if someone entered while all queues were empty
         if (this.state.mode === QueuingMode.TA) {
             const prevEntries = prevprops.queues!.reduce(
@@ -770,8 +792,8 @@ class QueuingPage extends Component<
                         (as) => as.id === asid,
                     );
                     const canJoin =
-                        mode === QueuingMode.Student && (asid == null ||
-                        linkedAssignmentSet != null);
+                        mode === QueuingMode.Student &&
+                        (asid == null || linkedAssignmentSet != null);
 
                     return (
                         <Queue
