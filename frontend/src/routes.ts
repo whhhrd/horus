@@ -24,3 +24,5 @@ export const PATH_PROJECTOR_PROMPT         = `/projector`;
 export const PATH_PROJECTOR_MODE           = `${PATH_PROJECTOR_PROMPT}/:rid`;
 
 export const PATH_HOME                     = PATH_COURSES;
+
+export const PATH_MANUAL                   = "/manual.pdf";
