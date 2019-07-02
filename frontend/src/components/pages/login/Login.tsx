@@ -316,7 +316,7 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                             toggle={() => this.toggleAboutPageCollapse()}
                             className="AboutPageModal"
                         >
-                            <div>
+                            <div style={{maxHeight: "90vh", overflowY: "auto"}}>
                                 <ModalHeader>About Horus</ModalHeader>
                                 <ModalBody>
                                     <div>
