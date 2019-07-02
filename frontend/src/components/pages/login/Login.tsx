@@ -383,7 +383,7 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                             toggle={() => this.togglePrivacyPolicyPageCollapse()}
                             className="PrivacyPolicyPageModal"
                         >
-                            <div>
+                            <div style={{maxHeight: "90vh", overflowY: "auto"}}>
                                 <ModalHeader>Privacy Policy</ModalHeader>
                                 <ModalBody>
                                     <div>
