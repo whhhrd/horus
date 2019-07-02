@@ -130,7 +130,7 @@ class SignOffServiceTest : HorusAbstractTest() {
     fun testProcessSignOffsIncorrectParticipant() {
         val newCourse = courseService.createCourse(CourseCreateDto("test", null, null))
         //Get a student from PP
-        val participant = getPPCourse().participants.firstOrNull { it.role.id == 1L }!!
+        val participant = getPPCourse().enabledParticipants.firstOrNull { it.role.id == 1L }!!
         //Use as student in the new course
         val newParticipant = participantService.createParticipant(newCourse.id, ParticipantCreateDto(participant.person.id, 1L))
         //Try to create a signoff using the participantId of the other course

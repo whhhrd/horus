@@ -84,7 +84,7 @@ class CourseController: BaseController() {
     @GetMapping(path = ["", "/"], produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
     fun listCourses(): List<CourseDtoSummary> {
         val person: Person = userDetailService.getCurrentPerson()
-        return person.participations.map { p -> CourseDtoSummary(p.course, RoleDtoBrief(p.role)) }
+        return person.enabledParticipations.map { p -> CourseDtoSummary(p.course, RoleDtoBrief(p.role)) }
     }
 
     @PostMapping(path = ["", "/"])

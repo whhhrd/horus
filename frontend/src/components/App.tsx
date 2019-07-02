@@ -49,6 +49,7 @@ import {
     PATH_PROJECTOR_PROMPT,
     PATH_JOBS,
     PATH_JOBS_ALT,
+    PATH_HOME,
 } from "../routes";
 import SignoffTable from "./pages/sign-off/SignoffTable";
 import GroupManager from "./pages/admin/groups/groups/GroupManager";
@@ -81,7 +82,6 @@ export interface AppProps {
  * which component (pages) to display, based on the URL.
  */
 class App extends React.PureComponent<AppProps & RouteComponentProps> {
-    static HOME_PATH = PATH_COURSES;
 
     componentDidMount() {
         let pathname = this.props.pathname;
@@ -93,20 +93,16 @@ class App extends React.PureComponent<AppProps & RouteComponentProps> {
 
         // When an empty URL is provided with a slash, redirect to HOME_PATH
         if (pathname === "/") {
-            this.props.push(App.HOME_PATH);
-            pathname = App.HOME_PATH;
+            this.props.push(PATH_HOME);
+            pathname = PATH_HOME;
         }
 
-        // When the user visits the login page or the
-        // beamer prompt page, set the redirect to HOME_PATH.
-        // Otherwise, set the redirect to the page they attempted
+        // Set the redirect to the page they attempted
         // to visit, so that once logged in they will be redirected there
         if (
-            pathname === PATH_LOGIN ||
-            pathname.startsWith(PATH_PROJECTOR_PROMPT)
+            !(pathname === PATH_LOGIN ||
+            pathname.startsWith(PATH_PROJECTOR_PROMPT))
         ) {
-            setLoginRedirect(App.HOME_PATH);
-        } else {
             setLoginRedirect(`${pathname}${search}${hash}`);
         }
 
@@ -144,7 +140,7 @@ class App extends React.PureComponent<AppProps & RouteComponentProps> {
         // If the user attempts to visit the login page but is
         // already logged in, redirects the user to the HOME_PATH
         if (loggedIn && pathname === PATH_LOGIN) {
-            this.props.push(App.HOME_PATH);
+            this.props.push(PATH_HOME);
         }
     }
 

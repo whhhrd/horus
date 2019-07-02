@@ -23,8 +23,8 @@ import {ApplicationState} from "../../../state/state";
 import {loginAction} from "../../../state/auth/actions";
 import Spinner from "reactstrap/lib/Spinner";
 import groupPicture from "../../../images/horus_group_picture_compressed.jpg";
-import {setPageTitle} from "../../pagebuilder";
-import {PATH_PROJECTOR_PROMPT} from "../../../routes";
+import { setPageTitle } from "../../pagebuilder";
+import { PATH_PROJECTOR_PROMPT, PATH_MANUAL } from "../../../routes";
 
 import horus from "../../../images/horus.png";
 
@@ -300,6 +300,13 @@ class Login extends Component<LoginProps & RouteComponentProps, LoginState> {
                         >
                             About
                         </small>
+                        {divider}
+                        <small
+                            className="text-dark"
+                            onClick={() => window.open(PATH_MANUAL)}
+                        >
+                            User Manual
+                            </small>
                     </div>
                 </div>
                 {(code == null || loginError != null) && (

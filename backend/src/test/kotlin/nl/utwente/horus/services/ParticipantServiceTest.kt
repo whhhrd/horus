@@ -82,9 +82,9 @@ class ParticipantServiceTest : HorusAbstractTest() {
     @WithLoginId(PP_TEACHER_LOGIN)
     @Test
     fun testDoesParticipantExist() {
-        assertFalse(participantService.doesParticipantExist(nonExistingPersonId, PP_MOCK_COURSE_ID))
+        assertFalse(participantService.doesParticipantExistAndIsEnabled(nonExistingPersonId, PP_MOCK_COURSE_ID))
         val somePerson = participantService.getParticipantById(PP_PARTICIPANT_IDS.first).person
-        assertTrue(participantService.doesParticipantExist(somePerson.id, PP_MOCK_COURSE_ID))
+        assertTrue(participantService.doesParticipantExistAndIsEnabled(somePerson.id, PP_MOCK_COURSE_ID))
     }
 
     @WithLoginId(PP_TEACHER_LOGIN)

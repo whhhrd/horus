@@ -110,7 +110,11 @@ class SignOffSearch extends Component<
     }
 
     componentDidMount() {
-        this.setState(() => ({ searchQuery: "" }));
+        this.setState(() => ({
+            searchQuery: "",
+            selectedAssignmentSet: null,
+            dropdownOpen: false,
+        }));
         this.props.fetchAssignmentSets(this.props.match.params.cid);
         this.props.fetchAssignmentGroupSetsMapping(this.props.match.params.cid);
     }
@@ -344,15 +348,16 @@ class SignOffSearch extends Component<
                 onSuggestionSelected={(_: any, suggestion: any) => {
                     if (suggestion == null) {
                         return;
+                    } else {
+                        const groupAssignmentSetCombination: GroupAssignmentSetCombination =
+                            suggestion.suggestion;
+                        this.setState({ searchQuery: "" }, () => {
+                            this.pushURL(
+                                groupAssignmentSetCombination.assignmentSet.id,
+                                groupAssignmentSetCombination.id,
+                            );
+                        });
                     }
-                    const groupAssignmentSetCombination: GroupAssignmentSetCombination =
-                        suggestion.suggestion;
-                    this.setState({ searchQuery: "" }, () => {
-                        this.pushURL(
-                            groupAssignmentSetCombination.assignmentSet.id,
-                            groupAssignmentSetCombination.id,
-                        );
-                    });
                 }}
                 inputProps={{
                     autoFocus: true,
@@ -364,7 +369,6 @@ class SignOffSearch extends Component<
                             searchQuery: newValue.newValue,
                         }));
                     },
-                    onBlurCapture: () => this.selectFirstSuggestion(false),
                     onKeyPress: (e) => {
                         if (e.key === "Enter") {
                             this.selectFirstSuggestion(true);
@@ -469,7 +473,6 @@ class SignOffSearch extends Component<
                 sections.push(section);
             }
         });
-
         return sections;
     }
 

@@ -1,7 +1,5 @@
 package nl.utwente.horus.exceptions
 
-import nl.utwente.horus.entities.assignment.AssignmentSet
-import nl.utwente.horus.entities.participant.Participant
 import org.springframework.http.HttpStatus
 
 abstract class BadRequestException(message: String, code: String? = null) : HorusException(message, HttpStatus.BAD_REQUEST, code)
@@ -31,8 +29,7 @@ class InvalidAssignmentUpdateRequestException(message: String) : BadRequestExcep
 
 class InvalidAssignmentGroupSetsMappingCreateRequestException(message: String) : BadRequestException(message)
 
-class DuplicateAssignmentLinkException(p: Participant, set: AssignmentSet) :
-        BadRequestException("${p.person.fullName} (${p.person.loginId}) is already linked to ${set.name} via another group in another group set.}")
+class DuplicateAssignmentLinksException(message: String) : BadRequestException(message)
 
 // Canvas-related
 class CanvasTokenNotFoundException : BadRequestException("The action required a Canvas token, " +

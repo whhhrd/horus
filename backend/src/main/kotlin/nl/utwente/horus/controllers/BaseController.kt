@@ -44,6 +44,9 @@ typealias CourseMapper<T> = (entity: T) -> Long
 typealias MappedChecker<T> = (person: Person, entity: T) -> Boolean
 typealias CallResult<D> = (Person) -> D
 
+/**
+ * Base class for controllers, providing authentication and other utilities.
+ */
 @Component
 @Transactional
 abstract class BaseController {
@@ -100,6 +103,9 @@ abstract class BaseController {
 
     }
 
+    /**
+     * Converts the given thread to the correct public/private HorusResource.
+     */
     fun toHorusResource(commentThread: CommentThread): HorusResource {
         return if (commentThread.type == CommentType.STAFF_ONLY) {
             HorusResource.COURSE_COMMENT_STAFFONLY
@@ -109,9 +115,13 @@ abstract class BaseController {
     }
 
     fun <T : Any> checkGlobalPermission(resourceClass: KClass<T>, type: HorusPermissionType) {
-
+        // TODO: Properly implement
+        throw InsufficientPermissionsException()
     }
 
+    /**
+     * Throws InsufficientPermissionsException if the user has "only" own or none permissions.
+     */
     fun <T: Any> requireAnyPermission(idClass: KClass<T>, entityId: Long,
                              type: HorusPermissionType,
                              diffResource: HorusResource? = null) {
@@ -185,6 +195,11 @@ abstract class BaseController {
         return null
     }
 
+    /**
+     * Checks the current owner's permissions, and returns the anyResult or ownResult based on the permissions.
+     *
+     * @throws InsufficientPermissionsException When the user has no permissions at all.
+     */
     fun <E: Any, D: Any> anyOwnResult(idClass: KClass<E>, entityId: Long,
                                       type: HorusPermissionType,
                                       diffResource: HorusResource? = null,
@@ -224,7 +239,7 @@ abstract class BaseController {
             return EntityBundle<Course>(
                     courseService::getCourseById,
                     {it.id},
-                    {person, entity -> participantService.doesParticipantExist(person.id, entity.id) }
+                    {person, entity -> participantService.doesParticipantExistAndIsEnabled(person.id, entity.id) }
             ) as EntityBundle<T>
         }
         if (kClass == Participant::class) {
@@ -283,6 +298,9 @@ abstract class BaseController {
         return null
     }
 
+    /**
+     * Sends the file to the user by using the given byteWriter, and sets the HTTP properties appropriately.
+     */
     fun sendFile(response: HttpServletResponse, byteWriter: (OutputStream) -> Unit, mime: String, fileName: String) {
         response.contentType = mime
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$fileName\"")
@@ -297,6 +315,13 @@ abstract class BaseController {
         return dto
     }
 
+    /**
+     * Executes the given fuction as a background task, allowing to return the API result early.
+     *
+     * @param description A single-line description of what the call does, displayable to a user.
+     * @param call The function to execute. Use the given Progress object to indicate the call progress to the user
+     * from inside the function.
+     */
     fun executeAsBatchJob(description: String, call: JobCall): BatchJob {
         val issuer = userDetailService.getCurrentPerson()
         return batchJobExecutor.startAddBatchJob(description, issuer, call)

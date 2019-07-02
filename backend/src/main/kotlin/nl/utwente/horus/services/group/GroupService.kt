@@ -1,11 +1,11 @@
 package nl.utwente.horus.services.group
 
+import nl.utwente.horus.entities.assignment.AssignmentSet
 import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.group.*
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.person.Person
-import nl.utwente.horus.exceptions.DuplicateAssignmentLinkException
 import nl.utwente.horus.exceptions.ExistingThreadException
 import nl.utwente.horus.exceptions.GroupNotFoundException
 import nl.utwente.horus.exceptions.GroupSetNotFoundException
@@ -78,6 +78,15 @@ class GroupService {
         return groupRepository.isPersonMemberOfGroup(person, group)
     }
 
+    fun getParticipantMappingsToAssignmentSet(ps: Collection<Participant>, set: AssignmentSet): Set<GroupMember> {
+        return groupMemberRepository.getParticipantAssignmentMappingMemberships(ps, set)
+    }
+
+    fun getParticipantMappingsToAssignmentSet(set: AssignmentSet): Set<GroupMember> {
+        return groupMemberRepository.getParticipantAssignmentMappingMemberships(set)
+    }
+
+
     fun isPersonMemberOfGroupSet(person: Person, gs: GroupSet): Boolean {
         return groupSetRepository.isPersonMemberOfGroupSet(person, gs)
     }
@@ -123,11 +132,6 @@ class GroupService {
     }
 
     fun addParticipantToGroup(group: Group, p: Participant) {
-        group.groupSet.assignmentSetMappings.forEach {
-            if (assignmentService.isPersonMappedToAssignmentSet(p.person, it.assignmentSet)) {
-                throw DuplicateAssignmentLinkException(p, it.assignmentSet)
-            }
-        }
         val member = groupMemberRepository.save(GroupMember(group, p))
         group.members.add(member)
     }

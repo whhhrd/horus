@@ -78,7 +78,7 @@ class CourseService {
     }
 
     fun getAllParticipatingCourses(person: Person): List<Course> {
-        return courseRepository.findCoursesByPerson(person)
+        return courseRepository.findCoursesByPersonEnabled(person)
     }
 
     fun getAssignmentSetsOfCourse(courseId: Long) : List<AssignmentSet> {
@@ -99,12 +99,12 @@ class CourseService {
     }
 
     fun getParticipantsOfCourse(courseId: Long) : List<Participant> {
-        return getCourseById(courseId).participants.toList()
+        return getCourseById(courseId).enabledParticipants.toList()
     }
 
     fun getCurrentParticipationInCourse(course: Course): Participant {
         val user = userDetailService.getCurrentPerson()
-        return course.participants.firstOrNull { it.person.id == user.id } ?: throw ParticipantNotFoundException()
+        return course.enabledParticipants.firstOrNull { it.person.id == user.id } ?: throw ParticipantNotFoundException()
     }
 
     fun getCoursesOfCommentThread(thread: CommentThread): List<Course> {

@@ -2,7 +2,15 @@ import React, { PureComponent } from "react";
 import { RouteComponentProps, withRouter } from "react-router";
 import { connect } from "react-redux";
 
-import { Col, Card, CardHeader, CardTitle, CardBody, Badge } from "reactstrap";
+import {
+    Col,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardBody,
+    Badge,
+    Button,
+} from "reactstrap";
 
 import { RoomQueueLengthsDto, QueueLengthDto } from "../../../api/types";
 import { ApplicationState } from "../../../state/state";
@@ -13,7 +21,10 @@ import {
 } from "../../../state/queuing/actions";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStoreAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+    faStoreAlt,
+    faArrowCircleRight,
+} from "@fortawesome/free-solid-svg-icons";
 import Queue from "./Queue";
 import { gradientColor } from "../../util";
 
@@ -106,6 +117,22 @@ class Busyness extends PureComponent<BusynessProps & RouteComponentProps<any>> {
                                                             <p className="lead d-block">
                                                                 {rql.room.name}
                                                             </p>
+                                                            <Button
+                                                                block
+                                                                outline
+                                                                color="primary"
+                                                                onClick={() =>
+                                                                    this.gotoRoom(rql.room.code)
+                                                                }
+                                                            >
+                                                                Visit{" "}
+                                                                <FontAwesomeIcon
+                                                                    icon={
+                                                                        faArrowCircleRight
+                                                                    }
+                                                                    className="ml-2"
+                                                                />
+                                                            </Button>
                                                         </div>
                                                         <div className="d-flex flex-column flex-grow-1 py-2">
                                                             {rql.queues
@@ -137,6 +164,14 @@ class Busyness extends PureComponent<BusynessProps & RouteComponentProps<any>> {
         }
     }
 
+    gotoRoom(roomCode: string) {
+        const courseId = this.props.match.params.cid;
+        const targetPath = `/courses/${courseId}/rooms/${roomCode}`;
+        this.props.history.push({
+            pathname: targetPath,
+        });
+    }
+
     buildQueueEntry(queue: QueueLengthDto, index: number) {
         const numOfEntries = queue.length;
         const progress = Math.max(
@@ -156,7 +191,7 @@ class Busyness extends PureComponent<BusynessProps & RouteComponentProps<any>> {
                             backgroundColor: gradientColor(progress)
                                 .borderColor,
                         }}
-                        className="d-none d-lg-inline-block ellipsis mr-2"
+                        className="ellipsis mr-2"
                     >
                         {numOfEntries} in queue
                     </Badge>

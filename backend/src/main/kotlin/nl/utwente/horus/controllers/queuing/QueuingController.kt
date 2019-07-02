@@ -22,10 +22,10 @@ import org.springframework.web.bind.annotation.*
 class QueuingController: BaseController() {
 
     @Autowired
-    lateinit var queuingService: QueuingService
+    private lateinit var queuingService: QueuingService
 
     @Autowired
-    lateinit var participantService: ParticipantService
+    private lateinit var participantService: ParticipantService
 
     @GetMapping("/{courseId}/rooms")
     fun getRooms(@PathVariable courseId: Long): List<RoomDto> {

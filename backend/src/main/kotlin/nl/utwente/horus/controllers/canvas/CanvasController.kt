@@ -11,6 +11,7 @@ import nl.utwente.horus.representations.canvas.CanvasTokenDto
 import nl.utwente.horus.representations.course.CourseDtoFull
 import nl.utwente.horus.representations.group.GroupSetDtoSummary
 import nl.utwente.horus.representations.job.BatchJobDto
+import nl.utwente.horus.services.assignment.AssignmentService
 import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.canvas.CanvasService
 import nl.utwente.horus.services.course.CourseService
@@ -42,6 +43,9 @@ class CanvasController: BaseController() {
     @Autowired
     lateinit var importService: ImportService
 
+    @Autowired
+    lateinit var assignmentService: AssignmentService
+
     @PostMapping(path = ["/", ""])
     fun addToken(@RequestBody token: CanvasTokenDto) {
         val user = userDetailService.getCurrentPerson()
@@ -68,7 +72,8 @@ class CanvasController: BaseController() {
 
     @PostMapping(path = ["/{canvasId}"])
     fun addCourse(@PathVariable canvasId: String): BatchJobDto {
-        checkGlobalPermission(Course::class, HorusPermissionType.CREATE)
+        // TODO: Re-enable once global permissions are properly implemented
+        // checkGlobalPermission(Course::class, HorusPermissionType.CREATE)
 
         val batch = executeAsBatchJob("Canvas course import") {
             canvasService.addCanvasCourse(canvasId, it)
@@ -93,8 +98,10 @@ class CanvasController: BaseController() {
         requireAnyPermission(Course::class, courseId, HorusPermissionType.DELETE, HorusResource.COURSE_GROUP)
 
         val course = courseService.getCourseById(courseId)
-        val batch = executeAsBatchJob("Canvas full sync for ${course.name}") {
-            canvasService.doFullCanvasSync(courseId, it)
+        val batch = executeAsBatchJob("Canvas full sync for ${course.name}") { progress ->
+            canvasService.doFullCanvasSync(courseId, progress)
+            courseService.getCourseById(courseId)
+                    .assignmentSets.forEach { assignmentService.checkParticipantAssignmentSetMappings(it) }
         }
         return BatchJobDto(batch)
     }
@@ -147,10 +154,11 @@ class CanvasController: BaseController() {
         requireAnyPermission(Course::class, courseId, HorusPermissionType.EDIT, HorusResource.COURSE_GROUP)
         requireAnyPermission(Course::class, courseId, HorusPermissionType.DELETE, HorusResource.COURSE_GROUP)
         val set = groupService.getGroupSetById(setId)
-        val batch = executeAsBatchJob("Group set sync for ${set.name} in ${set.course.name}") {
+        val batch = executeAsBatchJob("Group set sync for ${set.name} in ${set.course.name}") { progress ->
             val course = courseService.getCourseById(courseId)
             canvasService.doCanvasParticipantSync(course)
-            canvasService.doCanvasGroupsSync(setId, it)
+            canvasService.doCanvasGroupsSync(setId, progress)
+            course.assignmentSets.forEach { assignmentService.checkParticipantAssignmentSetMappings(it) }
         }
         return BatchJobDto(batch)
     }

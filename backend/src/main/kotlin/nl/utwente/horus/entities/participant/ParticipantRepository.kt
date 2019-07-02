@@ -11,14 +11,14 @@ import java.util.stream.Stream
 @Transactional
 interface ParticipantRepository: JpaRepository<Participant, Long> {
 
-    @Query("SELECT p FROM Participant p WHERE p.course = ?1 ORDER BY p.person.sortableName")
+    @Query("SELECT p FROM Participant p WHERE p.course = ?1 AND p.enabled = true ORDER BY p.person.sortableName")
     fun findAllByCourseSorted(course: Course): Stream<Participant>
 
-    fun findAllByCourseAndRoleIdIn(c: Course, roles: List<Long>): List<Participant>
+    fun findAllByCourseAndRoleIdInAndEnabledTrue(c: Course, roles: List<Long>): List<Participant>
 
-    fun findParticipantByPersonIdAndCourseId(personId: Long, courseId: Long): Participant?
+    fun findParticipantByPersonIdAndCourseIdAndEnabledTrue(personId: Long, courseId: Long): Participant?
 
-    fun findAllByPersonIdInAndCourseId(personIds: Collection<Long>, courseId: Long): Stream<Participant>
+    fun findAllByPersonIdInAndCourseIdAndEnabledTrue(personIds: Collection<Long>, courseId: Long): Stream<Participant>
 
-    fun findAllByPersonLoginIdInAndCourseId(loginIds: Collection<String>, courseId: Long): Stream<Participant>
+    fun findAllByPersonLoginIdInAndCourseIdAndEnabledTrue(loginIds: Collection<String>, courseId: Long): Stream<Participant>
 }

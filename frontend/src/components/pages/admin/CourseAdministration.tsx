@@ -43,7 +43,9 @@ import {
     faUsersCog,
     faDownload,
     faSave,
+    faInfo,
 } from "@fortawesome/free-solid-svg-icons";
+import { PATH_MANUAL } from "../../../routes";
 
 interface CourseAdministrationProps {
     coursePermissions: CoursePermissions | null;
@@ -64,7 +66,7 @@ interface CourseAdministrationProps {
  */
 class CourseAdministration extends PureComponent<
     CourseAdministrationProps & RouteComponentProps<any>
-> {
+    > {
     componentDidMount() {
         // Fetch course (for externalId checking)
         this.props.fetchCourse(this.props.match.params.cid);
@@ -149,7 +151,7 @@ class CourseAdministration extends PureComponent<
                                 <Link
                                     to={`/courses/${
                                         this.props.match.params.cid
-                                    }/administration/labels`}
+                                        }/administration/labels`}
                                 >
                                     <FontAwesomeIcon
                                         icon={faTags}
@@ -167,7 +169,7 @@ class CourseAdministration extends PureComponent<
                                 <Link
                                     to={`/courses/${
                                         this.props.match.params.cid
-                                    }/administration/roles`}
+                                        }/administration/roles`}
                                 >
                                     <FontAwesomeIcon
                                         icon={faUsersCog}
@@ -185,7 +187,7 @@ class CourseAdministration extends PureComponent<
                                 <a
                                     href={`/api/courses/${
                                         this.props.match.params.cid
-                                    }/export?token=${accessToken}`}
+                                        }/export?token=${accessToken}`}
                                     target="_blank"
                                 >
                                     <FontAwesomeIcon
@@ -245,6 +247,20 @@ class CourseAdministration extends PureComponent<
                                     <br />
                                 </Fragment>
                             )}
+                        <Fragment>
+                            <Link
+                                to={this.props.location.pathname}
+                                onClick={() => window.open(PATH_MANUAL)}
+                            >
+                                <FontAwesomeIcon
+                                    icon={faInfo}
+                                    className="mr-2"
+                                    size="sm"
+                                    style={{ width: "30px" }}
+                                />
+                                Download user manual
+                                </Link>
+                        </Fragment>
                     </div>
                 </Col>
             </Row>

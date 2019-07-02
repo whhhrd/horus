@@ -65,33 +65,33 @@ class ParticipantService {
     }
 
     fun getCourseStaff(course: Course): List<Participant> {
-        return participantRepository.findAllByCourseAndRoleIdIn(course, listOf(TEACHER_ID, TEACHING_ASSISTANT_ID))
+        return participantRepository.findAllByCourseAndRoleIdInAndEnabledTrue(course, listOf(TEACHER_ID, TEACHING_ASSISTANT_ID))
     }
 
     fun getParticipantById(id: Long): Participant {
         return participantRepository.findByIdOrNull(id) ?: throw ParticipantNotFoundException()
     }
 
-    fun doesParticipantExist(personId: Long, courseId: Long): Boolean {
-        return participantRepository.findParticipantByPersonIdAndCourseId(personId, courseId) != null
+    fun doesParticipantExistAndIsEnabled(personId: Long, courseId: Long): Boolean {
+        return participantRepository.findParticipantByPersonIdAndCourseIdAndEnabledTrue(personId, courseId) != null
     }
 
     fun getCurrentParticipationInCourse(courseId: Long) : Participant {
         val person: Person = userDetailService.getCurrentPerson()
-        return participantRepository.findParticipantByPersonIdAndCourseId(person.id, courseId) ?: throw ParticipantNotFoundException()
+        return participantRepository.findParticipantByPersonIdAndCourseIdAndEnabledTrue(person.id, courseId) ?: throw ParticipantNotFoundException()
     }
 
     fun getParticipationInCourse(person: Person, courseId: Long) : Participant {
-        return person.participations.firstOrNull { it.course.id == courseId } ?: throw NoParticipantException()
+        return person.enabledParticipations.firstOrNull { it.course.id == courseId } ?: throw NoParticipantException()
     }
 
     fun getParticipationsInCourse(personIds: Set<Long>, courseId: Long): Stream<Participant> {
-        val result = participantRepository.findAllByPersonIdInAndCourseId(personIds, courseId)
+        val result = participantRepository.findAllByPersonIdInAndCourseIdAndEnabledTrue(personIds, courseId)
         return result
     }
 
     fun getParticipationsInCourseByLoginId(loginIds: Set<String>, courseId: Long): Stream<Participant> {
-        return participantRepository.findAllByPersonLoginIdInAndCourseId(loginIds, courseId)
+        return participantRepository.findAllByPersonLoginIdInAndCourseIdAndEnabledTrue(loginIds, courseId)
     }
 
     fun getCourseParticipationsStream(course: Course): Stream<Participant> {
@@ -105,8 +105,8 @@ class ParticipantService {
 
     fun createParticipant(person: Person, course: Course, role: Role): Participant {
         val participant = participantRepository.save(Participant(person, course, role))
-        course.participants.add(participant)
-        person.participations.add(participant)
+        course.addParticipant(participant)
+        person.addParticipation(participant)
         return participant
     }
 
