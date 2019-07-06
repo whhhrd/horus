@@ -37,7 +37,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.15",
     "@fortawesome/free-solid-svg-icons": "^5.7.2",
     "@fortawesome/react-fontawesome": "^0.1.4",
-    "@types/lodash": "^4.14.120",
+    "@types/lodash": "^4.14.133",
     "@types/query-string": "^6.2.0",
     "@types/react": "^16.8.19",
     "@types/react-autosuggest": "^9.3.7",
