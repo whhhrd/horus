@@ -220,6 +220,14 @@ button {
     overflow-y: auto;
 }
 
+.SidebarHideButton {
+    position: absolute;
+    z-index: 100;
+    border-radius: 5px;
+    right: 10px;
+    top: 0px;
+}
+
 .SidebarSm {
     position: absolute;
     top: 0;

@@ -2,6 +2,9 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { centerSpinner } from "./pagebuilder";
 import NavigationBar from "./navigationBar/NavigationBar";
+import { withRouter, RouteComponentProps } from "react-router";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 interface DesktopComponentProps {
     headerTitle: string;
@@ -22,15 +25,16 @@ interface DesktopComponentState {
  * DesktopComponent.WIDTH_THRESHOLD.
  */
 class DesktopComponent extends Component<
-    DesktopComponentProps,
+    DesktopComponentProps & RouteComponentProps<any>,
     DesktopComponentState
 > {
     static WIDTH_THRESHOLD = 992;
 
-    constructor(props: DesktopComponentProps) {
+    constructor(props: DesktopComponentProps & RouteComponentProps<any>) {
         super(props);
         this.state = { width: window.innerWidth };
         this.updateDimensions = this.updateDimensions.bind(this);
+        this.closeSidebar = this.closeSidebar.bind(this);
     }
 
     updateDimensions() {
@@ -70,10 +74,12 @@ class DesktopComponent extends Component<
                         {/* The body for the actual content, a flex column that contanis the title and body content */}
                         <div className="ContentBody d-flex flex-column flex-fill">
                             {/* The content header box displaying the 'headerTitle' argument */}
-                            {headerTitle.trim().length > 0 && <div className="ContentHeader px-3 pt-3 w-100">
-                                <h2>{headerTitle}</h2>
-                                <hr className="mb-0" />
-                            </div>}
+                            {headerTitle.trim().length > 0 && (
+                                <div className="ContentHeader px-3 pt-3 w-100">
+                                    <h2>{headerTitle}</h2>
+                                    <hr className="mb-0" />
+                                </div>
+                            )}
 
                             {/* The main content box, displaying the elements from the 'content' argument or
                                 the center spinner if the content is Null. */}
@@ -83,8 +89,14 @@ class DesktopComponent extends Component<
                         </div>
 
                         {/* If sidebar content has been passed, render it in a sidebar like box */}
-                        {sidebarContent != null && (
+                        {sidebarContent != null && this.isSidebarOpen() && (
                             <div className="Sidebar p-3 bg-light border-left">
+                                <div title="Close sidebar"
+                                    className="SidebarHideButton cursor-pointer p-2 m-2 bg-light"
+                                    onClick={this.closeSidebar}
+                                >
+                                    <FontAwesomeIcon icon={faTimes} size="lg" />
+                                </div>
                                 {sidebarContent}
                             </div>
                         )}
@@ -93,9 +105,23 @@ class DesktopComponent extends Component<
             </div>
         );
     }
-}
 
-export default connect(
-    () => ({}),
-    {},
-)(DesktopComponent);
+    closeSidebar() {
+        const { history } = this.props;
+        history.push({
+            ...history.location,
+            hash: "",
+        });
+    }
+
+    isSidebarOpen() {
+        const { history } = this.props;
+        return history.location.hash === "#sidebar";
+    }
+}
+export default withRouter(
+    connect(
+        () => ({}),
+        {},
+    )(DesktopComponent),
+);
