@@ -3,7 +3,6 @@ import { RouteComponentProps, withRouter } from "react-router";
 import { connect } from "react-redux";
 
 import {
-    UncontrolledTooltip,
     ListGroup,
     ListGroupItem,
     Table,
@@ -229,6 +228,16 @@ export class CourseStudentDashboard extends Component<
                                             }}
                                         >
                                             {assignmentSet.name}
+                                            <br />
+                                            {this.assignmentSetComplete(
+                                                assignmentSet,
+                                            ) && (
+                                                <FontAwesomeIcon
+                                                    icon={faCheck}
+                                                    size="2x"
+                                                    className="p-2 mt-2 AssignmentSetCompleteIcon"
+                                                />
+                                            )}
                                         </th>
                                         {assignmentSet.assignments.map(
                                             (
@@ -267,6 +276,18 @@ export class CourseStudentDashboard extends Component<
         }
     }
 
+    private assignmentSetComplete(aset: AssignmentSetDtoFull) {
+        const result: AssignmentDtoBrief[] = aset.assignments.filter(
+            (as: AssignmentDtoBrief) =>
+                this.props.dashboard!.results.find(
+                    (signoff: SignOffResultDtoStudent) =>
+                        signoff.assignmentId === as.id &&
+                        signoff.result === "COMPLETE",
+                ),
+        );
+        return result.length === aset.assignments.length;
+    }
+
     /**
      * Builds a table cell for the specific sign-off result
      * of the assignment linked to the student.
@@ -296,10 +317,12 @@ export class CourseStudentDashboard extends Component<
 
         return (
             <td
+                title={`By: ${result.signerName} ${getDisplayedDate(
+                    new Date(result.signedAt),
+                )}`}
                 key={`res${result.assignmentId}+${result.participantId}+${
                     result.signedAt
                 }`}
-                id={`a${String(assignment.id)}`}
                 className={`sign-off-table-cell-${
                     result.result === "INSUFFICIENT"
                         ? "insufficient"
@@ -313,16 +336,9 @@ export class CourseStudentDashboard extends Component<
                 }
             >
                 <FontAwesomeIcon
+                    style={{ pointerEvents: "none" }}
                     icon={result.result === "INSUFFICIENT" ? faTimes : faCheck}
                 />
-                <UncontrolledTooltip
-                    target={`a${String(assignment.id)}`}
-                    placement="bottom"
-                    delay={{ show: 250, hide: 0 }}
-                >
-                    By: {result.signerName} <br />
-                    {getDisplayedDate(new Date(result.signedAt))}
-                </UncontrolledTooltip>
             </td>
         );
     }

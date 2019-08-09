@@ -417,6 +417,15 @@ button {
     color: inherit !important;
 }
 
+.AssignmentSetCompleteIcon {
+    background-color: $color_green_light;
+    border: 1px solid $color_green;
+    color: $color_green_text;
+    border-radius: 50%;
+    height: 50px;
+    width: 50px !important;
+}
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * Autosuggest properties
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
