@@ -10,8 +10,8 @@ import nl.utwente.horus.entities.comment.CommentThread
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.course.CourseRepository
 import nl.utwente.horus.entities.group.Group
-import nl.utwente.horus.entities.group.GroupFiltrationSpecification
 import nl.utwente.horus.entities.group.GroupSet
+import nl.utwente.horus.entities.group.LabelFilterOperator
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.person.Person
 import nl.utwente.horus.exceptions.AssignmentSetNotFoundException
@@ -21,6 +21,7 @@ import nl.utwente.horus.exceptions.ParticipantNotFoundException
 import nl.utwente.horus.representations.assignment.AssignmentSetCreateDto
 import nl.utwente.horus.representations.course.CourseCreateDto
 import nl.utwente.horus.representations.course.CourseUpdateDto
+import nl.utwente.horus.representations.dsl.QueryNodeDto
 import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
 import nl.utwente.horus.services.assignment.AssignmentService
 import nl.utwente.horus.services.auth.HorusUserDetailService
@@ -94,8 +95,8 @@ class CourseService {
         return getCourseById(courseId).groupSets.toList()
     }
 
-    fun getGroupsOfCourseFiltered(pageable: Pageable, courseId: Long, groupSetId: Long?, assignmentSetId: Long?, labelIds: List<Long>, operator: GroupFiltrationSpecification.LabelFilterOperator?): Page<Group> {
-        return groupService.getGroupsFiltered(pageable, courseId, groupSetId, assignmentSetId, labelIds, operator)
+    fun getGroupsOfCourseFiltered(pageable: Pageable, courseId: Long, groupSetId: Long?, assignmentSetId: Long?, labelIds: List<Long>, operator: LabelFilterOperator?, query: QueryNodeDto?): Page<Group> {
+        return groupService.getGroupsFiltered(pageable, courseId, groupSetId, assignmentSetId, labelIds, operator, query)
     }
 
     fun getParticipantsOfCourse(courseId: Long) : List<Participant> {

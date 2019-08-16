@@ -454,6 +454,21 @@ export interface RoomQueueLengthsDto {
     room: RoomDto;
 }
 
+export interface QueryNodeDto {
+    type: string;
+}
+
+export interface LabelQueryNodeDto extends QueryNodeDto {
+    labelId: number;
+}
+
+export type LabelFilterOperator = "AND" | "OR" | "NOT";
+
+export interface OperatorQueryNodeDto extends QueryNodeDto {
+    children: QueryNodeDto[];
+    op: LabelFilterOperator;
+}
+
 export interface ErrorDto {
     code: string;
     message: string;

@@ -7,6 +7,7 @@ import { put, takeLatest, call } from "redux-saga/effects";
 import { authenticatedFetchJSON } from "../../api";
 import { SpringPage } from "../../api/spring-types";
 import { GroupDtoFull, SignOffResultDtoCompact } from "../../api/types";
+import { buildDSLQuery } from "../../api/dsl";
 import {
     overviewGroupsPageFetchSucceededAction,
     overviewGroupsFetchSucceededAction,
@@ -98,19 +99,23 @@ export function* signOffOverviewFilterQuery(
         assignmentSetId,
         labelIds,
         operator,
+        queryNode,
     } = action;
+    const queryString = queryNode != null ? buildDSLQuery(queryNode) : undefined;
+    const queryParams = {
+        sort: "groupSet.id,id",
+        groupSetId,
+        assignmentSetId,
+        labelIds,
+        operator,
+        query: queryString,
+    };
     try {
         let page: SpringPage<GroupDtoFull> = yield call(
             authenticatedFetchJSON,
             "GET",
             `courses/${courseId}/groups/filtered`,
-            {
-                sort: "groupSet.id,id",
-                groupSetId,
-                assignmentSetId,
-                labelIds,
-                operator,
-            },
+            queryParams,
         );
         yield put(signOffOverviewFilterSucceededAction(page.content, page.last));
         while (!page.last) {
@@ -119,11 +124,7 @@ export function* signOffOverviewFilterQuery(
                 "GET",
                 `courses/${courseId}/groups/filtered`,
                 {
-                    sort: "groupSet.id,id",
-                    groupSetId,
-                    assignmentSetId,
-                    labelIds,
-                    operator,
+                    ...queryParams,
                     page: page.number + 1,
                 },
             );

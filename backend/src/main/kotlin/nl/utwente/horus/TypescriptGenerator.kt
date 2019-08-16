@@ -15,6 +15,8 @@ import nl.utwente.horus.representations.course.CourseCreateDto
 import nl.utwente.horus.representations.course.CourseDtoFull
 import nl.utwente.horus.representations.course.CourseUpdateDto
 import nl.utwente.horus.representations.dashboard.StudentDashboardDto
+import nl.utwente.horus.representations.dsl.LabelQueryNodeDto
+import nl.utwente.horus.representations.dsl.OperatorQueryNodeDto
 import nl.utwente.horus.representations.error.ErrorDto
 import nl.utwente.horus.representations.group.GroupDtoFull
 import nl.utwente.horus.representations.group.GroupSetDtoFull
@@ -107,6 +109,9 @@ fun generate() {
                     QueueUpdateDto::class,
                     AnnouncementCreateDto::class,
                     RoomQueueLengthsDto::class,
+
+                    LabelQueryNodeDto::class,
+                    OperatorQueryNodeDto::class,
 
                     HorusAuthorityDto::class,
                     HorusResource::class,

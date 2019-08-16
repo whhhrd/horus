@@ -1,11 +1,12 @@
 package nl.utwente.horus.controllers.course
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import nl.utwente.horus.auth.permissions.HorusPermission
 import nl.utwente.horus.auth.permissions.HorusPermissionType
 import nl.utwente.horus.auth.permissions.HorusResource
 import nl.utwente.horus.controllers.BaseController
 import nl.utwente.horus.entities.course.Course
-import nl.utwente.horus.entities.group.GroupFiltrationSpecification
+import nl.utwente.horus.entities.group.LabelFilterOperator
 import nl.utwente.horus.entities.participant.Label
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.person.Person
@@ -22,6 +23,7 @@ import nl.utwente.horus.representations.course.CourseDtoFull
 import nl.utwente.horus.representations.course.CourseDtoSummary
 import nl.utwente.horus.representations.course.CourseUpdateDto
 import nl.utwente.horus.representations.dashboard.StudentDashboardDto
+import nl.utwente.horus.representations.dsl.QueryNodeDto
 import nl.utwente.horus.representations.group.GroupDtoFull
 import nl.utwente.horus.representations.group.GroupSetDtoSummary
 import nl.utwente.horus.representations.participant.*
@@ -80,6 +82,9 @@ class CourseController: BaseController() {
 
     @Autowired
     lateinit var roleService: RoleService
+
+    @Autowired
+    lateinit var objectMapper: ObjectMapper
 
     @GetMapping(path = ["", "/"], produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
     fun listCourses(): List<CourseDtoSummary> {
@@ -215,7 +220,7 @@ class CourseController: BaseController() {
         requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_GROUP)
 
         val course = courseService.getCourseById(courseId)
-        val book = exportService.createCourseBook(course)
+            val book = exportService.createCourseBook(course)
         val fileName = "${course.name}-${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}.xlsx"
         sendFile(response, book::write, BaseController.XLSX_MIME, fileName)
     }
@@ -290,9 +295,10 @@ class CourseController: BaseController() {
     }
 
     @GetMapping(path = ["/{courseId}/groups/filtered"])
-    fun getGroupsFiltered(pageable: Pageable, @PathVariable courseId: Long, @RequestParam groupSetId: Long?, @RequestParam assignmentSetId: Long?, @RequestParam labelIds: List<Long>?, @RequestParam operator: GroupFiltrationSpecification.LabelFilterOperator?): Page<GroupDtoFull> {
+    fun getGroupsFiltered(pageable: Pageable, @PathVariable courseId: Long, @RequestParam groupSetId: Long?, @RequestParam assignmentSetId: Long?, @RequestParam labelIds: List<Long>?, @RequestParam operator: LabelFilterOperator?, @RequestParam query: String?): Page<GroupDtoFull> {
         requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_GROUP)
-        val groups = courseService.getGroupsOfCourseFiltered(pageable, courseId, groupSetId, assignmentSetId,labelIds ?: emptyList(), operator)
+        val queryNode = if (query != null) objectMapper.readValue(query, QueryNodeDto::class.java) else null
+        val groups = courseService.getGroupsOfCourseFiltered(pageable, courseId, groupSetId, assignmentSetId,labelIds ?: emptyList(), operator, queryNode)
         return groups.map { GroupDtoFull(it) }
     }
 

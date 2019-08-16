@@ -8,7 +8,7 @@ import {
     SIGN_OFF_OVERVIEW_FILTER_SUCCEEDED_ACTION,
 } from "./constants";
 
-import { SignOffResultDtoCompact, GroupDtoFull } from "../../api/types";
+import { SignOffResultDtoCompact, GroupDtoFull, LabelQueryNodeDto, OperatorQueryNodeDto } from "../../api/types";
 import { Action } from "redux";
 
 export const overviewSignOffResultsRequestedAction = (
@@ -68,6 +68,7 @@ export interface SignOffOverviewFilterQueryAction extends Action<string> {
     assignmentSetId?: number;
     labelIds?: number[];
     groupSetId?: number;
+    queryNode?: LabelQueryNodeDto | OperatorQueryNodeDto;
 }
 
 export interface SignOffOverviewFilterSucceededAction extends Action<string> {
@@ -81,6 +82,7 @@ export const signOffOverviewFilterQueryAction = (
     assignmentSetId?: number,
     labelIds?: number[],
     groupSetId?: number,
+    queryNode?: LabelQueryNodeDto | OperatorQueryNodeDto,
 ) => ({
     type: SIGN_OFF_OVERVIEW_FILTER_QUERY_ACTION,
     courseId,
@@ -88,6 +90,7 @@ export const signOffOverviewFilterQueryAction = (
     assignmentSetId,
     groupSetId,
     labelIds,
+    queryNode,
 });
 
 export const signOffOverviewFilterSucceededAction = (

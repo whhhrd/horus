@@ -6,6 +6,9 @@ import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.participant.Label
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.participant.ParticipantLabelMapping
+import nl.utwente.horus.representations.dsl.LabelQueryNodeDto
+import nl.utwente.horus.representations.dsl.QueryNodeDto
+import nl.utwente.horus.representations.dsl.OperatorQueryNodeDto
 import org.springframework.data.jpa.domain.Specification
 import java.time.ZonedDateTime
 import java.util.*
@@ -19,22 +22,17 @@ class GroupFiltrationSpecification: Specification<Group> {
 
     private val assignmentSetId: Long?
 
-    private val labelIds: List<Long>
+    private val labelQuery: QueryNodeDto?
 
-    enum class LabelFilterOperator {
-        AND,
-        OR
-    }
-
-    private val labelFilterOperator: GroupFiltrationSpecification.LabelFilterOperator
-
-    constructor(courseId: Long, groupSetId: Long?, assignmentSetId: Long?, labelIds: List<Long>, operator: LabelFilterOperator?) {
+    constructor(courseId: Long, groupSetId: Long?, assignmentSetId: Long?, labelQuery: QueryNodeDto?) {
         this.courseId = courseId
         this.groupSetId = groupSetId
         this.assignmentSetId = assignmentSetId
-        this.labelIds = labelIds
-        this.labelFilterOperator = operator ?: LabelFilterOperator.AND
+        this.labelQuery = labelQuery
     }
+
+    constructor(courseId: Long, groupSetId: Long?, assignmentSetId: Long?, labelIds: List<Long>, operator: LabelFilterOperator?):
+            this(courseId, groupSetId, assignmentSetId, simpleLabelQueryToNode(labelIds, operator))
 
 
     override fun toPredicate(root: Root<Group>, query: CriteriaQuery<*>, criteriaBuilder: CriteriaBuilder): Predicate? {
@@ -68,7 +66,7 @@ class GroupFiltrationSpecification: Specification<Group> {
             constraints.add(root.get<Long>("groupSet").get<Long>("id").`in`(groupSetIdsMappedToAssignmentSetSubQuery))
         }
 
-        if (labelIds.isNotEmpty()) {
+        if (labelQuery != null) {
 
             val groupIdsMappedToLabelsSubQuery = query.subquery(Long::class.java)
 
@@ -77,31 +75,69 @@ class GroupFiltrationSpecification: Specification<Group> {
             val participant = subRoot.get<GroupMember.GroupMemberId>("id")
                     .get<Participant>("participant")
 
-            val labelMappingRoot = groupIdsMappedToLabelsSubQuery.from(ParticipantLabelMapping::class.java)
-
-            val labelId = labelMappingRoot
-                    .get<ParticipantLabelMapping.ParticipantLabelMappingId>("id")
-                    .get<Label>("label").get<Long>("id")
-
-            val labelledParticipant = labelMappingRoot
-                    .get<ParticipantLabelMapping.ParticipantLabelMappingId>("id")
-                    .get<Participant>("participant")
+            val participantId = participant.get<Long>("id")
 
             groupIdsMappedToLabelsSubQuery.select(subRoot.get<GroupMember.GroupMemberId>("id").get<Group>("group").get<Long>("id"))
 
-            groupIdsMappedToLabelsSubQuery.where(labelId.`in`(labelIds), criteriaBuilder.equal(participant.get<Boolean>("enabled"), true), criteriaBuilder.equal(participant.get<Long>("id"), labelledParticipant.get<Long>("id")))
+            groupIdsMappedToLabelsSubQuery.where(
+                    labelQueryToPredicate(labelQuery, participantId, query, criteriaBuilder),
+                    criteriaBuilder.equal(participant.get<Boolean>("enabled"), true)
+            )
 
-            when {
-                labelFilterOperator == LabelFilterOperator.AND -> {
-                    groupIdsMappedToLabelsSubQuery.groupBy(subRoot)
-                    groupIdsMappedToLabelsSubQuery.having(criteriaBuilder.equal(criteriaBuilder.count(subRoot), labelIds.size))
-                }
-            }
 
             constraints.add(root.get<Long>("id").`in`(groupIdsMappedToLabelsSubQuery))
 
         }
 
         return criteriaBuilder.and(*constraints.toTypedArray())
+    }
+
+    private fun labelQueryToPredicate(query: QueryNodeDto, participantId: Path<Long>, criteriaQuery: CriteriaQuery<*>, criteriaBuilder: CriteriaBuilder): Predicate {
+        if (query is LabelQueryNodeDto) {
+            val mappedParticipantIdsSubQuery = criteriaQuery.subquery(Long::class.java)
+            val subRoot = mappedParticipantIdsSubQuery.from(ParticipantLabelMapping::class.java)
+            mappedParticipantIdsSubQuery.select(subRoot.get<ParticipantLabelMapping.ParticipantLabelMappingId>("id")
+                    .get<Participant>("participant").get<Long>("id"))
+            mappedParticipantIdsSubQuery.where(
+                    criteriaBuilder.equal(subRoot.get<ParticipantLabelMapping.ParticipantLabelMappingId>("id")
+                    .get<Label>("label").get<Long>("id"), query.labelId))
+            return participantId.`in`(mappedParticipantIdsSubQuery)
+        }
+        val opNode: OperatorQueryNodeDto = query as OperatorQueryNodeDto
+        val childPredicates = opNode.children.map { child -> labelQueryToPredicate(child, participantId, criteriaQuery, criteriaBuilder) }
+        return when (opNode.op) {
+            LabelFilterOperator.NOT -> {
+                criteriaBuilder.not(childPredicates.first())
+            }
+            LabelFilterOperator.AND -> {
+                criteriaBuilder.and(*childPredicates.toTypedArray())
+            }
+            LabelFilterOperator.OR -> {
+                criteriaBuilder.or(*childPredicates.toTypedArray())
+            }
+        }
+    }
+
+    companion object {
+        private fun simpleLabelQueryToNode(labelIds: List<Long>, operator: LabelFilterOperator?): QueryNodeDto? {
+            return if (labelIds.isNotEmpty()) {
+                when (val labelFilterOperator = operator ?: LabelFilterOperator.AND) {
+                    LabelFilterOperator.NOT -> {
+                        OperatorQueryNodeDto(
+                                LabelFilterOperator.NOT,
+                                Collections.singletonList(
+                                        OperatorQueryNodeDto(
+                                                LabelFilterOperator.OR,
+                                                labelIds.map { id -> LabelQueryNodeDto(id) }
+                                        )
+                                )
+                        )
+                    }
+                    LabelFilterOperator.AND, LabelFilterOperator.OR -> {
+                        OperatorQueryNodeDto(labelFilterOperator, labelIds.map { id -> LabelQueryNodeDto(id) })
+                    }
+                }
+            } else null
+        }
     }
 }
