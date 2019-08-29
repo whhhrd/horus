@@ -68,6 +68,7 @@ export interface SignOffOverviewFilterQueryAction extends Action<string> {
     assignmentSetId?: number;
     labelIds?: number[];
     groupSetId?: number;
+    query?: string;
 }
 
 export interface SignOffOverviewFilterSucceededAction extends Action<string> {
@@ -81,6 +82,7 @@ export const signOffOverviewFilterQueryAction = (
     assignmentSetId?: number,
     labelIds?: number[],
     groupSetId?: number,
+    query?: string,
 ) => ({
     type: SIGN_OFF_OVERVIEW_FILTER_QUERY_ACTION,
     courseId,
@@ -88,6 +90,7 @@ export const signOffOverviewFilterQueryAction = (
     assignmentSetId,
     groupSetId,
     labelIds,
+    query,
 });
 
 export const signOffOverviewFilterSucceededAction = (

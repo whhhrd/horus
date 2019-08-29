@@ -70,3 +70,6 @@ class InvalidSheetError(errors: List<String>) : BadRequestException("Sheet could
 
 // Job-related
 class UndeletableJobException : BadRequestException("Job is scheduled to run or running and cannot be deleted yet.")
+
+// Search-related
+class InvalidSearchQueryException : BadRequestException("Invalid search query.")

@@ -657,28 +657,28 @@ class CourseControllerPermissionTest : HorusAbstractTest() {
     @WithLoginId(SS_NA_LOGIN)
     fun testNAGetGroupsFiltered() {
         assertInsufficientPermissions { courseController.getGroupsFiltered(Pageable.unpaged(), SS_MOCK_COURSE_ID,
-                null, null, null, null) }
+                null, null, null, null, null) }
     }
 
     @Test
     @WithLoginId(SS_STUDENT_LOGIN)
     fun testStudentGetGroupsFiltered() {
         assertInsufficientPermissions { courseController.getGroupsFiltered(Pageable.unpaged(), SS_MOCK_COURSE_ID,
-                null, null, null, null) }
+                null, null, null, null, null) }
     }
 
     @Test
     @WithLoginId(SS_TA_LOGIN)
     fun testTAGetGroupsFiltered() {
         assertSufficientPermissions { courseController.getGroupsFiltered(Pageable.unpaged(), SS_MOCK_COURSE_ID,
-                null, null, null, null) }
+                null, null, null, null, null) }
     }
 
     @Test
     @WithLoginId(SS_TEACHER_LOGIN)
     fun testTeacherGetGroupsFiltered() {
         assertSufficientPermissions { courseController.getGroupsFiltered(Pageable.unpaged(), SS_MOCK_COURSE_ID,
-                null, null, null, null) }
+                null, null, null, null, null) }
     }
 
 }

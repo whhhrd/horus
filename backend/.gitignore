@@ -2,6 +2,9 @@
 /build/
 !gradle/wrapper/gradle-wrapper.jar
 
+# Mac stuff
+/**/.DS_Store
+
 # Resources copied via yarn/Gradle
 /src/main/resources/WEB
 

@@ -198,7 +198,7 @@ export const objectToQueryString = (queryObject: object) => {
                     return null;
                 }
             } else if (value != null) {
-                return `${name}=${value}`;
+                return `${name}=${encodeURIComponent(value)}`;
             } else {
                 return null;
             }
@@ -314,4 +314,19 @@ export const arraysEqual = (a: any[], b: any[]) => {
  */
 export const getFilterParam = (search: string, key: string) => {
     return queryString.parse(search)[key];
+};
+
+/**
+ * Retrieves all found matches in of a regular expression in a string.
+ * @param regex The regular expression.
+ * @param str The string.
+ */
+export const findAllMatches = (regex: RegExp, str: string): RegExpExecArray[] => {
+    const matches = [];
+    let matchArr: RegExpExecArray | null;
+    // tslint:disable-next-line: no-conditional-assignment
+    while ((matchArr = regex.exec(str)) !== null) {
+        matches.push(matchArr);
+    }
+    return matches;
 };

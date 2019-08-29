@@ -1,4 +1,4 @@
-import React, { Component, KeyboardEvent } from "react";
+import React, { Component, KeyboardEvent, Fragment } from "react";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 
@@ -36,6 +36,7 @@ import {
     removeQueryParam,
 } from "../../util";
 
+import AdvancedSearchInput from "./AdvancedSearchInput";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faUsers,
@@ -46,9 +47,12 @@ import {
     faSortAmountDown,
     faSortAmountUp,
     faTimes,
+    faFilter,
+    faCode,
+    faChevronCircleUp,
 } from "@fortawesome/free-solid-svg-icons";
 
-interface SignOffOverviewProps {
+interface SignOffOverviewSearchProps {
     labels: LabelDto[] | null;
     isLoading: boolean;
 
@@ -57,10 +61,12 @@ interface SignOffOverviewProps {
     groupSets: GroupSetDtoSummary[] | null;
 }
 
-interface SignOffOverviewState {
+interface SignOffOverviewSearchState {
     groupSetSelectorDropdownOpen: boolean;
     labelSelectorDropdownOpen: boolean;
     sortByDropdownOpen: boolean;
+    advancedSearch: boolean;
+    showFilters: boolean;
 }
 
 export enum SortType {
@@ -69,6 +75,7 @@ export enum SortType {
 }
 
 export enum Filter {
+    Query = "query",
     Search = "search",
     SortBy = "sortby",
     Order = "order",
@@ -81,6 +88,8 @@ const initialState = {
     groupSetSelectorDropdownOpen: false,
     labelSelectorDropdownOpen: false,
     sortByDropdownOpen: false,
+    advancedSearch: false,
+    showFilters: true,
 };
 
 /**
@@ -95,10 +104,10 @@ const initialState = {
  * filters.
  */
 class SignOffOverviewSearch extends Component<
-    SignOffOverviewProps & RouteComponentProps<any>,
-    SignOffOverviewState
+    SignOffOverviewSearchProps & RouteComponentProps<any>,
+    SignOffOverviewSearchState
 > {
-    constructor(props: SignOffOverviewProps & RouteComponentProps<any>) {
+    constructor(props: SignOffOverviewSearchProps & RouteComponentProps<any>) {
         super(props);
         this.state = initialState;
 
@@ -111,6 +120,8 @@ class SignOffOverviewSearch extends Component<
         this.toggleSortBySelectorDropdown = this.toggleSortBySelectorDropdown.bind(
             this,
         );
+        this.toggleShowFilters = this.toggleShowFilters.bind(this);
+        this.toggleAdvancedSearch = this.toggleAdvancedSearch.bind(this);
         this.toggleLabelInFilter = this.toggleLabelInFilter.bind(this);
         this.clearFilter = this.clearFilter.bind(this);
     }
@@ -127,6 +138,16 @@ class SignOffOverviewSearch extends Component<
             this.props.fetchCourse(courseId);
         }
         this.props.fetchGroupSets(courseId);
+        if (getFilterParam(this.props.location.search, Filter.Query) != null) {
+            this.setState({ advancedSearch: true });
+        }
+    }
+
+    componentDidUpdate() {
+        if (getFilterParam(this.props.location.search, Filter.Query) != null
+        && !this.state.advancedSearch) {
+            this.setState({ advancedSearch: true });
+        }
     }
 
     toggleGroupSetSelectorDropdown() {
@@ -147,14 +168,83 @@ class SignOffOverviewSearch extends Component<
         }));
     }
 
+    toggleAdvancedSearch() {
+        this.setState((state) => ({
+            advancedSearch: !state.advancedSearch,
+        }));
+    }
+
+    toggleShowFilters() {
+        this.setState((state) => ({
+            showFilters: !state.showFilters,
+        }));
+    }
+
     private buildContent(): JSX.Element | null {
+        const show = this.state.showFilters;
         return (
-            <div>
+            <Fragment>
+                <div className={`${show ? "" : "d-none"} mb-2`}>
+                    {this.state.advancedSearch
+                        ? this.buildAdvancedSearch()
+                        : this.buildSimpleSearch()}
+                </div>
+                <div className={`text-center`}>
+                    <hr style={{marginBottom: "-17px"}} />
+                    <div
+                        title={`${show ? "Hide" : "Show"} filters`}
+                        className={`cursor-pointer chevron ${
+                            show ? "" : "chevron-open"
+                        }`}
+                        onClick={this.toggleShowFilters}
+                    >
+                        <FontAwesomeIcon
+                            icon={faChevronCircleUp}
+                            size="2x"
+                            color="#555"
+                        />
+                    </div>
+                </div>
+            </Fragment>
+        );
+    }
+
+    private buildAdvancedSearch(): JSX.Element | null {
+        return (
+            <Fragment>
+                <InputGroup className="mb-2">
+                    {this.buildSearchToggleButton()}
+
+                    {/* Build the search bar */}
+                    <AdvancedSearchInput
+                        value={getFilterParam(this.props.location.search, Filter.Query) as (string | undefined)}
+                        onEnterPress={(query) => this.setAdvancedQuery(query)}
+                        labels={this.props.labels}
+                        isLoading={this.props.isLoading}/>
+
+                    {/* Build the dropdowns */}
+                    {this.buildSortByDropdown()}
+                    {this.buildFilterGroupSetsDropdown()}
+
+                    {/* Build the clear filter button */}
+                    {this.buildClearFilterButton()}
+                </InputGroup>
+                <div>{this.buildFilterPills()}</div>
+            </Fragment>
+        );
+    }
+
+    private buildSimpleSearch(): JSX.Element | null {
+        return (
+            <Fragment>
                 <InputGroup>
+                    {this.buildSearchToggleButton()}
+
                     {/* Build the search bar */}
                     <Input
                         id="SearchInput"
-                        className="form-control-lg rounded"
+                        className="form-control rounded mr-2 mb-2"
+                        style={{ minWidth: "200px" }}
                         placeholder="Group name/number or student name/number"
                         autoFocus={true}
                         disabled={this.props.isLoading}
@@ -172,23 +262,51 @@ class SignOffOverviewSearch extends Component<
                     {this.buildFilterLabelDropdown()}
 
                     {/* Build the clear filter button */}
-                    <Button
-                        title="Clear filters"
-                        size="lg"
-                        className="h-100 ml-2"
-                        color="secondary"
-                        outline
-                        disabled={
-                            this.props.location.search === "" ||
-                            this.props.isLoading
-                        }
-                        onClick={this.clearFilter}
-                    >
-                        <FontAwesomeIcon icon={faTimes} size="lg" />
-                    </Button>
+                    {this.buildClearFilterButton()}
                 </InputGroup>
-                <div className="mt-2">{this.buildFilterPills()}</div>
-            </div>
+                <div>{this.buildFilterPills()}</div>
+            </Fragment>
+        );
+    }
+
+    private buildSearchToggleButton() {
+        return (
+            <Button
+                title={`Enable ${
+                    this.state.advancedSearch
+                        ? "simple search and filtering"
+                        : "advanced search"
+                }`}
+                className="mr-2 mb-2"
+                color="primary"
+                outline
+                disabled={this.props.isLoading}
+                onClick={() => {
+                    this.toggleAdvancedSearch();
+                    this.clearFilter();
+                }}
+            >
+                <FontAwesomeIcon
+                    icon={this.state.advancedSearch ? faFilter : faCode}
+                />
+            </Button>
+        );
+    }
+
+    private buildClearFilterButton() {
+        return (
+            <Button
+                title="Clear filters"
+                color="secondary"
+                className="mb-2"
+                outline
+                disabled={
+                    this.props.location.search === "" || this.props.isLoading
+                }
+                onClick={this.clearFilter}
+            >
+                <FontAwesomeIcon icon={faTimes} />
+            </Button>
         );
     }
 
@@ -236,7 +354,9 @@ class SignOffOverviewSearch extends Component<
                                             ),
                                         ),
                                     });
-                                    const input: HTMLElement = document.getElementById("SearchInput")!;
+                                    const input: HTMLElement = document.getElementById(
+                                        "SearchInput",
+                                    )!;
                                     // @ts-ignore
                                     input.value = "";
                                 }
@@ -370,12 +490,12 @@ class SignOffOverviewSearch extends Component<
         );
     }
 
-    private setTextSearch(text: string): any {
+    private setTextSearch(text: string) {
         if (text.trim().length > 0) {
             const newQuery = addReplaceQueryParam(
                 queryString.parse(this.props.location.search),
                 Filter.Search,
-                encodeURIComponent(text),
+                text,
             );
 
             this.props.history.push({
@@ -383,6 +503,19 @@ class SignOffOverviewSearch extends Component<
                 search: objectToQueryString(newQuery),
             });
         }
+    }
+
+    private setAdvancedQuery(query: string) {
+        const newQuery = addReplaceQueryParam(
+            queryString.parse(this.props.location.search),
+            Filter.Query,
+            query,
+        );
+
+        this.props.history.push({
+            ...this.props.history.location,
+            search: objectToQueryString(newQuery),
+        });
     }
 
     /**
@@ -402,11 +535,11 @@ class SignOffOverviewSearch extends Component<
                     color="primary"
                     outline
                     caret
-                    className="h-100 ml-2"
+                    className="mr-2 mb-2"
                     disabled={this.props.isLoading}
                 >
                     <FontAwesomeIcon icon={faSort} className="mr-2" />
-                    Sort by
+                    <span className="d-none d-md-inline">Sort by</span>
                 </DropdownToggle>
                 <DropdownMenu>
                     <DropdownItem
@@ -419,7 +552,6 @@ class SignOffOverviewSearch extends Component<
                         <FontAwesomeIcon
                             icon={faSortAlphaDown}
                             className="mr-2"
-                            size="lg"
                         />
                         Sort by group name (ascending)
                     </DropdownItem>
@@ -542,11 +674,11 @@ class SignOffOverviewSearch extends Component<
                     color="primary"
                     outline
                     caret
-                    className="h-100 ml-2"
+                    className="mr-2 mb-2"
                     disabled={this.props.isLoading}
                 >
-                    <FontAwesomeIcon icon={faUsers} className="mr-2" /> Select
-                    group set
+                    <FontAwesomeIcon icon={faUsers} className="mr-2" />
+                    <span className="d-none d-md-inline">Select group set</span>
                 </DropdownToggle>
                 <DropdownMenu>
                     {groupSets.map((g) => (
@@ -600,24 +732,17 @@ class SignOffOverviewSearch extends Component<
                     color="primary"
                     outline
                     caret
-                    className="h-100 ml-2"
+                    className="mr-2 mb-2"
                     disabled={this.props.isLoading}
                 >
                     <FontAwesomeIcon icon={faTags} className="mr-2" />
-                    Select labels
+                    <span className="d-none d-md-inline">Select labels</span>
                 </DropdownToggle>
                 <DropdownMenu>
                     <DropdownItem header>
                         <Button
                             block
-                            // Default behavior is "OR", so if current filter is not "AND"
-                            // then this button is not outlined.
-                            outline={
-                                getFilterParam(
-                                    this.props.location.search,
-                                    Filter.Operator,
-                                ) !== "OR"
-                            }
+                            outline={this.isButtonOutlined("OR")}
                             disabled={this.props.isLoading}
                             color="primary"
                             size="sm"
@@ -628,17 +753,22 @@ class SignOffOverviewSearch extends Component<
                         <Button
                             block
                             disabled={this.props.isLoading}
-                            outline={
-                                getFilterParam(
-                                    this.props.location.search,
-                                    Filter.Operator,
-                                ) === "OR"
-                            }
+                            outline={this.isButtonOutlined("AND")}
                             color="primary"
                             size="sm"
                             onClick={() => this.setLabelFilterOperator("AND")}
                         >
                             Match all
+                        </Button>
+                        <Button
+                            block
+                            disabled={this.props.isLoading}
+                            outline={this.isButtonOutlined("NOT")}
+                            color="primary"
+                            size="sm"
+                            onClick={() => this.setLabelFilterOperator("NOT")}
+                        >
+                            Match none
                         </Button>
                     </DropdownItem>
                     <DropdownItem divider />
@@ -667,6 +797,27 @@ class SignOffOverviewSearch extends Component<
                 </DropdownMenu>
             </Dropdown>
         );
+    }
+
+    /**
+     * Determines whether the label filter button for 'operator'
+     * should be outlined or not.
+     * @param operator The operator linked with the label filter button.
+     */
+    private isButtonOutlined(operator: string) {
+        const filter = getFilterParam(
+            this.props.location.search,
+            Filter.Operator,
+        );
+
+        // Default behavior is "OR", so if current filter is not "AND"
+        // then this button is not outlined.
+
+        if (filter === "AND" || filter === undefined) {
+            return operator !== "AND";
+        } else {
+            return operator !== filter;
+        }
     }
 
     /**

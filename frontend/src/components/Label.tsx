@@ -14,6 +14,23 @@ interface LabelProps {
  * are based on the given label object.
  */
 export default class Label extends PureComponent<LabelProps> {
+
+    /**
+     * Determines whether the text-color of the label should
+     * be black or white, based on the backgroundcolor of the label.
+     * Inspiration from https://stackoverflow.com/a/1855903/7133329.
+     * @param labelColor The color of the label in hex format.
+     */
+    static textColor(labelColor: string) {
+        const red = parseInt(labelColor.substring(0, 2), 16);
+        const green = parseInt(labelColor.substring(2, 4), 16);
+        const blue = parseInt(labelColor.substring(4, 6), 16);
+
+        const luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255.0;
+
+        return luminance < 0.5 ? "#FFFFFF" : "#000000";
+    }
+
     render() {
         const { name, color } = this.props.label;
         const { className, style } = this.props;
@@ -32,23 +49,7 @@ export default class Label extends PureComponent<LabelProps> {
     }
 
     getLabelStyle(labelColor: string) {
-        const color = this.textColor(labelColor);
+        const color = Label.textColor(labelColor);
         return { backgroundColor: `#${labelColor}`, color };
-    }
-
-    /**
-     * Determines whether the text-color of the label should
-     * be black or white, based on the backgroundcolor of the label.
-     * Inspiration from https://stackoverflow.com/a/1855903/7133329.
-     * @param labelColor The color of the label in hex format.
-     */
-    textColor(labelColor: string) {
-        const red = parseInt(labelColor.substring(0, 2), 16);
-        const green = parseInt(labelColor.substring(2, 4), 16);
-        const blue = parseInt(labelColor.substring(4, 6), 16);
-
-        const luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255.0;
-
-        return luminance < 0.5 ? "#FFFFFF" : "#000000";
     }
 }

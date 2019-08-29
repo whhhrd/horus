@@ -98,19 +98,22 @@ export function* signOffOverviewFilterQuery(
         assignmentSetId,
         labelIds,
         operator,
+        query,
     } = action;
+    const queryParams = {
+        sort: "groupSet.id,id",
+        groupSetId,
+        assignmentSetId,
+        labelIds,
+        operator,
+        query,
+    };
     try {
         let page: SpringPage<GroupDtoFull> = yield call(
             authenticatedFetchJSON,
             "GET",
             `courses/${courseId}/groups/filtered`,
-            {
-                sort: "groupSet.id,id",
-                groupSetId,
-                assignmentSetId,
-                labelIds,
-                operator,
-            },
+            queryParams,
         );
         yield put(signOffOverviewFilterSucceededAction(page.content, page.last));
         while (!page.last) {
@@ -119,11 +122,7 @@ export function* signOffOverviewFilterQuery(
                 "GET",
                 `courses/${courseId}/groups/filtered`,
                 {
-                    sort: "groupSet.id,id",
-                    groupSetId,
-                    assignmentSetId,
-                    labelIds,
-                    operator,
+                    ...queryParams,
                     page: page.number + 1,
                 },
             );

@@ -4,8 +4,9 @@ import nl.utwente.horus.auth.permissions.HorusPermission
 import nl.utwente.horus.auth.permissions.HorusPermissionType
 import nl.utwente.horus.auth.permissions.HorusResource
 import nl.utwente.horus.controllers.BaseController
+import nl.utwente.horus.dsl.SearchDSLUtil
 import nl.utwente.horus.entities.course.Course
-import nl.utwente.horus.entities.group.GroupFiltrationSpecification
+import nl.utwente.horus.entities.group.LabelFilterOperator
 import nl.utwente.horus.entities.participant.Label
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.entities.person.Person
@@ -290,9 +291,14 @@ class CourseController: BaseController() {
     }
 
     @GetMapping(path = ["/{courseId}/groups/filtered"])
-    fun getGroupsFiltered(pageable: Pageable, @PathVariable courseId: Long, @RequestParam groupSetId: Long?, @RequestParam assignmentSetId: Long?, @RequestParam labelIds: List<Long>?, @RequestParam operator: GroupFiltrationSpecification.LabelFilterOperator?): Page<GroupDtoFull> {
+    fun getGroupsFiltered(pageable: Pageable, @PathVariable courseId: Long, @RequestParam groupSetId: Long?,
+                          @RequestParam assignmentSetId: Long?, @RequestParam labelIds: List<Long>?,
+                          @RequestParam operator: LabelFilterOperator?, @RequestParam query: String?): Page<GroupDtoFull> {
         requireAnyPermission(Course::class, courseId, HorusPermissionType.VIEW, HorusResource.COURSE_GROUP)
-        val groups = courseService.getGroupsOfCourseFiltered(pageable, courseId, groupSetId, assignmentSetId,labelIds ?: emptyList(), operator)
+
+        val queryNode = if (query != null && query.isNotBlank()) SearchDSLUtil.queryStringToTree(query) else null
+        val groups = courseService.getGroupsOfCourseFiltered(pageable, courseId, groupSetId, assignmentSetId,
+                labelIds ?: emptyList(), operator, queryNode)
         return groups.map { GroupDtoFull(it) }
     }
 

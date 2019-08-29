@@ -7,7 +7,7 @@
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
     "build": "webpack --progress --colors --mode=production",
-    "dev": "webpack-dev-server --config webpack.config.js --progress --colors --open --mode=development --host localhost"
+    "dev": "webpack-dev-server --config webpack.config.js --progress --colors --mode=development --host localhost"
   },
   "author": "Harindu Perera <harinduenator@gmail.com>",
   "license": "UNLICENSED",
@@ -37,6 +37,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.15",
     "@fortawesome/free-solid-svg-icons": "^5.7.2",
     "@fortawesome/react-fontawesome": "^0.1.4",
+    "@types/draft-js": "^0.10.35",
     "@types/lodash": "^4.14.133",
     "@types/query-string": "^6.2.0",
     "@types/react": "^16.8.19",
@@ -48,9 +49,11 @@
     "@types/react-virtualized": "^9.18.12",
     "@types/reactstrap": "^7.1.1",
     "@types/sortablejs": "^1.7.2",
+    "antlr4ts": "^0.5.0-alpha.3",
     "babel-polyfill": "^6.26.0",
     "bootstrap": "^4.2.1",
     "connected-react-router": "^6.2.2",
+    "draft-js": "^0.11.0",
     "formik": "^1.4.3",
     "history": "^4.7.2",
     "isomorphic-fetch": "^2.2.1",

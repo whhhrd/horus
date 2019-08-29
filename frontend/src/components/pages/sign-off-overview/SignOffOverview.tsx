@@ -69,8 +69,9 @@ interface SignOffOverviewProps {
         courseId: number,
         operator: string,
         assignmentSetId: number,
-        labelIds: number[],
-        groupSetId: number | undefined,
+        labelIds?: number[],
+        groupSetId?: number,
+        query?: string,
     ) => SignOffOverviewFilterQueryAction;
 }
 
@@ -155,13 +156,23 @@ class SignOffOverview extends Component<
             prevProps.location.search,
             Filter.GroupSetId,
         );
+
+        const query = getFilterParam(
+            this.props.location.search,
+            Filter.Query,
+        );
+        const prevQuery = getFilterParam(
+            prevProps.location.search,
+            Filter.Query,
+        );
         if (
             !arraysEqual(
                 getListFromQuery(this.props.location.search, Filter.LabelIds),
                 getListFromQuery(prevProps.location.search, Filter.LabelIds),
             ) ||
             op !== prevOp ||
-            groupSetId !== prevGroupSetId
+            groupSetId !== prevGroupSetId ||
+            query !== prevQuery
         ) {
             this.reloadData();
         }
@@ -704,15 +715,20 @@ class SignOffOverview extends Component<
             this.props.location.search,
             Filter.GroupSetId,
         );
+        const query = getFilterParam(
+            this.props.location.search,
+            Filter.Query,
+        );
 
-        if (labelIds.length > 0 || !isNaN(Number(groupSetId))) {
-            const operator = queryString.parse(this.props.location.search).op;
+        if (query != null || labelIds.length > 0 || !isNaN(Number(groupSetId))) {
+            const operator = getFilterParam(this.props.location.search, Filter.Operator);
             this.props.fetchFilteredOverviewGroups(
                 courseId,
                 operator != null ? operator.toString() : "AND",
                 assignmentSetId,
                 labelIds,
                 groupSetId != null ? Number(groupSetId.toString()) : undefined,
+                (typeof query === "string" && query.length > 0) ? query : undefined,
             );
         } else {
             this.props.fetchOverviewGroups(courseId, assignmentSetId);

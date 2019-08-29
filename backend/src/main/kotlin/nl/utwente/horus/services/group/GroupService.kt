@@ -10,6 +10,7 @@ import nl.utwente.horus.exceptions.ExistingThreadException
 import nl.utwente.horus.exceptions.GroupNotFoundException
 import nl.utwente.horus.exceptions.GroupSetNotFoundException
 import nl.utwente.horus.representations.assignment.AssignmentSetDtoBrief
+import nl.utwente.horus.representations.dsl.QueryNodeDto
 import nl.utwente.horus.representations.group.GroupDtoBrief
 import nl.utwente.horus.representations.group.GroupDtoSearch
 import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
@@ -126,8 +127,10 @@ class GroupService {
         return groupRepository.findAllByMappedAssignmentSetId(pageable, assignmentSetId)
     }
 
-    fun getGroupsFiltered(pageable: Pageable, courseId: Long, groupSetId: Long?, assignmentSetId: Long?, labelIds: List<Long>, operator: GroupFiltrationSpecification.LabelFilterOperator?): Page<Group> {
-        val specification = GroupFiltrationSpecification(courseId, groupSetId, assignmentSetId, labelIds, operator)
+    fun getGroupsFiltered(pageable: Pageable, courseId: Long, groupSetId: Long?, assignmentSetId: Long?,
+                          labelIds: List<Long>, operator: LabelFilterOperator?, query: QueryNodeDto?): Page<Group> {
+        val specification = if (query != null) GroupFiltrationSpecification(courseId, groupSetId, assignmentSetId, query)
+            else GroupFiltrationSpecification(courseId, groupSetId, assignmentSetId, labelIds, operator)
         return groupRepository.findAll(specification, pageable)
     }
 

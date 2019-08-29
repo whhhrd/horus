@@ -57,7 +57,7 @@ button {
 }
 
 .transition {
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .chevron {
@@ -541,24 +541,29 @@ button {
     border: 1px solid #dee2e6;
 }
 
-.sign-off-overview-heading-cell {
-    @extend .sign-off-overview-cell;
-    background: #f5f5f5;
-    padding: 0.35rem;
-    text-align: center;
+.sign-off-overview {
+
+    &-heading-cell {
+        @extend .sign-off-overview-cell;
+        background: #f5f5f5;
+        padding: 0.35rem;
+        text-align: center;
+    }
+
+    &-content-cell-complete {
+        @extend .sign-off-overview-cell;
+        background: $color_green_light;
+        border: 1px solid $color_green;
+    }
+
+    &-content-cell-insufficient {
+        @extend .sign-off-overview-cell;
+        background: $color_yellow_light;
+        border: 1px solid $color_yellow;
+    }
+
 }
 
-.sign-off-overview-content-cell-complete {
-    @extend .sign-off-overview-cell;
-    background: $color_green_light;
-    border: 1px solid $color_green;
-}
-
-.sign-off-overview-content-cell-insufficient {
-    @extend .sign-off-overview-cell;
-    background: $color_yellow_light;
-    border: 1px solid $color_yellow;
-}
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * Queuing
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -605,6 +610,10 @@ button {
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 .p-label {
     font-size: 10pt;
+
+    &-search {
+        margin-right: -4px; 
+    }
 }
 
 .label-add-button {
@@ -680,4 +689,22 @@ button {
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 .supp-role-label {
     font-size: 12pt;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+* Overview Search and Filters
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+.HideFiltersButton {
+    margin: -20px auto;
+    height: 5px;
+}
+
+.search-op {
+    margin-left: 4px;
+    margin-right: 4px;
+
+    &-not {
+        margin-right: 1px;
+    }
 }

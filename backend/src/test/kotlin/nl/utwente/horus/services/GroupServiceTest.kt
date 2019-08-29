@@ -159,7 +159,7 @@ class GroupServiceTest : HorusAbstractTest() {
     fun testGetGroupsFiltered() {
         val expectedGroup = createSampleGroup(getCurrentPerson())
         val actualGroups = groupService.getGroupsFiltered(Pageable.unpaged(), PP_MOCK_COURSE_ID,
-                expectedGroup.groupSet.id, null, listOf(), null).toList()
+                expectedGroup.groupSet.id, null, listOf(), null, null).toList()
         assertEquals(1, actualGroups.size)
         assertEquals(expectedGroup, actualGroups[0])
     }
