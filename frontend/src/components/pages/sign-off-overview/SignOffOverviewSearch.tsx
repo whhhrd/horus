@@ -50,7 +50,9 @@ import {
     faFilter,
     faCode,
     faChevronCircleUp,
+    faQuestion,
 } from "@fortawesome/free-solid-svg-icons";
+import QueryHelpModal from "./QueryHelpModal";
 
 interface SignOffOverviewSearchProps {
     labels: LabelDto[] | null;
@@ -67,6 +69,7 @@ interface SignOffOverviewSearchState {
     sortByDropdownOpen: boolean;
     advancedSearch: boolean;
     showFilters: boolean;
+    showQueryHelpModal: boolean;
 }
 
 export enum SortType {
@@ -90,6 +93,7 @@ const initialState = {
     sortByDropdownOpen: false,
     advancedSearch: false,
     showFilters: true,
+    showQueryHelpModal: false,
 };
 
 /**
@@ -121,6 +125,9 @@ class SignOffOverviewSearch extends Component<
             this,
         );
         this.toggleShowFilters = this.toggleShowFilters.bind(this);
+        this.toggleShowQueryHelpModal = this.toggleShowQueryHelpModal.bind(
+            this,
+        );
         this.toggleAdvancedSearch = this.toggleAdvancedSearch.bind(this);
         this.toggleLabelInFilter = this.toggleLabelInFilter.bind(this);
         this.clearFilter = this.clearFilter.bind(this);
@@ -144,8 +151,10 @@ class SignOffOverviewSearch extends Component<
     }
 
     componentDidUpdate() {
-        if (getFilterParam(this.props.location.search, Filter.Query) != null
-        && !this.state.advancedSearch) {
+        if (
+            getFilterParam(this.props.location.search, Filter.Query) != null &&
+            !this.state.advancedSearch
+        ) {
             this.setState({ advancedSearch: true });
         }
     }
@@ -180,6 +189,12 @@ class SignOffOverviewSearch extends Component<
         }));
     }
 
+    toggleShowQueryHelpModal() {
+        this.setState((state) => ({
+            showQueryHelpModal: !state.showQueryHelpModal,
+        }));
+    }
+
     private buildContent(): JSX.Element | null {
         const show = this.state.showFilters;
         return (
@@ -190,7 +205,7 @@ class SignOffOverviewSearch extends Component<
                         : this.buildSimpleSearch()}
                 </div>
                 <div className={`text-center`}>
-                    <hr style={{marginBottom: "-17px"}} />
+                    <hr style={{ marginBottom: "-17px" }} />
                     <div
                         title={`${show ? "Hide" : "Show"} filters`}
                         className={`cursor-pointer chevron ${
@@ -215,12 +230,25 @@ class SignOffOverviewSearch extends Component<
                 <InputGroup className="mb-2">
                     {this.buildSearchToggleButton()}
 
+                    {/* Build query help button and modal */}
+                    {this.buildShowQueryHelpButton()}
+                    {this.state.showQueryHelpModal && <QueryHelpModal
+                        isOpen={this.state.showQueryHelpModal}
+                        onCloseModal={this.toggleShowQueryHelpModal}
+                    />}
+
                     {/* Build the search bar */}
                     <AdvancedSearchInput
-                        value={getFilterParam(this.props.location.search, Filter.Query) as (string | undefined)}
+                        value={
+                            getFilterParam(
+                                this.props.location.search,
+                                Filter.Query,
+                            ) as (string | undefined)
+                        }
                         onEnterPress={(query) => this.setAdvancedQuery(query)}
                         labels={this.props.labels}
-                        isLoading={this.props.isLoading}/>
+                        isLoading={this.props.isLoading}
+                    />
 
                     {/* Build the dropdowns */}
                     {this.buildSortByDropdown()}
@@ -288,6 +316,21 @@ class SignOffOverviewSearch extends Component<
             >
                 <FontAwesomeIcon
                     icon={this.state.advancedSearch ? faFilter : faCode}
+                />
+            </Button>
+        );
+    }
+
+    private buildShowQueryHelpButton() {
+        return (
+            <Button
+                className="mr-2 mb-2"
+                color="primary"
+                outline
+                onClick={() => this.toggleShowQueryHelpModal()}
+            >
+                <FontAwesomeIcon
+                    icon={faQuestion}
                 />
             </Button>
         );
