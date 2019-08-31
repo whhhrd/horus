@@ -333,6 +333,7 @@ class CanvasService {
             // Group is a list, since same Canvas-group could have different compositions over time
             // However, here we are only interested in the un-archived one, a.k.a. the currently active one
             val current = existing.first { !it.archived }
+            current.name = canvasGroup.name
 
             // Check if group composition has changed since last sync
             val existingIds = current.participants.map { it.person.loginId }.toSet()
