@@ -28,6 +28,7 @@ import java.util.stream.Stream
 import kotlin.collections.HashMap
 import kotlin.math.max
 
+
 @Transactional
 @Component
 class ExportService {
@@ -202,7 +203,25 @@ class ExportService {
                 postCells.add(null)
             }
         }
-        appendInRow(row, postCells.map(this::resultToCellContent))
+        val startNum = max(0, row.lastCellNum.toInt()) // Value is -1 if no rows exist yet...
+        val next = nextCounter(Counter(startNum))
+        val wb = row.sheet.workbook
+
+        val cellStyle = wb.createCellStyle()
+        val createHelper = wb.getCreationHelper()
+        cellStyle.setDataFormat(
+                createHelper.createDataFormat().getFormat("yyyy/MM/dd"))
+        postCells.forEach { r ->
+            val cell = row.createCell(next())
+            cell.cellStyle = cellStyle
+            if (r == null) {
+                // Leave empty
+            } else {
+                cell.setCellValue(Date.from(r.signedAt.toInstant()))
+            }
+
+        }
+
     }
 
     private fun threadToStrings(thread: CommentThread?): List<String>? {
