@@ -50,6 +50,7 @@ class AssignmentTableCell extends Component<AssignmentTableCellProps> {
                         className={`table-cell-comment-button ${
                             this.highlightIcon() ? "icon-highlighted" : ""
                         } ${commentClickable ? "" : "invisible"}`}
+                        title="View clarifications or comments on this assignment"
                     >
                         <FontAwesomeIcon icon={faInfoCircle} size="lg" />
                     </div>

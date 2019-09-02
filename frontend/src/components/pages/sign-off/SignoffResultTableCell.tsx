@@ -91,6 +91,7 @@ class SignoffResultTableCell extends Component<
                         className={`table-cell-comment-button ${
                             this.highlightIcon() ? "icon-highlighted" : ""
                         }`}
+                        title="View or add comments to this sign-off result"
                     >
                         <FontAwesomeIcon icon={faComments} size="lg" />
                     </div>
