@@ -78,6 +78,18 @@ interface SignOffOverviewProps {
 interface SignOffOverviewState {
     sidebarContent: JSX.Element | null;
     milestoneData: AssignmentDtoBrief[][] | null;
+
+    // A map that contains as key the assignment ID and as value the
+    // number of students (displayed in the overview) that have completed the
+    // corresponding assignment
+    finishedCountMapOfShowingStudents: Map<number, number>;
+
+    // A number that indicates the number of displayed students on the overview
+    numberOfShowingStudents: number;
+
+    // A check that determines whether we should update the count
+    // Mainly for convenience reasons for componentDidUpdate
+    shouldUpdateFinishedCount: boolean;
 }
 
 interface Row {
@@ -107,6 +119,9 @@ class SignOffOverview extends Component<
         this.state = {
             sidebarContent: null,
             milestoneData: null,
+            numberOfShowingStudents: 0,
+            finishedCountMapOfShowingStudents: new Map(),
+            shouldUpdateFinishedCount: false,
         };
         this.multigrid = null;
         this.setSidebarContent = this.setSidebarContent.bind(this);
@@ -157,14 +172,12 @@ class SignOffOverview extends Component<
             Filter.GroupSetId,
         );
 
-        const query = getFilterParam(
-            this.props.location.search,
-            Filter.Query,
-        );
+        const query = getFilterParam(this.props.location.search, Filter.Query);
         const prevQuery = getFilterParam(
             prevProps.location.search,
             Filter.Query,
         );
+
         if (
             !arraysEqual(
                 getListFromQuery(this.props.location.search, Filter.LabelIds),
@@ -194,6 +207,58 @@ class SignOffOverview extends Component<
         // Prevents glitches when group sizes are irregular.
         if (this.multigrid != null) {
             this.multigrid!.recomputeGridSize();
+        }
+
+        // The following if statement and corresponding block will
+        // update the number of displayed students and the map that
+        // contains the count of students who have finished an assignment, e.g.:
+        // Map<assignment ID, num of students who have completed corresponding assignment>.
+        if (
+            !this.props.loading &&
+            this.state.shouldUpdateFinishedCount &&
+            this.props.results != null &&
+            this.props.results.size !== 0
+        ) {
+            const nOfStudents = this.props.groups
+                .map((g) => g.participants.length)
+                .reduce((a, b) => a + b, 0);
+
+            // A map containing the assignment ID with the number of students who COMPLETED that assignment.
+            // Initialized with 0 for each assignment.
+            const countMap: Map<number, number> = new Map();
+            if (this.props.assignmentSet(asid) != null) {
+                this.props
+                    .assignmentSet(asid)!
+                    .assignments.forEach((a) => countMap.set(a.id, 0));
+            }
+
+            // For each group and it's group members, check for each of their results
+            // whether they have finished an assignment. If they have, increase the counter
+            // for the corresponding assignment.
+            this.props.groups.map((g) =>
+                g.participants.map((p) => {
+                    if (
+                        this.props.results != null &&
+                        this.props.results.get(p.id) != null
+                    ) {
+                        this.props.results.get(p.id)!.forEach((val) => {
+                            if (val.result === "COMPLETE") {
+                                countMap.set(
+                                    val.assignmentId,
+                                    countMap.get(val.assignmentId)! + 1,
+                                );
+                            }
+                        });
+                    }
+                }),
+            );
+
+            // Update the state accordingly.
+            this.setState(() => ({
+                numberOfShowingStudents: nOfStudents,
+                finishedCountMapOfShowingStudents: countMap,
+                shouldUpdateFinishedCount: false,
+            }));
         }
     }
 
@@ -397,6 +462,10 @@ class SignOffOverview extends Component<
             return (
                 <AssignmentTableCell
                     assignment={assignment}
+                    numOfStudentsWhoHaveCompleted={this.state.finishedCountMapOfShowingStudents.get(
+                        assignment.id,
+                    )}
+                    numOfStudents={this.state.numberOfShowingStudents}
                     key={key}
                     onCommentClick={this.setSidebarContent}
                     style={style}
@@ -715,24 +784,38 @@ class SignOffOverview extends Component<
             this.props.location.search,
             Filter.GroupSetId,
         );
-        const query = getFilterParam(
-            this.props.location.search,
-            Filter.Query,
-        );
+        const query = getFilterParam(this.props.location.search, Filter.Query);
 
-        if (query != null || labelIds.length > 0 || !isNaN(Number(groupSetId))) {
-            const operator = getFilterParam(this.props.location.search, Filter.Operator);
+        if (
+            query != null ||
+            labelIds.length > 0 ||
+            !isNaN(Number(groupSetId))
+        ) {
+            const operator = getFilterParam(
+                this.props.location.search,
+                Filter.Operator,
+            );
             this.props.fetchFilteredOverviewGroups(
                 courseId,
                 operator != null ? operator.toString() : "AND",
                 assignmentSetId,
                 labelIds,
                 groupSetId != null ? Number(groupSetId.toString()) : undefined,
-                (typeof query === "string" && query.length > 0) ? query : undefined,
+                typeof query === "string" && query.length > 0
+                    ? query
+                    : undefined,
             );
         } else {
             this.props.fetchOverviewGroups(courseId, assignmentSetId);
         }
+
+        // We have updated our results, hence recalculate the
+        // finished count map and the total number of students.
+        this.setState(() => ({
+            shouldUpdateFinishedCount: true,
+            numberOfShowingStudents: 0,
+            finishedCountMapOfShowingStudents: new Map(),
+        }));
     }
 }
 
