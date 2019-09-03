@@ -43,7 +43,7 @@ class AssignmentTableCell extends Component<AssignmentTableCellProps> {
             numOfStudentsWhoHaveCompleted: num,
         } = this.props;
         return (
-            <div className={this.props.className} style={style}>
+            <div className={this.props.className} style={style} title={name}>
                 {name}
                 {this.props.onCommentClick && (
                     <div
@@ -54,6 +54,7 @@ class AssignmentTableCell extends Component<AssignmentTableCellProps> {
                             this.highlightIcon() ? "icon-highlighted" : ""
                         }`}
                         style={{ float: "none" }}
+                        title="View or add clarifications to this assignment"
                     >
                         <FontAwesomeIcon icon={faComments} size="sm" />
                     </div>

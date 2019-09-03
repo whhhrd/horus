@@ -52,6 +52,7 @@ class ParticipantTableCell extends Component<
                         className={`overview-table-cell-comment-button ${
                             this.highlightIcon() ? "icon-highlighted" : ""
                         }`}
+                        title="View or add comments to this student"
                     >
                         <FontAwesomeIcon icon={faComments} size="sm" />
                     </div>
