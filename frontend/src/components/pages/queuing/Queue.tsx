@@ -92,6 +92,7 @@ export default class Queue extends Component<QueueProps, QueueState> {
                                         .borderColor,
                                 }}
                                 className="d-none d-lg-inline-block ellipsis mr-2"
+                                title={`${numOfEntries} in queue`}
                             >
                                 {numOfEntries} in queue
                             </Badge>
@@ -176,7 +177,10 @@ export default class Queue extends Component<QueueProps, QueueState> {
                                                             : ""
                                                     }`}
                                                 >
-                                                    <div className="d-inline-block ellipsis mr-2">
+                                                    <div
+                                                        className="d-inline-block ellipsis mr-2"
+                                                        title={`${entry.participant.fullName}`}
+                                                    >
                                                         {
                                                             entry.participant
                                                                 .fullName

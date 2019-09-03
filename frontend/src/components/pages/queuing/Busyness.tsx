@@ -192,6 +192,7 @@ class Busyness extends PureComponent<BusynessProps & RouteComponentProps<any>> {
                                 .borderColor,
                         }}
                         className="ellipsis mr-2"
+                        title={`${numOfEntries} in queue`}
                     >
                         {numOfEntries} in queue
                     </Badge>

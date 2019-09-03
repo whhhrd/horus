@@ -35,6 +35,7 @@ class GroupTableCell extends Component<GroupTableCellProps> {
                         className={`table-cell-comment-button ${
                             this.highlightIcon() ? "icon-highlighted" : ""
                         }`}
+                        title="View or add comments to this group"
                     >
                         <FontAwesomeIcon icon={faComments} size="lg" />
                     </div>
