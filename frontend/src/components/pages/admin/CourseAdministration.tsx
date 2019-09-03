@@ -125,7 +125,7 @@ class CourseAdministration extends PureComponent<
                                         size="sm"
                                         style={{ width: "30px" }}
                                     />
-                                    Manage assignment sets
+                                    Manage assignments
                                 </Link>
                                 <br />
                             </Fragment>
@@ -141,7 +141,7 @@ class CourseAdministration extends PureComponent<
                                         size="sm"
                                         style={{ width: "30px" }}
                                     />
-                                    Manage group sets
+                                    View groups
                                 </Link>
                                 <br />
                             </Fragment>
@@ -177,7 +177,7 @@ class CourseAdministration extends PureComponent<
                                         size="sm"
                                         style={{ width: "30px" }}
                                     />
-                                    Manage roles
+                                    Manage TA roles
                                 </Link>
                                 <br />
                             </Fragment>
@@ -196,7 +196,7 @@ class CourseAdministration extends PureComponent<
                                         size="sm"
                                         style={{ width: "30px" }}
                                     />
-                                    Export course data to spreadsheets
+                                    Export course data to spreadsheet
                                 </a>
                                 <br />
                             </Fragment>
@@ -219,7 +219,7 @@ class CourseAdministration extends PureComponent<
                                             size="sm"
                                             style={{ width: "30px" }}
                                         />
-                                        Reload participants from Canvas
+                                        Reload students and staff list from Canvas
                                     </Link>
                                     <br />
                                 </Fragment>
@@ -242,7 +242,7 @@ class CourseAdministration extends PureComponent<
                                             size="sm"
                                             style={{ width: "30px" }}
                                         />
-                                        Reload course from Canvas
+                                        Reload full course (including all groups) from Canvas
                                     </Link>
                                     <br />
                                 </Fragment>
