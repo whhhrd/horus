@@ -12,6 +12,8 @@ export interface SignOffOverviewGroupsFetchPageSucceededAction
     groups: GroupDtoFull[];
     assignmentSetId: number;
     courseId: number;
+    totalPages: number;
+    pageNumber: number;
 }
 
 export interface SignOffOverviewFetchSucceededAction extends Action<string> {
@@ -35,10 +37,15 @@ export interface SignOffOverviewResultsFetchSucceededAction
 
 export type SignOffResultsMap = Map<number, Map<number, SignOffResultDtoCompact>>;
 
+export interface SignOffOverviewGroupsPageProgress {
+    total: number;
+    loaded: number;
+}
 export interface SignOffOverviewState {
     groups: GroupDtoFull[];
     signOffResults: SignOffResultsMap;
     loading: boolean;
+    progress: SignOffOverviewGroupsPageProgress;
 }
 
 export type SignOffOverviewAction =

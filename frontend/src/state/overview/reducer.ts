@@ -7,6 +7,7 @@ import {
     SignOffOverviewResultsFetchSucceededAction,
     SignOffOverviewState,
     SignOffResultsMap,
+    SignOffOverviewGroupsPageProgress,
 } from "./types";
 import {GroupDtoFull, ParticipantDtoBrief, SignOffResultDtoCompact} from "../../api/types";
 import {
@@ -22,10 +23,14 @@ import {CommentDeleteSucceededAction} from "../comments/action";
 import {COMMENT_DELETE_REQUEST_SUCCEEDED_ACTION} from "../comments/constants";
 import {EntityType} from "../comments/types";
 
-const initialState: SignOffOverviewState = {
+export const initialState: SignOffOverviewState = {
     groups: [],
     signOffResults: new Map(),
     loading: false,
+    progress: {
+        total: 1,
+        loaded: 0,
+    },
 };
 
 function groupsReducer(
@@ -148,7 +153,7 @@ function resultsReducer(
 }
 
 function loadingReducer(
-    state: boolean = false,
+    state: boolean = initialState.loading,
     action: SignOffOverviewAction,
 ): boolean {
     switch (action.type) {
@@ -166,8 +171,34 @@ function loadingReducer(
     }
 }
 
+function progressReducer(
+    state: SignOffOverviewGroupsPageProgress = initialState.progress,
+    action: SignOffOverviewGroupsFetchPageSucceededAction | SignOffOverviewFetchRequestedAction,
+): SignOffOverviewGroupsPageProgress {
+    switch (action.type) {
+        case SIGN_OFF_OVERVIEW_GROUPS_FETCH_REQUESTED_ACTION:
+        case SIGN_OFF_OVERVIEW_FILTER_QUERY_ACTION:
+            return initialState.progress;
+        case SIGN_OFF_OVERVIEW_GROUPS_PAGE_FETCH_SUCCEEDED_ACTION:
+            const groupPage = (action as SignOffOverviewGroupsFetchPageSucceededAction);
+            return {
+                total: groupPage.totalPages,
+                loaded: groupPage.pageNumber + 1,
+            };
+        case SIGN_OFF_OVERVIEW_FILTER_SUCCEEDED_ACTION:
+            const filterPage = (action as SignOffOverviewFilterSucceededAction);
+            return {
+                total: filterPage.totalPages,
+                loaded: filterPage.pageNumber + 1,
+            };
+        default:
+            return state;
+    }
+}
+
 export default combineReducers<SignOffOverviewState>({
     groups: groupsReducer,
     signOffResults: resultsReducer,
     loading: loadingReducer,
+    progress: progressReducer,
 });

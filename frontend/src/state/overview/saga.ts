@@ -59,6 +59,8 @@ function* getAssignmentSetGroups(action: SignOffOverviewFetchRequestedAction) {
                 action.courseId,
                 action.assignmentSetId,
                 page.content,
+                page.totalPages,
+                page.number,
             ),
         );
         while (!page.last) {
@@ -74,6 +76,8 @@ function* getAssignmentSetGroups(action: SignOffOverviewFetchRequestedAction) {
                     action.courseId,
                     action.assignmentSetId,
                     page.content,
+                    page.totalPages,
+                    page.number,
                 ),
             );
         }
@@ -115,7 +119,7 @@ export function* signOffOverviewFilterQuery(
             `courses/${courseId}/groups/filtered`,
             queryParams,
         );
-        yield put(signOffOverviewFilterSucceededAction(page.content, page.last));
+        yield put(signOffOverviewFilterSucceededAction(page.content, page.totalPages, page.number, page.last));
         while (!page.last) {
             page = yield call(
                 authenticatedFetchJSON,
@@ -126,7 +130,7 @@ export function* signOffOverviewFilterQuery(
                     page: page.number + 1,
                 },
             );
-            yield put(signOffOverviewFilterSucceededAction(page.content, page.last));
+            yield put(signOffOverviewFilterSucceededAction(page.content, page.totalPages, page.number, page.last));
         }
     } catch (e) {
         yield put(notifyError(e.message));
