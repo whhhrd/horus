@@ -1,7 +1,11 @@
 import React, { Component } from "react";
 import { AssignmentDtoBrief, CommentThreadDtoFull } from "../../../api/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faComments } from "@fortawesome/free-solid-svg-icons";
+import {
+    faComments,
+    faCheckCircle,
+    faSpinner,
+} from "@fortawesome/free-solid-svg-icons";
 import { EntityType } from "../../../state/comments/types";
 import CommentThread from "../../comments/CommentThread";
 import { connect } from "react-redux";
@@ -11,6 +15,13 @@ import { getCommentThread } from "../../../state/comments/selectors";
 interface AssignmentTableCellProps {
     style: React.CSSProperties;
     className: string;
+
+    // The number of students (that are being displayed in the overview)
+    // who have COMPLETED this assignment
+    numOfStudentsWhoHaveCompleted: number | undefined;
+
+    // The total number of students that are being displayed in the overview
+    numOfStudents: number;
 
     onClick?: () => void;
 
@@ -26,7 +37,11 @@ interface AssignmentTableCellProps {
 class AssignmentTableCell extends Component<AssignmentTableCellProps> {
     render() {
         const { name } = this.props.assignment;
-        const style = this.props.style;
+        const {
+            style,
+            numOfStudents,
+            numOfStudentsWhoHaveCompleted: num,
+        } = this.props;
         return (
             <div className={this.props.className} style={style}>
                 {name}
@@ -43,6 +58,30 @@ class AssignmentTableCell extends Component<AssignmentTableCellProps> {
                         <FontAwesomeIcon icon={faComments} size="sm" />
                     </div>
                 )}
+
+                {/* Display the number of students who have completed this assignment */}
+                <span
+                    style={{ fontSize: "0.9em", cursor: "default" }}
+                    className={(num != null && num / numOfStudents) === 1 ? "text-success" : "text-dark"}
+                    title={
+                        `${num} out of ${numOfStudents} ` +
+                        `students ${
+                            num === 1 ? "has" : "have"
+                        } completed this assignment`
+                    }
+                >
+                    <FontAwesomeIcon
+                        icon={
+                            num == null
+                                ? faSpinner
+                                : faCheckCircle
+                        }
+                        spin={num == null}
+                        size="xs"
+                        className="mr-1"
+                    />
+                    {num}
+                </span>
             </div>
         );
     }
