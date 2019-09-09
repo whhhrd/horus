@@ -4,7 +4,7 @@ import { withRouter, RouteComponentProps } from "react-router";
 import { buildContent } from "../../pagebuilder";
 import queryString from "query-string";
 import { MultiGrid, GridCellProps, AutoSizer, Index } from "react-virtualized";
-import Progress from "reactstrap/lib/Progress";
+
 import {
     assignmentSetFetchRequestedAction,
     AssignmentSetFetchAction,
@@ -284,12 +284,17 @@ class SignOffOverview extends Component<
         }
 
         const rowArray = this.groupsToRowArray(this.props.groups);
+        const progressPercent = Math.round(100 * progress.loaded / progress.total);
         return (
             <div className="d-flex flex-column align-items-stretch h-100">
                 <div className="mb-2">
                     <SignOffOverviewSearch />
                     { loading &&
-                        <Progress value={progress.loaded} max={progress.total} />
+                        // <Progress value={progress.loaded} max={progress.total} />
+                        <div className="progress-container">
+                            <div
+                                style={{width: `${progressPercent}%`}} />
+                        </div>
                     }
                 </div>
                 <div className="flex-fill h-100 w-100">
