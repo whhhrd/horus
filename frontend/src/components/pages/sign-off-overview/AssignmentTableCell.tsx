@@ -20,6 +20,9 @@ interface AssignmentTableCellProps {
     // who have COMPLETED this assignment
     numOfStudentsWhoHaveCompleted: number | undefined;
 
+    // Idem for INSUFFICIENT
+    numOfStudentsWhoHaveAttempted: number | undefined;
+
     // The total number of students that are being displayed in the overview
     numOfStudents: number;
 
@@ -40,7 +43,8 @@ class AssignmentTableCell extends Component<AssignmentTableCellProps> {
         const {
             style,
             numOfStudents,
-            numOfStudentsWhoHaveCompleted: num,
+            numOfStudentsWhoHaveCompleted: numComplete,
+            numOfStudentsWhoHaveAttempted: numInsufficient,
         } = this.props;
         return (
             <div className={this.props.className} style={style} title={name}>
@@ -63,25 +67,31 @@ class AssignmentTableCell extends Component<AssignmentTableCellProps> {
                 {/* Display the number of students who have completed this assignment */}
                 <span
                     style={{ fontSize: "0.9em", cursor: "default" }}
-                    className={(num != null && num / numOfStudents) === 1 ? "text-success" : "text-dark"}
+                    className={
+                        (numComplete != null && numComplete / numOfStudents) ===
+                        1
+                            ? "text-success"
+                            : "text-dark"
+                    }
                     title={
-                        `${num} out of ${numOfStudents} ` +
+                        `${numComplete} out of ${numOfStudents} ` +
                         `students ${
-                            num === 1 ? "has" : "have"
-                        } completed this assignment`
+                            numComplete === 1 ? "has" : "have"
+                        } completed this assignment` +
+                        `${
+                            numInsufficient != null && numInsufficient > 0
+                                ? ` and\n${numInsufficient} students have attempted this assignment`
+                                : ""
+                        }`
                     }
                 >
                     <FontAwesomeIcon
-                        icon={
-                            num == null
-                                ? faSpinner
-                                : faCheckCircle
-                        }
-                        spin={num == null}
+                        icon={numComplete == null ? faSpinner : faCheckCircle}
+                        spin={numComplete == null}
                         size="xs"
                         className="mr-1"
                     />
-                    {num}
+                    {numComplete}
                 </span>
             </div>
         );

@@ -564,6 +564,18 @@ button {
 
 }
 
+.progress-container {
+    width: 100%;
+    border-radius: 5px;
+    background-color: #ddd;
+
+    div {
+        height: 15px;
+        border-radius: 3px;
+        background-color: $color_blue;
+    }
+}
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * Queuing
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */

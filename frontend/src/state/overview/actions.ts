@@ -44,11 +44,15 @@ export const overviewGroupsPageFetchSucceededAction = (
     courseId: number,
     assignmentSetId: number,
     groups: GroupDtoFull[],
+    totalPages: number,
+    pageNumber: number,
 ) => ({
     type: SIGN_OFF_OVERVIEW_GROUPS_PAGE_FETCH_SUCCEEDED_ACTION,
     courseId,
     assignmentSetId,
     groups,
+    totalPages,
+    pageNumber,
 });
 
 export const overviewGroupsFetchSucceededAction = (
@@ -74,6 +78,8 @@ export interface SignOffOverviewFilterQueryAction extends Action<string> {
 export interface SignOffOverviewFilterSucceededAction extends Action<string> {
     groups: GroupDtoFull[];
     finished?: boolean;
+    totalPages: number;
+    pageNumber: number;
 }
 
 export const signOffOverviewFilterQueryAction = (
@@ -95,9 +101,13 @@ export const signOffOverviewFilterQueryAction = (
 
 export const signOffOverviewFilterSucceededAction = (
     groups: GroupDtoFull[],
+    totalPages: number,
+    pageNumber: number,
     finished?: boolean,
 ) => ({
     type: SIGN_OFF_OVERVIEW_FILTER_SUCCEEDED_ACTION,
     groups,
     finished,
+    totalPages,
+    pageNumber,
 });
