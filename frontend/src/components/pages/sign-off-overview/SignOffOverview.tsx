@@ -88,6 +88,9 @@ interface SignOffOverviewState {
     // corresponding assignment
     finishedCountMapOfShowingStudents: Map<number, number>;
 
+    // Idem for insufficiently completed assignments
+    insufficientCountMapOfShowingStudents: Map<number, number>;
+
     // A number that indicates the number of displayed students on the overview
     numberOfShowingStudents: number;
 }
@@ -121,6 +124,7 @@ class SignOffOverview extends Component<
             milestoneData: null,
             numberOfShowingStudents: 0,
             finishedCountMapOfShowingStudents: new Map(),
+            insufficientCountMapOfShowingStudents: new Map(),
         };
         this.multigrid = null;
         this.setSidebarContent = this.setSidebarContent.bind(this);
@@ -161,30 +165,19 @@ class SignOffOverview extends Component<
         // either the laberId array or the groupSetId array is not the same,
         // then refetch from the database.
         const op = getFilterParam(search, Filter.Operator);
-        const prevOp = getFilterParam(
-            prevSearch,
-            Filter.Operator,
-        );
+        const prevOp = getFilterParam(prevSearch, Filter.Operator);
 
-        const groupSetId = getFilterParam(
-            search,
-            Filter.GroupSetId,
-        );
-        const prevGroupSetId = getFilterParam(
-            prevSearch,
-            Filter.GroupSetId,
-        );
+        const groupSetId = getFilterParam(search, Filter.GroupSetId);
+        const prevGroupSetId = getFilterParam(prevSearch, Filter.GroupSetId);
 
         const query = getFilterParam(search, Filter.Query);
-        const prevQuery = getFilterParam(
-            prevSearch,
-            Filter.Query,
-        );
+        const prevQuery = getFilterParam(prevSearch, Filter.Query);
 
         const textSearch = getFilterParam(search, Filter.Search);
         const prevTextSearch = getFilterParam(prevSearch, Filter.Search);
 
-        const shouldReloadData = !arraysEqual(
+        const shouldReloadData =
+            !arraysEqual(
                 getListFromQuery(search, Filter.LabelIds),
                 getListFromQuery(prevSearch, Filter.LabelIds),
             ) ||
@@ -221,13 +214,12 @@ class SignOffOverview extends Component<
         // contains the count of students who have finished an assignment, e.g.:
         // Map<assignment ID, num of students who have completed corresponding assignment>.
         const shouldRefreshCompletedCounts =
-            (
-                prevProps.groups !== groups ||
-                prevProps.results !== results ||
-                prevAsid !== asid ||
-                prevProps.assignmentSet(prevAsid) !== this.props.assignmentSet(asid) ||
-                prevTextSearch !== textSearch
-            );
+            prevProps.groups !== groups ||
+            prevProps.results !== results ||
+            prevAsid !== asid ||
+            prevProps.assignmentSet(prevAsid) !==
+                this.props.assignmentSet(asid) ||
+            prevTextSearch !== textSearch;
         if (shouldRefreshCompletedCounts) {
             const nOfStudents = groups
                 .filter(this.searchFilter)
@@ -236,11 +228,13 @@ class SignOffOverview extends Component<
 
             // A map containing the assignment ID with the number of students who COMPLETED that assignment.
             // Initialized with 0 for each assignment.
-            const countMap: Map<number, number> = new Map();
+            const finishedCountMap: Map<number, number> = new Map();
+            const insufficientCountMap: Map<number, number> = new Map();
             if (this.props.assignmentSet(asid) != null) {
-                this.props
-                    .assignmentSet(asid)!
-                    .assignments.forEach((a) => countMap.set(a.id, 0));
+                this.props.assignmentSet(asid)!.assignments.forEach((a) => {
+                    finishedCountMap.set(a.id, 0);
+                    insufficientCountMap.set(a.id, 0);
+                });
             }
 
             // For each group and it's group members, check for each of their results
@@ -248,15 +242,19 @@ class SignOffOverview extends Component<
             // for the corresponding assignment.
             groups.filter(this.searchFilter).map((g) =>
                 g.participants.map((p) => {
-                    if (
-                        results != null &&
-                        results.get(p.id) != null
-                    ) {
+                    if (results != null && results.get(p.id) != null) {
                         results.get(p.id)!.forEach((val) => {
                             if (val.result === "COMPLETE") {
-                                countMap.set(
+                                finishedCountMap.set(
                                     val.assignmentId,
-                                    countMap.get(val.assignmentId)! + 1,
+                                    finishedCountMap.get(val.assignmentId)! + 1,
+                                );
+                            } else if (val.result === "INSUFFICIENT") {
+                                insufficientCountMap.set(
+                                    val.assignmentId,
+                                    insufficientCountMap.get(
+                                        val.assignmentId,
+                                    )! + 1,
                                 );
                             }
                         });
@@ -267,7 +265,8 @@ class SignOffOverview extends Component<
             // Update the state accordingly.
             this.setState(() => ({
                 numberOfShowingStudents: nOfStudents,
-                finishedCountMapOfShowingStudents: countMap,
+                finishedCountMapOfShowingStudents: finishedCountMap,
+                insufficientCountMapOfShowingStudents: insufficientCountMap,
             }));
         }
     }
@@ -483,6 +482,9 @@ class SignOffOverview extends Component<
                 <AssignmentTableCell
                     assignment={assignment}
                     numOfStudentsWhoHaveCompleted={this.state.finishedCountMapOfShowingStudents.get(
+                        assignment.id,
+                    )}
+                    numOfStudentsWhoHaveAttempted={this.state.insufficientCountMapOfShowingStudents.get(
                         assignment.id,
                     )}
                     numOfStudents={this.state.numberOfShowingStudents}
@@ -840,7 +842,6 @@ class SignOffOverview extends Component<
             finishedCountMapOfShowingStudents: new Map(),
         });
     }
-
 }
 
 export default withRouter(
