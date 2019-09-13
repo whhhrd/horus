@@ -4,6 +4,7 @@ import { withRouter, RouteComponentProps } from "react-router";
 import { buildContent } from "../../pagebuilder";
 import queryString from "query-string";
 import { MultiGrid, GridCellProps, AutoSizer, Index } from "react-virtualized";
+
 import {
     assignmentSetFetchRequestedAction,
     AssignmentSetFetchAction,
@@ -19,6 +20,7 @@ import {
     getOverviewGroups,
     getOverviewLoading,
     getOverviewSignOffResults,
+    getOverviewProgress,
 } from "../../../state/overview/selectors";
 import {
     GroupDtoFull,
@@ -29,6 +31,7 @@ import {
 } from "../../../api/types";
 import {
     SignOffResultsMap,
+    SignOffOverviewGroupsPageProgress,
     SignOffOverviewFetchRequestedAction,
     SignOffOverviewResultsFetchRequestedAction,
 } from "../../../state/overview/types";
@@ -50,6 +53,7 @@ interface SignOffOverviewProps {
     results: SignOffResultsMap | null;
     groups: GroupDtoFull[];
     loading: boolean;
+    progress: SignOffOverviewGroupsPageProgress;
     assignmentSet: (id: number) => AssignmentSetDtoFull | null;
     coursePermissions: CoursePermissions | null;
 
@@ -78,6 +82,17 @@ interface SignOffOverviewProps {
 interface SignOffOverviewState {
     sidebarContent: JSX.Element | null;
     milestoneData: AssignmentDtoBrief[][] | null;
+
+    // A map that contains as key the assignment ID and as value the
+    // number of students (displayed in the overview) that have completed the
+    // corresponding assignment
+    finishedCountMapOfShowingStudents: Map<number, number>;
+
+    // Idem for insufficiently completed assignments
+    insufficientCountMapOfShowingStudents: Map<number, number>;
+
+    // A number that indicates the number of displayed students on the overview
+    numberOfShowingStudents: number;
 }
 
 interface Row {
@@ -107,6 +122,9 @@ class SignOffOverview extends Component<
         this.state = {
             sidebarContent: null,
             milestoneData: null,
+            numberOfShowingStudents: 0,
+            finishedCountMapOfShowingStudents: new Map(),
+            insufficientCountMapOfShowingStudents: new Map(),
         };
         this.multigrid = null;
         this.setSidebarContent = this.setSidebarContent.bind(this);
@@ -139,47 +157,42 @@ class SignOffOverview extends Component<
     componentDidUpdate(
         prevProps: SignOffOverviewProps & RouteComponentProps<any>,
     ) {
+        const search = this.props.location.search;
+        const prevSearch = prevProps.location.search;
+
+        const { results, groups } = this.props;
         // Check whether we must refetch data from the database. If
         // either the laberId array or the groupSetId array is not the same,
         // then refetch from the database.
-        const op = getFilterParam(this.props.location.search, Filter.Operator);
-        const prevOp = getFilterParam(
-            prevProps.location.search,
-            Filter.Operator,
-        );
+        const op = getFilterParam(search, Filter.Operator);
+        const prevOp = getFilterParam(prevSearch, Filter.Operator);
 
-        const groupSetId = getFilterParam(
-            this.props.location.search,
-            Filter.GroupSetId,
-        );
-        const prevGroupSetId = getFilterParam(
-            prevProps.location.search,
-            Filter.GroupSetId,
-        );
+        const groupSetId = getFilterParam(search, Filter.GroupSetId);
+        const prevGroupSetId = getFilterParam(prevSearch, Filter.GroupSetId);
 
-        const query = getFilterParam(
-            this.props.location.search,
-            Filter.Query,
-        );
-        const prevQuery = getFilterParam(
-            prevProps.location.search,
-            Filter.Query,
-        );
-        if (
+        const query = getFilterParam(search, Filter.Query);
+        const prevQuery = getFilterParam(prevSearch, Filter.Query);
+
+        const textSearch = getFilterParam(search, Filter.Search);
+        const prevTextSearch = getFilterParam(prevSearch, Filter.Search);
+
+        const shouldReloadData =
             !arraysEqual(
-                getListFromQuery(this.props.location.search, Filter.LabelIds),
-                getListFromQuery(prevProps.location.search, Filter.LabelIds),
+                getListFromQuery(search, Filter.LabelIds),
+                getListFromQuery(prevSearch, Filter.LabelIds),
             ) ||
             op !== prevOp ||
             groupSetId !== prevGroupSetId ||
-            query !== prevQuery
-        ) {
+            query !== prevQuery;
+
+        if (shouldReloadData) {
             this.reloadData();
         }
 
         // Set the milestone data once the assignment set is ready and
         // only if the milestone data is not set yet.
         const asid = Number(this.props.match.params.asid);
+        const prevAsid = Number(prevProps.match.params.asid);
         const assignmentSet = this.props.assignmentSet(asid);
         const assignments =
             assignmentSet != null ? assignmentSet.assignments : null;
@@ -195,6 +208,67 @@ class SignOffOverview extends Component<
         if (this.multigrid != null) {
             this.multigrid!.recomputeGridSize();
         }
+
+        // The following if statement and corresponding block will
+        // update the number of displayed students and the map that
+        // contains the count of students who have finished an assignment, e.g.:
+        // Map<assignment ID, num of students who have completed corresponding assignment>.
+        const shouldRefreshCompletedCounts =
+            prevProps.groups !== groups ||
+            prevProps.results !== results ||
+            prevAsid !== asid ||
+            prevProps.assignmentSet(prevAsid) !==
+                this.props.assignmentSet(asid) ||
+            prevTextSearch !== textSearch;
+        if (shouldRefreshCompletedCounts) {
+            const nOfStudents = groups
+                .filter(this.searchFilter)
+                .map((g) => g.participants.length)
+                .reduce((a, b) => a + b, 0);
+
+            // A map containing the assignment ID with the number of students who COMPLETED that assignment.
+            // Initialized with 0 for each assignment.
+            const finishedCountMap: Map<number, number> = new Map();
+            const insufficientCountMap: Map<number, number> = new Map();
+            if (this.props.assignmentSet(asid) != null) {
+                this.props.assignmentSet(asid)!.assignments.forEach((a) => {
+                    finishedCountMap.set(a.id, 0);
+                    insufficientCountMap.set(a.id, 0);
+                });
+            }
+
+            // For each group and it's group members, check for each of their results
+            // whether they have finished an assignment. If they have, increase the counter
+            // for the corresponding assignment.
+            groups.filter(this.searchFilter).map((g) =>
+                g.participants.map((p) => {
+                    if (results != null && results.get(p.id) != null) {
+                        results.get(p.id)!.forEach((val) => {
+                            if (val.result === "COMPLETE") {
+                                finishedCountMap.set(
+                                    val.assignmentId,
+                                    finishedCountMap.get(val.assignmentId)! + 1,
+                                );
+                            } else if (val.result === "INSUFFICIENT") {
+                                insufficientCountMap.set(
+                                    val.assignmentId,
+                                    insufficientCountMap.get(
+                                        val.assignmentId,
+                                    )! + 1,
+                                );
+                            }
+                        });
+                    }
+                }),
+            );
+
+            // Update the state accordingly.
+            this.setState(() => ({
+                numberOfShowingStudents: nOfStudents,
+                finishedCountMapOfShowingStudents: finishedCountMap,
+                insufficientCountMapOfShowingStudents: insufficientCountMap,
+            }));
+        }
     }
 
     private buildContent(): JSX.Element | null {
@@ -202,15 +276,25 @@ class SignOffOverview extends Component<
         const assignmentSet = this.props.assignmentSet(assignmentSetId)!;
         const milestoneData = this.state.milestoneData;
 
+        const { loading, progress } = this.props;
+
         if (assignmentSet == null || milestoneData == null) {
             return null;
         }
 
         const rowArray = this.groupsToRowArray(this.props.groups);
+        const progressPercent = Math.round(100 * progress.loaded / progress.total);
         return (
             <div className="d-flex flex-column align-items-stretch h-100">
                 <div className="mb-2">
                     <SignOffOverviewSearch />
+                    { loading &&
+                        // <Progress value={progress.loaded} max={progress.total} />
+                        <div className="progress-container">
+                            <div
+                                style={{width: `${progressPercent}%`}} />
+                        </div>
+                    }
                 </div>
                 <div className="flex-fill h-100 w-100">
                     <AutoSizer>
@@ -317,7 +401,7 @@ class SignOffOverview extends Component<
 
         // Render the name tag next to the group tag
         if (columnIndex === 1 && rowIndex === 0) {
-            content = "Name";
+            content = `Name\n(${this.state.numberOfShowingStudents} total)`;
         }
 
         // Render the group cell (left side of the screen)
@@ -397,6 +481,13 @@ class SignOffOverview extends Component<
             return (
                 <AssignmentTableCell
                     assignment={assignment}
+                    numOfStudentsWhoHaveCompleted={this.state.finishedCountMapOfShowingStudents.get(
+                        assignment.id,
+                    )}
+                    numOfStudentsWhoHaveAttempted={this.state.insufficientCountMapOfShowingStudents.get(
+                        assignment.id,
+                    )}
+                    numOfStudents={this.state.numberOfShowingStudents}
                     key={key}
                     onCommentClick={this.setSidebarContent}
                     style={style}
@@ -715,24 +806,41 @@ class SignOffOverview extends Component<
             this.props.location.search,
             Filter.GroupSetId,
         );
-        const query = getFilterParam(
-            this.props.location.search,
-            Filter.Query,
-        );
+        const query = getFilterParam(this.props.location.search, Filter.Query);
+        this.clearCompletedCounts();
 
-        if (query != null || labelIds.length > 0 || !isNaN(Number(groupSetId))) {
-            const operator = getFilterParam(this.props.location.search, Filter.Operator);
+        if (
+            query != null ||
+            labelIds.length > 0 ||
+            !isNaN(Number(groupSetId))
+        ) {
+            const operator = getFilterParam(
+                this.props.location.search,
+                Filter.Operator,
+            );
             this.props.fetchFilteredOverviewGroups(
                 courseId,
                 operator != null ? operator.toString() : "AND",
                 assignmentSetId,
                 labelIds,
                 groupSetId != null ? Number(groupSetId.toString()) : undefined,
-                (typeof query === "string" && query.length > 0) ? query : undefined,
+                typeof query === "string" && query.length > 0
+                    ? query
+                    : undefined,
             );
         } else {
             this.props.fetchOverviewGroups(courseId, assignmentSetId);
         }
+    }
+
+    /**
+     * Clears completion counts for assignments.
+     */
+    private clearCompletedCounts() {
+        this.setState({
+            numberOfShowingStudents: 0,
+            finishedCountMapOfShowingStudents: new Map(),
+        });
     }
 }
 
@@ -742,6 +850,7 @@ export default withRouter(
             groups: getOverviewGroups(state),
             loading: getOverviewLoading(state),
             results: getOverviewSignOffResults(state),
+            progress: getOverviewProgress(state),
             assignmentSet: (id: number) => getAssignmentSet(state, id),
             coursePermissions: getCoursePermissions(state),
         }),

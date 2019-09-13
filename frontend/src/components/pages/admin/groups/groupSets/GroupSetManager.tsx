@@ -126,7 +126,7 @@ class GroupSetManager extends Component<
                                     icon={faUpload}
                                     className="mr-2"
                                 />
-                                Import group set to Canvas{" "}
+                                Upload group set to Canvas{" "}
                             </Button>
                         </Col>
                     )}

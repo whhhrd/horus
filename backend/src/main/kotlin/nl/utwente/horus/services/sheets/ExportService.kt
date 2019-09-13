@@ -16,6 +16,7 @@ import nl.utwente.horus.services.signoff.SignOffService
 import org.apache.poi.ss.usermodel.ComparisonOperator
 import org.apache.poi.ss.usermodel.IndexedColors
 import org.apache.poi.ss.util.CellRangeAddress
+import org.apache.poi.ss.util.WorkbookUtil
 import org.apache.poi.xssf.usermodel.XSSFRow
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -113,7 +114,8 @@ class ExportService {
     private fun addAssignmentSetSheets(ids: List<Long>, book: XSSFWorkbook): XSSFWorkbook {
         ids.forEach { id ->
             val set = assignmentService.getAssignmentSetById(id)
-            val sheet = book.createSheet(set.name)
+            val name = WorkbookUtil.createSafeSheetName(set.name)
+            val sheet = book.createSheet(name)
             fillAssignmentSetSheet(sheet, set)
         }
         return book
