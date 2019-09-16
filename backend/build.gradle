@@ -65,7 +65,7 @@ dependencies {
     implementation 'org.apache.commons:commons-csv:1.6'
     implementation 'org.antlr:antlr4-runtime:4.7.2'
     runtime 'io.jsonwebtoken:jjwt-impl:0.10.7'
-    runtime 'io.jsonwebtoken:jjwt-jackson:0.10.5'
+    runtime 'io.jsonwebtoken:jjwt-jackson:0.10.7'
     providedRuntime 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
