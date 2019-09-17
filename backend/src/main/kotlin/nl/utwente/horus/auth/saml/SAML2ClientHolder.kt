@@ -23,9 +23,6 @@ class SAML2ClientHolder: InitializingBean {
     override fun afterPropertiesSet() {
         val configuration = SAML2Configuration(configurationProperties.samlKeyStorePath, configurationProperties.samlKeyStorePassword, configurationProperties.samlPrivateKeyPassword, configurationProperties.samlIdPMetadataLocation)
         configuration.serviceProviderEntityId = configurationProperties.samlServiceProviderEntityId
-        // Forces re-authentication instead of using a previous session; used to stop the UT
-        // sending authentication responses that have been generated in the past.
-        configuration.isForceAuth = true
         // Accept the last authentication to be a day old
         configuration.maximumAuthenticationLifetime = 60 * 60 * 24
         saml2Client = SAML2Client(configuration)
