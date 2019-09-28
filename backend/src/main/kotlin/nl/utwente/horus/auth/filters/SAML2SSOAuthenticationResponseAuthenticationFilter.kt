@@ -36,6 +36,7 @@ class SAML2SSOAuthenticationResponseAuthenticationFilter: AbstractAuthentication
             val auth = attributeExtractor.extractSAMLCredentialsToAuthCredentials(credentials)
             return authenticationManager.authenticate(auth)
         } catch (e: Exception) {
+            print(e.stackTrace)
             throw BadCredentialsException("Bad credentials")
         }
     }
