@@ -6,6 +6,7 @@ import nl.utwente.horus.auth.tokens.AuthCodeToken
 import org.pac4j.core.context.J2EContext
 import org.pac4j.saml.client.SAML2Client
 import org.pac4j.saml.credentials.SAML2Credentials
+import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.AuthenticationException
@@ -23,6 +24,10 @@ class SAML2SSOAuthenticationResponseAuthenticationFilter: AbstractAuthentication
 
     private val attributeExtractor = SAML2AttributeExtractor(UTSAML2AttributeExtractionScheme())
 
+    companion object {
+        val LOGGER = LoggerFactory.getLogger(SAML2SSOAuthenticationResponseAuthenticationFilter::class.java)
+    }
+
     constructor(requiresAuthenticationRequestMatcher: RequestMatcher?, saml2Client: SAML2Client, redirectURL: String) : super(requiresAuthenticationRequestMatcher) {
         this.saml2Client = saml2Client
         this.redirectURL = redirectURL
@@ -36,7 +41,8 @@ class SAML2SSOAuthenticationResponseAuthenticationFilter: AbstractAuthentication
             val auth = attributeExtractor.extractSAMLCredentialsToAuthCredentials(credentials)
             return authenticationManager.authenticate(auth)
         } catch (e: Exception) {
-            print(e.stackTrace)
+            e.printStackTrace()
+            LOGGER.error(e.message, e)
             throw BadCredentialsException("Bad credentials")
         }
     }
