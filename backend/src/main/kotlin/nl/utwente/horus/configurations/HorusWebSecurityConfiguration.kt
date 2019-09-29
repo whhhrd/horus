@@ -4,6 +4,8 @@ import nl.utwente.horus.HorusConfigurationProperties
 import nl.utwente.horus.auth.filters.*
 import nl.utwente.horus.auth.providers.*
 import nl.utwente.horus.auth.saml.SAML2ClientHolder
+import nl.utwente.horus.auth.saml.TestSAML2AttributeExtractionScheme
+import nl.utwente.horus.auth.saml.UTSAML2AttributeExtractionScheme
 import nl.utwente.horus.isProductionActive
 import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.auth.RefreshTokenService
@@ -123,7 +125,8 @@ class HorusWebSecurityConfiguration: WebSecurityConfigurerAdapter() {
      * Initializes the SAML authentication response authentication filter with the proper path pattern.
      */
     private fun buildSAMLAuthResponseAuthenticationFilter(): SAML2SSOAuthenticationResponseAuthenticationFilter {
-        val filter = SAML2SSOAuthenticationResponseAuthenticationFilter(AntPathRequestMatcher(AUTH_LOGIN_SAML_RESPONSE_PATTERN), samlClientHolder.getClient(), configurationProperties.authCodeRedirectURL)
+        val attributeExtractionScheme = if (environment.isProductionActive()) UTSAML2AttributeExtractionScheme() else TestSAML2AttributeExtractionScheme()
+        val filter = SAML2SSOAuthenticationResponseAuthenticationFilter(attributeExtractionScheme, AntPathRequestMatcher(AUTH_LOGIN_SAML_RESPONSE_PATTERN), samlClientHolder.getClient(), configurationProperties.authCodeRedirectURL)
         filter.setAuthenticationManager(authenticationManager())
         return filter
     }

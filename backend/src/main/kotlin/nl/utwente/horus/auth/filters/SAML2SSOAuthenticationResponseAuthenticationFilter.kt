@@ -1,5 +1,6 @@
 package nl.utwente.horus.auth.filters
 
+import nl.utwente.horus.auth.saml.SAML2AttributeExtractionScheme
 import nl.utwente.horus.auth.saml.SAML2AttributeExtractor
 import nl.utwente.horus.auth.saml.UTSAML2AttributeExtractionScheme
 import nl.utwente.horus.auth.tokens.AuthCodeToken
@@ -22,15 +23,16 @@ class SAML2SSOAuthenticationResponseAuthenticationFilter: AbstractAuthentication
 
     private val redirectURL: String
 
-    private val attributeExtractor = SAML2AttributeExtractor(UTSAML2AttributeExtractionScheme())
+    private val attributeExtractor: SAML2AttributeExtractor
 
     companion object {
         val LOGGER = LoggerFactory.getLogger(SAML2SSOAuthenticationResponseAuthenticationFilter::class.java)
     }
 
-    constructor(requiresAuthenticationRequestMatcher: RequestMatcher?, saml2Client: SAML2Client, redirectURL: String) : super(requiresAuthenticationRequestMatcher) {
+    constructor(attributeExtractionScheme: SAML2AttributeExtractionScheme, requiresAuthenticationRequestMatcher: RequestMatcher?, saml2Client: SAML2Client, redirectURL: String) : super(requiresAuthenticationRequestMatcher) {
         this.saml2Client = saml2Client
         this.redirectURL = redirectURL
+        this.attributeExtractor = SAML2AttributeExtractor(attributeExtractionScheme)
     }
 
     override fun attemptAuthentication(request: HttpServletRequest?, response: HttpServletResponse?): Authentication {
