@@ -41,6 +41,8 @@ import {
     QueueRemovedAction,
     acceptNextAction,
     AcceptNextAction,
+    RemindRequestedAction,
+    remindRequestedAction,
 } from "../../../state/queuing/actions";
 import { getAnnouncements, getQueues } from "../../../state/queuing/selectors";
 import { ApplicationState } from "../../../state/state";
@@ -90,6 +92,7 @@ import {
     currentParticipantRequestedAction,
 } from "../../../state/courses/action";
 import { getCurrentParticipant } from "../../../state/courses/selectors";
+import QuestionQueueAcceptModal from "./QuestionQueueAcceptModal";
 
 interface QueuingPageProps {
     announcements: AnnouncementDto[] | null;
@@ -134,6 +137,11 @@ interface QueuingPageProps {
     enqueue: (cid: number, rid: string, qid: string) => EnterQueueAction;
     deleteQueue: (cid: number, rid: string, qid: string) => QueueRemovedAction;
     acceptNext: (cid: number, rid: string, qid: string) => AcceptNextAction;
+    remind: (
+        cid: number,
+        rid: string,
+        participantId: number,
+    ) => RemindRequestedAction;
 }
 
 interface QueuingPageState {
@@ -145,6 +153,9 @@ interface QueuingPageState {
 
     announcementCreateModalOpen: boolean;
     announcementToDelete: AnnouncementDto | null;
+
+    questionQueueAcceptModalOpen: boolean;
+    questionQueueAcceptedParticipant: QueueParticipantDto | null;
 
     newAnnouncement: AnnouncementDto | null;
     reminder: RemindDto | null;
@@ -176,6 +187,8 @@ class QueuingPage extends Component<
             announcementToDelete: null,
             queueCreateModalOpen: false,
             queueToDelete: null,
+            questionQueueAcceptModalOpen: false,
+            questionQueueAcceptedParticipant: null,
             newAnnouncement: null,
             reminder: null,
         };
@@ -187,6 +200,9 @@ class QueuingPage extends Component<
         );
         this.toggleQueueCreateModal = this.toggleQueueCreateModal.bind(this);
         this.toggleQueueDeleteModal = this.toggleQueueDeleteModal.bind(this);
+        this.showQuestionQueueAcceptModal = this.showQuestionQueueAcceptModal.bind(
+            this,
+        );
         this.showNotification = this.showNotification.bind(this);
     }
 
@@ -210,6 +226,21 @@ class QueuingPage extends Component<
         this.setState(() => ({
             queueToDelete: queue,
         }));
+    }
+
+    /**
+     * Causes a modal to pop up which shows the 'accepted student' from a
+     * questions type queue.
+     * @param participant The accepted student.
+     * @param queue The questions type queue.
+     */
+    showQuestionQueueAcceptModal(participant: QueueParticipantDto, queue: QueueDto) {
+        if (queue.assignmentSetId == null) { // Queue is not a sign-off queue
+            this.setState(() => ({
+                questionQueueAcceptedParticipant: participant,
+                questionQueueAcceptModalOpen: true,
+            }));
+        }
     }
 
     render() {
@@ -295,7 +326,6 @@ class QueuingPage extends Component<
         const currRoom = this.props.match.params.rid;
 
         if (prevRoom != null && currRoom != null && prevRoom !== currRoom) {
-
             // Close the existing socket
             if (this.queuingSocket != null) {
                 this.queuingSocket.shutdown();
@@ -776,6 +806,7 @@ class QueuingPage extends Component<
     private buildQueues() {
         const { mode } = this.state;
         const { assignmentSets } = this.props;
+        const { rid, cid } = this.props.match.params;
 
         if (assignmentSets == null) {
             return null;
@@ -796,53 +827,98 @@ class QueuingPage extends Component<
                         (asid == null || linkedAssignmentSet != null);
 
                     return (
-                        <Queue
-                            queue={queue}
-                            entries={queue.participants.map(
-                                (participant: QueueParticipantDto) => ({
-                                    participant,
-                                    onAccept: () =>
-                                        this.props.acceptParticipant(
-                                            Number(this.props.match.params.cid),
-                                            this.props.match.params.rid,
-                                            queue.id,
-                                            participant.id,
-                                        ),
-                                    onDeny: () =>
-                                        this.props.dequeueParticipant(
-                                            Number(this.props.match.params.cid),
-                                            this.props.match.params.rid,
-                                            queue.id,
-                                            participant.id,
-                                        ),
-                                }),
-                            )}
-                            currentParticipant={this.props.participant!}
-                            key={queue.id}
-                            mode={this.state.mode!}
-                            onJoinQueue={
-                                canJoin
-                                    ? () =>
-                                          this.props.enqueue(
-                                              Number(
-                                                  this.props.match.params.cid,
-                                              ),
-                                              this.props.match.params.rid,
-                                              queue.id,
-                                          )
-                                    : undefined
-                            }
-                            onDeleteQueue={() =>
-                                this.toggleQueueDeleteModal(queue)
-                            }
-                            onAcceptNext={() =>
-                                this.props.acceptNext(
-                                    Number(this.props.match.params.cid),
-                                    this.props.match.params.rid,
-                                    queue.id,
-                                )
-                            }
-                        />
+                        <Fragment key={queue.id}>
+                            <Queue
+                                queue={queue}
+                                entries={queue.participants.map(
+                                    (participant: QueueParticipantDto) => ({
+                                        participant,
+                                        onAccept: () => {
+                                            this.props.acceptParticipant(
+                                                Number(
+                                                    this.props.match.params.cid,
+                                                ),
+                                                this.props.match.params.rid,
+                                                queue.id,
+                                                participant.id,
+                                            );
+
+                                            this.showQuestionQueueAcceptModal(
+                                                participant,
+                                                queue,
+                                            );
+                                        },
+                                        onDeny: () =>
+                                            this.props.dequeueParticipant(
+                                                Number(
+                                                    this.props.match.params.cid,
+                                                ),
+                                                this.props.match.params.rid,
+                                                queue.id,
+                                                participant.id,
+                                            ),
+                                    }),
+                                )}
+                                currentParticipant={this.props.participant!}
+                                key={queue.id}
+                                mode={this.state.mode!}
+                                onJoinQueue={
+                                    canJoin
+                                        ? () =>
+                                              this.props.enqueue(
+                                                  Number(
+                                                      this.props.match.params
+                                                          .cid,
+                                                  ),
+                                                  this.props.match.params.rid,
+                                                  queue.id,
+                                              )
+                                        : undefined
+                                }
+                                onDeleteQueue={() =>
+                                    this.toggleQueueDeleteModal(queue)
+                                }
+
+                                onAcceptNext={() => {
+                                    this.props.acceptNext(
+                                        Number(this.props.match.params.cid),
+                                        this.props.match.params.rid,
+                                        queue.id,
+                                    );
+
+                                    this.showQuestionQueueAcceptModal(
+                                        queue.participants[0],
+                                        queue,
+                                    );
+                                }}
+                            />
+                            <QuestionQueueAcceptModal
+                                isOpen={
+                                    this.state.questionQueueAcceptModalOpen &&
+                                    this.state
+                                        .questionQueueAcceptedParticipant !=
+                                        null
+                                }
+                                participant={
+                                    this.state.questionQueueAcceptedParticipant
+                                }
+                                onCloseModal={() =>
+                                    this.setState(() => ({
+                                        questionQueueAcceptModalOpen: false,
+                                        questionQueueAcceptedParticipant: null,
+                                    }))
+                                }
+                                remind={() =>
+                                    this.props.remind(
+                                        cid,
+                                        rid,
+                                        this.state
+                                            .questionQueueAcceptedParticipant!
+                                            .id,
+                                    )
+                                }
+                            />
+                        </Fragment>
                     );
                 })}
                 {mode === QueuingMode.TA && (
@@ -906,6 +982,7 @@ export default withRouter(
                 queueRemovedAction(cid, rid, qid),
             acceptNext: (cid: number, rid: string, qid: string) =>
                 acceptNextAction(cid, rid, qid),
+            remind: remindRequestedAction,
         },
     )(QueuingPage),
 );
