@@ -408,15 +408,13 @@ class CanvasService {
      * Converts a Canvas enrollment to a Horus role.
      */
     private fun toHorusRole(enrollment: Enrollment): Role {
-        val type = enrollment.type
-        if (type.contains("Teacher", ignoreCase = true)) {
-            return roleService.getTeacherRole()
-        }
-        if (type.contains("Ta", ignoreCase = true)) {
-            return roleService.getTaRole()
-        } else {
-            // Only remaining option: students and "fallback"
-            return roleService.getStudentRole()
+        val t = enrollment.type
+        val isType = {name: String -> t.contains(name, ignoreCase = true)}
+        return when {
+            isType("Teacher") -> roleService.getTeacherRole()
+            isType("Ta") -> roleService.getTaRole()
+            isType("Observer") -> roleService.getTaRole() // Observers seen as TA's, since they're only staff anyways
+            else -> roleService.getStudentRole()
         }
     }
 
