@@ -55,7 +55,7 @@ dependencies {
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
     implementation 'io.projectreactor:reactor-core:3.2.6.RELEASE'
-    implementation 'org.pac4j:pac4j-saml:3.8.2'
+    implementation 'org.pac4j:pac4j-saml:3.8.3'
     implementation 'org.flywaydb:flyway-core'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "org.jetbrains.kotlin:kotlin-reflect"
