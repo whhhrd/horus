@@ -18,6 +18,7 @@ import nl.utwente.horus.exceptions.CanvasTokenNotFoundException
 import nl.utwente.horus.exceptions.InvalidCanvasTokenException
 import nl.utwente.horus.exceptions.NoCanvasEntityException
 import nl.utwente.horus.exceptions.SyncUnauthorizedException
+import nl.utwente.horus.isProductionActive
 import nl.utwente.horus.representations.canvas.CanvasCourseDto
 import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.auth.RoleService
@@ -28,6 +29,7 @@ import nl.utwente.horus.services.participant.ParticipantService
 import nl.utwente.horus.services.person.PersonService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.env.Environment
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.ZoneId
@@ -39,6 +41,9 @@ import java.util.concurrent.TimeUnit
 @Component
 @Transactional
 class CanvasService {
+
+    @Autowired
+    lateinit var environment: Environment
 
     @Autowired
     lateinit var canvasTokenRepository: CanvasTokenRepository
@@ -134,18 +139,17 @@ class CanvasService {
     /**
      * Lists the current user's Canvas courses
      * @param person The Person (with an associated token) to list the Canvas courses for
-     * @param filterTeacher Only return courses for which the current user is a Teacher in Canvas
-     * @param filterAlreadyAdded Only include courses which are not already added to Horus
      */
-    fun listCanvasCourses(person: Person, filterTeacher: Boolean, filterAlreadyAdded: Boolean): List<CanvasCourseDto> {
+    fun listCanvasCourses(person: Person): List<CanvasCourseDto> {
         val reader = getReaderWriter(person)
         val courses = reader.getCoursesOfUser()
-        if (filterTeacher) {
+        // Only show courses of Teachers when we're in production, allow other roles when debugging
+        if (environment.isProductionActive()) {
             courses.removeIf { !obtainedByTeacher(it) }
         }
-        if (filterAlreadyAdded) {
-            courses.removeIf { c -> courseService.existsCourseByExternalId(c.id.toString()) }
-        }
+        // Don't list courses already in Horus
+        courses.removeIf { c -> courseService.existsCourseByExternalId(c.id.toString()) }
+
         return courses.map { c -> CanvasCourseDto(c.id, c.courseCode, c.name, c.totalStudents,
                 if (c.startAt == null) null
                 else ZonedDateTime.ofInstant(c.startAt.toInstant(), ZoneId.systemDefault())) }

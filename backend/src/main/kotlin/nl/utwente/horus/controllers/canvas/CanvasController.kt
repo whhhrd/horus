@@ -55,7 +55,7 @@ class CanvasController: BaseController() {
     @GetMapping(path = ["/", ""])
     fun listCanvasCourses(): List<CanvasCourseDto> {
         val user = userDetailService.getCurrentPerson()
-        return canvasService.listCanvasCourses(user, true, true)
+        return canvasService.listCanvasCourses(user)
     }
 
     @GetMapping(path = ["/tokenValid"])

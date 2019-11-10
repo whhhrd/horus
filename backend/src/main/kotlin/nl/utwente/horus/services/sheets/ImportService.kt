@@ -4,7 +4,6 @@ import edu.ksu.canvas.model.Group
 import nl.utwente.horus.entities.course.Course
 import nl.utwente.horus.entities.participant.Participant
 import nl.utwente.horus.exceptions.InvalidSheetError
-import nl.utwente.horus.exceptions.MalformedSheetException
 import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.canvas.CanvasService
 import nl.utwente.horus.services.course.CourseService
@@ -26,11 +25,12 @@ import java.util.concurrent.TimeUnit
 @Component
 class ImportService {
 
-    private data class Record(
-            val loginId: String,
-            val groupNum: String,
-            val labels: List<String>
+    private open class Record(
+            val groupNum: String
+
     )
+
+    private class StudentRecord(groupNum: String, val loginId: String, val labels: List<String>) : Record(groupNum)
 
     @Autowired
     lateinit var groupService: GroupService
@@ -51,9 +51,8 @@ class ImportService {
     lateinit var userDetailService: HorusUserDetailService
 
     companion object {
-        const val S_NUM_COL = 0
-        const val GROUP_NUM_COL = 1
-        const val REQUIRED_COLS = 2
+        const val GROUP_NUM_COL = 0
+        const val S_NUM_COL = 1
 
         val STRING_COMPARATOR = kotlin.Comparator<String> { t1, t2 -> t2.length - t1.length }.then(Comparator.comparing(String::toString))
     }
@@ -79,11 +78,12 @@ class ImportService {
         uploadCanvasGroups(course, author, records, loginToCanvasIds, categoryName, excessGroups, progress)
     }
 
-    private fun checkAssignLabels(records: List<Record>, course: Course, errors: MutableList<String>) {
-        val map = records.map { Pair(it.loginId.trim(), it) }.toMap()
+    private fun checkAssignLabels(allRecords: List<Record>, course: Course, errors: MutableList<String>) {
+        val studentRecords = allRecords.filterIsInstance<StudentRecord>()
+        val loginToRecords = studentRecords.map { Pair(it.loginId.trim(), it) }.toMap()
         // Possibility that login ID occurred twice, which isn't allowed.
-        if (map.keys.size != records.size) {
-            val duplicates = records.groupBy { it.loginId }.filter { it.value.size > 1 }
+        if (loginToRecords.keys.size != studentRecords.size) {
+            val duplicates = studentRecords.groupBy { it.loginId }.filter { it.value.size > 1 }
             duplicates.forEach {entry ->
                 errors.add("Login ID ${entry.key} occurs in multiple rows: " +
                         entry.value.joinToString { "'${it.loginId}, ${it.groupNum}, ${it.labels}'" })
@@ -92,9 +92,9 @@ class ImportService {
         }
         // List of "seen" login IDs. Might be that some are in CSV which do not exist in real life
         val usedIds = HashSet<String>()
-        participantService.getParticipationsInCourseByLoginId(map.keys, course.id).forEach {part ->
+        participantService.getParticipationsInCourseByLoginId(loginToRecords.keys, course.id).forEach { part ->
             usedIds.add(part.person.loginId)
-            val labels = map.getValue(part.person.loginId).labels
+            val labels = loginToRecords.getValue(part.person.loginId).labels
             for (labelName in labels) {
                 val label= labelService.getLabelByName(course, labelName)
                 if (label == null) {
@@ -107,12 +107,18 @@ class ImportService {
                 }
             }
         }
-        if (usedIds.size != map.keys.size) {
+        if (usedIds.size != loginToRecords.keys.size) {
             // Some student IDs weren't found in the Horus/Canvas course.
-            val missing = map.keys - usedIds
+            val missing = loginToRecords.keys - usedIds
             errors.add("Student IDs not known in course: ${missing.joinToString()}")
             return
         }
+
+        /*
+        Note: we do not verify here if group names appear multiple times. They will simply only be created once, just as
+        with empty group declarations being followed by students being in that group. A group-only record is simply seen
+        as saying that a certain group should exist, irregardless of the number of students or the preceding records.
+         */
 
     }
 
@@ -127,7 +133,9 @@ class ImportService {
 
         // Create category in Canvas, and save to DB
         // First calculate max group size (with minimum of 2, determined by Canvas)
-        val maxSize = Math.max(groups.maxBy { it.value.size }?.value?.size ?: 0, 2)
+        // Filter necessary to only count actual student inputs: declaring the same group 10 times should not result
+        // in a max group size of 10
+        val maxSize = Math.max(groups.maxBy { it.value.filterIsInstance<StudentRecord>().size }?.value?.size ?: 0, 2)
         val category = canvasService.createCanvasGroupCategory(course, name, 0, maxSize)
         val groupSet = canvasService.convertSaveCategory(course, category, author)
         val readerWriter = canvasService.getReaderWriter(course)
@@ -137,17 +145,22 @@ class ImportService {
         val resultGroups = ConcurrentHashMap<Group, Set<String>>()
         val executor = Executors.newFixedThreadPool(4)
         groups.forEach {(groupNum, groupRecords) -> executor.execute {
-            val group = readerWriter.createGroupInCategory("${category.name} - $groupNum", category.groupCategoryId.toString())
+            val studentRecords = groupRecords.filterIsInstance<StudentRecord>()
+            val group = readerWriter.createGroupInCategory("${category.name} $groupNum", category.groupCategoryId.toString())
 
-            canvasService.fillCanvasGroup(course, group.groupId.toString(), groupRecords.map { idMapping.getValue(it.loginId)})
+            if (studentRecords.isEmpty()) {
+                resultGroups[group] = emptySet()
+            } else {
+                canvasService.fillCanvasGroup(course, group.groupId.toString(), studentRecords.map { idMapping.getValue(it.loginId)})
+                resultGroups[group] = studentRecords.map { it.loginId }.toSet()
+            }
 
-            resultGroups[group] = records.map { it.loginId }.toSet()
             counter?.completedTasks?.incrementAndGet()
         }
         }
         // Also add tasks to upload excess groups (which are not in CSV file, therefore not in records)
         (1..excessGroups).forEach { num -> executor.submit {
-            val group = readerWriter.createGroupInCategory("${category.name} - Extra - $num", category.groupCategoryId.toString())
+            val group = readerWriter.createGroupInCategory("${category.name} - Extra $num", category.groupCategoryId.toString())
             resultGroups[group] = emptySet() // No members for empty group
             counter?.completedTasks?.incrementAndGet()
         } }
@@ -166,17 +179,19 @@ class ImportService {
         val records = CSVFormat.EXCEL.parse(reader)
         return records.map { record ->
             val size = record.size()
-            if (size < 2) {
-                throw MalformedSheetException("Each row should consist of at least a student number and a group number.")
-            }
-            val loginId = record.get(S_NUM_COL)
             val groupNum = record.get(GROUP_NUM_COL)
-            // Accept both labels in different columns and split within a column by a comma
-            val labels = record.asSequence().drop(REQUIRED_COLS)
-                    .filter { it.isNotBlank() }
-                    .map { it.split(",") }.flatten()
-                    .map { it.trim() }.toList()
-            Record(loginId, groupNum, labels)
+
+            if (size == 1 || record.get(S_NUM_COL).isBlank()) {
+                Record(groupNum)
+            } else {
+                val loginId = record.get(S_NUM_COL)
+                // Accept both labels in different columns and split within a column by a comma
+                val labels = record.asSequence().drop(2) // Remove both s-number and group number, since they're both not labels
+                        .filter { it.isNotBlank() }
+                        .map { it.split(",") }.flatten()
+                        .map { it.trim() }.toList()
+                StudentRecord(loginId, groupNum, labels)
+            }
         }
 
     }
