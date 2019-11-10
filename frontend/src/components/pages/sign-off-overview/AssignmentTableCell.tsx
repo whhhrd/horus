@@ -48,7 +48,7 @@ class AssignmentTableCell extends Component<AssignmentTableCellProps> {
         } = this.props;
         return (
             <div className={this.props.className} style={style} title={name}>
-                {name}
+                <div className="ellipsis" style={{direction: "rtl"}}>{name}</div>
                 {this.props.onCommentClick && (
                     <div
                         onClick={() =>
