@@ -61,7 +61,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect"
     implementation 'io.jsonwebtoken:jjwt-api:0.10.7'
     implementation 'com.github.ntrrgc:ts-generator:1.1.1'
-    implementation 'org.apache.poi:poi-ooxml:4.1.0'
+    implementation 'org.apache.poi:poi-ooxml:4.1.1'
     implementation 'org.apache.commons:commons-csv:1.7'
     implementation 'org.antlr:antlr4-runtime:4.7.2'
     runtime 'io.jsonwebtoken:jjwt-impl:0.10.7'
