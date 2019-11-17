@@ -32,7 +32,7 @@ class LoginSuccessHandler: AuthenticationSuccessHandler {
         val tokens: TokenPair = authentication as TokenPair
 
         response!!.status = HttpStatus.OK.value()
-        response.contentType = MediaType.APPLICATION_JSON_UTF8_VALUE
+        response.contentType = MediaType.APPLICATION_JSON_VALUE
 
         objectMapper.writeValue(
                 response.writer,

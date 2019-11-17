@@ -40,7 +40,6 @@ import nl.utwente.horus.services.signoff.SignOffService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.http.MediaType
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
@@ -82,7 +81,7 @@ class CourseController: BaseController() {
     @Autowired
     lateinit var roleService: RoleService
 
-    @GetMapping(path = ["", "/"], produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
+    @GetMapping(path = ["", "/"])
     fun listCourses(): List<CourseDtoSummary> {
         val person: Person = userDetailService.getCurrentPerson()
         return person.enabledParticipations.map { p -> CourseDtoSummary(p.course, RoleDtoBrief(p.role)) }
