@@ -16,7 +16,7 @@ import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.canvas.CanvasService
 import nl.utwente.horus.services.course.CourseService
 import nl.utwente.horus.services.group.GroupService
-import nl.utwente.horus.services.sheets.ImportService
+import nl.utwente.horus.services.sheets.GroupsImportService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
@@ -41,7 +41,7 @@ class CanvasController: BaseController() {
     lateinit var groupService: GroupService
 
     @Autowired
-    lateinit var importService: ImportService
+    lateinit var groupsImportService: GroupsImportService
 
     @Autowired
     lateinit var assignmentService: AssignmentService
@@ -143,7 +143,7 @@ class CanvasController: BaseController() {
         val course = courseService.getCourseById(courseId)
         val reader = BufferedReader(InputStreamReader(file.inputStream))
         val batch = executeAsBatchJob("Groups upload for $name in ${course.name}") {
-            importService.importCsv(reader, courseId, name, excessGroups, it)
+            groupsImportService.importCsv(reader, courseId, name, excessGroups, it)
         }
         return BatchJobDto(batch)
     }

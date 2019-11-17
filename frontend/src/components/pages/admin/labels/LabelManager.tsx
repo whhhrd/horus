@@ -40,8 +40,9 @@ import Label from "../../../Label";
 import LabelAddDropdown from "./LabelAddDropdown";
 import { buildContent, centerSpinner } from "../../../pagebuilder";
 
-import { faPlus, faEdit, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faEdit, faTimes, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import LabelCvUploadModal from "./LabelCsvUploadModal";
 
 interface LabelManagerProps {
     participants: ParticipantDtoFull[] | null;
@@ -69,6 +70,8 @@ interface LabelManagerState {
     deleteLabelModalOpen: boolean;
     labelToDelete: LabelDto | null;
 
+    labelCsvUploadModalOpen: boolean;
+
     searchQuery: string;
 }
 
@@ -80,6 +83,8 @@ const initialState = {
 
     deleteLabelModalOpen: false,
     labelToDelete: null,
+
+    labelCsvUploadModalOpen: false,
 
     searchQuery: "",
 };
@@ -98,6 +103,7 @@ class LabelManager extends Component<
         this.toggleLabelCreatorModal = this.toggleLabelCreatorModal.bind(this);
         this.toggleLabelEditorModal = this.toggleLabelEditorModal.bind(this);
         this.toggleLabelDeleteModal = this.toggleLabelDeleteModal.bind(this);
+        this.toggleLabelCsvUploadModal = this.toggleLabelCsvUploadModal.bind(this);
     }
 
     componentDidMount() {
@@ -114,6 +120,12 @@ class LabelManager extends Component<
     toggleLabelCreatorModal() {
         this.setState((state) => ({
             createLabelModalOpen: !state.createLabelModalOpen,
+        }));
+    }
+
+    toggleLabelCsvUploadModal() {
+        this.setState((state) => ({
+            labelCsvUploadModalOpen: !state.labelCsvUploadModalOpen,
         }));
     }
 
@@ -169,7 +181,7 @@ class LabelManager extends Component<
                                 <Button
                                     color="primary"
                                     outline
-                                    className="mb-3"
+                                    className="mb-3 mr-2"
                                     onClick={this.toggleLabelCreatorModal}
                                 >
                                     <FontAwesomeIcon
@@ -177,6 +189,20 @@ class LabelManager extends Component<
                                         className="mr-2"
                                     />
                                     Create new label
+                                </Button>
+                            )}
+                            {canCreateMapping && canDeleteMapping && (
+                                <Button
+                                    color="primary"
+                                    outline
+                                    className="mb-3"
+                                    onClick={this.toggleLabelCsvUploadModal}
+                                >
+                                    <FontAwesomeIcon
+                                        icon={faUpload}
+                                        className="mr-2"
+                                    />
+                                    Assign labels via CSV
                                 </Button>
                             )}
                         </Col>
@@ -208,6 +234,17 @@ class LabelManager extends Component<
                                     labelId={this.state.labelToDelete.id}
                                     onCloseModal={() =>
                                         this.toggleLabelDeleteModal(null)
+                                    }
+                                />
+                            )}
+
+                        {this.state.labelCsvUploadModalOpen &&
+                            canCreateMapping && canDeleteMapping && (
+                                <LabelCvUploadModal
+                                    isOpen={this.state.labelCsvUploadModalOpen}
+                                    courseId={cid}
+                                    onCloseModal={() =>
+                                        this.toggleLabelCsvUploadModal()
                                     }
                                 />
                             )}

@@ -25,6 +25,7 @@ import nl.utwente.horus.representations.course.CourseUpdateDto
 import nl.utwente.horus.representations.dashboard.StudentDashboardDto
 import nl.utwente.horus.representations.group.GroupDtoFull
 import nl.utwente.horus.representations.group.GroupSetDtoSummary
+import nl.utwente.horus.representations.job.BatchJobDto
 import nl.utwente.horus.representations.participant.*
 import nl.utwente.horus.representations.signoff.GroupAssignmentSetSearchResultDto
 import nl.utwente.horus.services.assignment.AssignmentService
@@ -36,12 +37,16 @@ import nl.utwente.horus.services.participant.LabelService
 import nl.utwente.horus.services.participant.ParticipantService
 import nl.utwente.horus.services.participant.SupplementaryRoleService
 import nl.utwente.horus.services.sheets.ExportService
+import nl.utwente.horus.services.sheets.LabelsImportService
 import nl.utwente.horus.services.signoff.SignOffService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import javax.servlet.http.HttpServletResponse
@@ -80,6 +85,10 @@ class CourseController: BaseController() {
 
     @Autowired
     lateinit var roleService: RoleService
+
+    @Autowired
+    lateinit var labelsImportService: LabelsImportService
+
 
     @GetMapping(path = ["", "/"])
     fun listCourses(): List<CourseDtoSummary> {
@@ -244,6 +253,20 @@ class CourseController: BaseController() {
             throw CourseMismatchException()
         }
         labelService.deleteLabel(label)
+    }
+
+    @PatchMapping(path = ["/{courseId}/labels"])
+    fun uploadLabelsCSV(@PathVariable courseId: Long, @RequestParam file: MultipartFile, @RequestParam wipeAll: Boolean,
+                        @RequestParam wipeOccurring: Boolean): BatchJobDto {
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.CREATE, HorusResource.COURSE_PARTICIPANT_LABEL_MAPPING)
+        requireAnyPermission(Course::class, courseId, HorusPermissionType.DELETE, HorusResource.COURSE_PARTICIPANT_LABEL_MAPPING)
+
+        val course = courseService.getCourseById(courseId)
+        val reader = BufferedReader(InputStreamReader(file.inputStream))
+        val batch = executeAsBatchJob("Labels CSV processing in ${course.name}") {
+            labelsImportService.assignBulkLabels(reader, courseId, wipeAll, wipeOccurring, it)
+        }
+        return BatchJobDto(batch)
     }
 
     @GetMapping(path = ["/{courseId}/roles"])

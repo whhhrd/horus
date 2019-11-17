@@ -11,6 +11,7 @@ import {
     LABEL_MAPPING_CREATE_SUCCEEDED_ACTION,
     LABEL_MAPPING_DELETE_ACTION,
     LABEL_MAPPING_DELETE_SUCCEEDED_ACTION,
+    LABEL_CSV_UPLOAD_ACTION,
 } from "./constants";
 import { LabelDto, LabelCreateUpdateDto } from "../../api/types";
 
@@ -130,4 +131,16 @@ export const labelMappingDeleteSucceededAction = (participantId: number, label: 
     type: LABEL_MAPPING_DELETE_SUCCEEDED_ACTION,
     participantId,
     label,
+});
+
+// UPLOAD LABEL CSV
+export interface LabelCsvUploadAction extends Action<string> {
+    courseId: number;
+    formData: FormData;
+}
+
+export const labelCsvUploadAction = (courseId: number, formData: FormData) => ({
+    type: LABEL_CSV_UPLOAD_ACTION,
+    courseId,
+    formData,
 });

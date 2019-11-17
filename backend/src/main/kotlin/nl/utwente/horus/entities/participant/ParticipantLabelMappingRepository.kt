@@ -11,4 +11,9 @@ interface ParticipantLabelMappingRepository: JpaRepository<ParticipantLabelMappi
 
     @Query("SELECT COUNT(m) FROM ParticipantLabelMapping m WHERE m.id.label = ?1")
     fun countLabelUsages(label: Label): Long
+
+    /**
+     * Deletes all mappings to given participants
+     */
+    fun deleteByIdParticipantIn(participants: Collection<Participant>)
 }

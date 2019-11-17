@@ -13,6 +13,7 @@ import nl.utwente.horus.representations.comment.CommentThreadDtoFull
 import nl.utwente.horus.representations.participant.ParticipantDtoFull
 import nl.utwente.horus.services.auth.HorusUserDetailService
 import nl.utwente.horus.services.comment.CommentService
+import nl.utwente.horus.services.course.CourseService
 import nl.utwente.horus.services.participant.LabelService
 import nl.utwente.horus.services.participant.ParticipantService
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,6 +36,9 @@ class ParticipantController: BaseController() {
 
     @Autowired
     lateinit var labelService: LabelService
+
+    @Autowired
+    lateinit var courseService: CourseService
 
     @GetMapping(path = ["/", ""])
     fun getParticipants(@RequestParam participantIds: List<Long>): List<ParticipantDtoFull> {

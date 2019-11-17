@@ -157,5 +157,20 @@ class ParticipantService {
         participantLabelMappingRepository.delete(mapping)
     }
 
+    fun removeLabelMappingsToParticipants(participants: Collection<Participant>) {
+        participantLabelMappingRepository.deleteByIdParticipantIn(participants)
+
+        // Also edit internal data structures to reflect change
+        participants.forEach { p ->
+
+            // First remove from collection on Label-side
+            p.labels.forEach { l ->
+                l.participantMappings.removeIf { m -> m.participant.id == p.id }
+            }
+            // Now removal on Participant-side is easy
+            p.labelMappings.clear()
+        }
+    }
+
 
 }

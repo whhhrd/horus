@@ -9,8 +9,9 @@ import {
     LabelMappingDeleteAction,
     labelMappingCreateSucceededAction,
     labelMappingDeleteSucceededAction,
+    LabelCsvUploadAction,
 } from "./action";
-import { notifyError } from "../notifications/constants";
+import { notifyError, notifyInfo } from "../notifications/constants";
 import { put, takeEvery, call } from "redux-saga/effects";
 import {
     LABEL_CREATE_ACTION,
@@ -18,9 +19,12 @@ import {
     LABEL_DELETE_ACTION,
     LABEL_MAPPING_CREATE_ACTION,
     LABEL_MAPPING_DELETE_ACTION,
+    LABEL_CSV_UPLOAD_ACTION,
 } from "./constants";
 import { authenticatedFetchJSON } from "../../api";
-import { LabelDto } from "../../api/types";
+import { LabelDto, BatchJobDto } from "../../api/types";
+import { jobAddAction } from "../jobs/action";
+import { notificationDirectToTasks } from "../../components/pagebuilder";
 
 export function* createLabel(action: LabelCreateAction) {
     try {
@@ -103,10 +107,31 @@ export function* deleteLabelMapping(action: LabelMappingDeleteAction) {
     }
 }
 
+export function* labelCsvUpload(action: LabelCsvUploadAction) {
+    const {courseId, formData} = action;
+    try {
+        const result: BatchJobDto = yield call(
+            authenticatedFetchJSON,
+            "PATCH",
+            `courses/${courseId}/labels`,
+            null,
+            formData,
+            {},
+            {},
+            true,
+        );
+        yield put(jobAddAction(result));
+        yield put(notifyInfo(notificationDirectToTasks()));
+    } catch (e) {
+        yield put(notifyError(e.message));
+    }
+}
+
 export default function* labelsSaga() {
     yield takeEvery(LABEL_CREATE_ACTION, createLabel);
     yield takeEvery(LABEL_UPDATE_ACTION, updateLabel);
     yield takeEvery(LABEL_DELETE_ACTION, deleteLabel);
     yield takeEvery(LABEL_MAPPING_CREATE_ACTION, createLabelMapping);
     yield takeEvery(LABEL_MAPPING_DELETE_ACTION, deleteLabelMapping);
+    yield takeEvery(LABEL_CSV_UPLOAD_ACTION, labelCsvUpload);
 }
