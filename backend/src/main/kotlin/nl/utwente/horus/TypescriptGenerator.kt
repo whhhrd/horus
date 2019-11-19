@@ -2,7 +2,7 @@ package nl.utwente.horus
 
 import me.ntrrgc.tsGenerator.TypeScriptGenerator
 import nl.utwente.horus.auth.permissions.HorusResource
-import nl.utwente.horus.representations.BooleanResultDto
+import nl.utwente.horus.representations.BooleanDto
 import nl.utwente.horus.representations.assignment.*
 import nl.utwente.horus.representations.auth.HorusAuthorityDto
 import nl.utwente.horus.representations.auth.RoleDtoBrief
@@ -52,7 +52,7 @@ fun generate() {
                     ParticipantSupplementaryRoleMappingDto::class,
                     SupplementaryRoleDto::class,
 
-                    BooleanResultDto::class,
+                    BooleanDto::class,
                     CanvasCourseDto::class,
                     CanvasTokenDto::class,
 

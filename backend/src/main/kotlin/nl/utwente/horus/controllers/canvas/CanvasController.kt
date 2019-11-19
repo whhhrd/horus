@@ -4,7 +4,7 @@ import nl.utwente.horus.auth.permissions.HorusPermissionType
 import nl.utwente.horus.auth.permissions.HorusResource
 import nl.utwente.horus.controllers.BaseController
 import nl.utwente.horus.entities.course.Course
-import nl.utwente.horus.representations.BooleanResultDto
+import nl.utwente.horus.representations.BooleanDto
 import nl.utwente.horus.representations.auth.RoleDtoBrief
 import nl.utwente.horus.representations.canvas.CanvasCourseDto
 import nl.utwente.horus.representations.canvas.CanvasTokenDto
@@ -59,7 +59,7 @@ class CanvasController: BaseController() {
     }
 
     @GetMapping(path = ["/tokenValid"])
-    fun checkToken(): BooleanResultDto {
+    fun checkToken(): BooleanDto {
         val result: Boolean
         val user = userDetailService.getCurrentPerson()
         result = try {
@@ -67,7 +67,7 @@ class CanvasController: BaseController() {
         } catch (e: Exception) {
             false
         }
-        return BooleanResultDto(result)
+        return BooleanDto(result)
     }
 
     @PostMapping(path = ["/{canvasId}"])
@@ -115,7 +115,7 @@ class CanvasController: BaseController() {
         val course = courseService.getCourseById(courseId)
         canvasService.doCanvasParticipantSync(course)
         val participant = courseService.getCurrentParticipationInCourse(course)
-        return CourseDtoFull(course, RoleDtoBrief(participant.role))
+        return CourseDtoFull(course, RoleDtoBrief(participant.role), participant.hidden)
     }
 
     @PutMapping(path = ["/{courseId}/sets"])

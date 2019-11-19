@@ -129,6 +129,11 @@ class ParticipantService {
         return participant
     }
 
+    fun setParticipantHidden(p: Participant, newValue: Boolean): Boolean {
+        p.hidden = newValue
+        return newValue
+    }
+
     fun addThread(p: Participant, thread: CommentThread) {
         if (p.commentThread == null) {
             p.commentThread = thread

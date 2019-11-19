@@ -50,6 +50,7 @@ import {
     PATH_JOBS,
     PATH_JOBS_ALT,
     PATH_HOME,
+    PATH_COURSE_OPTIONS,
 } from "../routes";
 import SignoffTable from "./pages/sign-off/SignoffTable";
 import GroupManager from "./pages/admin/groups/groups/GroupManager";
@@ -63,6 +64,7 @@ import ProjectorQueuingPage from "./pages/queuing/ProjectorQueuingPage";
 import ProjectorRoomPromptPage from "./pages/queuing/ProjectorRoomPromptPage";
 import Jobs from "./pages/admin/Jobs";
 import NotFound from "./pages/NotFound";
+import CourseOptions from "./pages/course-selection/CourseOptions";
 
 export interface AppProps {
     push: Push;
@@ -82,7 +84,6 @@ export interface AppProps {
  * which component (pages) to display, based on the URL.
  */
 class App extends React.PureComponent<AppProps & RouteComponentProps> {
-
     componentDidMount() {
         let pathname = this.props.pathname;
         const {
@@ -100,8 +101,10 @@ class App extends React.PureComponent<AppProps & RouteComponentProps> {
         // Set the redirect to the page they attempted
         // to visit, so that once logged in they will be redirected there
         if (
-            !(pathname === PATH_LOGIN ||
-            pathname.startsWith(PATH_PROJECTOR_PROMPT))
+            !(
+                pathname === PATH_LOGIN ||
+                pathname.startsWith(PATH_PROJECTOR_PROMPT)
+            )
         ) {
             setLoginRedirect(`${pathname}${search}${hash}`);
         }
@@ -145,7 +148,6 @@ class App extends React.PureComponent<AppProps & RouteComponentProps> {
     }
 
     render() {
-
         // Seperate the Login component from the rest of the web-
         // application. If the current path is not PATH_LOGIN, use
         // the switch to determine which component to render.
@@ -168,10 +170,7 @@ class App extends React.PureComponent<AppProps & RouteComponentProps> {
 
     /** Returns the Switch component. Was extracted from the render method for readability. */
     switch() {
-        const {
-            pathname,
-            loggedIn,
-        } = this.props;
+        const { pathname, loggedIn } = this.props;
         if (pathname.startsWith(PATH_PROJECTOR_PROMPT)) {
             return (
                 <Switch>
@@ -261,6 +260,13 @@ class App extends React.PureComponent<AppProps & RouteComponentProps> {
                     exact
                     path={PATH_COURSES}
                     component={CourseSelection}
+                    setActiveTab={ActiveTabEnum.COURSES}
+                />
+
+                <RouteExtension
+                    exact
+                    path={PATH_COURSE_OPTIONS}
+                    component={CourseOptions}
                     setActiveTab={ActiveTabEnum.COURSES}
                 />
 

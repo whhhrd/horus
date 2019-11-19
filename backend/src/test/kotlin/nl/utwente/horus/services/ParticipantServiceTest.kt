@@ -154,7 +154,7 @@ class ParticipantServiceTest : HorusAbstractTest() {
 
     @WithLoginId(PP_TEACHER_LOGIN)
     @Test
-    fun testGetCourseParticipationsSteam() {
+    fun testGetCourseParticipationsStream() {
         val expectedParticipantIDs = (PP_PARTICIPANT_IDS + PP_STAFF_PARTICIPANT_IDS).toSet()
         val actualParticipantIDs = participantService.getCourseParticipationsStream(
                 getPPCourse()).toList().map { it.id }.toSet()

@@ -32,7 +32,7 @@ import {
 } from "../notifications/constants";
 import { push } from "connected-react-router";
 import { PATH_CANVAS_IMPORT, PATH_CANVAS_TOKEN } from "../../routes";
-import { BooleanResultDto, CanvasCourseDto } from "../../api/types";
+import { BooleanDto, CanvasCourseDto } from "../../api/types";
 import { jobAddAction } from "../jobs/action";
 import { notificationDirectToTasks } from "../../components/pagebuilder";
 
@@ -64,12 +64,12 @@ export function* importCourse(action: CanvasImportAction) {
 
 export function* checkAndRedirectImport() {
     try {
-        const result: BooleanResultDto = yield call(
+        const result: BooleanDto = yield call(
             authenticatedFetchJSON,
             "GET",
             "canvas/tokenValid",
         );
-        if (result.result) {
+        if (result.value) {
             yield put(push(PATH_CANVAS_IMPORT));
         }
     } catch (e) {
@@ -92,12 +92,12 @@ export function* retrieveCourses() {
 
 export function* checkAndRedirectToken() {
     try {
-        const result: BooleanResultDto = yield call(
+        const result: BooleanDto = yield call(
             authenticatedFetchJSON,
             "GET",
             "canvas/tokenValid",
         );
-        if (!result.result) {
+        if (!result.value) {
             yield put(push(PATH_CANVAS_TOKEN));
         } else {
             yield put(canvasCoursesRequestedAction());

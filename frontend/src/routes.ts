@@ -3,6 +3,7 @@ export const PATH_GENERAL_ADMINISTRATION = "/administration";
 export const PATH_LOGOUT = "/logout";
 
 export const PATH_COURSES                  = "/courses";
+export const PATH_COURSE_OPTIONS           = "/courses/options";
 export const PATH_DASHBOARD                = `${PATH_COURSES}/:cid`;
 export const PATH_ASSIGNMENT_SETS          = `${PATH_COURSES}/:cid/assignmentsets`;
 export const PATH_SIGNOFF_OVERVIEW         = `${PATH_COURSES}/:cid/assignmentsets/:asid`;

@@ -2,6 +2,7 @@ import {
     CoursesRequestSucceededAction,
     CourseRequestSucceededAction,
     CurrentParticipantReceivedAction,
+    CourseHideCourseSetRequestSucceededAction,
 } from "./action";
 
 import {
@@ -11,6 +12,7 @@ import {
     COURSES_REQUESTED_ACTION,
     CURRENT_PARTICIPANT_REQUESTED_ACTION,
     CURRENT_PARTICIPANT_REQUEST_SUCCEEDED_ACTION,
+    COURSE_HIDE_COURSE_SET_REQUEST_SUCCEEDED_ACTION,
 } from "./constants";
 
 import { CourseDtoSummary } from "../../api/types";
@@ -79,6 +81,24 @@ export default function coursesReducer(
                 currentParticipant: (action as CurrentParticipantReceivedAction)
                     .currentParticipant,
             };
+        case COURSE_HIDE_COURSE_SET_REQUEST_SUCCEEDED_ACTION: {
+            const act = action as CourseHideCourseSetRequestSucceededAction;
+            const {cid, result} = act;
+            if (state.courses != null) {
+                const newCourses = state.courses.slice();
+                const toBeEditedCourse = newCourses.find((c) => c.id === cid);
+                if (toBeEditedCourse != null) {
+                    const newCourseI = newCourses.indexOf(toBeEditedCourse);
+                    const newCourse = {...toBeEditedCourse};
+                    newCourse.hidden = result.value;
+                    newCourses[newCourseI] = newCourse;
+                }
+                return {...state, courses: newCourses};
+            } else {
+                return {...state};
+            }
+
+        }
         default:
             return state;
     }

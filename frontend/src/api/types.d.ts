@@ -134,8 +134,8 @@ export interface SupplementaryRoleDto {
     permissions: string[];
 }
 
-export interface BooleanResultDto {
-    result: boolean;
+export interface BooleanDto {
+    value: boolean;
 }
 
 export interface CanvasCourseDto {
@@ -182,6 +182,7 @@ export interface CommentUpdateDto {
 }
 
 export interface CourseDtoSummary extends CourseDtoBrief {
+    hidden: boolean;
     role: RoleDtoBrief;
 }
 

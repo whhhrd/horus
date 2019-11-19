@@ -7,24 +7,28 @@ import {
     COURSE_REQUEST_SUCCEEDED_ACTION,
     CURRENT_PARTICIPANT_REQUESTED_ACTION,
     CURRENT_PARTICIPANT_REQUEST_SUCCEEDED_ACTION,
+    COURSE_HIDE_COURSE_SET_REQUESTED_ACTION,
+    COURSE_HIDE_COURSE_SET_REQUEST_SUCCEEDED_ACTION,
 } from "./constants";
 import {
     CourseDtoSummary,
     CourseDtoFull,
     ParticipantDtoBrief,
+    BooleanDto,
 } from "../../api/types";
 
 // REQUEST COURSES
 export interface CoursesRequestedAction extends Action<string> {
-    readonly id: number;
+    readonly includeHidden: boolean;
 }
 
 export interface CoursesRequestSucceededAction extends Action<string> {
     readonly courses: CourseDtoSummary[];
 }
 
-export const coursesRequestedAction = () => ({
+export const coursesRequestedAction = (includeHidden: boolean) => ({
     type: COURSES_REQUESTED_ACTION,
+    includeHidden,
 });
 
 export const coursesRequestSucceededAction = (courses: CourseDtoSummary[]) => ({
@@ -67,4 +71,33 @@ export const currentParticipantRequestedAction = (cid: number) => ({
 
 export const currentParticipantReceivedAction = (
     currentParticipant: ParticipantDtoBrief,
-) => ({ type: CURRENT_PARTICIPANT_REQUEST_SUCCEEDED_ACTION, currentParticipant });
+) => ({
+    type: CURRENT_PARTICIPANT_REQUEST_SUCCEEDED_ACTION,
+    currentParticipant,
+});
+
+// HIDE/UNHIDE COURSES
+export interface CourseHideCourseSetRequestedAction extends Action<string> {
+    cid: number;
+    newValue: BooleanDto;
+}
+export interface CourseHideCourseSetRequestSucceededAction
+    extends Action<string> {
+    cid: number;
+    result: BooleanDto;
+}
+
+export const courseHideCourseSetRequestedAction = (cid: number, newValue: BooleanDto) => ({
+    type: COURSE_HIDE_COURSE_SET_REQUESTED_ACTION,
+    cid,
+    newValue,
+});
+
+export const courseHideCourseSetRequestSucceededAction = (
+    cid: number,
+    result: BooleanDto,
+) => ({
+    type: COURSE_HIDE_COURSE_SET_REQUEST_SUCCEEDED_ACTION,
+    cid,
+    result,
+});

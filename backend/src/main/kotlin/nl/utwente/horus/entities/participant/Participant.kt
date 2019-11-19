@@ -30,10 +30,12 @@ class Participant (
 
         var enabled: Boolean,
 
-        val createdAt: ZonedDateTime
+        val createdAt: ZonedDateTime,
+
+        var hidden: Boolean
 
 ) {
-        constructor(person: Person, course: Course, role: Role) : this(0, person, course, role, null,true, ZonedDateTime.now())
+        constructor(person: Person, course: Course, role: Role) : this(0, person, course, role, null,true, ZonedDateTime.now(), false)
 
         @OneToMany(fetch = FetchType.LAZY, mappedBy = "id.participant", cascade = [CascadeType.ALL], orphanRemoval = true)
         val labelMappings: MutableSet<ParticipantLabelMapping> = HashSet()

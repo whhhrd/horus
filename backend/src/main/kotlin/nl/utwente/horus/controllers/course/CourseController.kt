@@ -91,9 +91,13 @@ class CourseController: BaseController() {
 
 
     @GetMapping(path = ["", "/"])
-    fun listCourses(): List<CourseDtoSummary> {
+    fun listCourses(@RequestParam includeHidden: Boolean): List<CourseDtoSummary> {
         val person: Person = userDetailService.getCurrentPerson()
-        return person.enabledParticipations.map { p -> CourseDtoSummary(p.course, RoleDtoBrief(p.role)) }
+        var participations = person.enabledParticipations
+        if (!includeHidden) {
+            participations = participations.filter { !it.hidden }
+        }
+        return participations.map { p -> CourseDtoSummary(p.course, RoleDtoBrief(p.role), p.hidden) }
     }
 
     @PostMapping(path = ["", "/"])
@@ -103,7 +107,7 @@ class CourseController: BaseController() {
         val course = courseService.createCourse(dto)
         val creator = userDetailService.getCurrentPerson()
         val participation = participantService.createParticipant(creator, course, roleService.getTeacherRole())
-        return CourseDtoFull(course, RoleDtoBrief(participation.role))
+        return CourseDtoFull(course, RoleDtoBrief(participation.role), participation.hidden)
     }
 
     @PutMapping(path = ["/{courseId}"])
@@ -111,7 +115,7 @@ class CourseController: BaseController() {
         verifyCoursePermission(Course::class, courseId, HorusPermissionType.EDIT)
 
         val participant = participantService.getCurrentParticipationInCourse(courseId)
-        return CourseDtoFull(courseService.updateCourse(courseId, dto), RoleDtoBrief(participant.role))
+        return CourseDtoFull(courseService.updateCourse(courseId, dto), RoleDtoBrief(participant.role), participant.hidden)
     }
 
     @GetMapping(path = ["/{courseId}/assignmentSets"])
@@ -212,7 +216,7 @@ class CourseController: BaseController() {
         verifyCoursePermission(Course::class, courseId, HorusPermissionType.VIEW)
 
         val participation = participantService.getCurrentParticipationInCourse(courseId)
-        return CourseDtoFull(courseService.getCourseById(courseId), RoleDtoBrief(participation.role))
+        return CourseDtoFull(courseService.getCourseById(courseId), RoleDtoBrief(participation.role), participation.hidden)
     }
 
     @GetMapping(path = ["/{courseId}/export"])

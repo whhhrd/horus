@@ -28,25 +28,25 @@ class CourseControllerPermissionTest : HorusAbstractTest() {
     @Test
     @WithLoginId(SS_NA_LOGIN)
     fun testNAListCourses() {
-        assertSufficientPermissions { courseController.listCourses() }
+        assertSufficientPermissions { courseController.listCourses(false) }
     }
 
     @Test
     @WithLoginId(SS_STUDENT_LOGIN)
     fun testStudentListCourses() {
-        assertSufficientPermissions { courseController.listCourses() }
+        assertSufficientPermissions { courseController.listCourses(false) }
     }
 
     @Test
     @WithLoginId(SS_TA_LOGIN)
     fun testTAListCourses() {
-        assertSufficientPermissions { courseController.listCourses() }
+        assertSufficientPermissions { courseController.listCourses(true) }
     }
 
     @Test
     @WithLoginId(SS_TEACHER_LOGIN)
     fun testTeacherListCourses() {
-        assertSufficientPermissions { courseController.listCourses() }
+        assertSufficientPermissions { courseController.listCourses(false) }
     }
 
     @Test

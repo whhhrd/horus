@@ -11,7 +11,7 @@ class CourseDtoFull : CourseDtoSummary {
     val assignmentSets: List<AssignmentSetDtoBrief>
     val groupSets: List<GroupSetDtoBrief>
 
-    constructor(course: Course, role: RoleDtoBrief) : super(course, role) {
+    constructor(course: Course, role: RoleDtoBrief, hidden: Boolean) : super(course, role, hidden) {
         this.labels = course.labels.map { LabelDto(it) }
         this.assignmentSets = course.assignmentSets.map { AssignmentSetDtoBrief(it) }
         this.groupSets = course.groupSets.map { GroupSetDtoBrief(it) }

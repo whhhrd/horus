@@ -1,11 +1,14 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { Action } from "redux";
 
 import { CourseDtoSummary } from "../../../api/types";
 import { ApplicationState } from "../../../state/state";
 import { getCourses } from "../../../state/courses/selectors";
-import { coursesRequestedAction } from "../../../state/courses/action";
+import {
+    coursesRequestedAction,
+    CoursesRequestedAction,
+} from "../../../state/courses/action";
 import {
     COURSE_LIST_TA,
     API_STUDENT_ROLE,
@@ -19,10 +22,13 @@ import { authoritiesUpdateRequestAction } from "../../../state/auth/actions";
 
 import CourseList from "./CourseList";
 import { buildContent } from "../../pagebuilder";
+import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCog } from "@fortawesome/free-solid-svg-icons";
 
 interface CourseSelectionProps {
     courses: CourseDtoSummary[] | null;
-    requestCourses: () => Action<string>;
+    requestCourses: (includeHidden: boolean) => CoursesRequestedAction;
     requestPermissions: () => Action<string>;
 }
 
@@ -31,45 +37,71 @@ interface CourseSelectionProps {
  * Courses to which the user is linked are displayed.
  */
 class CourseSelection extends Component<CourseSelectionProps> {
-
     componentDidMount() {
-        this.props.requestCourses();
+        this.props.requestCourses(false);
         this.props.requestPermissions();
     }
 
     buildContent() {
-        if (this.props.courses == null) {
+        const { courses } = this.props;
+        if (courses == null) {
             return null;
         }
 
-        const roles = this.props.courses.map((course: CourseDtoSummary) => course.role.name);
+        const roles = courses.map(
+            (course: CourseDtoSummary) => course.role.name,
+        );
 
-        if (roles.every((r) => r === API_STUDENT_ROLE)) {
-            return <CourseList key={COURSE_LIST_ANY} mode={COURSE_LIST_ANY} courses={this.props.courses} />;
+        const isStudentOnly = roles.every((r) => r === API_STUDENT_ROLE);
 
-        } else {
-            return (
-                <div><CourseList
-                    mode={COURSE_LIST_TEACHER}
-                    key={COURSE_LIST_TEACHER}
-                    courses={this.props.courses.filter(
-                        (course: CourseDtoSummary) => course.role.name === API_TEACHER_ROLE)
-                    } />
+        return (
+            <Fragment>
+                {isStudentOnly && (
                     <CourseList
-                        mode={COURSE_LIST_TA}
-                        key={COURSE_LIST_TA}
-                        courses={this.props.courses.filter(
-                            (course: CourseDtoSummary) => course.role.name === API_TA_ROLE)
-                        } />
-                    <CourseList
-                        mode={COURSE_LIST_STUDENT}
-                        key={COURSE_LIST_STUDENT}
-                        courses={this.props.courses.filter(
-                            (course: CourseDtoSummary) => course.role.name === API_STUDENT_ROLE)
-                        } />
-                </div>
-            );
-        }
+                        key={COURSE_LIST_ANY}
+                        mode={COURSE_LIST_ANY}
+                        courses={courses}
+                    />
+                )}
+                {!isStudentOnly && (
+                    <Fragment>
+                        <CourseList
+                            mode={COURSE_LIST_TEACHER}
+                            key={COURSE_LIST_TEACHER}
+                            courses={courses.filter(
+                                (course: CourseDtoSummary) =>
+                                    course.role.name === API_TEACHER_ROLE,
+                            )}
+                        />
+                        <CourseList
+                            mode={COURSE_LIST_TA}
+                            key={COURSE_LIST_TA}
+                            courses={courses.filter(
+                                (course: CourseDtoSummary) =>
+                                    course.role.name === API_TA_ROLE,
+                            )}
+                        />
+                        <CourseList
+                            mode={COURSE_LIST_STUDENT}
+                            key={COURSE_LIST_STUDENT}
+                            courses={courses.filter(
+                                (course: CourseDtoSummary) =>
+                                    course.role.name === API_STUDENT_ROLE,
+                            )}
+                        />
+                    </Fragment>
+                )}
+                <Link to={`/courses/options`}>
+                    <FontAwesomeIcon
+                        icon={faCog}
+                        className="mr-"
+                        size="sm"
+                        style={{ width: "30px" }}
+                    />
+                    Course visibility options
+                </Link>
+            </Fragment>
+        );
     }
 
     render() {
@@ -77,9 +109,13 @@ class CourseSelection extends Component<CourseSelectionProps> {
     }
 }
 
-export default connect((state: ApplicationState) => ({
-    courses: getCourses(state),
-}), {
-        requestCourses: coursesRequestedAction,
+export default connect(
+    (state: ApplicationState) => ({
+        courses: getCourses(state),
+    }),
+    {
+        requestCourses: (includeHidden: boolean) =>
+            coursesRequestedAction(includeHidden),
         requestPermissions: authoritiesUpdateRequestAction,
-    })(CourseSelection);
+    },
+)(CourseSelection);
