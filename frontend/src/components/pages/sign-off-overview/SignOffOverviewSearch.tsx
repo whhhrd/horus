@@ -781,7 +781,7 @@ class SignOffOverviewSearch extends Component<
                     <FontAwesomeIcon icon={faTags} className="mr-2" />
                     <span className="d-none d-md-inline">Select labels</span>
                 </DropdownToggle>
-                <DropdownMenu>
+                <DropdownMenu style={{maxHeight: "70vh", overflowY: "auto"}}>
                     <DropdownItem header>
                         <Button
                             block
