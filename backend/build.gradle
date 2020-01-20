@@ -63,7 +63,7 @@ dependencies {
     implementation 'com.github.ntrrgc:ts-generator:1.1.1'
     implementation 'org.apache.poi:poi-ooxml:4.1.1'
     implementation 'org.apache.commons:commons-csv:1.7'
-    implementation 'org.antlr:antlr4-runtime:4.7.2'
+    implementation 'org.antlr:antlr4-runtime:4.8-1'
     runtime 'io.jsonwebtoken:jjwt-impl:0.10.7'
     runtime 'io.jsonwebtoken:jjwt-jackson:0.10.7'
     providedRuntime 'org.springframework.boot:spring-boot-devtools'
