@@ -132,8 +132,8 @@ class PhoneComponent extends Component<
                             <FontAwesomeIcon icon={faBars} size="lg" />
                         </div>
                     </div>
-                    <div>
-                        <h5 className="mb-0 text-center py-3">{headerTitle}</h5>
+                    <div className="ellipsis">
+                        <h5 className="mb-0 text-center py-3 ellipsis" title={headerTitle}>{headerTitle}</h5>
                     </div>
                     <div
                         className="flex-shrink-0 p-3 pl-4 cursor-pointer"
