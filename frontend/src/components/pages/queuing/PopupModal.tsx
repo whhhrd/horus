@@ -2,7 +2,7 @@ import React, { PureComponent, Fragment } from "react";
 import { Button, ModalHeader, Modal, ModalBody, ModalFooter } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBullhorn, faBell } from "@fortawesome/free-solid-svg-icons";
-import { RemindDto, AnnouncementDto } from "../../../api/types";
+import { RemindDto, AnnouncementDto, ParticipantDto } from "../../../api/types";
 
 interface PopupModalProps {
     onCloseModal: () => any;
@@ -10,6 +10,7 @@ interface PopupModalProps {
     announcement?: AnnouncementDto;
     reminder?: RemindDto;
     closeable?: boolean;
+    popupAuthor?: ParticipantDto;
 }
 
 interface PopupModalState {
@@ -101,7 +102,7 @@ export default class PopupModal extends PureComponent<
     }
 
     render() {
-        const { onCloseModal, announcement, closeable } = this.props;
+        const { onCloseModal, announcement, closeable, popupAuthor } = this.props;
 
         const reminder =
             this.state.reminder != null
@@ -164,7 +165,13 @@ export default class PopupModal extends PureComponent<
                                         reminder.participant.fullName}
                                     ,
                                 </h1>
-                                <h3 className="text-muted">You are next!</h3>
+                                {popupAuthor != null ?
+                                    <div>
+                                        <h4 className="text-muted">You are being helped by</h4>
+                                        <h2 className="text-muted">{popupAuthor!.fullName}</h2>
+                                    </div>
+                                    : <h3 className="text-muted">You are next!</h3>
+                                }
                             </div>
                         </div>
                     </ModalBody>

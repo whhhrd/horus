@@ -159,6 +159,8 @@ interface QueuingPageState {
 
     newAnnouncement: AnnouncementDto | null;
     reminder: RemindDto | null;
+
+    lastAccept: AcceptDto | null;
 }
 
 /**
@@ -191,6 +193,7 @@ class QueuingPage extends Component<
             questionQueueAcceptedParticipant: null,
             newAnnouncement: null,
             reminder: null,
+            lastAccept: null,
         };
         this.toggleAnnouncementCreateModal = this.toggleAnnouncementCreateModal.bind(
             this,
@@ -362,7 +365,7 @@ class QueuingPage extends Component<
                 );
                 const participant = queue!.participants[0];
                 this.showNotification("Someone entered a queue!", {
-                    body: `${participant.fullName} has added themself to the '${
+                    body: `${participant.fullName} has added themselves to the '${
                         queue!.name
                     }' queue!`,
                     actions: [
@@ -416,7 +419,7 @@ class QueuingPage extends Component<
     }
 
     private buildPopup() {
-        const { mode, reminder, newAnnouncement } = this.state;
+        const { mode, reminder, newAnnouncement, lastAccept } = this.state;
         if (mode === QueuingMode.Student) {
             return (
                 <Fragment>
@@ -439,6 +442,11 @@ class QueuingPage extends Component<
                                 }
                                 reminder={reminder}
                                 closeable
+                                popupAuthor={
+                                    lastAccept != null
+                                        ? lastAccept.accepter
+                                        : undefined
+                                }
                             />
                         )}
                 </Fragment>
@@ -484,9 +492,11 @@ class QueuingPage extends Component<
 
         switch (type) {
             case "ACCEPT": {
+                const accept: AcceptDto = data as AcceptDto;
+                this.setState(() => ({ lastAccept: accept }));
                 const reminder: RemindDto = {
-                    participant: (data as AcceptDto).participant,
-                    roomCode: (data as AcceptDto).roomCode,
+                    participant: accept.participant,
+                    roomCode: accept.roomCode,
                     type,
                 };
                 this.handleReminder(reminder);
