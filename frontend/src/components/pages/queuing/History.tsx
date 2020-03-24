@@ -73,7 +73,7 @@ class History extends PureComponent<HistoryProps & RouteComponentProps<any>> {
                         {roomHistory.length > 0 ? (
                             <div
                                 style={{
-                                    maxHeight: "350px",
+                                    maxHeight: "400px",
                                     overflow: "auto",
                                 }}
                             >

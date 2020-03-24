@@ -931,12 +931,10 @@ class QueuingPage extends Component<
                         </Fragment>
                     );
                 })}
-                {mode === QueuingMode.TA && (
-                    <Fragment>
-                        <History taMode={mode === QueuingMode.TA} />
-                        <Busyness roomCode={this.props.match.params.rid} />
-                    </Fragment>
-                )}
+                <Fragment>
+                    <History taMode={mode === QueuingMode.TA} />
+                    {mode === QueuingMode.TA && <Busyness roomCode={this.props.match.params.rid} />}
+                </Fragment>
             </Row>
         );
     }
